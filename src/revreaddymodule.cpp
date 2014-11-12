@@ -13,8 +13,7 @@
 #include "revreaddymodule.h"
 #include "Random.h"
 #include "Particle.h"
-
-using namespace std;
+#include "ActiveParticles.h"
 
 static PyObject* revreaddy_start(PyObject * self, PyObject * args)
 {
@@ -35,10 +34,16 @@ static PyObject* revreaddy_start(PyObject * self, PyObject * args)
 	
 	// ----------- Do stuff here ------------ //
 
-	Random random("ranlxs0");
-	double vectorA[3];
-	Particle h2o;
-
+	Random * random = new Random("ranlxs0");
+	Particle * h2o = new Particle();
+	h2o->position[0] = 1.2;
+	h2o->position[1] = 0.;
+	h2o->position[2] = 0.;
+	double dev[3] = {1.,1.,2.};
+	h2o->move(dev);
+	printf("%f\n", h2o->position[0]);
+	printf("%f\n", h2o->position[1]);
+	printf("%f\n", h2o->position[2]);
 
 	
 	// --------------------------------------//

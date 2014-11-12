@@ -9,14 +9,11 @@
  *
  */
 
-// TODO Random(char type[]) to Random(string type) and test.
-
 #ifndef __RANDOM_H_INCLUDED__
 #define __RANDOM_H_INCLUDED__
 #include <gsl/gsl_rng.h> 	// GNU random number generators
 #include <gsl/gsl_randist.h>// GNU random number distributions
-#include <iostream>
-#include <stdio.h>
+#include <string>
 
 class Random
 {
@@ -26,7 +23,7 @@ class Random
 		unsigned long int seed;
 	public:
 		// type can be "mt19937", "taus" or "ranlxs0"
-		Random(char type[]);
+		Random(std::string type);
 		~Random();
 		void		toSeed();
 		double		normal();

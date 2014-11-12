@@ -4,7 +4,7 @@ module1 = Extension('revreaddy',
 			include_dirs = ['/usr/local/include','/usr/include','include/'],
 			libraries=['gsl', 'gslcblas', 'm'], 
 			library_dirs = ['/usr/local/lib'], 
-			sources = ['src/revreaddymodule.cpp','src/Random.cpp'])
+			sources = ['src/revreaddymodule.cpp','src/Random.cpp','src/Particle.cpp', 'src/ActiveParticles.cpp'])
 
 setup(name='revreaddy', 
 		version='0.0',

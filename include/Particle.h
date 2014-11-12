@@ -9,8 +9,6 @@
 
 #ifndef __PARTICLE_H_INCLUDED__
 #define __PARTICLE_H_INCLUDED__
-#include <iostream>
-#include <stdio.h>
 #include <string>
 
 class Particle
@@ -26,6 +24,10 @@ class Particle
 		double diffusionConstant; // an individual diffusionConstant, typically determined by the type
 		double* force;	// the cumulative force for the current timestep. Should be zero after propagation
 
+		Particle();
+		~Particle();
+		void move(double deviation[3]);
+		void addForce(double forceTerm[3]);
 };
 
 #endif

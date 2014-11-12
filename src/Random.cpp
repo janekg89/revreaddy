@@ -3,7 +3,7 @@
  */
 #include "Random.h"
 
-Random::Random(char type[])
+Random::Random(std::string type)
 {
 	gsl_rng_env_setup();
 

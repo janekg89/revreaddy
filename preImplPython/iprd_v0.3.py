@@ -55,10 +55,12 @@ class SimulationType:
 			consideredParticles = activeParticles.constructConsideredParticles()
 			consideredParticles.calculateForces()
 			for particle in consideredParticles:
+				# collect this in propagate()
 				forceTerm = TIMESTEP * particle.diffConst * particle.force / ( K_BOLTZMANN * TEMPERATURE)
 				randomTerm = np.sqrt( 2. * TIMESTEP * particle.diffConst ) * randomNormal()
 				particle.move(forceTerm + randomTerm)
 				particle.force = np.array([0.,0.,0.])
+			# ToDo: after timestep. delete considered Particles.
 
 # The aim of single particle diffusion is to verify the diffusion law:
 # 	< ( r(t) - r(0) )**2 > = 6Dt
