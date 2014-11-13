@@ -15,6 +15,16 @@ class ActiveParticles
 {
 	private:
 		std::vector<Particle> container;
+	public:
+		void calculateUnaryForces();
+		// idea: loop over particlepair (i,j): 0<i<n and i<j<n
+		// lookup particletype: determines interaction
+		// also lookup group of particle
+		// question: should grouped particles interact with exclusive
+		// forces and standard potentials with all others?
+		// maybe extra function: calculateGroupForces();
+		void calculateBinaryForces();
+
 };
 
 #endif
