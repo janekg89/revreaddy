@@ -6,26 +6,26 @@
 
 Particle::Particle()
 {
-	position 	= new double[3];
-	force		= new double[3];
+	this->position 	= new double[3];
+	this->force		= new double[3];
 }
 
 Particle::~Particle()
 {
-	delete position;
-	delete force;
+	delete this->position;
+	delete this->force;
 }
 
 void Particle::move(double deviation[3])
 {
-	position[0] += deviation[0];
-	position[1] += deviation[1];
-	position[2] += deviation[2];
+	this->position[0] += deviation[0];
+	this->position[1] += deviation[1];
+	this->position[2] += deviation[2];
 }
 
 void Particle::addForce(double forceTerm[3])
 {
-	force[0] += forceTerm[0];
-	force[1] += forceTerm[1];
-	force[2] += forceTerm[2];
+	this->force[0] += forceTerm[0];
+	this->force[1] += forceTerm[1];
+	this->force[2] += forceTerm[2];
 }

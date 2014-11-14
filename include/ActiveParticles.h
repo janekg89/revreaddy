@@ -10,12 +10,17 @@
 #ifndef __ACTIVEPARTICLES_H_INCLUDED__
 #define __ACTIVEPARTICLES_H_INCLUDED__
 #include <vector>
+#include "Particle.h"
+
+// TODO rethink how particles are added to the container.
+// Should they be created inplace or generated outside and then put into.
 
 class ActiveParticles
 {
-	private:
-		std::vector<Particle> container;
+	//private:
+
 	public:
+		std::vector<Particle> container;
 		void calculateUnaryForces();
 		// idea: loop over particlepair (i,j): 0<i<n and i<j<n
 		// lookup particletype: determines interaction
@@ -24,6 +29,11 @@ class ActiveParticles
 		// forces and standard potentials with all others?
 		// maybe extra function: calculateGroupForces();
 		void calculateBinaryForces();
+
+		// will be needed for adaptive timestepping
+		void constructConsideredParticles();
+
+		void addParticle(Particle * particle);
 
 };
 
