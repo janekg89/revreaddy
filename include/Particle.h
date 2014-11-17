@@ -17,7 +17,7 @@ class Particle
 		std::string name; // an individual name
 		std::string type; // determines potentials
 		double* position; // current position
-		unsigned long int timestep; // current time
+		unsigned long int numberOfTimestep; // current time
 		unsigned int count; // how many timesteps can still be skipped
 		unsigned int skip; // how many timesteps in total were skipped. Determines the distribution from which new position is drawn
 		double radius;	// size of the particle
@@ -28,6 +28,7 @@ class Particle
 		~Particle();
 		void move(double deviation[3]);
 		void addForce(double forceTerm[3]);
+		void resetForce();
 };
 
 #endif

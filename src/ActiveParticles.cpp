@@ -4,6 +4,7 @@
  */
 
 #include "ActiveParticles.h"
+#include <stdio.h>
 
 void ActiveParticles::addParticle(Particle * particle)
 {

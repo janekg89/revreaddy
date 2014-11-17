@@ -14,6 +14,9 @@
 #include "Random.h"
 #include "Particle.h"
 #include "ActiveParticles.h"
+#include "Simulation.h"
+#include "SingleParticleDiffusion.h"
+#include "utils.h"
 
 static PyObject* revreaddy_start(PyObject * self, PyObject * args)
 {
@@ -34,16 +37,27 @@ static PyObject* revreaddy_start(PyObject * self, PyObject * args)
 	
 	// ----------- Do stuff here ------------ //
 
+	Particle * p1 = new Particle();
 	Random * random = new Random("ranlxs0");
-	Particle * h2o = new Particle();
-	h2o->position[0] = 1.2;
-	h2o->position[1] = 0.;
-	h2o->position[2] = 0.;
-	double dev[3] = {1.,1.,2.};
-	h2o->move(dev);
-	printf("%f\n", h2o->position[0]);
-	printf("%f\n", h2o->position[1]);
-	printf("%f\n", h2o->position[2]);
+	ActiveParticles * ap = new ActiveParticles();
+	ap->addParticle(p1);
+
+	SingleParticleDiffusion * sim = new SingleParticleDiffusion;
+	sim->kBoltzmann = 1.;
+	sim->maxTime	= lengthOfSeq;
+	sim->temperature= 1.;
+	sim->timestep	= 0.001;
+	sim->meanSquaredDistances = new double[sim->maxTime];
+
+	sim->run(ap, random);
+
+	//printArray(sim->meanSquaredDistances, sim->maxTime);
+
+	memcpy(cSeq, sim->meanSquaredDistances, sim->maxTime * sizeof(double));
+
+	ap->container.clear();
+	//delete p1;
+	//delete random;
 
 	
 	// --------------------------------------//
