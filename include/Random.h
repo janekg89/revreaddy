@@ -14,6 +14,7 @@
 #include <gsl/gsl_rng.h> 	// GNU random number generators
 #include <gsl/gsl_randist.h>// GNU random number distributions
 #include <string>
+#include <array>
 
 class Random
 {
@@ -27,7 +28,7 @@ class Random
 		~Random();
 		void		toSeed();
 		double		normal();
-		void 		normal3D(double * randomVector);
+		std::array<double, 3> normal3D();
 		double 		uniform();
 };
 #endif

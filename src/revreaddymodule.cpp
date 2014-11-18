@@ -47,17 +47,17 @@ static PyObject* revreaddy_start(PyObject * self, PyObject * args)
 	sim->maxTime	= lengthOfSeq;
 	sim->temperature= 1.;
 	sim->timestep	= 0.001;
-	sim->meanSquaredDistances = new double[sim->maxTime];
+	sim->squaredDistances.resize(sim->maxTime);
 
 	sim->run(ap, random);
 
-	//printArray(sim->meanSquaredDistances, sim->maxTime);
-
-	memcpy(cSeq, sim->meanSquaredDistances, sim->maxTime * sizeof(double));
+	//printVector(sim->squaredDistances);
 
 	ap->container.clear();
-	//delete p1;
-	//delete random;
+	delete p1;
+	delete random;
+
+	memcpy(cSeq, sim->squaredDistances.data(), sim->maxTime * sizeof(double));
 
 	
 	// --------------------------------------//

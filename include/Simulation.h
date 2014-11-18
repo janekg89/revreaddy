@@ -11,6 +11,7 @@
 #include "Particle.h"
 #include "ActiveParticles.h"
 #include "Random.h"
+#include <array>
 
 class Simulation
 {

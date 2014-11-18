@@ -11,7 +11,8 @@ module1 = Extension('revreaddy',
 						'src/Particle.cpp',
 						'src/ActiveParticles.cpp',
 						'src/Simulation.cpp',
-						'src/SingleParticleDiffusion.cpp'])
+						'src/SingleParticleDiffusion.cpp'],
+			extra_compile_args = ['-std=c++11'])
 
 setup(name='revreaddy', 
 		version='0.0',

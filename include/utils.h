@@ -6,18 +6,31 @@
 
 #ifndef __UTILS_H_INCLUDED__
 #define __UTILS_H_INCLUDED__
+#include <array>
+#include <vector>
+#include <iostream>
 
-inline void printArray(double *arr, int length)
+inline void print3DArray(std::array<double, 3> arr)
 {
-	printf("[ ");
-	for (int i = 0; i < length; i++)
+	std::cout << "[ ";
+	for (int i = 0; i < arr.size(); i++)
 	{
-		printf("%f ", arr[i]);
+		std::cout << arr[i] << " ";
 	}
-	printf("]\n");
+	std::cout << "]" << std::endl;
 }
 
-inline double squaredDistance(double * arr1, double * arr2)
+inline void printVector(std::vector<double> vec)
+{
+	std::cout << "[ ";
+	for (int i = 0; i < vec.size(); i++)
+	{
+		std::cout << vec[i] << " ";
+	}
+	std::cout << "]" << std::endl;
+}
+
+inline double squaredDistance(std::array<double, 3> arr1, std::array<double, 3> arr2)
 {
 	double result;
 	result = ( arr1[0] - arr2[0] ) * ( arr1[0] - arr2[0] );

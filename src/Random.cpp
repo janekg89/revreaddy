@@ -43,11 +43,13 @@ double Random::normal()
 	return gsl_ran_gaussian_ziggurat(this->randomGeneratorHandle, 1.0);
 }
 
-void Random::normal3D(double * randomVector)
+std::array<double, 3> Random::normal3D()
 {
-	randomVector[0] = gsl_ran_gaussian_ziggurat(this->randomGeneratorHandle, 1.0);
-	randomVector[1] = gsl_ran_gaussian_ziggurat(this->randomGeneratorHandle, 1.0);
-	randomVector[2] = gsl_ran_gaussian_ziggurat(this->randomGeneratorHandle, 1.0);
+	std::array<double, 3> randomArray;
+	randomArray[0] = gsl_ran_gaussian_ziggurat(this->randomGeneratorHandle, 1.0);
+	randomArray[1] = gsl_ran_gaussian_ziggurat(this->randomGeneratorHandle, 1.0);
+	randomArray[2] = gsl_ran_gaussian_ziggurat(this->randomGeneratorHandle, 1.0);
+	return randomArray;
 }
 
 double Random::uniform()

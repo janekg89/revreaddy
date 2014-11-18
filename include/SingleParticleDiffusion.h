@@ -8,11 +8,13 @@
 #ifndef __SINGLEPARTICLEDIFFUSION_H_INCLUDED__
 #define __SINGLEPARTICLEDIFFUSION_H_INCLUDED__
 #include "Simulation.h"
+#include <array>
+#include <vector>
 
 class SingleParticleDiffusion: public Simulation
 {
 	public:
-		double* meanSquaredDistances;
+		std::vector<double> squaredDistances;
 		void run(ActiveParticles * activeParticles, Random * random);
 };
 

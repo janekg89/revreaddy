@@ -6,9 +6,9 @@
 
 Particle::Particle()
 {
-	this->position 	= new double[3];
-	this->force		= new double[3];
-	this->count		= 0;
+	//this->position 			= new std::array<double, 3>;
+	//this->cumulativeForce 	= new std::array<double, 3>;
+	this->count				= 0;
 	this->diffusionConstant	= 1.;
 	this->numberOfTimestep	= 0;
 	this->radius	= 1.;
@@ -17,27 +17,25 @@ Particle::Particle()
 
 Particle::~Particle()
 {
-	delete this->position;
-	delete this->force;
+	//delete this->position;
+	//delete this->cumulativeForce;
 }
 
-void Particle::move(double deviation[3])
+void Particle::move(std::array<double, 3> deviation)
 {
 	this->position[0] += deviation[0];
 	this->position[1] += deviation[1];
 	this->position[2] += deviation[2];
 }
 
-void Particle::addForce(double forceTerm[3])
+void Particle::addForce(std::array<double, 3> force)
 {
-	this->force[0] += forceTerm[0];
-	this->force[1] += forceTerm[1];
-	this->force[2] += forceTerm[2];
+	this->cumulativeForce[0] += force[0];
+	this->cumulativeForce[1] += force[1];
+	this->cumulativeForce[2] += force[2];
 }
 
 void Particle::resetForce()
 {
-	this->force[0] = 0.;
-	this->force[1] = 0.;
-	this->force[2] = 0.;
+	this->cumulativeForce = {0., 0., 0.};
 }

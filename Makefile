@@ -8,7 +8,7 @@ SRCEXT := cpp
 SOURCES := src/main.cpp src/ActiveParticles.cpp src/Random.cpp src/Particle.cpp src/SingleParticleDiffusion.cpp src/Simulation.cpp
 #SOURCES := $(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
 OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
-CFLAGS := -g #-Wall
+CFLAGS := -g -std=c++11#-Wall
 LIB := -lgsl -lgslcblas -lm#-pthread -lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt
 INC := -I include
 
