@@ -12,6 +12,7 @@
 #include "SingleParticleDiffusion.h"
 #include "utils.h"
 
+
 int main()
 {
 	Particle * p1 = new Particle();
@@ -40,20 +41,8 @@ int main()
 /*
 int main()
 {
-	Particle * p1 = new Particle();
-	Random * random = new Random("ranlxs0");
-	print3DArray(p1->position);
-
-	std::array<double, 3> r = random->normal3D();
-	print3DArray(r);
-	p1->move(r);
-	print3DArray(p1->position);
-
-	ActiveParticles * ap = new ActiveParticles();
-	ap->addParticle(p1);
-
-	print3DArray(ap->container[0].position);
-
+	std::array<double, 3> arr  = {1., 2., 3.};
+	printArray<arr.size()>(arr);
 	return 0;
 }
 */

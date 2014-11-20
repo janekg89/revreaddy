@@ -10,14 +10,15 @@
 #include <vector>
 #include <iostream>
 
-inline void print3DArray(std::array<double, 3> arr)
+template<std::size_t SIZE>
+void printArray(std::array<double, SIZE>& arr)
 {
 	std::cout << "[ ";
-	for (int i = 0; i < arr.size(); i++)
-	{
-		std::cout << arr[i] << " ";
-	}
-	std::cout << "]" << std::endl;
+    for(auto& entry : arr)
+    {
+    	std::cout << entry << " ";
+    }
+    std::cout << "]" << std::endl;
 }
 
 inline void printVector(std::vector<double> vec)
