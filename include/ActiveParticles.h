@@ -12,9 +12,6 @@
 #include <vector>
 #include "Particle.h"
 
-// TODO rethink how particles are added to the container.
-// Should they be created inplace or generated outside and then put into.
-
 class ActiveParticles
 {
 	//private:

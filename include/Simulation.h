@@ -12,6 +12,9 @@
 #include "ActiveParticles.h"
 #include "Random.h"
 #include <array>
+#include <vector>
+
+// TODO extend this class to omit ActiveParticles class
 
 class Simulation
 {
@@ -19,9 +22,15 @@ class Simulation
 		unsigned long int maxTime;
 		double timestep;
 		double temperature;
-		double kBoltzmann;
+		std::vector<Particle> activeParticles;
+		//std::vector<Particle> consideredParticles; // for later adaptive timestepping methods
 		void run();
+		void timeloop();
 		void propagate(ActiveParticles * activeParticles, Random * random);
+		// should double loop (i,j) over activeParticles and call according Forcetype for
+		// particle pair (i,j)
+		void calculateForces();
+
 };
 
 #endif

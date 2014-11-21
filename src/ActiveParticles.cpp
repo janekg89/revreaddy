@@ -9,6 +9,5 @@
 // TODO this function inserts always at the beginning
 void ActiveParticles::addParticle(Particle * particle)
 {
-	std::vector<Particle>::iterator it = this->container.begin();
-	this->container.insert(it, *particle);
+	this->container.push_back(*particle);
 }
