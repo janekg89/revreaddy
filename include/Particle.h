@@ -11,7 +11,7 @@
 #define __PARTICLE_H_INCLUDED__
 #include <string>
 #include <array>
-
+#include <iostream>
 class Particle
 {
 	public:

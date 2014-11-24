@@ -3,6 +3,7 @@
  */
 
 #include "Simulation.h"
+#include "utils.h"
 
 Simulation::Simulation()
 {
@@ -24,6 +25,7 @@ void Simulation::run()
 		propagate();
 		this->recordObservables(t);
 	}
+	std::cout << "Simulation has finished\n";
 }
 
 void Simulation::propagate()
@@ -32,22 +34,34 @@ void Simulation::propagate()
 	double noisePrefactor;
 	std::array<double, 3> forceTerm;
 	double forcePrefactor;
-	for (int i=0; i<activeParticles.size(); i++)
+	//for (int i=0; i<activeParticles.size(); i++)
+	for (auto&& particle : activeParticles)
 	{
 		noiseTerm = random->normal3D();
-		noisePrefactor = sqrt(2. * activeParticles[i].diffusionConstant * timestep);
+		noisePrefactor = sqrt(2. * particle.diffusionConstant * timestep);
 		noiseTerm[0] *= noisePrefactor;
 		noiseTerm[1] *= noisePrefactor;
 		noiseTerm[2] *= noisePrefactor;
 
-		forcePrefactor = timestep * activeParticles[i].diffusionConstant / (kBoltzmann * temperature);
-		forceTerm[0] = activeParticles[i].cumulativeForce[0] * forcePrefactor;
-		forceTerm[1] = activeParticles[i].cumulativeForce[1] * forcePrefactor;
-		forceTerm[2] = activeParticles[i].cumulativeForce[2] * forcePrefactor;
+		forcePrefactor = timestep * particle.diffusionConstant / (kBoltzmann * temperature);
+		forceTerm[0] = particle.cumulativeForce[0] * forcePrefactor;
+		forceTerm[1] = particle.cumulativeForce[1] * forcePrefactor;
+		forceTerm[2] = particle.cumulativeForce[2] * forcePrefactor;
 
-		activeParticles[i].move(noiseTerm);
-		activeParticles[i].resetForce();
+		particle.move(noiseTerm);
+		particle.resetForce();
+
+		if (isPeriodic)
+		{
+			if (particle.position[0] < (-0.5 * boxSize) ) {particle.position[0] += boxSize;}
+			if (particle.position[0] >= (0.5 * boxSize) ) {particle.position[0] -= boxSize;}
+			if (particle.position[1] < (-0.5 * boxSize) ) {particle.position[1] += boxSize;}
+			if (particle.position[1] >= (0.5 * boxSize) ) {particle.position[1] -= boxSize;}
+			if (particle.position[2] < (-0.5 * boxSize) ) {particle.position[2] += boxSize;}
+			if (particle.position[2] >= (0.5 * boxSize) ) {particle.position[2] -= boxSize;}
+		}
 	}
+
 }
 
 void Simulation::addParticle(Particle * particle)

@@ -9,6 +9,7 @@
 #include "Particle.h"
 #include "Simulation.h"
 #include "SingleParticleDiffusion.h"
+#include "Filehandler.h"
 #include "utils.h"
 
 
@@ -22,14 +23,19 @@ int main()
 	sim->initialPosition = x0;
 
 	sim->kBoltzmann = 1.;
-	sim->maxTime	= 10;
+	sim->maxTime	= 100000;
 	sim->temperature= 1.;
 	sim->timestep	= 0.001;
+	sim->isPeriodic = true;
+	sim->boxSize = 10.;
 	sim->squaredDistances.resize(sim->maxTime);
+	sim->trajectory.resize(sim->maxTime);
 
 	sim->run();
 
-	printVector(sim->squaredDistances);
+	//printVector(sim->squaredDistances);
+	Filehandler * filehandler;
+	filehandler->writeSingleParticleTrajectoryXyz(sim->trajectory);
 	return 0;
 }
 

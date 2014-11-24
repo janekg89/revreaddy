@@ -27,6 +27,9 @@ class Simulation
 		std::vector<Particle> activeParticles;
 		Random * random; // the random number generator
 		//std::vector<Particle> consideredParticles; // for later adaptive timestepping methods
+		bool isPeriodic;
+		double boxSize;
+
 		void addParticle(Particle * particle);
 		void run();
 		void timeloop();

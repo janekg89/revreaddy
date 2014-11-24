@@ -3,7 +3,7 @@
  */
 
 #include "Particle.h"
-
+#include "utils.h"
 Particle::Particle()
 {
 	//this->position 			= new std::array<double, 3>;

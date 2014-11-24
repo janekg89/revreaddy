@@ -13,7 +13,6 @@
 #include "revreaddymodule.h"
 #include "Random.h"
 #include "Particle.h"
-#include "ActiveParticles.h"
 #include "Simulation.h"
 #include "SingleParticleDiffusion.h"
 #include "utils.h"
@@ -37,25 +36,23 @@ static PyObject* revreaddy_start(PyObject * self, PyObject * args)
 	
 	// ----------- Do stuff here ------------ //
 
-	Particle * p1 = new Particle();
-	Random * random = new Random("ranlxs0");
-	ActiveParticles * ap = new ActiveParticles();
-	ap->addParticle(p1);
-
 	SingleParticleDiffusion * sim = new SingleParticleDiffusion;
+	Particle * p1 = new Particle();
+	const std::array<double, 3> x0 = {0., 0., 0.};
+	sim->addParticle(p1);
+	sim->activeParticles[0].position = x0;
+	sim->initialPosition = x0;
+
 	sim->kBoltzmann = 1.;
 	sim->maxTime	= lengthOfSeq;
 	sim->temperature= 1.;
 	sim->timestep	= 0.001;
+	sim->isPeriodic = true;
+	sim->boxSize = 10.;
+	sim->trajectory.resize(sim->maxTime);
 	sim->squaredDistances.resize(sim->maxTime);
 
-	sim->run(ap, random);
-
-	//printVector(sim->squaredDistances);
-
-	ap->container.clear();
-	delete p1;
-	delete random;
+	sim->run();
 
 	memcpy(cSeq, sim->squaredDistances.data(), sim->maxTime * sizeof(double));
 

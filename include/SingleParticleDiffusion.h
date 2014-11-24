@@ -17,6 +17,7 @@ class SingleParticleDiffusion: public Simulation
 		std::vector<double> squaredDistances;
 		std::array<double, 3> initialPosition;
 		void recordObservables(unsigned long int t);
+		std::vector< std::array<double, 3> > trajectory;
 };
 
 #endif
