@@ -38,17 +38,22 @@ static PyObject* revreaddy_start(PyObject * self, PyObject * args)
 
 	SingleParticleDiffusion * sim = new SingleParticleDiffusion;
 	Particle * p1 = new Particle();
+	Particle * p2 = new Particle();
+	p1->radius = 1.;
+	p2->radius = 1.;
 	const std::array<double, 3> x0 = {0., 0., 0.};
 	sim->addParticle(p1);
+	sim->addParticle(p2);
 	sim->activeParticles[0].position = x0;
+	sim->activeParticles[1].position = x0;
 	sim->initialPosition = x0;
 
 	sim->kBoltzmann = 1.;
 	sim->maxTime	= lengthOfSeq;
 	sim->temperature= 1.;
 	sim->timestep	= 0.001;
-	sim->isPeriodic = false;
-	sim->boxSize = 10.;
+	sim->isPeriodic = true;
+	sim->boxSize = 5.;
 	sim->trajectory.resize(sim->maxTime);
 	sim->squaredDistances.resize(sim->maxTime);
 

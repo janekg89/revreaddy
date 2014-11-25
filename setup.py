@@ -10,6 +10,7 @@ module1 = Extension('revreaddy',
 						'src/Random.cpp',
 						'src/Particle.cpp',
 						'src/Simulation.cpp',
+						'src/Potential.cpp',
 						'src/SingleParticleDiffusion.cpp'],
 			extra_compile_args = ['-std=c++11'])
 

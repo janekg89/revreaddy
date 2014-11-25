@@ -13,6 +13,7 @@
 class Potential
 {
 	public:
-		std::array<double, 3> softcore(std::array<double, 3>, std::array<double, 3>, double strength, double width);
+		std::array<double,3> softcore(std::array<double, 3> r_ij, double rSquared, 
+		double cutoffSquared, double strength);
 };
 #endif
