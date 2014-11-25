@@ -22,6 +22,8 @@ void Simulation::run()
 	this->recordObservables(0);
 	for (unsigned long int t = 1; t < maxTime; t++)
 	{
+		// particleForces()
+		// groupForces()
 		propagate();
 		this->recordObservables(t);
 	}

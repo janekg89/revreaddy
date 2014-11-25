@@ -5,7 +5,7 @@ BUILDDIR := build
 TARGET := bin/runner
  
 SRCEXT := cpp
-SOURCES := src/main.cpp src/Random.cpp src/Particle.cpp src/SingleParticleDiffusion.cpp src/Simulation.cpp
+SOURCES := src/main.cpp src/Random.cpp src/Particle.cpp src/SingleParticleDiffusion.cpp src/Simulation.cpp src/Filehandler.cpp
 #SOURCES := $(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
 OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
 CFLAGS := -g -std=c++11#-Wall

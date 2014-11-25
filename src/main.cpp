@@ -38,13 +38,3 @@ int main()
 	filehandler->writeSingleParticleTrajectoryXyz(sim->trajectory);
 	return 0;
 }
-
-
-/*
-int main()
-{
-	std::array<double, 3> arr  = {1., 2., 3.};
-	printArray<arr.size()>(arr);
-	return 0;
-}
-*/

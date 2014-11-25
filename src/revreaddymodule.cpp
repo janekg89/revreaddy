@@ -47,7 +47,7 @@ static PyObject* revreaddy_start(PyObject * self, PyObject * args)
 	sim->maxTime	= lengthOfSeq;
 	sim->temperature= 1.;
 	sim->timestep	= 0.001;
-	sim->isPeriodic = true;
+	sim->isPeriodic = false;
 	sim->boxSize = 10.;
 	sim->trajectory.resize(sim->maxTime);
 	sim->squaredDistances.resize(sim->maxTime);
