@@ -17,7 +17,6 @@ Simulation::~Simulation()
 	delete potential;
 }
 
-
 void Simulation::run()
 {
 	std::cout << "Simulation has started\n";
@@ -103,9 +102,7 @@ void Simulation::addParticle(Particle * particle)
 	activeParticles.push_back(*particle);
 }
 
-
 void Simulation::recordObservables(unsigned long int)
 {
 	std::cout << "recordObservables of Simulation called\n";
 }
-
