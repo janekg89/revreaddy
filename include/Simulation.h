@@ -17,8 +17,6 @@
 #include <vector>
 #include <iostream>
 
-// TODO extend this class to omit ActiveParticles class
-
 class Simulation
 {
 	public:
