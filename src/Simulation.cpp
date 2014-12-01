@@ -5,6 +5,7 @@
 #include "Simulation.h"
 #include "utils.h"
 
+//TODO implement minimum image convention if isPeriodic is true.
 Simulation::Simulation()
 {
 	random = new Random("ranlxs0");
@@ -23,9 +24,8 @@ void Simulation::run()
 	this->recordObservables(0);
 	for (unsigned long int t = 1; t < maxTime; t++)
 	{
-		// particleForces()
 		// groupForces()
-		calculateForces();
+		calculateRepulsionForces();
 		propagate();
 		this->recordObservables(t);
 	}
@@ -35,10 +35,9 @@ void Simulation::run()
 void Simulation::propagate()
 {
 	std::array<double, 3> noiseTerm;
-	double noisePrefactor;
 	std::array<double, 3> forceTerm;
+	double noisePrefactor;
 	double forcePrefactor;
-	//for (int i=0; i<activeParticles.size(); i++)
 	for (auto&& particle : activeParticles)
 	{
 		noiseTerm = random->normal3D();
@@ -68,7 +67,7 @@ void Simulation::propagate()
 
 }
 
-void Simulation::calculateForces()
+void Simulation::calculateRepulsionForces()
 {
 	std::array<double, 3> forceI;
 	std::array<double, 3> forceJ;

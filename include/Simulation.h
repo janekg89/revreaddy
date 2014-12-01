@@ -20,24 +20,24 @@
 class Simulation
 {
 	public:
+		Random * random; // the random number generator
+		Potential * potential; // the force/energy handler
+		std::vector<Particle> activeParticles;
+		//std::vector<Particle> consideredParticles; // for later adaptive timestepping methods
 		unsigned long int maxTime;
 		double timestep;
 		double temperature;
 		double kBoltzmann;
-		std::vector<Particle> activeParticles;
-		Random * random; // the random number generator
-		//std::vector<Particle> consideredParticles; // for later adaptive timestepping methods
 		bool isPeriodic;
 		double boxSize;
-		Potential * potential; // the force/energy handler
 
-		void addParticle(Particle * particle);
+		void addParticle(std::array<double,3> initPos, double rad, double diffConst);
 		void run();
 		void propagate();
-		virtual void recordObservables(unsigned long int t);
+		void recordObservables(unsigned long int t);
 		// should double loop (i,j) over activeParticles and call according Forcetype for
 		// particle pair (i,j)
-		void calculateForces();
+		void calculateRepulsionForces();
 
 		Simulation();
 		virtual ~Simulation();

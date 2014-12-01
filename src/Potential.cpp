@@ -4,7 +4,6 @@
 
 #include "Potential.h"
 
-// TODO implement force correctly
 std::array<double, 3> Potential::softcoreForce(std::array<double, 3> r_ij, double rSquared, 
 double cutoffSquared, double strength)
 {
