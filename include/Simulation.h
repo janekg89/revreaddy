@@ -33,7 +33,6 @@ class Simulation
 
 		void addParticle(Particle * particle);
 		void run();
-		void timeloop();
 		void propagate();
 		virtual void recordObservables(unsigned long int t);
 		// should double loop (i,j) over activeParticles and call according Forcetype for

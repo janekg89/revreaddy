@@ -87,7 +87,7 @@ void Simulation::calculateForces()
 			cutoffSquared = pow(activeParticles[i].radius + activeParticles[j].radius, 2.);
 			if (rSquared < cutoffSquared)
 			{
-				forceI = potential->softcore(r_ij, rSquared, cutoffSquared, strength);
+				forceI = potential->softcoreForce(r_ij, rSquared, cutoffSquared, strength);
 				forceJ[0] = -1. * forceI[0];
 				forceJ[1] = -1. * forceI[1];
 				forceJ[2] = -1. * forceI[2];
@@ -104,5 +104,5 @@ void Simulation::addParticle(Particle * particle)
 
 void Simulation::recordObservables(unsigned long int)
 {
-	std::cout << "recordObservables of Simulation called\n";
+	//std::cout << "recordObservables of Simulation called\n";
 }

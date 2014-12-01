@@ -3,7 +3,8 @@
  */
 
 #include "Filehandler.h"
-
+// TODO incorrect format 
+// correct is: numberOfAtoms \n comment \n name x y z ...
 void Filehandler::writeSingleParticleTrajectoryXyz(std::vector< std::array<double, 3> > trajectory)
 {
 	std::ofstream file;
