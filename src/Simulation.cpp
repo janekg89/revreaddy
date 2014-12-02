@@ -5,7 +5,6 @@
 #include "Simulation.h"
 #include "utils.h"
 
-//TODO implement minimum image convention if isPeriodic is true.
 Simulation::Simulation()
 {
 	random = new Random("ranlxs0");
@@ -25,8 +24,8 @@ void Simulation::run()
 	for (unsigned long int t = 1; t < maxTime; t++)
 	{
 		// groupForces()
-		calculateRepulsionForces();
-		propagate();
+		this->calculateRepulsionForces();
+		this->propagate();
 		this->recordObservables(t);
 	}
 	std::cout << "Simulation has finished\n";
@@ -56,12 +55,12 @@ void Simulation::propagate()
 
 		if (isPeriodic)
 		{
-			if (particle.position[0] < (-0.5 * boxSize) ) {particle.position[0] += boxSize;}
-			if (particle.position[0] >= (0.5 * boxSize) ) {particle.position[0] -= boxSize;}
-			if (particle.position[1] < (-0.5 * boxSize) ) {particle.position[1] += boxSize;}
-			if (particle.position[1] >= (0.5 * boxSize) ) {particle.position[1] -= boxSize;}
-			if (particle.position[2] < (-0.5 * boxSize) ) {particle.position[2] += boxSize;}
-			if (particle.position[2] >= (0.5 * boxSize) ) {particle.position[2] -= boxSize;}
+			if (particle.position[0] < (-0.5 * boxsize) ) {particle.position[0] += boxsize;}
+			if (particle.position[0] >= (0.5 * boxsize) ) {particle.position[0] -= boxsize;}
+			if (particle.position[1] < (-0.5 * boxsize) ) {particle.position[1] += boxsize;}
+			if (particle.position[1] >= (0.5 * boxsize) ) {particle.position[1] -= boxsize;}
+			if (particle.position[2] < (-0.5 * boxsize) ) {particle.position[2] += boxsize;}
+			if (particle.position[2] >= (0.5 * boxsize) ) {particle.position[2] -= boxsize;}
 		}
 	}
 
@@ -74,19 +73,16 @@ void Simulation::calculateRepulsionForces()
 	std::array<double, 3> r_ij; //connecting vector from particle i to j
 	double rSquared; //distance of particles i,j squared
 	double cutoffSquared; //cutoff distance of particles i,j softcore interaction
-	double strength = 2.; // force constant for the softcore interaction
 	for (int i=0; i<activeParticles.size(); i++)
 	{
 		for (int j=i; j<activeParticles.size(); j++)
 		{
-			r_ij[0] = activeParticles[j].position[0] - activeParticles[i].position[0];
-			r_ij[1] = activeParticles[j].position[1] - activeParticles[i].position[1];
-			r_ij[2] = activeParticles[j].position[2] - activeParticles[i].position[2];
+			r_ij = getMinDistance(activeParticles[i].position, activeParticles[j].position);
 			rSquared = r_ij[0]*r_ij[0] + r_ij[1]*r_ij[1] + r_ij[2]*r_ij[2];
 			cutoffSquared = pow(activeParticles[i].radius + activeParticles[j].radius, 2.);
 			if (rSquared < cutoffSquared)
 			{
-				forceI = potential->softcoreForce(r_ij, rSquared, cutoffSquared, strength);
+				forceI = potential->softcoreForce(r_ij, rSquared, cutoffSquared, repulsionStrength);
 				forceJ[0] = -1. * forceI[0];
 				forceJ[1] = -1. * forceI[1];
 				forceJ[2] = -1. * forceI[2];
@@ -96,12 +92,37 @@ void Simulation::calculateRepulsionForces()
 		}
 	}	
 }
-void Simulation::addParticle(Particle * particle)
+
+std::array<double,3> Simulation::getMinDistance( std::array<double,3> r_i, std::array<double,3> r_j)
 {
-	activeParticles.push_back(*particle);
+	double dx, dy, dz;
+	std::array<double,3> r_ij;
+	dx = r_j[0] - r_i[0];
+	dy = r_j[1] - r_i[1];
+	dz = r_j[2] - r_i[2];
+	if ( fabs(dx) > 0.5*this->boxsize ) { dx = this->boxsize - dx; }
+ 	if ( fabs(dy) > 0.5*this->boxsize ) { dy = this->boxsize - dy; }
+	if ( fabs(dz) > 0.5*this->boxsize ) { dz = this->boxsize - dz; }
+	r_ij[0] = dx;
+	r_ij[1] = dy;
+	r_ij[2] = dz;
+	return r_ij;
 }
 
-void Simulation::recordObservables(unsigned long int)
+void Simulation::addParticle(std::array<double,3> initPos, double rad, double diffConst)
 {
-	//std::cout << "recordObservables of Simulation called\n";
+	Particle * particle = new Particle();
+	particle->position = initPos;
+	particle->radius = rad;
+	particle->diffusionConstant = diffConst;
+	this->activeParticles.push_back(*particle);//push_back copies arg into vec
+	delete particle;
+}
+
+void Simulation::recordObservables(unsigned long int t)
+{
+	for (auto* obs : observables)
+	{
+		obs->record(this->activeParticles, t);
+	}
 }
