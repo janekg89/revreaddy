@@ -6,8 +6,8 @@
 #include "utils.h"
 Particle::Particle()
 {
-	//this->position 			= new std::array<double, 3>;
-	//this->cumulativeForce 	= new std::array<double, 3>;
+	this->position 			= {0.,0.,0.};
+	this->cumulativeForce 	= {0.,0.,0.};
 	this->count				= 0;
 	this->diffusionConstant	= 1.;
 	this->numberOfTimestep	= 0;
@@ -17,8 +17,6 @@ Particle::Particle()
 
 Particle::~Particle()
 {
-	//delete this->position;
-	//delete this->cumulativeForce;
 }
 
 void Particle::move(std::array<double, 3> deviation)
