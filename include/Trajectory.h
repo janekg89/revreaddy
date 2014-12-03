@@ -16,8 +16,14 @@
 class Trajectory : public Observable
 {
 	public:
-		// trajectory [time] [particles] [coordinate]
-		std::vector< std::vector< std::array<double,3> > > trajectory;
+		// the struct particleTuple holds the type of a particle and its coordinates
+		struct particleTuple
+		{
+			std::string particleType;
+			std::array<double,3> particleCoordinates;
+		};
+		// trajectory [time] [particles] [tuple[type][coordinates]]
+		std::vector< std::vector< particleTuple > > trajectory;
 		void record(std::vector<Particle> activeParticles, unsigned long int t);
 		void writeBufferToFile();
 	

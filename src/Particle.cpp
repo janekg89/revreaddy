@@ -8,6 +8,7 @@ Particle::Particle()
 {
 	this->position 			= {0.,0.,0.};
 	this->cumulativeForce 	= {0.,0.,0.};
+	this->type				= "A";
 	this->count				= 0;
 	this->diffusionConstant	= 1.;
 	this->numberOfTimestep	= 0;

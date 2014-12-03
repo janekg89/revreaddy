@@ -19,10 +19,13 @@ Trajectory::~Trajectory()
 
 void Trajectory::record(std::vector<Particle> activeParticles, unsigned long int t)
 {
-	std::vector<std::array<double,3>>	currentCoordinates;
+	std::vector<particleTuple>	currentCoordinates;
 	for (auto&& particle : activeParticles)
 	{
-		currentCoordinates.push_back(particle.position);
+		particleTuple pt;
+		pt.particleType = particle.type;
+		pt.particleCoordinates = particle.position;
+		currentCoordinates.push_back(pt);
 	}	
 	this->trajectory.push_back(currentCoordinates);
 }
@@ -35,12 +38,12 @@ void Trajectory::writeBufferToFile()
 	{
 		file << particles.size() << "\n";
 		file << "#comment" << "\n"; 
-		for (auto&& coordinates : particles)
+		for (auto&& particle : particles)
 		{
-			file << "type" << "\t";
-			file << coordinates[0] << "\t";
-			file << coordinates[1] << "\t";
-			file << coordinates[2] << "\n";
+			file << particle.particleType << "\t";
+			file << particle.particleCoordinates[0] << "\t";
+			file << particle.particleCoordinates[1] << "\t";
+			file << particle.particleCoordinates[2] << "\n";
 		}
 	}
 	file.close();
