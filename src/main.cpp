@@ -6,7 +6,6 @@
  */
 
 #include "Simulation.h"
-#include "Filehandler.h"
 #include "utils.h"
 #include "Trajectory.h"
 

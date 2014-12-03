@@ -1,2 +1,0 @@
-
-double *pyVectorToCArrayPointer(PyArrayObject *arrayin);

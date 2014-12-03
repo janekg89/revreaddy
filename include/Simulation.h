@@ -10,13 +10,13 @@
 #define __SIMULATION_H_INCLUDED__
 #include <math.h>
 #include <cmath>
+#include <array>
+#include <vector>
+#include <iostream>
 #include "Particle.h"
 #include "Random.h"
 #include "Potential.h"
 #include "Observable.h"
-#include <array>
-#include <vector>
-#include <iostream>
 
 class Simulation
 {
