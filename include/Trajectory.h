@@ -21,6 +21,7 @@ class Trajectory : public Observable
 		{
 			std::string particleType;
 			std::array<double,3> particleCoordinates;
+			unsigned long int particleTime;
 		};
 		// trajectory [time] [particles] [tuple[type][coordinates]]
 		std::vector< std::vector< particleTuple > > trajectory;

@@ -25,6 +25,7 @@ void Trajectory::record(std::vector<Particle> activeParticles, unsigned long int
 		particleTuple pt;
 		pt.particleType = particle.type;
 		pt.particleCoordinates = particle.position;
+		pt.particleTime = t;
 		currentCoordinates.push_back(pt);
 	}	
 	this->trajectory.push_back(currentCoordinates);
@@ -37,7 +38,7 @@ void Trajectory::writeBufferToFile()
 	for (auto&& particles : this->trajectory)
 	{
 		file << particles.size() << "\n";
-		file << "#comment" << "\n"; 
+		file << "#timestep " << particles[0].particleTime << "\n"; 
 		for (auto&& particle : particles)
 		{
 			file << particle.particleType << "\t";
