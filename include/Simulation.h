@@ -44,7 +44,7 @@ class Simulation
 		std::array<double,3> getMinDistance(std::array<double,3> r_i, std::array<double,3> r_j);
 
 		Simulation();
-		virtual ~Simulation();
+		~Simulation();
 
 };
 
