@@ -8,32 +8,41 @@
 #include "Simulation.h"
 #include "utils.h"
 #include "Trajectory.h"
+#include "RadialDistribution.h"
 
 int main()
 {
 	Simulation * sim = new Simulation();
 
 	sim->kBoltzmann = 1.;
-	sim->maxTime	= 1000;
+	sim->maxTime	= 10000;
 	sim->temperature= 1.;
 	sim->timestep	= 0.001;
 	sim->isPeriodic = true;
-	sim->boxsize = 20.;
-	sim->repulsionStrength = 200.;
+	sim->boxsize = 15.;
+	sim->repulsionStrength = 2000.;
 
 	std::array<double,3> x0 = {0.,0.,0.};
-	for (int i=0; i<30; i++) {
-		sim->addParticle(x0, 4., 1.);
+	for (int i=0; i<100; i++) {
+		sim->addParticle(x0, .1, 1.0);
 	}
 	
+	sim->run();
 	Trajectory * traj = new Trajectory();
 
+	RadialDistribution * rad = new RadialDistribution( 40 , sim );
+	std::vector<double> ranges;
+	for (double i=0; i<41; i++) {
+		ranges.push_back(0.1*i);
+	}
+	rad->setRange(ranges);
+
 	sim->observables.push_back(traj);
+	sim->observables.push_back(rad);
+
 	sim->run();
 
 	traj->writeBufferToFile();
-
-	printArray(sim->activeParticles[0].position);
-	printArray(sim->activeParticles[1].position);
+	rad->writeBufferToFile();
 	return 0;
 }
