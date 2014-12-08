@@ -63,7 +63,6 @@ void Simulation::propagate()
 			if (particle.position[2] >= (0.5 * boxsize) ) {particle.position[2] -= boxsize;}
 		}
 	}
-
 }
 
 void Simulation::calculateRepulsionForces()
@@ -93,16 +92,23 @@ void Simulation::calculateRepulsionForces()
 	}	
 }
 
+
 std::array<double,3> Simulation::getMinDistance( std::array<double,3> r_i, std::array<double,3> r_j)
+// Return the minimum distance vector, pointing from r_i to r_j
 {
 	double dx, dy, dz;
 	std::array<double,3> r_ij;
 	dx = r_j[0] - r_i[0];
 	dy = r_j[1] - r_i[1];
 	dz = r_j[2] - r_i[2];
-	if ( fabs(dx) > 0.5*this->boxsize ) { dx = this->boxsize - dx; }
- 	if ( fabs(dy) > 0.5*this->boxsize ) { dy = this->boxsize - dy; }
-	if ( fabs(dz) > 0.5*this->boxsize ) { dz = this->boxsize - dz; }
+	if ( isPeriodic )
+	{
+		// copysign returns a value with the magnitude of the first arg and
+		// the sign of the second arg
+		if ( fabs(dx) > 0.5*this->boxsize ) { dx -= copysign(this->boxsize, dx); }
+ 		if ( fabs(dy) > 0.5*this->boxsize ) { dy -= copysign(this->boxsize, dy); }
+		if ( fabs(dz) > 0.5*this->boxsize ) { dz -= copysign(this->boxsize, dz); }
+	}
 	r_ij[0] = dx;
 	r_ij[1] = dy;
 	r_ij[2] = dz;

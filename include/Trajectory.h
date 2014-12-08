@@ -23,7 +23,7 @@ class Trajectory : public Observable
 			std::array<double,3> particleCoordinates;
 			unsigned long int particleTime;
 		};
-		// trajectory [time] [particles] [tuple[type][coordinates]]
+		// trajectory [relativeTime] [particles] [tuple[type][coordinates][absTime]]
 		std::vector< std::vector< particleTuple > > trajectory;
 		void record(std::vector<Particle> activeParticles, unsigned long int t);
 		void writeBufferToFile();
