@@ -26,7 +26,7 @@ void RadialDistribution::record(std::vector<Particle> activeParticles, unsigned 
 	double radius;
 	std::array<double,3> r_ij;
 	for (int i=0; i<activeParticles.size(); i++) {
-		for (int j=i; j<activeParticles.size(); j++) {
+		for (int j=i+1; j<activeParticles.size(); j++) {
 			r_ij = this->sim->getMinDistance( activeParticles[i].position, activeParticles[j].position );
 			radius = r_ij[0]*r_ij[0] + r_ij[1]*r_ij[1] + r_ij[2]*r_ij[2];
 			radius = sqrt(radius);

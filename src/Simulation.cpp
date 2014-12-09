@@ -7,8 +7,14 @@
 
 Simulation::Simulation()
 {
-	random = new Random("ranlxs0");
-	potential = new Potential();
+	random            = new Random("ranlxs0");
+	potential         = new Potential();
+	timestep          = 0.001;
+	temperature       = 1.;
+	kBoltzmann        = 1.;
+	repulsionStrength = 1.;
+	isPeriodic        = true;
+	boxsize           = 10.;
 }
 
 Simulation::~Simulation()
@@ -74,20 +80,17 @@ void Simulation::calculateRepulsionForces()
 	double cutoffSquared; //cutoff distance of particles i,j softcore interaction
 	for (int i=0; i<activeParticles.size(); i++)
 	{
-		for (int j=i; j<activeParticles.size(); j++)
+		for (int j=i+1; j<activeParticles.size(); j++)
 		{
 			r_ij = getMinDistance(activeParticles[i].position, activeParticles[j].position);
 			rSquared = r_ij[0]*r_ij[0] + r_ij[1]*r_ij[1] + r_ij[2]*r_ij[2];
 			cutoffSquared = pow(activeParticles[i].radius + activeParticles[j].radius, 2.);
-			if (rSquared < cutoffSquared)
-			{
-				forceI = potential->softcoreForce(r_ij, rSquared, cutoffSquared, repulsionStrength);
-				forceJ[0] = -1. * forceI[0];
-				forceJ[1] = -1. * forceI[1];
-				forceJ[2] = -1. * forceI[2];
-				activeParticles[i].addForce(forceI);
-				activeParticles[j].addForce(forceJ);
-			}
+			forceI = potential->softcoreForce(r_ij, rSquared, cutoffSquared, repulsionStrength);
+			forceJ[0] = -1. * forceI[0];
+			forceJ[1] = -1. * forceI[1];
+			forceJ[2] = -1. * forceI[2];
+			activeParticles[i].addForce(forceI);
+			activeParticles[j].addForce(forceJ);
 		}
 	}	
 }
