@@ -57,6 +57,7 @@ void Simulation::propagate()
 		forceTerm[2] = particle.cumulativeForce[2] * forcePrefactor;
 
 		particle.move(noiseTerm);
+		particle.move(forceTerm);
 		particle.resetForce();
 
 		if (isPeriodic)
