@@ -19,24 +19,23 @@ int main()
 	sim->temperature= 1.;
 	sim->timestep	= 0.001;
 	sim->isPeriodic = true;
-	sim->boxsize = 15.;
+	sim->boxsize = 8.;
 	sim->repulsionStrength = 2000.;
 
 	std::array<double,3> x0 = {0.,0.,0.};
 	for (int i=0; i<100; i++) {
-		sim->addParticle(x0, .1, 1.0);
+		sim->addParticle(x0, 1., 1.0);
 	}
 	
 	sim->run();
-	Trajectory * traj = new Trajectory();
 
-	RadialDistribution * rad = new RadialDistribution( 40 , sim );
+	Trajectory * traj = new Trajectory();
+	RadialDistribution * rad = new RadialDistribution( 100 , sim );
 	std::vector<double> ranges;
-	for (double i=0; i<41; i++) {
+	for (double i=0; i<101; i++) {
 		ranges.push_back(0.1*i);
 	}
 	rad->setRange(ranges);
-
 	sim->observables.push_back(traj);
 	sim->observables.push_back(rad);
 
