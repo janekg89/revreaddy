@@ -100,11 +100,3 @@ class SimulationTest : public CxxTest::TestSuite
 			TS_ASSERT_EQUALS(sim->activeParticles[1].cumulativeForce, f);
 		}
 };
-
-
-
-
-
-
-
-

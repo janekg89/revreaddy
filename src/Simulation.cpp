@@ -85,7 +85,7 @@ void Simulation::calculateRepulsionForces()
 			r_ij = getMinDistance(activeParticles[i].position, activeParticles[j].position);
 			rSquared = r_ij[0]*r_ij[0] + r_ij[1]*r_ij[1] + r_ij[2]*r_ij[2];
 			cutoffSquared = pow(activeParticles[i].radius + activeParticles[j].radius, 2.);
-			forceI = potential->softcoreForce(r_ij, rSquared, cutoffSquared, repulsionStrength);
+			forceI = potential->LJ1206(r_ij, rSquared, cutoffSquared, repulsionStrength);
 			forceJ[0] = -1. * forceI[0];
 			forceJ[1] = -1. * forceI[1];
 			forceJ[2] = -1. * forceI[2];

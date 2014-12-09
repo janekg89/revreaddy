@@ -16,11 +16,11 @@ int main()
 
 	sim->kBoltzmann = 1.;
 	sim->maxTime	= 10000;
-	sim->temperature= 1.;
+	sim->temperature= 0.1;
 	sim->timestep	= 0.001;
 	sim->isPeriodic = true;
-	sim->boxsize = 8.;
-	sim->repulsionStrength = 2000.;
+	sim->boxsize = 5.;
+	sim->repulsionStrength = 200.;
 
 	std::array<double,3> x0 = {0.,0.,0.};
 	for (int i=0; i<100; i++) {
