@@ -22,7 +22,7 @@ std::array<double, 3> Potential::softcoreForce(std::array<double, 3> r_ij, doubl
 std::array<double,3> Potential::LJ1206(std::array<double,3> r_ij, double rSquared,
 	double cutoffSquared, double strength)
 {
-	if ( rSquared > (6.25*cutoffSquared) ) {
+	if ( rSquared > (9.*cutoffSquared) ) {
 		std::array<double,3> zero = {0.,0.,0.};
 		return zero;
 	}
