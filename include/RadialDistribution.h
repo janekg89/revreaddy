@@ -19,6 +19,7 @@
 #include <fstream>
 #include <string>
 #include <gsl/gsl_histogram.h>
+#define _USE_MATH_DEFINES
 #include <cmath>
 
 class RadialDistribution : public Observable

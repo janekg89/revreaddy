@@ -22,29 +22,38 @@ void RadialDistribution::setRange(std::vector<double> range)
 }
 
 void RadialDistribution::record(std::vector<Particle> activeParticles, unsigned long int t)
+/* Record the radial distribution already weighted 
+ * correctly for the current timestep.
+ */
 {
 	double radius;
+	double weight;
 	std::array<double,3> r_ij;
 	for (int i=0; i<activeParticles.size(); i++) {
 		for (int j=i+1; j<activeParticles.size(); j++) {
 			r_ij = this->sim->getMinDistance( activeParticles[i].position, activeParticles[j].position );
 			radius = r_ij[0]*r_ij[0] + r_ij[1]*r_ij[1] + r_ij[2]*r_ij[2];
+			weight = this->sim->boxsize * this->sim->boxsize * this->sim->boxsize;
+			weight /= 4. * M_PI * radius * (double) activeParticles.size();
 			radius = sqrt(radius);
-			gsl_histogram_increment(this->radialDistribution, radius);
+			gsl_histogram_accumulate(this->radialDistribution, radius, weight);
 		}
 	}
 }
 
 void RadialDistribution::writeBufferToFile()
 {
+	double center;
 	std::ofstream file;
 	file.open("radialdistribution.dat");
-	for (auto&& val : this->rangeOfBins) {
-		file << val << "\t";
+	// calculate centers of bins and write them to file
+	for (int i=0; i < (rangeOfBins.size() - 1) ; i++) {
+		center = 0.5 * ( rangeOfBins[i] + rangeOfBins[i+1] );
+		file << center << "\t";
 	}
 	file << "\n";
 	for (int i=0; i<numberOfBins; i++) {
 		file << gsl_histogram_get(this->radialDistribution, i) << "\t";
 	}
-	file << "0";
+	file.close();
 }
