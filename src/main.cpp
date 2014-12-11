@@ -15,7 +15,7 @@ int main()
 	Simulation * sim = new Simulation();
 
 	sim->kBoltzmann = 1.;
-	sim->maxTime	= 150;
+	sim->maxTime	= 10000;
 	sim->temperature= 1.;
 	sim->timestep	= 0.0001;
 	sim->isPeriodic = true;
@@ -26,23 +26,16 @@ int main()
 	for (double i=0; i<10; i++)
 		for (double j=0; j<5; j++)
 			for (double k=0; k<5; k++) {
-				x0[0] = -0.5 * sim->boxsize + i;
-				x0[1] = -0.5 * sim->boxsize + j*2.;
-				x0[2] = -0.5 * sim->boxsize + k*2.;
+				x0[0] = -0.49 * sim->boxsize + i;
+				x0[1] = -0.49 * sim->boxsize + j;
+				x0[2] = -0.49 * sim->boxsize + k;
 				sim->addParticle(x0, 0.5, 1.);
 			}
 	
 	Trajectory * traj = new Trajectory();
 	sim->observables.push_back(traj);
 
-	for (double i=0; i < 30; i++) {
-		sim->boxsize = 10. - i * 0.1;
-		sim->run();
-	}
-	for (double i=0; i < 30; i++) {
-		sim->boxsize = 10. - i * 0.05;
-		sim->run();
-	}
+	sim->run();
 
 	RadialDistribution * rad = new RadialDistribution( 100 , sim );
 	std::vector<double> ranges;
@@ -51,7 +44,7 @@ int main()
 	}
 	rad->setRange(ranges);
 	sim->observables.push_back(rad);
-	sim->maxTime = 3;
+	sim->maxTime = 1;
 
 	sim->run();
 

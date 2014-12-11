@@ -28,6 +28,10 @@ class RadialDistribution : public Observable
 		gsl_histogram * radialDistribution;
 		size_t numberOfBins;
 		std::vector<double> rangeOfBins;
+		std::vector<double> binCenters;
+		/* bins is basically a copy of the histogram to easy rescale each
+		 * bin individually. */
+		std::vector<double> bins;
 		std::string particleType; // the type for which to calculate the RDF
 
 		Simulation * sim;//pointer to the Simulation that owns this observable
