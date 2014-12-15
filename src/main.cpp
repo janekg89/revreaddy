@@ -15,7 +15,7 @@ int main()
 	Simulation * sim = new Simulation();
 
 	sim->kBoltzmann = 1.;
-	sim->maxTime	= 10000;
+	sim->maxTime	= 1000;
 	sim->temperature= 1.;
 	sim->timestep	= 0.0001;
 	sim->isPeriodic = true;
@@ -23,13 +23,13 @@ int main()
 	sim->repulsionStrength = 1.;
 
 	std::array<double,3> x0;
-	for (double i=0; i<10; i++)
-		for (double j=0; j<5; j++)
-			for (double k=0; k<5; k++) {
+	for (double i=0; i<9; i++)
+		for (double j=0; j<9; j++)
+			for (double k=0; k<9; k++) {
 				x0[0] = -0.49 * sim->boxsize + i;
 				x0[1] = -0.49 * sim->boxsize + j;
 				x0[2] = -0.49 * sim->boxsize + k;
-				sim->addParticle(x0, 0.5, 1.);
+				sim->addParticle(x0, "lj", 0.5, 1.);
 			}
 	
 	Trajectory * traj = new Trajectory();

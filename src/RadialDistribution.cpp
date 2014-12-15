@@ -43,6 +43,7 @@ void RadialDistribution::record(std::vector<Particle> activeParticles, unsigned 
 			gsl_histogram_increment(this->radialDistribution, radius);
 		}
 	}
+	// copy the hist to 'bins' while scaling every value correctly
 	for (int i=0; i<bins.size(); i++) {
 		bins[i] += gsl_histogram_get(this->radialDistribution, i) / (binCenters[i] * binCenters[i]);
 	}

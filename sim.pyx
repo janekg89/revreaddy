@@ -9,7 +9,11 @@ cimport numpy as np
 cdef extern from "Simulation.h":
 	cdef cppclass Simulation:
 		unsigned long int maxTime
-		unsigned long int getMaxTime()
+		double temperature
+		double timestep
+		bool isPeriodic
+		double boxsize
+		double repulsionStrength
 		void addParticle()
 		vector[double] getParticlePosition()
 		void run()
@@ -20,8 +24,6 @@ cdef class pySimulation:
 		self.thisptr = new Simulation()
 	def __dealloc__(self):
 		del self.thisptr
-	def getMaxTime(self):
-		return self.thisptr.getMaxTime()
 	def addParticle(self):
 		self.thisptr.addParticle()
 	def getParticlePosition(self):

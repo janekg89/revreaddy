@@ -9,15 +9,16 @@
 #include <array>
 #include <math.h>
 #include <cmath>
+#include <string>
 
-// TODO How to handle calculation of forces and energies, while calculating the distance
-//  only once.
 class Potential
 {
 	public:
+		std::array<double,3> repulsion(std::array<double,3> r_ij, double rSquared,
+			double radiiSquared, double strength, std::string typeI, std::string typeJ);
 		std::array<double,3> softcoreForce(std::array<double, 3> r_ij, double rSquared, 
-			double cutoffSquared, double strength);
+			double radiiSquared, double strength);
 		std::array<double,3> LJ1206(std::array<double,3> r_ij, double rSquared,
-			double cutoffSquared, double strength);
+			double sigmaSquared, double strength);
 };
 #endif

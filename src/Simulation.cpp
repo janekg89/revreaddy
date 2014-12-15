@@ -76,17 +76,24 @@ void Simulation::calculateRepulsionForces()
 {
 	std::array<double, 3> forceI;
 	std::array<double, 3> forceJ;
-	std::array<double, 3> r_ij; //connecting vector from particle i to j
-	double rSquared; //distance of particles i,j squared
-	double cutoffSquared; //cutoff distance of particles i,j softcore interaction
+	std::array<double, 3> r_ij; // connecting vector from particle i to j
+	double rSquared; // distance of particles i,j squared
+	double radiiSquared; // squared sum of particles i,j radii
 	for (int i=0; i<activeParticles.size(); i++)
 	{
 		for (int j=i+1; j<activeParticles.size(); j++)
 		{
 			r_ij = getMinDistance(activeParticles[i].position, activeParticles[j].position);
 			rSquared = r_ij[0]*r_ij[0] + r_ij[1]*r_ij[1] + r_ij[2]*r_ij[2];
-			cutoffSquared = pow(activeParticles[i].radius + activeParticles[j].radius, 2.);
-			forceI = potential->LJ1206(r_ij, rSquared, cutoffSquared, repulsionStrength);
+			radiiSquared = pow(activeParticles[i].radius + activeParticles[j].radius, 2.);
+			try {
+				forceI = potential->repulsion(r_ij, rSquared, radiiSquared, repulsionStrength, 
+					activeParticles[i].type, activeParticles[j].type);
+			}
+			catch(const char* msg) {
+				std::cerr << msg << "\n";
+				forceI = {0.,0.,0.};
+			}
 			forceJ[0] = -1. * forceI[0];
 			forceJ[1] = -1. * forceI[1];
 			forceJ[2] = -1. * forceI[2];
@@ -119,10 +126,11 @@ std::array<double,3> Simulation::getMinDistance( std::array<double,3> r_i, std::
 	return r_ij;
 }
 
-void Simulation::addParticle(std::array<double,3> initPos, double rad, double diffConst)
+void Simulation::addParticle(std::array<double,3> initPos, std::string particleType, double rad, double diffConst)
 {
 	Particle * particle = new Particle();
 	particle->position = initPos;
+	particle->type = particleType;
 	particle->radius = rad;
 	particle->diffusionConstant = diffConst;
 	this->activeParticles.push_back(*particle);//push_back copies arg into vec

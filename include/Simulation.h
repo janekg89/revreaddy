@@ -13,6 +13,7 @@
 #include <array>
 #include <vector>
 #include <iostream>
+#include <string>
 #include "Particle.h"
 #include "Random.h"
 #include "Potential.h"
@@ -34,11 +35,11 @@ class Simulation
 		double boxsize;					// length of the periodic simulationbox
 		double repulsionStrength; 		// force constant for softcore particle repulsion
 
-		void addParticle(std::array<double,3> initPos, double rad, double diffConst);
+		void addParticle(std::array<double,3> initPos, std::string particleType, double rad, double diffConst);
 		void run();
 		void propagate();
 		void recordObservables(unsigned long int t);
-		// should double loop (i,j) over activeParticles and call according Forcetype for
+		// double loop (i,j) over activeParticles and call according Forcetype for
 		// particle pair (i,j)
 		void calculateRepulsionForces();
 		std::array<double,3> getMinDistance(std::array<double,3> r_i, std::array<double,3> r_j);

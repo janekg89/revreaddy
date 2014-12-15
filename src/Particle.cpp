@@ -8,12 +8,11 @@ Particle::Particle()
 {
 	this->position 			= {0.,0.,0.};
 	this->cumulativeForce 	= {0.,0.,0.};
-	this->type				= "A";
-	this->count				= 0;
+	this->type				= "soft";
 	this->diffusionConstant	= 1.;
-	this->numberOfTimestep	= 0;
-	this->radius	= 1.;
-	this->skip		= 0;
+	this->radius            = 1.;
+	this->skip              = 0;
+	this->count	            = 0;
 }
 
 Particle::~Particle()
