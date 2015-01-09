@@ -2,11 +2,10 @@
 
 #include "RadialDistribution.h"
 
-RadialDistribution::RadialDistribution(size_t bins, Simulation * simulation)
+RadialDistribution::RadialDistribution(size_t bins)
 {
 	this->radialDistribution = gsl_histogram_alloc(bins);
 	this->numberOfBins = bins;
-	this->sim = simulation;
 }
 
 RadialDistribution::~RadialDistribution()
@@ -37,7 +36,12 @@ void RadialDistribution::record(std::vector<Particle> activeParticles, unsigned 
 	std::array<double,3> r_ij;
 	for (int i=0; i<activeParticles.size(); i++) {
 		for (int j=i+1; j<activeParticles.size(); j++) {
-			r_ij = this->sim->getMinDistance( activeParticles[i].position, activeParticles[j].position );
+			r_ij = getMinDistanceVector(
+				activeParticles[i].position,
+				activeParticles[j].position,
+				this->isPeriodic,
+				this->boxsize 
+			);
 			radius = r_ij[0]*r_ij[0] + r_ij[1]*r_ij[1] + r_ij[2]*r_ij[2];
 			radius = sqrt(radius);
 			gsl_histogram_increment(this->radialDistribution, radius);

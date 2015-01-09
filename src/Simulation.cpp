@@ -3,7 +3,6 @@
  */
 
 #include "Simulation.h"
-#include "utils.h"
 
 Simulation::Simulation()
 {
@@ -83,7 +82,12 @@ void Simulation::calculateRepulsionForces()
 	{
 		for (int j=i+1; j<activeParticles.size(); j++)
 		{
-			r_ij = getMinDistance(activeParticles[i].position, activeParticles[j].position);
+			r_ij = getMinDistanceVector(
+				activeParticles[i].position, 
+				activeParticles[j].position, 
+				this->isPeriodic, 
+				this->boxsize
+			);
 			rSquared = r_ij[0]*r_ij[0] + r_ij[1]*r_ij[1] + r_ij[2]*r_ij[2];
 			radiiSquared = pow(activeParticles[i].radius + activeParticles[j].radius, 2.);
 			try {
@@ -101,29 +105,6 @@ void Simulation::calculateRepulsionForces()
 			activeParticles[j].addForce(forceJ);
 		}
 	}	
-}
-
-
-std::array<double,3> Simulation::getMinDistance( std::array<double,3> r_i, std::array<double,3> r_j)
-// Return the minimum distance vector, pointing from r_i to r_j
-{
-	double dx, dy, dz;
-	std::array<double,3> r_ij;
-	dx = r_j[0] - r_i[0];
-	dy = r_j[1] - r_i[1];
-	dz = r_j[2] - r_i[2];
-	if ( isPeriodic )
-	{
-		// copysign returns a value with the magnitude of the first arg and
-		// the sign of the second arg
-		if ( fabs(dx) > 0.5*this->boxsize ) { dx -= copysign(this->boxsize, dx); }
- 		if ( fabs(dy) > 0.5*this->boxsize ) { dy -= copysign(this->boxsize, dy); }
-		if ( fabs(dz) > 0.5*this->boxsize ) { dz -= copysign(this->boxsize, dz); }
-	}
-	r_ij[0] = dx;
-	r_ij[1] = dy;
-	r_ij[2] = dz;
-	return r_ij;
 }
 
 void Simulation::addParticle(std::array<double,3> initPos, std::string particleType, double rad, double diffConst)

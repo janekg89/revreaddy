@@ -18,7 +18,10 @@
 #include "Random.h"
 #include "Potential.h"
 #include "Observable.h"
+#include "utils.h"
 
+// TODO only use vectors here to easily wrap with cython.
+// TODO outsource getMinDistance to resolve circular dependence with RadialDistribution
 class Simulation
 {
 	public:
@@ -42,7 +45,7 @@ class Simulation
 		// double loop (i,j) over activeParticles and call according Forcetype for
 		// particle pair (i,j)
 		void calculateRepulsionForces();
-		std::array<double,3> getMinDistance(std::array<double,3> r_i, std::array<double,3> r_j);
+		//std::array<double,3> getMinDistance(std::array<double,3> r_i, std::array<double,3> r_j);
 
 		Simulation();
 		~Simulation();

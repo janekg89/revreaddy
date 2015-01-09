@@ -33,14 +33,14 @@ class RadialDistribution : public Observable
 		 * bin individually. */
 		std::vector<double> bins;
 		std::string particleType; // the type for which to calculate the RDF
-
-		Simulation * sim;//pointer to the Simulation that owns this observable
+		bool isPeriodic;
+		double boxsize;
 
 		void record(std::vector<Particle> activeParticles, unsigned long int t);
 		void writeBufferToFile();
 		void setRange(std::vector<double> range);
 
-		RadialDistribution(size_t bins, Simulation * simulation);
+		RadialDistribution(size_t bins);
 		~RadialDistribution();
 };
 #endif // __RADIALDISTRIBUTION_H_INCLUDED__
