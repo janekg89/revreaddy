@@ -38,9 +38,8 @@ class RadialDistribution : public Observable
 
 		void record(std::vector<Particle> activeParticles, unsigned long int t);
 		void writeBufferToFile();
-		void setRange(std::vector<double> range);
 
-		RadialDistribution(size_t bins);
+		RadialDistribution(std::vector<double> range);
 		~RadialDistribution();
 };
 #endif // __RADIALDISTRIBUTION_H_INCLUDED__

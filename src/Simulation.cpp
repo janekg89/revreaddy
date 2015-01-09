@@ -107,12 +107,29 @@ void Simulation::calculateRepulsionForces()
 	}	
 }
 
-void Simulation::addParticle(std::array<double,3> initPos, std::string particleType, double rad, double diffConst)
+void Simulation::addParticle(std::vector<double> initPos, std::string particleType, double rad, double diffConst)
 {
-	Particle * particle = new Particle();
-	particle->position = initPos;
-	particle->type = particleType;
-	particle->radius = rad;
+	// first convert initPos from vector to array
+	std::array<double,3> initPosArr;
+	try {
+		if ( initPos.size() == 3 ) {
+			initPosArr[0] = initPos[0];
+			initPosArr[1] = initPos[1];
+			initPosArr[2] = initPos[2];
+		}
+		else {
+			throw   "Particles' initial position has dimension mismatch! \
+					Particle will be placed at {0,0,0}.";	
+		}
+	}
+	catch(const char* msg) {
+		std::cerr << msg << "\n";
+		initPosArr = {0., 0., 0.};
+	}
+	Particle * particle         = new Particle();
+	particle->position          = initPosArr;
+	particle->type              = particleType;
+	particle->radius            = rad;
 	particle->diffusionConstant = diffConst;
 	this->activeParticles.push_back(*particle);//push_back copies arg into vec
 	delete particle;

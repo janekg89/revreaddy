@@ -15,14 +15,14 @@ int main()
 	Simulation * sim = new Simulation();
 
 	sim->kBoltzmann = 1.;
-	sim->maxTime	= 100;
+	sim->maxTime	= 10;
 	sim->temperature= 1.;
 	sim->timestep	= 0.0001;
 	sim->isPeriodic = true;
 	sim->boxsize = 10.;
 	sim->repulsionStrength = 1.;
 
-	std::array<double,3> x0;
+	std::vector<double> x0 = {0., 0., 0.};
 	for (double i=0; i<9; i++)
 		for (double j=0; j<9; j++)
 			for (double k=0; k<9; k++) {
@@ -36,14 +36,14 @@ int main()
 
 	sim->run();
 
-	RadialDistribution * rad = new RadialDistribution( 100 );
-	rad->isPeriodic = sim->isPeriodic;
-	rad->boxsize = sim->boxsize;
 	std::vector<double> ranges;
 	for (double i=0; i<101; i++) {
 		ranges.push_back(0.1*i);
 	}
-	rad->setRange(ranges);
+	RadialDistribution * rad = new RadialDistribution( ranges );
+	rad->isPeriodic = sim->isPeriodic;
+	rad->boxsize = sim->boxsize;
+
 	sim->observables.push_back(rad);
 	sim->maxTime = 1;
 

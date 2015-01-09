@@ -21,7 +21,6 @@
 #include "utils.h"
 
 // TODO only use vectors here to easily wrap with cython.
-// TODO outsource getMinDistance to resolve circular dependence with RadialDistribution
 class Simulation
 {
 	public:
@@ -38,7 +37,7 @@ class Simulation
 		double boxsize;					// length of the periodic simulationbox
 		double repulsionStrength; 		// force constant for softcore particle repulsion
 
-		void addParticle(std::array<double,3> initPos, std::string particleType, double rad, double diffConst);
+		void addParticle(std::vector<double> initPos, std::string particleType, double rad, double diffConst);
 		void run();
 		void propagate();
 		void recordObservables(unsigned long int t);

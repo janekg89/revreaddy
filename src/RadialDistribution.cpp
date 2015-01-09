@@ -2,19 +2,10 @@
 
 #include "RadialDistribution.h"
 
-RadialDistribution::RadialDistribution(size_t bins)
+RadialDistribution::RadialDistribution(std::vector<double> range)
 {
-	this->radialDistribution = gsl_histogram_alloc(bins);
-	this->numberOfBins = bins;
-}
-
-RadialDistribution::~RadialDistribution()
-{
-	gsl_histogram_free(this->radialDistribution);
-}
-
-void RadialDistribution::setRange(std::vector<double> range)
-{
+	this->numberOfBins = range.size() - 1;
+	this->radialDistribution = gsl_histogram_alloc(this->numberOfBins);
 	this->rangeOfBins = range;
 	const double * cRange = &range[0];
 	gsl_histogram_set_ranges(this->radialDistribution, cRange, range.size());
@@ -26,6 +17,12 @@ void RadialDistribution::setRange(std::vector<double> range)
 		this->bins.push_back(0.);
 	}
 }
+
+RadialDistribution::~RadialDistribution()
+{
+	gsl_histogram_free(this->radialDistribution);
+}
+
 
 void RadialDistribution::record(std::vector<Particle> activeParticles, unsigned long int t)
 /* Record the radial distribution already normalized 
