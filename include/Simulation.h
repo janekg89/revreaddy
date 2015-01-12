@@ -16,7 +16,7 @@
 #include <string>
 #include "Particle.h"
 #include "Random.h"
-#include "Potential.h"
+#include "Force.h"
 #include "Observable.h"
 #include "utils.h"
 
@@ -24,8 +24,8 @@
 class Simulation
 {
 	public:
-		Random * random; 				// the random number generator
-		Potential * potential; 			// the force/energy handler
+		Random * random;                // the random number generator
+		Force * force;                  // the force/energy handler
 		std::vector<Particle> activeParticles;
 		std::vector<Observable*> observables;	// stores children of Observable
 		//std::vector<Particle> consideredParticles; // for later adaptive timestepping methods

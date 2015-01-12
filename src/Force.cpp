@@ -1,14 +1,14 @@
-/* Potential.cpp
+/* Force.cpp
  * author: Christoph Froehner
  */
 
-#include "Potential.h"
+#include "Force.h"
 // 2^(1/6), 2^(-1/6) and 2^(-1/3)
 #define TWO_POW_ONE_SIXTH 1.122462048309373 
 #define TWO_POW_MIN_ONE_SIXTH 0.8908987181403393
 #define TWO_POW_MIN_ONE_THIRD 0.7937005259840998
 
-std::array<double,3> Potential::repulsion(std::array<double,3> r_ij, double rSquared,
+std::array<double,3> Force::repulsion(std::array<double,3> r_ij, double rSquared,
 	double radiiSquared, double strength, std::string typeI, std::string typeJ)
 {
 	if ( (typeI == "soft") && (typeJ == "soft") ) {
@@ -31,7 +31,7 @@ std::array<double,3> Potential::repulsion(std::array<double,3> r_ij, double rSqu
 	}
 }
 
-std::array<double,3> Potential::softcoreForce(std::array<double, 3> r_ij, double rSquared, 
+std::array<double,3> Force::softcoreForce(std::array<double, 3> r_ij, double rSquared, 
 	double radiiSquared, double strength)
 {
 	if ( rSquared > radiiSquared ) {
@@ -46,7 +46,7 @@ std::array<double,3> Potential::softcoreForce(std::array<double, 3> r_ij, double
 	return force;
 }
 
-std::array<double,3> Potential::LJ1206(std::array<double,3> r_ij, double rSquared,
+std::array<double,3> Force::LJ1206(std::array<double,3> r_ij, double rSquared,
 	double sigmaSquared, double strength)
 {
 	if ( rSquared > (6.25*sigmaSquared) ) {

@@ -7,7 +7,7 @@
 Simulation::Simulation()
 {
 	random            = new Random("ranlxs0");
-	potential         = new Potential();
+	force             = new Force();
 	timestep          = 0.001;
 	temperature       = 1.;
 	kBoltzmann        = 1.;
@@ -19,7 +19,7 @@ Simulation::Simulation()
 Simulation::~Simulation()
 {
 	delete random;
-	delete potential;
+	delete force;
 }
 
 void Simulation::run()
@@ -91,7 +91,7 @@ void Simulation::calculateRepulsionForces()
 			rSquared = r_ij[0]*r_ij[0] + r_ij[1]*r_ij[1] + r_ij[2]*r_ij[2];
 			radiiSquared = pow(activeParticles[i].radius + activeParticles[j].radius, 2.);
 			try {
-				forceI = potential->repulsion(r_ij, rSquared, radiiSquared, repulsionStrength, 
+				forceI = force->repulsion(r_ij, rSquared, radiiSquared, repulsionStrength, 
 					activeParticles[i].type, activeParticles[j].type);
 			}
 			catch(const char* msg) {
