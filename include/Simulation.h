@@ -20,35 +20,38 @@
 #include "Observable.h"
 #include "utils.h"
 
-// TODO only use vectors here to easily wrap with cython.
 class Simulation
 {
 	public:
 		Random * random;                // the random number generator
 		Force * force;                  // the force/energy handler
 		std::vector<Particle> activeParticles;
-		std::vector<Observable*> observables;	// stores children of Observable
-		//std::vector<Particle> consideredParticles; // for later adaptive timestepping methods
-		unsigned long int maxTime;		// length of the simulation
-		double timestep;				// the timestep: usually 0.001
+		/* Stores children of Observable */
+		std::vector<Observable*> observables;
+		/* For later adaptive timestepping methods */
+		//std::vector<Particle> consideredParticles; 
+		unsigned long int maxTime; // length of the simulation
+		double timestep;           // the timestep: usually 0.001
 		double temperature;
 		double kBoltzmann;
-		bool isPeriodic;				// use periodic boundary conditions or not
-		double boxsize;					// length of the periodic simulationbox
-		double repulsionStrength; 		// force constant for softcore particle repulsion
+		bool isPeriodic;           // use periodic boundary conditions or not
+		double boxsize;            // length of the periodic simulationbox
+		double repulsionStrength;  // force constant for particle repulsion
 
-		void addParticle(std::vector<double> initPos, std::string particleType, double rad, double diffConst);
+		void addParticle(
+			std::vector<double> initPos,
+			std::string particleType,
+			double rad,
+			double diffConst);
 		void run();
 		void propagate();
 		void recordObservables(unsigned long int t);
-		// double loop (i,j) over activeParticles and call according Forcetype for
-		// particle pair (i,j)
+		/* double loop (i,j) over activeParticles and call 
+		 * according Forcetype for particle pair (i,j) */
 		void calculateRepulsionForces();
-		//std::array<double,3> getMinDistance(std::array<double,3> r_i, std::array<double,3> r_j);
 
 		Simulation();
 		~Simulation();
-
 };
 
-#endif
+#endif // __SIMULATION_H_INCLUDED__

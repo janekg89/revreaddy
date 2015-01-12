@@ -50,7 +50,8 @@ void Simulation::propagate()
 		noiseTerm[1] *= noisePrefactor;
 		noiseTerm[2] *= noisePrefactor;
 
-		forcePrefactor = timestep * particle.diffusionConstant / (kBoltzmann * temperature);
+		forcePrefactor = timestep * particle.diffusionConstant 
+			/ (kBoltzmann * temperature);
 		forceTerm[0] = particle.cumulativeForce[0] * forcePrefactor;
 		forceTerm[1] = particle.cumulativeForce[1] * forcePrefactor;
 		forceTerm[2] = particle.cumulativeForce[2] * forcePrefactor;
@@ -78,21 +79,25 @@ void Simulation::calculateRepulsionForces()
 	std::array<double, 3> r_ij; // connecting vector from particle i to j
 	double rSquared; // distance of particles i,j squared
 	double radiiSquared; // squared sum of particles i,j radii
-	for (int i=0; i<activeParticles.size(); i++)
-	{
-		for (int j=i+1; j<activeParticles.size(); j++)
-		{
+	for (int i=0; i<activeParticles.size(); i++) {
+		for (int j=i+1; j<activeParticles.size(); j++) {
 			r_ij = getMinDistanceVector(
 				activeParticles[i].position, 
 				activeParticles[j].position, 
 				this->isPeriodic, 
-				this->boxsize
-			);
+				this->boxsize);
 			rSquared = r_ij[0]*r_ij[0] + r_ij[1]*r_ij[1] + r_ij[2]*r_ij[2];
-			radiiSquared = pow(activeParticles[i].radius + activeParticles[j].radius, 2.);
+			radiiSquared = pow(
+				activeParticles[i].radius + activeParticles[j].radius,
+				2.);
 			try {
-				forceI = force->repulsion(r_ij, rSquared, radiiSquared, repulsionStrength, 
-					activeParticles[i].type, activeParticles[j].type);
+				forceI = force->repulsion(
+					r_ij,
+					rSquared,
+					radiiSquared,
+					repulsionStrength, 
+					activeParticles[i].type,
+					activeParticles[j].type);
 			}
 			catch(const char* msg) {
 				std::cerr << msg << "\n";
@@ -107,7 +112,11 @@ void Simulation::calculateRepulsionForces()
 	}	
 }
 
-void Simulation::addParticle(std::vector<double> initPos, std::string particleType, double rad, double diffConst)
+void Simulation::addParticle(
+	std::vector<double> initPos,
+	std::string particleType,
+	double rad,
+	double diffConst)
 {
 	// first convert initPos from vector to array
 	std::array<double,3> initPosArr;
@@ -118,8 +127,8 @@ void Simulation::addParticle(std::vector<double> initPos, std::string particleTy
 			initPosArr[2] = initPos[2];
 		}
 		else {
-			throw   "Particles' initial position has dimension mismatch! \
-					Particle will be placed at {0,0,0}.";	
+			throw "Particles' initial position has dimension mismatch!" 
+			      "Particle will be placed at {0,0,0}.";	
 		}
 	}
 	catch(const char* msg) {

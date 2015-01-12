@@ -16,20 +16,25 @@
 class Trajectory : public Observable
 {
 	public:
-		// the struct particleTuple holds the type of a particle and its coordinates
+		/* the struct particleTuple holds the type of a particle 
+		 * and its coordinates */
 		struct particleTuple
 		{
 			std::string particleType;
 			std::array<double,3> particleCoordinates;
 			unsigned long int particleTime;
 		};
-		// trajectory [relativeTime] [particles] [tuple[type][coordinates][absTime]]
+		/* trajectory has the following shape:
+		 * [relativeTime] [particles] [tuple[type][coordinates][absTime]] */
 		std::vector< std::vector< particleTuple > > trajectory;
-		void record(std::vector<Particle> activeParticles, unsigned long int t);
+
+		void record(
+			std::vector<Particle> activeParticles,
+			unsigned long int t);
 		void writeBufferToFile();
 	
 		Trajectory();
 		~Trajectory();
 };
 
-#endif
+#endif // __TRAJECTORY_H_INCLUDED__

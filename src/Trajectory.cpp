@@ -1,6 +1,4 @@
-/* Trajectory.cpp
- * 
- */
+/* Trajectory.cpp */
 
 // TODO recPeriod and clearPeriod should govern when traj. is recorded and when
 // it is written to file
@@ -17,7 +15,9 @@ Trajectory::~Trajectory()
 	this->recPeriod = 0;
 }
 
-void Trajectory::record(std::vector<Particle> activeParticles, unsigned long int t)
+void Trajectory::record(
+	std::vector<Particle> activeParticles,
+	unsigned long int t)
 {
 	std::vector<particleTuple>	currentCoordinates;
 	for (auto&& particle : activeParticles)

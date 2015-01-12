@@ -31,4 +31,4 @@ class Random
 		std::array<double, 3> normal3D();
 		double 		uniform();
 };
-#endif
+#endif // __RANDOM_H_INCLUDED__

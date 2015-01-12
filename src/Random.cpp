@@ -7,9 +7,9 @@ Random::Random(std::string type)
 {
 	gsl_rng_env_setup();
 
-	if (type == "mt19937") 		{
+	if      (type == "mt19937")	{
 		this->randomGeneratorType = gsl_rng_mt19937;}
-	else if (type == "taus") 	{
+	else if (type == "taus") {
 		this->randomGeneratorType = gsl_rng_taus;}
 	else if (type == "ranlxs0") {
 		this->randomGeneratorType = gsl_rng_ranlxs0;}
@@ -19,8 +19,10 @@ Random::Random(std::string type)
 	this->randomGeneratorHandle = gsl_rng_alloc(this->randomGeneratorType);
 	this->toSeed();
 	gsl_rng_set(this->randomGeneratorHandle, this->seed);
-	printf("Random number generator of type '%s' has been intialized and seeded.\n",
-			gsl_rng_name(randomGeneratorHandle));
+	printf(
+		"Random number generator of type '%s' "
+	    "has been intialized and seeded.\n",
+		gsl_rng_name(randomGeneratorHandle));
 }
 
 Random::~Random()
@@ -46,9 +48,9 @@ double Random::normal()
 std::array<double, 3> Random::normal3D()
 {
 	std::array<double, 3> randomArray;
-	randomArray[0] = gsl_ran_gaussian_ziggurat(this->randomGeneratorHandle, 1.0);
-	randomArray[1] = gsl_ran_gaussian_ziggurat(this->randomGeneratorHandle, 1.0);
-	randomArray[2] = gsl_ran_gaussian_ziggurat(this->randomGeneratorHandle, 1.0);
+	randomArray[0] = gsl_ran_gaussian_ziggurat(this->randomGeneratorHandle,1.0);
+	randomArray[1] = gsl_ran_gaussian_ziggurat(this->randomGeneratorHandle,1.0);
+	randomArray[2] = gsl_ran_gaussian_ziggurat(this->randomGeneratorHandle,1.0);
 	return randomArray;
 }
 

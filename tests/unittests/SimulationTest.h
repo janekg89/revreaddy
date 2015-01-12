@@ -14,12 +14,14 @@ class SimulationTest : public CxxTest::TestSuite
 		void test_addParticle_usualOperation(void)
 		{
 			Simulation * sim = new Simulation();
-			std::array<double,3> x1 = {1.,2.,3.};
-			std::array<double,3> x2 = {-3.,-2.,-1.};
-			sim->addParticle(x1, 2., 3.);
-			sim->addParticle(x2, 4., 5.);
-			TS_ASSERT_EQUALS(sim->activeParticles[0].position, x1);
-			TS_ASSERT_EQUALS(sim->activeParticles[1].position, x2);
+			std::vector<double> x1 = {1.,2.,3.};
+			std::vector<double> x2 = {-3.,-2.,-1.};
+			sim->addParticle(x1, "soft", 2., 3.);
+			sim->addParticle(x2, "soft", 4., 5.);
+			std::array<double,3> x3 = {1.,2.,3.};
+			std::array<double,3> x4 = {-3.,-2.,-1.};
+			TS_ASSERT_EQUALS(sim->activeParticles[0].position, x3);
+			TS_ASSERT_EQUALS(sim->activeParticles[1].position, x4);
 			TS_ASSERT_EQUALS(sim->activeParticles[0].radius, 2.);
 			TS_ASSERT_EQUALS(sim->activeParticles[1].radius, 4.);
 			TS_ASSERT_EQUALS(sim->activeParticles[0].diffusionConstant, 3.);
@@ -33,13 +35,13 @@ class SimulationTest : public CxxTest::TestSuite
 		 */
 		void test_propagate_periodicBoundaryCondition(void)
 		{
-			Simulation * sim = new Simulation();
-			sim->isPeriodic = true;
-			sim->boxsize = 10.;
-			sim->temperature = 1.;
-			sim->kBoltzmann = 1.;
-			std::array<double,3> x0 = {6.,0.,0.};
-			sim->addParticle(x0, 1., 0.);
+			Simulation * sim       = new Simulation();
+			sim->isPeriodic        = true;
+			sim->boxsize           = 10.;
+			sim->temperature       = 1.;
+			sim->kBoltzmann        = 1.;
+			std::vector<double> x0 = {6.,0.,0.};
+			sim->addParticle(x0, "soft",  1., 0.);
 			sim->propagate();
 			std::array<double,3> x1 = {-4.,0.,0.};
 			TS_ASSERT_EQUALS(sim->activeParticles[0].position, x1);
@@ -53,19 +55,28 @@ class SimulationTest : public CxxTest::TestSuite
 		 */
 		void test_getMinDistance_minimumImageConvention(void)
 		{
-			Simulation * sim = new Simulation();
-			sim->isPeriodic = true;
-			sim->boxsize = 10.;
-			std::array<double,3> x1 = {1.,1.,1.};
-			std::array<double,3> x2 = {-1.,-1.,-1.};
+			Simulation * sim         = new Simulation();
+			sim->isPeriodic          = true;
+			sim->boxsize             = 10.;
+			std::array<double,3> x1  = {1.,1.,1.};
+			std::array<double,3> x2  = {-1.,-1.,-1.};
 			std::array<double,3> r12 = {-2.,-2.,-2.}; 
-			std::array<double,3> r = sim->getMinDistance(x1, x2);
+			std::array<double,3> r   = getMinDistanceVector(
+				x1,
+				x2,
+				sim->isPeriodic,
+				sim->boxsize);
 			TS_ASSERT_EQUALS(r, r12);
-			std::array<double,3> x3 = {4.,4.,4.};
-			std::array<double,3> x4 = {-4.,-4.,-4.};
+			std::array<double,3> x3  = {4.,4.,4.};
+			std::array<double,3> x4  = {-4.,-4.,-4.};
 			std::array<double,3> r34 = {2.,2.,2.};
-			r = sim->getMinDistance(x3, x4);
+			r = getMinDistanceVector(
+				x3,
+				x4,
+				sim->isPeriodic,
+				sim->boxsize);
 			TS_ASSERT_EQUALS(r, r34);
+			delete sim;
 		}
 		
 		/* Given 2 particles, check that the calculated force is correctly
@@ -81,10 +92,10 @@ class SimulationTest : public CxxTest::TestSuite
 			sim->isPeriodic = true;
 			sim->boxsize = 10.;
 			sim->repulsionStrength = 2.;
-			std::array<double,3> x0 = {1.,1.,1.};
-			sim->addParticle(x0, 2., 0.);
+			std::vector<double> x0 = {1.,1.,1.};
+			sim->addParticle(x0, "soft", 2., 0.);
 			x0 = {2.,3.,4.};
-			sim->addParticle(x0, 2., 0.);
+			sim->addParticle(x0, "soft", 2., 0.);
 			//printArray(sim->activeParticles[0].cumulativeForce);
 			sim->calculateRepulsionForces();
 			//printArray(sim->activeParticles[0].cumulativeForce);
@@ -98,5 +109,6 @@ class SimulationTest : public CxxTest::TestSuite
 			f[1] *= -1.;
 			f[2] *= -1.;
 			TS_ASSERT_EQUALS(sim->activeParticles[1].cumulativeForce, f);
+			delete sim;
 		}
 };

@@ -24,10 +24,12 @@ RadialDistribution::~RadialDistribution()
 }
 
 
-void RadialDistribution::record(std::vector<Particle> activeParticles, unsigned long int t)
-/* Record the radial distribution already normalized 
- * correctly for the current timestep.
- */
+void RadialDistribution::record(
+	std::vector<Particle> activeParticles,
+	unsigned long int t)
+	/* Record the radial distribution already normalized 
+	 * correctly for the current timestep.
+	 */
 {
 	double radius;
 	std::array<double,3> r_ij;
@@ -46,7 +48,8 @@ void RadialDistribution::record(std::vector<Particle> activeParticles, unsigned 
 	}
 	// copy the hist to 'bins' while scaling every value correctly
 	for (int i=0; i<bins.size(); i++) {
-		bins[i] += gsl_histogram_get(this->radialDistribution, i) / (binCenters[i] * binCenters[i]);
+		bins[i] += gsl_histogram_get(this->radialDistribution, i) 
+		           / (binCenters[i] * binCenters[i]);
 	}
 	gsl_histogram_reset(this->radialDistribution);
 }

@@ -1,9 +1,9 @@
-/* PotentialTest.cpp */
+/* ForceTest.h */
 
 #include <cxxtest/TestSuite.h>
-#include "Potential.h"
+#include "Force.h"
 
-class PotentialTest : public CxxTest::TestSuite
+class ForceTest : public CxxTest::TestSuite
 {
 	public:
 		/***
@@ -16,19 +16,19 @@ class PotentialTest : public CxxTest::TestSuite
 		 ***/
 		void test_softcoreForce_usualOperation(void)
 		{
-			Potential potential;
+			Force force;
 			std::array<double,3> r_ij = {1.,2.,3.};
-			std::array<double,3> force;
-			force = potential.softcoreForce(r_ij, 14., 16., 2.);
+			std::array<double,3> f;
+			f = force.softcoreForce(r_ij, 14., 16., 2.);
 			std::array<double,3> expForce;
 			double expPrefactor = -0.13808993529939517;
 			expForce[0] = expPrefactor * r_ij[0];
 			expForce[1] = expPrefactor * r_ij[1];
 			expForce[2] = expPrefactor * r_ij[2];
-			TS_ASSERT_EQUALS(force, expForce);
+			TS_ASSERT_EQUALS(f, expForce);
 			r_ij = {2.,4.,5.};
-			force = potential.softcoreForce(r_ij, 45., 16., 2.);
+			f = force.softcoreForce(r_ij, 45., 16., 2.);
 			expForce = {0.,0.,0.};
-			TS_ASSERT_EQUALS(force, expForce);
+			TS_ASSERT_EQUALS(f, expForce);
 		}
 };
