@@ -6,7 +6,7 @@ TARGET := bin/runner
  
 SRCEXT := cpp
 #SOURCES := src/main.cpp src/Random.cpp src/Particle.cpp  src/Simulation.cpp  src/Potential.cpp src/Trajectory.cpp src/Observable.cpp
-SOURCES := $(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
+SOURCES := $(shell find $(SRCDIR) -type f -name "*.$(SRCEXT)")
 OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
 # objects without main.o
 OBJECTSWM := $(subst build/main.o,,$(OBJECTS))
