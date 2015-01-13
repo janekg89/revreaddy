@@ -20,7 +20,9 @@ cdef extern from "Simulation.h":
 		double repulsionStrength
 		void addParticle(vector[double], string, double, double)
 		void run()
-
+		vector[double] getPosition(int)
+		int getParticleNumber()
+		void pushObservable(Observable)
 
 cdef class pySimulation:
 	cdef Simulation *thisptr
@@ -28,10 +30,25 @@ cdef class pySimulation:
 		self.thisptr = new Simulation()
 	def __dealloc__(self):
 		del self.thisptr
-	def addParticle(self, initialPosition, particleType, radius, diffusionConst):
-		self.thisptr.addParticle(initialPosition, particleType, radius, diffusionConst)
+	def addParticle(
+		self,
+		initialPosition,
+		particleType,
+		radius,
+		diffusionConst):
+		self.thisptr.addParticle(
+			initialPosition,
+			particleType,
+			radius,
+			diffusionConst)
 	def run(self):
 		self.thisptr.run()
+	def getPosition(self, index):
+		return self.thisptr.getPosition(index)
+	def getParticleNumber(self):
+		return self.thisptr.getParticleNumber()
+	#def pushObservable(self, Observable observable):
+	#	self.thisptr.pushObservable(observable)
 	property maxTime:
 		def __get__(self): return self.thisptr.maxTime
 		def __set__(self, maxTime): self.thisptr.maxTime = maxTime
@@ -49,5 +66,28 @@ cdef class pySimulation:
 		def __set__(self, boxsize): self.thisptr.boxsize = boxsize
 	property repulsionStrength:
 		def __get__(self): return self.thisptr.repulsionStrength
-		def __set__(self, repulsionStrength): self.thisptr.repulsionStrength = repulsionStrength
+		def __set__(self, repulsionStrength): 
+			self.thisptr.repulsionStrength = repulsionStrength
+
+#the following does not yet work
+cdef extern from "Observable.h":
+	cdef cppclass Observable:
+		Observable() except +
+
+cdef extern from "Trajectory.h":
+	cdef cppclass Trajectory(Observable):
+		Trajectory() except +
+		void writeBufferToFile()
+
+cdef class pyObservable:
+	pass
+
+cdef class pyTrajectory:
+	cdef Trajectory *thisptr
+	def __cinit__(self):
+		self.thisptr = new Trajectory()
+	def __dealloc__(self):
+		del self.thisptr
+	def writeBufferToFile(self):
+		self.thisptr.writeBufferToFile()
 

@@ -24,12 +24,12 @@ void printArray(std::array<double, SIZE>& arr)
 
 void printVector(std::vector<double> vec);
 double squaredDistance(
-	std::array<double, 3> arr1,
-	std::array<double, 3> arr2
+	std::vector<double> arr1,
+	std::vector<double> arr2
 );
-std::array<double,3> getMinDistanceVector(
-	std::array<double,3> r_i,
-	std::array<double,3> r_j,
+std::vector<double> getMinDistanceVector(
+	std::vector<double> r_i,
+	std::vector<double> r_j,
 	bool isPeriodic,
 	double boxsize
 );

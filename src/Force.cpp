@@ -8,8 +8,8 @@
 #define TWO_POW_MIN_ONE_SIXTH 0.8908987181403393
 #define TWO_POW_MIN_ONE_THIRD 0.7937005259840998
 
-std::array<double,3> Force::repulsion(
-	std::array<double,3> r_ij,
+std::vector<double> Force::repulsion(
+	std::vector<double> r_ij,
 	double rSquared,
 	double radiiSquared,
 	double strength,
@@ -36,38 +36,40 @@ std::array<double,3> Force::repulsion(
 	}
 }
 
-std::array<double,3> Force::softcoreForce(
-	std::array<double,3> r_ij,
+std::vector<double> Force::softcoreForce(
+	std::vector<double> r_ij,
 	double rSquared, 
 	double radiiSquared,
 	double strength)
 {
 	if ( rSquared > radiiSquared ) {
-		std::array<double,3> zero = {0.,0.,0.};
+		std::vector<double> zero = {0.,0.,0.};
 		return zero;
 	}
 	double preFactor = strength * (1. - sqrt(radiiSquared/rSquared));
-	std::array<double, 3> force;
+	std::vector<double> force = {0.,0.,0.};
+	force.shrink_to_fit();
 	force[0] = preFactor * r_ij[0];
 	force[1] = preFactor * r_ij[1]; 
 	force[2] = preFactor * r_ij[2];
 	return force;
 }
 
-std::array<double,3> Force::LJ1206(
-	std::array<double,3> r_ij,
+std::vector<double> Force::LJ1206(
+	std::vector<double> r_ij,
 	double rSquared,
 	double sigmaSquared,
 	double strength)
 {
 	if ( rSquared > (6.25*sigmaSquared) ) {
-		std::array<double,3> zero = {0.,0.,0.};
+		std::vector<double> zero = {0.,0.,0.};
 		return zero;
 	}
 	double preFactor = -4. * strength;
 	preFactor *= pow(sigmaSquared/rSquared,6.) * (12./rSquared) 
 	           - pow(sigmaSquared/rSquared,3.) * (6. /rSquared);
-	std::array<double,3> force;
+	std::vector<double> force = {0.,0.,0.};
+	force.shrink_to_fit();
 	force[0] = preFactor * r_ij[0];
 	force[1] = preFactor * r_ij[1];
 	force[2] = preFactor * r_ij[2];

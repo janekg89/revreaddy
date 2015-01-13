@@ -32,7 +32,7 @@ void RadialDistribution::record(
 	 */
 {
 	double radius;
-	std::array<double,3> r_ij;
+	std::vector<double> r_ij;
 	for (int i=0; i<activeParticles.size(); i++) {
 		for (int j=i+1; j<activeParticles.size(); j++) {
 			r_ij = getMinDistanceVector(

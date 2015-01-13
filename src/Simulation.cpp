@@ -38,8 +38,8 @@ void Simulation::run()
 
 void Simulation::propagate()
 {
-	std::array<double, 3> noiseTerm;
-	std::array<double, 3> forceTerm;
+	std::vector<double> noiseTerm = {0.,0.,0.};
+	std::vector<double> forceTerm = {0.,0.,0.};
 	double noisePrefactor;
 	double forcePrefactor;
 	for (auto&& particle : activeParticles)
@@ -74,9 +74,10 @@ void Simulation::propagate()
 
 void Simulation::calculateRepulsionForces()
 {
-	std::array<double, 3> forceI;
-	std::array<double, 3> forceJ;
-	std::array<double, 3> r_ij; // connecting vector from particle i to j
+	std::vector<double> forceI = {0.,0.,0.};
+	std::vector<double> forceJ = {0.,0.,0.};
+	// connecting vector from particle i to j
+	std::vector<double> r_ij = {0.,0.,0.}; 
 	double rSquared; // distance of particles i,j squared
 	double radiiSquared; // squared sum of particles i,j radii
 	for (int i=0; i<activeParticles.size(); i++) {
@@ -109,7 +110,7 @@ void Simulation::calculateRepulsionForces()
 			activeParticles[i].addForce(forceI);
 			activeParticles[j].addForce(forceJ);
 		}
-	}	
+	}
 }
 
 void Simulation::addParticle(
@@ -118,14 +119,9 @@ void Simulation::addParticle(
 	double rad,
 	double diffConst)
 {
-	// first convert initPos from vector to array
-	std::array<double,3> initPosArr;
+	Particle * particle         = new Particle();
 	try {
-		if ( initPos.size() == 3 ) {
-			initPosArr[0] = initPos[0];
-			initPosArr[1] = initPos[1];
-			initPosArr[2] = initPos[2];
-		}
+		if ( initPos.size() == 3 ) { particle->position  = initPos; }
 		else {
 			throw "Particles' initial position has dimension mismatch!" 
 			      "Particle will be placed at {0,0,0}.";	
@@ -133,10 +129,8 @@ void Simulation::addParticle(
 	}
 	catch(const char* msg) {
 		std::cerr << msg << "\n";
-		initPosArr = {0., 0., 0.};
+		particle->position = {0., 0., 0.};
 	}
-	Particle * particle         = new Particle();
-	particle->position          = initPosArr;
 	particle->type              = particleType;
 	particle->radius            = rad;
 	particle->diffusionConstant = diffConst;
@@ -150,4 +144,19 @@ void Simulation::recordObservables(unsigned long int t)
 	{
 		obs->record(this->activeParticles, t);
 	}
+}
+
+std::vector<double> Simulation::getPosition(int index)
+{
+	return this->activeParticles[index].position;
+}
+
+int Simulation::getParticleNumber()
+{
+	return this->activeParticles.size();
+}
+
+void Simulation::pushObservable(Observable* obs)
+{
+	this->observables.push_back(obs);
 }

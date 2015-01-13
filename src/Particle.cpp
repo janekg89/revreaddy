@@ -3,11 +3,12 @@
  */
 
 #include "Particle.h"
-#include "utils.h"
 Particle::Particle()
 {
 	this->position 			= {0.,0.,0.};
 	this->cumulativeForce 	= {0.,0.,0.};
+	this->position.shrink_to_fit();
+	this->cumulativeForce.shrink_to_fit();
 	this->type				= "soft";
 	this->diffusionConstant	= 1.;
 	this->radius            = 1.;
@@ -19,14 +20,14 @@ Particle::~Particle()
 {
 }
 
-void Particle::move(std::array<double, 3> deviation)
+void Particle::move(std::vector<double> deviation)
 {
 	this->position[0] += deviation[0];
 	this->position[1] += deviation[1];
 	this->position[2] += deviation[2];
 }
 
-void Particle::addForce(std::array<double, 3> force)
+void Particle::addForce(std::vector<double> force)
 {
 	this->cumulativeForce[0] += force[0];
 	this->cumulativeForce[1] += force[1];

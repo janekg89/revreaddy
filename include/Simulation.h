@@ -10,7 +10,6 @@
 #define __SIMULATION_H_INCLUDED__
 #include <math.h>
 #include <cmath>
-#include <array>
 #include <vector>
 #include <iostream>
 #include <string>
@@ -18,6 +17,8 @@
 #include "Random.h"
 #include "Force.h"
 #include "Observable.h"
+#include "Trajectory.h"
+#include "RadialDistribution.h"
 #include "utils.h"
 
 class Simulation
@@ -52,6 +53,13 @@ class Simulation
 
 		Simulation();
 		~Simulation();
+
+		/*------- Now only functions that will be wrapped by python ---------*/
+
+		/* Obtain the position of the particle activeParticles[index] */
+		std::vector<double> getPosition(int index);
+		int getParticleNumber();
+		void pushObservable(Observable* obs);
 };
 
 #endif // __SIMULATION_H_INCLUDED__

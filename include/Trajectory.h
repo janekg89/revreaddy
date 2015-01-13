@@ -9,7 +9,6 @@
 #include "Observable.h"
 #include "Particle.h"
 #include <vector>
-#include <array>
 #include <fstream>
 #include <string>
 
@@ -21,7 +20,7 @@ class Trajectory : public Observable
 		struct particleTuple
 		{
 			std::string particleType;
-			std::array<double,3> particleCoordinates;
+			std::vector<double> particleCoordinates;
 			unsigned long int particleTime;
 		};
 		/* trajectory has the following shape:

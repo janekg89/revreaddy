@@ -6,7 +6,6 @@
 
 #ifndef __OBSERVABLE_H_INCLUDED__
 #define __OBSERVABLE_H_INCLUDED__
-#include <array>
 #include <vector>
 #include "Particle.h"
 

@@ -12,7 +12,7 @@ void printVector(std::vector<double> vec)
 	std::cout << "]" << std::endl;
 }
 
-double squaredDistance(std::array<double, 3> arr1, std::array<double, 3> arr2)
+double squaredDistance(std::vector<double> arr1, std::vector<double> arr2)
 {
 	double result;
 	result = ( arr1[0] - arr2[0] ) * ( arr1[0] - arr2[0] );
@@ -22,15 +22,14 @@ double squaredDistance(std::array<double, 3> arr1, std::array<double, 3> arr2)
 }
 
 // Return the minimum distance vector, pointing from r_i to r_j
-std::array<double,3>
-getMinDistanceVector(
-	std::array<double,3> r_i,
-	std::array<double,3> r_j,
+std::vector<double> getMinDistanceVector(
+	std::vector<double> r_i,
+	std::vector<double> r_j,
 	bool isPeriodic,
 	double boxsize)
 {
 	double dx, dy, dz;
-	std::array<double,3> r_ij;
+	std::vector<double> r_ij = {0.,0.,0.};
 	dx = r_j[0] - r_i[0];
 	dy = r_j[1] - r_i[1];
 	dz = r_j[2] - r_i[2];

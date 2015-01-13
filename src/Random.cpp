@@ -45,9 +45,9 @@ double Random::normal()
 	return gsl_ran_gaussian_ziggurat(this->randomGeneratorHandle, 1.0);
 }
 
-std::array<double, 3> Random::normal3D()
+std::vector<double> Random::normal3D()
 {
-	std::array<double, 3> randomArray;
+	std::vector<double> randomArray = {0.,0.,0.};
 	randomArray[0] = gsl_ran_gaussian_ziggurat(this->randomGeneratorHandle,1.0);
 	randomArray[1] = gsl_ran_gaussian_ziggurat(this->randomGeneratorHandle,1.0);
 	randomArray[2] = gsl_ran_gaussian_ziggurat(this->randomGeneratorHandle,1.0);

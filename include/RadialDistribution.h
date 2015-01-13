@@ -14,7 +14,6 @@
 #include "Observable.h"
 #include "Particle.h"
 #include "Simulation.h" // use getMinDistance(r1, r2)
-#include <array>
 #include <vector>
 #include <fstream>
 #include <string>
