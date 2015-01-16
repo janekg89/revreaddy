@@ -1,6 +1,6 @@
 # distutils: language = c++
 # distutils: extra_compile_args = -std=c++11
-# distutils: sources = src/Observable.cpp src/Simulation.cpp src/Particle.cpp src/Random.cpp src/Force.cpp src/Trajectory.cpp src/RadialDistribution.cpp src/utils.cpp
+# distutils: sources = src/Observable.cpp src/Simulation.cpp src/Particle.cpp src/Random.cpp src/Force.cpp src/Trajectory.cpp src/TrajectorySingle.cpp src/RadialDistribution.cpp src/utils.cpp
 # distutils: include_dirs = /usr/include /usr/local/include include
 # distutils: libraries = m gsl gslcblas
 
@@ -21,8 +21,15 @@ cdef extern from "Simulation.h":
 		void addParticle(vector[double], string, double, double)
 		void run()
 		vector[double] getPosition(int)
+		void setPosition(int, vector[double])
 		int getParticleNumber()
-		void pushObservable(Observable)
+		void deleteAllParticles()
+		void writeAllObservablesToFile()
+		string showObservables()
+		void deleteAllObservables()
+		void new_Trajectory(string)
+		void new_TrajectorySingle()
+		vector[vector[double]] getTrajectorySingle()
 
 cdef class pySimulation:
 	cdef Simulation *thisptr
@@ -33,9 +40,9 @@ cdef class pySimulation:
 	def addParticle(
 		self,
 		initialPosition,
-		particleType,
-		radius,
-		diffusionConst):
+		particleType='soft',
+		radius=1.,
+		diffusionConst=1.):
 		self.thisptr.addParticle(
 			initialPosition,
 			particleType,
@@ -43,12 +50,27 @@ cdef class pySimulation:
 			diffusionConst)
 	def run(self):
 		self.thisptr.run()
-	def getPosition(self, index):
+	def getPosition(self, index): 
 		return self.thisptr.getPosition(index)
-	def getParticleNumber(self):
+	def setPosition(self, index, newPos):
+		self.thisptr.setPosition(index, newPos)
+	def getParticleNumber(self): 
 		return self.thisptr.getParticleNumber()
-	#def pushObservable(self, Observable observable):
-	#	self.thisptr.pushObservable(observable)
+	def deleteAllParticles(self):
+		self.thisptr.deleteAllParticles()
+	def writeAllObservablesToFile(self): 
+		self.thisptr.writeAllObservablesToFile()
+	def showObservables(self):
+		return self.thisptr.showObservables()
+	def deleteAllObservables(self): 
+		self.thisptr.deleteAllObservables()
+	def new_Trajectory(self, filename): 
+		self.thisptr.new_Trajectory(filename)
+	def new_TrajectorySingle(self):
+		self.thisptr.new_TrajectorySingle()
+	def getTrajectorySingle(self):
+		return self.thisptr.getTrajectorySingle()
+		
 	property maxTime:
 		def __get__(self): return self.thisptr.maxTime
 		def __set__(self, maxTime): self.thisptr.maxTime = maxTime
@@ -68,26 +90,3 @@ cdef class pySimulation:
 		def __get__(self): return self.thisptr.repulsionStrength
 		def __set__(self, repulsionStrength): 
 			self.thisptr.repulsionStrength = repulsionStrength
-
-#the following does not yet work
-cdef extern from "Observable.h":
-	cdef cppclass Observable:
-		Observable() except +
-
-cdef extern from "Trajectory.h":
-	cdef cppclass Trajectory(Observable):
-		Trajectory() except +
-		void writeBufferToFile()
-
-cdef class pyObservable:
-	pass
-
-cdef class pyTrajectory:
-	cdef Trajectory *thisptr
-	def __cinit__(self):
-		self.thisptr = new Trajectory()
-	def __dealloc__(self):
-		del self.thisptr
-	def writeBufferToFile(self):
-		self.thisptr.writeBufferToFile()
-

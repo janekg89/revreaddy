@@ -23,9 +23,9 @@ int main()
 	sim->repulsionStrength = 1.;
 
 	std::vector<double> x0 = {0., 0., 0.};
-	for (double i=0; i<9; i++)
-		for (double j=0; j<9; j++)
-			for (double k=0; k<9; k++) {
+	for (double i=0; i<2; i++)
+		for (double j=0; j<2; j++)
+			for (double k=0; k<2; k++) {
 				x0[0] = -0.49 * sim->boxsize + i;
 				x0[1] = -0.49 * sim->boxsize + j;
 				x0[2] = -0.49 * sim->boxsize + k;
@@ -51,5 +51,10 @@ int main()
 
 	traj->writeBufferToFile();
 	rad->writeBufferToFile();
+	
+	TrajectorySingle * trajSingle = new TrajectorySingle();
+	sim->observables.push_back(trajSingle);
+	sim->maxTime = 4;
+	sim->run();
 	return 0;
 }

@@ -34,7 +34,7 @@ void Trajectory::record(
 void Trajectory::writeBufferToFile()
 {
 	std::ofstream file;
-	file.open("trajectory.ixyz", std::ofstream::out | std::ofstream::app);
+	file.open(this->filename, std::ofstream::out | std::ofstream::app);
 	for (auto&& particles : this->trajectory)
 	{
 		file << particles.size() << "\n";

@@ -13,11 +13,13 @@
 #include <vector>
 #include <iostream>
 #include <string>
+#include <typeinfo>
 #include "Particle.h"
 #include "Random.h"
 #include "Force.h"
 #include "Observable.h"
 #include "Trajectory.h"
+#include "TrajectorySingle.h"
 #include "RadialDistribution.h"
 #include "utils.h"
 
@@ -54,12 +56,19 @@ class Simulation
 		Simulation();
 		~Simulation();
 
-		/*------- Now only functions that will be wrapped by python ---------*/
+		/*------- functions that will be wrapped by python -----------*/
 
 		/* Obtain the position of the particle activeParticles[index] */
 		std::vector<double> getPosition(int index);
+		void setPosition(int index, std::vector<double> newPos);
 		int getParticleNumber();
-		void pushObservable(Observable* obs);
+		void deleteAllParticles();
+		void writeAllObservablesToFile();
+		std::string showObservables();
+		void deleteAllObservables();
+		void new_Trajectory(std::string filename);
+		void new_TrajectorySingle();
+		std::vector< std::vector<double> > getTrajectorySingle();
 };
 
 #endif // __SIMULATION_H_INCLUDED__

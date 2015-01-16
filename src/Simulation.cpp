@@ -136,11 +136,12 @@ void Simulation::addParticle(
 	particle->diffusionConstant = diffConst;
 	this->activeParticles.push_back(*particle);//push_back copies arg into vec
 	delete particle;
+	std::cout << "Particle added.\n";
 }
 
 void Simulation::recordObservables(unsigned long int t)
 {
-	for (auto* obs : observables)
+	for (auto* obs : this->observables)
 	{
 		obs->record(this->activeParticles, t);
 	}
@@ -151,12 +152,89 @@ std::vector<double> Simulation::getPosition(int index)
 	return this->activeParticles[index].position;
 }
 
+void Simulation::setPosition(int index, std::vector<double> newPos)
+{
+	if (newPos.size() == 3) {
+		this->activeParticles[index].position[0] = newPos[0];
+		this->activeParticles[index].position[1] = newPos[1];
+		this->activeParticles[index].position[2] = newPos[2];
+	}
+	else {
+		throw "New position has dimension mismatch!"
+		      "Particle remains at its old position.";
+	}
+}
+
 int Simulation::getParticleNumber()
 {
 	return this->activeParticles.size();
 }
 
-void Simulation::pushObservable(Observable* obs)
+void Simulation::deleteAllParticles()
 {
-	this->observables.push_back(obs);
+	 this->activeParticles.erase(
+		this->activeParticles.begin(),
+		this->activeParticles.begin() + this->activeParticles.size()
+	);
+}
+
+void Simulation::writeAllObservablesToFile()
+{
+	for (auto* obs : this->observables) {
+		obs->writeBufferToFile();
+	}
+}
+
+std::string Simulation::showObservables()
+{
+	std::string content = "Observables: ";
+	if (this->observables.size() > 0) {
+		for (auto* obs : this->observables) {
+			content += std::string (typeid(*obs).name()) + " ";
+		}
+	}
+	else {content += "empty";}
+	content += "\n";
+	return content;
+}
+
+void Simulation::deleteAllObservables()
+{
+	/* first delete the obs, since they we're allocated with 'new'
+	 * then erase the pointers from the vector */
+	for (auto* obs : this->observables) {
+		delete obs;
+	}
+	this->observables.erase(
+		this->observables.begin(),
+		this->observables.begin() + this->observables.size()
+	);
+}
+
+void Simulation::new_Trajectory(std::string filename)
+{
+	Trajectory * obs = new Trajectory();
+	obs->filename = filename;
+	observables.push_back(obs);
+}
+
+void Simulation::new_TrajectorySingle()
+{
+	TrajectorySingle * obs = new TrajectorySingle();
+	observables.push_back(obs);
+}
+
+std::vector< std::vector<double> > Simulation::getTrajectorySingle()
+{
+	/* find the first Observable of type TrajectorySingle and return it */
+	for (auto* obs : this->observables) {
+		if (std::string (typeid(*obs).name()) == "16TrajectorySingle") {
+			return obs->trajectory;
+		}
+	}
+	// if that fails return a default 'zero' vector.
+	std::vector< std::vector<double> > zero;
+	std::vector<double> x = {0.,0.,0.};
+	zero.push_back(x);
+	return zero;
 }
