@@ -13,9 +13,9 @@ class ParticleTest : public CxxTest::TestSuite
 		void test_move_usualOperation(void)
 		{
 			Particle particle;
-			std::array<double,3> x0 = {0.,0.,0.};
-			std::array<double,3> dx = {1.,1.,1.};
-			std::array<double,3> x1 = {1.,1.,1.};
+			std::vector<double> x0 = {0.,0.,0.};
+			std::vector<double> dx = {1.,1.,1.};
+			std::vector<double> x1 = {1.,1.,1.};
 			particle.position = x0;
 
 			particle.move(dx);
@@ -26,8 +26,8 @@ class ParticleTest : public CxxTest::TestSuite
 		void test_addForce_usualOperation(void)
 		{
 			Particle particle;
-			std::array<double,3> force = {1.,-2.,3.};
-			std::array<double,3> res = {1.,-2.,3.};
+			std::vector<double> force = {1.,-2.,3.};
+			std::vector<double> res = {1.,-2.,3.};
 
 			particle.addForce(force);
 
@@ -37,8 +37,8 @@ class ParticleTest : public CxxTest::TestSuite
 		void test_resetForce_usualOperation(void)
 		{
 			Particle particle;
-			std::array<double,3> force = {2.,1.,-3.};
-			std::array<double,3> zero = {0.,0.,0.};
+			std::vector<double> force = {2.,1.,-3.};
+			std::vector<double> zero = {0.,0.,0.};
 			particle.cumulativeForce = force;
 
 			particle.resetForce();

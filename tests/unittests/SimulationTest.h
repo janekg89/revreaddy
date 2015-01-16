@@ -18,8 +18,8 @@ class SimulationTest : public CxxTest::TestSuite
 			std::vector<double> x2 = {-3.,-2.,-1.};
 			sim->addParticle(x1, "soft", 2., 3.);
 			sim->addParticle(x2, "soft", 4., 5.);
-			std::array<double,3> x3 = {1.,2.,3.};
-			std::array<double,3> x4 = {-3.,-2.,-1.};
+			std::vector<double> x3 = {1.,2.,3.};
+			std::vector<double> x4 = {-3.,-2.,-1.};
 			TS_ASSERT_EQUALS(sim->activeParticles[0].position, x3);
 			TS_ASSERT_EQUALS(sim->activeParticles[1].position, x4);
 			TS_ASSERT_EQUALS(sim->activeParticles[0].radius, 2.);
@@ -43,7 +43,7 @@ class SimulationTest : public CxxTest::TestSuite
 			std::vector<double> x0 = {6.,0.,0.};
 			sim->addParticle(x0, "soft",  1., 0.);
 			sim->propagate();
-			std::array<double,3> x1 = {-4.,0.,0.};
+			std::vector<double> x1 = {-4.,0.,0.};
 			TS_ASSERT_EQUALS(sim->activeParticles[0].position, x1);
 			delete sim;
 		}
@@ -58,18 +58,18 @@ class SimulationTest : public CxxTest::TestSuite
 			Simulation * sim         = new Simulation();
 			sim->isPeriodic          = true;
 			sim->boxsize             = 10.;
-			std::array<double,3> x1  = {1.,1.,1.};
-			std::array<double,3> x2  = {-1.,-1.,-1.};
-			std::array<double,3> r12 = {-2.,-2.,-2.}; 
-			std::array<double,3> r   = getMinDistanceVector(
+			std::vector<double> x1  = {1.,1.,1.};
+			std::vector<double> x2  = {-1.,-1.,-1.};
+			std::vector<double> r12 = {-2.,-2.,-2.}; 
+			std::vector<double> r   = getMinDistanceVector(
 				x1,
 				x2,
 				sim->isPeriodic,
 				sim->boxsize);
 			TS_ASSERT_EQUALS(r, r12);
-			std::array<double,3> x3  = {4.,4.,4.};
-			std::array<double,3> x4  = {-4.,-4.,-4.};
-			std::array<double,3> r34 = {2.,2.,2.};
+			std::vector<double> x3  = {4.,4.,4.};
+			std::vector<double> x4  = {-4.,-4.,-4.};
+			std::vector<double> r34 = {2.,2.,2.};
 			r = getMinDistanceVector(
 				x3,
 				x4,
@@ -99,7 +99,7 @@ class SimulationTest : public CxxTest::TestSuite
 			//printArray(sim->activeParticles[0].cumulativeForce);
 			sim->calculateRepulsionForces();
 			//printArray(sim->activeParticles[0].cumulativeForce);
-			std::array<double,3> f = {1.,2.,3.};
+			std::vector<double> f = {1.,2.,3.};
 			double preFactor = -0.13808993529939517;
 			f[0] *= preFactor;
 			f[1] *= preFactor;

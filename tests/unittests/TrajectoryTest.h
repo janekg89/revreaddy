@@ -15,7 +15,7 @@ class TrajectoryTest : public CxxTest::TestSuite
 		{
 			Trajectory traj;
 			std::vector<Particle> activeParticles;
-			std::array<double,3> x0 = {1.,2.,3.};
+			std::vector<double> x0 = {1.,2.,3.};
 			Particle p1;
 			Particle p2;
 			p1.position = x0;
@@ -36,7 +36,7 @@ class TrajectoryTest : public CxxTest::TestSuite
 			TS_ASSERT_EQUALS(traj.trajectory[0][1].particleTime, 42);
 			TS_ASSERT_EQUALS(traj.trajectory[0][2].particleTime, 42);
 			// check if the particles' position is {1.,2.,3.}
-			std::array<double,3> x1 = {1.,2.,3.};
+			std::vector<double> x1 = {1.,2.,3.};
 			TS_ASSERT_EQUALS(traj.trajectory[0][0].particleCoordinates, x1);
 			TS_ASSERT_EQUALS(traj.trajectory[0][1].particleCoordinates, x1);
 			TS_ASSERT_EQUALS(traj.trajectory[0][2].particleCoordinates, x1);

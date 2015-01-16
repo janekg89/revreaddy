@@ -2,6 +2,7 @@
 
 #include <cxxtest/TestSuite.h>
 #include "Force.h"
+#include <iostream>
 
 class ForceTest : public CxxTest::TestSuite
 {
@@ -17,10 +18,10 @@ class ForceTest : public CxxTest::TestSuite
 		void test_softcoreForce_usualOperation(void)
 		{
 			Force force;
-			std::array<double,3> r_ij = {1.,2.,3.};
-			std::array<double,3> f;
+			std::vector<double> r_ij = {1.,2.,3.};
+			std::vector<double> f;
 			f = force.softcoreForce(r_ij, 14., 16., 2.);
-			std::array<double,3> expForce;
+			std::vector<double> expForce = {0.,0.,0.};
 			double expPrefactor = -0.13808993529939517;
 			expForce[0] = expPrefactor * r_ij[0];
 			expForce[1] = expPrefactor * r_ij[1];

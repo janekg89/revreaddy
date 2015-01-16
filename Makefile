@@ -44,6 +44,6 @@ $(BUILDDIR)/unittest.o: $(UNITTESTDIR)/unittest.cpp
 
 # How to generate the test
 $(UNITTESTDIR)/unittest.cpp: $(UNITTESTS)
-	cxxtestgen -o $@ --error-printer $^
+	cxxtestgen --error-printer -o $@ $^
 
 .PHONY: clean
