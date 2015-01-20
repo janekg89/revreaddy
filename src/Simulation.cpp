@@ -14,6 +14,7 @@ Simulation::Simulation()
 	repulsionStrength = 1.;
 	isPeriodic        = true;
 	boxsize           = 10.;
+	verbose           = false;
 }
 
 Simulation::~Simulation()
@@ -138,7 +139,7 @@ void Simulation::addParticle(
 	particle->diffusionConstant = diffConst;
 	this->activeParticles.push_back(*particle);//push_back copies arg into vec
 	delete particle;
-	std::cout << "Particle added.\n";
+	if (this->verbose) {std::cout << "Particle added.\n";}
 }
 
 void Simulation::recordObservables(unsigned long int t)

@@ -18,6 +18,8 @@ cdef extern from "Simulation.h":
 		bool isPeriodic
 		double boxsize
 		double repulsionStrength
+		bool verbose
+
 		void addParticle(vector[double], string, double, double)
 		void run()
 		vector[double] getPosition(int)
@@ -90,3 +92,6 @@ cdef class pySimulation:
 		def __get__(self): return self.thisptr.repulsionStrength
 		def __set__(self, repulsionStrength): 
 			self.thisptr.repulsionStrength = repulsionStrength
+	property verbose:
+		def __get__(self): return self.thisptr.verbose
+		def __set__(self, verbose): self.thisptr.verbose = verbose
