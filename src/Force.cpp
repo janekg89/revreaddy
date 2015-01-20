@@ -8,7 +8,7 @@
 #define TWO_POW_MIN_ONE_SIXTH 0.8908987181403393
 #define TWO_POW_MIN_ONE_THIRD 0.7937005259840998
 
-std::vector<double> Force::repulsion(
+std::vector<double> Force::repulsionForce(
 	std::vector<double> r_ij,
 	double rSquared,
 	double radiiSquared,
@@ -21,15 +21,15 @@ std::vector<double> Force::repulsion(
 	}
 	if ( (typeI == "lj") && (typeJ == "lj") ) {
 		double correctedSigmaSquared = TWO_POW_MIN_ONE_THIRD * radiiSquared;
-		return this->LJ1206(r_ij, rSquared, correctedSigmaSquared, strength);
+		return this->LJ1206Force(r_ij, rSquared, correctedSigmaSquared, strength);
 	}
 	if ( (typeI == "lj") && (typeJ == "soft") ) {
 		double correctedSigmaSquared = TWO_POW_MIN_ONE_THIRD * radiiSquared;
-		return this->LJ1206(r_ij, rSquared, correctedSigmaSquared, strength);
+		return this->LJ1206Force(r_ij, rSquared, correctedSigmaSquared, strength);
 	}
 	if ( (typeJ == "soft") && (typeJ == "lj") ) {
 		double correctedSigmaSquared = TWO_POW_MIN_ONE_THIRD * radiiSquared;
-		return this->LJ1206(r_ij, rSquared, correctedSigmaSquared, strength);
+		return this->LJ1206Force(r_ij, rSquared, correctedSigmaSquared, strength);
 	}
 	else {
 		throw "Particle types are neither 'soft' nor 'lj' !";
@@ -55,7 +55,7 @@ std::vector<double> Force::softcoreForce(
 	return force;
 }
 
-std::vector<double> Force::LJ1206(
+std::vector<double> Force::LJ1206Force(
 	std::vector<double> r_ij,
 	double rSquared,
 	double sigmaSquared,

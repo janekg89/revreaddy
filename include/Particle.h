@@ -26,6 +26,8 @@ class Particle
 		/* the cumulative force for the current timestep. 
 		 * Should be zero after propagation */
 		std::vector<double> cumulativeForce;
+		/* interaction energy with all other particles */
+		double singleEnergy;
 
 		Particle();
 		~Particle();

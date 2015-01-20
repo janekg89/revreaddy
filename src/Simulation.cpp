@@ -72,6 +72,8 @@ void Simulation::propagate()
 	}
 }
 
+// TODO avoid alocation in every function call. 
+// Make new Simulation variables instead.
 void Simulation::calculateRepulsionForces()
 {
 	std::vector<double> forceI = {0.,0.,0.};
@@ -92,7 +94,7 @@ void Simulation::calculateRepulsionForces()
 				activeParticles[i].radius + activeParticles[j].radius,
 				2.);
 			try {
-				forceI = force->repulsion(
+				forceI = force->repulsionForce(
 					r_ij,
 					rSquared,
 					radiiSquared,

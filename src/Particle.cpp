@@ -14,6 +14,7 @@ Particle::Particle()
 	this->radius            = 1.;
 	this->skip              = 0;
 	this->count	            = 0;
+	this->singleEnergy      = 0.;
 }
 
 Particle::~Particle()

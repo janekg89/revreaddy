@@ -14,7 +14,7 @@
 class Force
 {
 	public:
-		std::vector<double> repulsion(
+		std::vector<double> repulsionForce(
 			std::vector<double> r_ij,
 			double rSquared,
 			double radiiSquared,
@@ -26,8 +26,22 @@ class Force
 			double rSquared, 
 			double radiiSquared,
 			double strength);
-		std::vector<double> LJ1206(
+		std::vector<double> LJ1206Force(
 			std::vector<double> r_ij,
+			double rSquared,
+			double sigmaSquared,
+			double strength);
+		double repulsionEnergy(
+			double rSquared,
+			double radiiSquared,
+			double strength,
+			std::string typeI,
+			std::string typeJ);
+		double softcoreEnergy(
+			double rSquared,
+			double radiiSquared,
+			double strength);
+		double LJ1206Energy(
 			double rSquared,
 			double sigmaSquared,
 			double strength);
