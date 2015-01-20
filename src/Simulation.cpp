@@ -73,16 +73,14 @@ void Simulation::propagate()
 	}
 }
 
-// TODO avoid alocation in every function call. 
-// Make new Simulation variables instead.
 void Simulation::calculateRepulsionForces()
 {
 	std::vector<double> forceI = {0.,0.,0.};
 	std::vector<double> forceJ = {0.,0.,0.};
 	// connecting vector from particle i to j
 	std::vector<double> r_ij = {0.,0.,0.}; 
-	double rSquared; // distance of particles i,j squared
-	double radiiSquared; // squared sum of particles i,j radii
+	double rSquared = 0.8; // distance of particles i,j squared
+	double radiiSquared = 1.; // squared sum of particles i,j radii
 	for (int i=0; i<activeParticles.size(); i++) {
 		for (int j=i+1; j<activeParticles.size(); j++) {
 			r_ij = getMinDistanceVector(
@@ -95,7 +93,8 @@ void Simulation::calculateRepulsionForces()
 				activeParticles[i].radius + activeParticles[j].radius,
 				2.);
 			try {
-				forceI = force->repulsionForce(
+				force->repulsionForce(
+					forceI,
 					r_ij,
 					rSquared,
 					radiiSquared,
