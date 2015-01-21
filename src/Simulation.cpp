@@ -31,7 +31,7 @@ void Simulation::run()
 	{
 		// groupForces()
 		this->calculateRepulsionForces();
-		this->propagate();
+		this->propagateRev();
 		this->recordObservables(t);
 	}
 	std::cout << "Simulation has finished\n";
@@ -70,6 +70,83 @@ void Simulation::propagate()
 			if (particle.position[2] < (-0.5 * boxsize) ) {particle.position[2] += boxsize;}
 			if (particle.position[2] >= (0.5 * boxsize) ) {particle.position[2] -= boxsize;}
 		}
+	}
+}
+
+void Simulation::propagateRev()
+{
+	std::vector<double> noiseTerm   = {0.,0.,0.};
+	std::vector<double> forceTerm   = {0.,0.,0.};
+	std::vector<double> oldPosition = {0.,0.,0.};
+	double noisePrefactor;
+	double forcePrefactor;
+	double oldSingleEnergy;
+	double newSingleEnergy;
+	double energyBuffer;
+	double distanceBuffer;
+	double radiiSquared;
+	for (int i=0; i<activeParticles.size(); i++) {
+		oldPosition = activeParticles[i].position;
+		oldSingleEnergy = activeParticles[i].singleEnergy;
+
+		noiseTerm = random->normal3D();
+		noisePrefactor = sqrt(
+			2. * activeParticles[i].diffusionConstant * timestep);
+		noiseTerm[0] *= noisePrefactor;
+		noiseTerm[1] *= noisePrefactor;
+		noiseTerm[2] *= noisePrefactor;
+
+		forcePrefactor = timestep * activeParticles[i].diffusionConstant 
+			/ (kBoltzmann * temperature);
+		forceTerm[0] = activeParticles[i].cumulativeForce[0] * forcePrefactor;
+		forceTerm[1] = activeParticles[i].cumulativeForce[1] * forcePrefactor;
+		forceTerm[2] = activeParticles[i].cumulativeForce[2] * forcePrefactor;
+
+		activeParticles[i].move(noiseTerm);
+		activeParticles[i].move(forceTerm);
+		activeParticles[i].resetForce();
+
+		if (isPeriodic)
+		{
+			if (activeParticles[i].position[0] < (-0.5 * boxsize) ) {
+				activeParticles[i].position[0] += boxsize;}
+			else if (activeParticles[i].position[0] >= (0.5 * boxsize) ) {
+				activeParticles[i].position[0] -= boxsize;}
+			if (activeParticles[i].position[1] < (-0.5 * boxsize) ) {
+				activeParticles[i].position[1] += boxsize;}
+			else if (activeParticles[i].position[1] >= (0.5 * boxsize) ) {
+				activeParticles[i].position[1] -= boxsize;}
+			if (activeParticles[i].position[2] < (-0.5 * boxsize) ) {
+				activeParticles[i].position[2] += boxsize;}
+			else if (activeParticles[i].position[2] >= (0.5 * boxsize) ) {
+				activeParticles[i].position[2] -= boxsize;}
+		}
+		// new position has been proposed. now accept or reject.
+		newSingleEnergy = 0.;
+		for (int j=0; j<activeParticles.size(); j++) {
+			if (i == j) { }
+			else {
+				getMinDistanceSquared(
+					distanceBuffer,
+					activeParticles[i].position,
+					activeParticles[j].position,
+					this->isPeriodic,
+					this->boxsize);
+				radiiSquared = pow(
+					activeParticles[i].radius + activeParticles[j].radius,
+					2.);
+				force->repulsionEnergy(
+					energyBuffer,
+					distanceBuffer,
+					radiiSquared,
+					repulsionStrength,
+					activeParticles[i].type,
+					activeParticles[j].type);
+				newSingleEnergy += energyBuffer;
+			}
+		}
+		// TODO delta E = 1/2 (newSingleEnergy - oldSingleEnergy)
+		// accept or reject
 	}
 }
 

@@ -15,7 +15,7 @@ int main()
 	Simulation * sim = new Simulation();
 
 	sim->kBoltzmann = 1.;
-	sim->maxTime	= 10;
+	sim->maxTime	= 1000;
 	sim->temperature= 1.;
 	sim->timestep	= 0.0001;
 	sim->isPeriodic = true;
@@ -32,6 +32,7 @@ int main()
 				sim->addParticle(x0, "lj", 0.5, 1.);
 			}
 	Trajectory * traj = new Trajectory();
+	traj->filename = "traj.xyz";
 	sim->observables.push_back(traj);
 
 	sim->run();

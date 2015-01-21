@@ -53,7 +53,7 @@ void Force::softcoreForce(
 		forceI = {0.,0.,0.};
 		return;
 	}
-	double preFactor = strength * (1. - sqrt(radiiSquared/rSquared));
+	double preFactor = 0.5 * strength * (1. - sqrt(radiiSquared/rSquared));
 	forceI[0] = preFactor * r_ij[0];
 	forceI[1] = preFactor * r_ij[1]; 
 	forceI[2] = preFactor * r_ij[2];
@@ -72,8 +72,87 @@ void Force::LJ1206Force(
 	}
 	double preFactor = -4. * strength;
 	preFactor *= pow(sigmaSquared/rSquared,6.) * (12./rSquared) 
-	           - pow(sigmaSquared/rSquared,3.) * (6. /rSquared);
+			   - pow(sigmaSquared/rSquared,3.) * (6. /rSquared);
 	forceI[0] = preFactor * r_ij[0];
 	forceI[1] = preFactor * r_ij[1];
 	forceI[2] = preFactor * r_ij[2];
+}
+
+void Force::repulsionEnergy(
+	double& energy,
+	double& rSquared,
+	double& radiiSquared,
+	double& strength,
+	std::string& typeI,
+	std::string& typeJ)
+{
+	if ( (typeI == "soft") && (typeJ == "soft") ) {
+		this->softcoreEnergy(
+			energy,
+			rSquared,
+			radiiSquared,
+			strength);
+		return;
+	}
+	else if ( (typeI == "lj") && (typeJ == "lj") ) {
+		double correctedSigmaSquared = TWO_POW_MIN_ONE_THIRD * radiiSquared;
+		this->LJ1206Energy(
+			energy,
+			rSquared,
+			correctedSigmaSquared,
+			strength);
+		return;
+	}
+	else if ( (typeI == "lj") && (typeJ == "soft") ) {
+		double correctedSigmaSquared = TWO_POW_MIN_ONE_THIRD * radiiSquared;
+		this->LJ1206Energy(
+			energy,
+			rSquared,
+			correctedSigmaSquared,
+			strength);
+		return;
+	}
+	else if ( (typeJ == "soft") && (typeJ == "lj") ) {
+		double correctedSigmaSquared = TWO_POW_MIN_ONE_THIRD * radiiSquared;
+		this->LJ1206Energy(
+			energy,
+			rSquared,
+			correctedSigmaSquared,
+			strength);
+		return;
+	}
+	else {
+		energy = 0.;
+		std::cout << "No known particle types are used!\n";
+	}
+}
+
+void Force::softcoreEnergy(
+	double& energy,
+	double& rSquared,
+	double& radiiSquared,
+	double& strength)
+{
+	if (rSquared > radiiSquared) {
+		energy = 0.;
+		return;
+	}
+	// E = strength * ( r - radii )**2
+	energy  = sqrt(rSquared) - sqrt(radiiSquared);
+	energy *= energy;
+	energy *= strength;
+}
+
+void Force::LJ1206Energy(
+	double& energy,
+	double& rSquared,
+	double& sigmaSquared,
+	double& strength)
+{
+	if ( rSquared > (6.25*sigmaSquared) ) {
+		energy = 0.;
+		return;
+	}
+	energy  = 4. * strength;
+	energy *= pow(sigmaSquared/rSquared,6.) - pow(sigmaSquared/rSquared,3.);
 }

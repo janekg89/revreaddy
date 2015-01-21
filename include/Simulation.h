@@ -49,6 +49,7 @@ class Simulation
 			double diffConst);
 		void run();
 		void propagate();
+		void propagateRev(); // reversible version
 		void recordObservables(unsigned long int t);
 		/* double loop (i,j) over activeParticles and call 
 		 * according Forcetype for particle pair (i,j) */

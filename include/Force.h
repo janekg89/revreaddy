@@ -1,7 +1,7 @@
 /* Force.h
  * author: Christoph Froehner
  * 
- * Handler for calculation of forces.
+ * Handler for calculation of forces and energies.
  */
 
 #ifndef __FORCE_H_INCLUDED__
@@ -35,19 +35,22 @@ class Force
 			double& rSquared,
 			double& sigmaSquared,
 			double& strength);
-		double repulsionEnergy(
-			double rSquared,
-			double radiiSquared,
-			double strength,
-			std::string typeI,
-			std::string typeJ);
-		double softcoreEnergy(
-			double rSquared,
-			double radiiSquared,
-			double strength);
-		double LJ1206Energy(
-			double rSquared,
-			double sigmaSquared,
-			double strength);
+		void repulsionEnergy(
+			double& energy,
+			double& rSquared,
+			double& radiiSquared,
+			double& strength,
+			std::string& typeI,
+			std::string& typeJ);
+		void softcoreEnergy(
+			double& energy,
+			double& rSquared,
+			double& radiiSquared,
+			double& strength);
+		void LJ1206Energy(
+			double& energy,
+			double& rSquared,
+			double& sigmaSquared,
+			double& strength);
 };
 #endif // __FORCE_H_INCLUDED__
