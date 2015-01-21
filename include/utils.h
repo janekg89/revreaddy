@@ -23,15 +23,18 @@ void printArray(std::array<double, SIZE>& arr)
 }
 
 void printVector(std::vector<double> vec);
+
 double squaredDistance(
 	std::vector<double> arr1,
 	std::vector<double> arr2
 );
-std::vector<double> getMinDistanceVector(
-	std::vector<double> r_i,
-	std::vector<double> r_j,
-	bool isPeriodic,
-	double boxsize
+
+void getMinDistanceVector(
+	std::vector<double>& r_ij,
+	std::vector<double>& r_i,
+	std::vector<double>& r_j,
+	bool& isPeriodic,
+	double& boxsize
 );
 
 #endif

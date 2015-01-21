@@ -83,7 +83,8 @@ void Simulation::calculateRepulsionForces()
 	double radiiSquared = 1.; // squared sum of particles i,j radii
 	for (int i=0; i<activeParticles.size(); i++) {
 		for (int j=i+1; j<activeParticles.size(); j++) {
-			r_ij = getMinDistanceVector(
+			getMinDistanceVector(
+				r_ij,
 				activeParticles[i].position, 
 				activeParticles[j].position, 
 				this->isPeriodic, 

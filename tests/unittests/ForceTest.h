@@ -19,8 +19,13 @@ class ForceTest : public CxxTest::TestSuite
 		{
 			Force force;
 			std::vector<double> r_ij = {1.,2.,3.};
-			std::vector<double> f;
-			f = force.softcoreForce(r_ij, 14., 16., 2.);
+			std::vector<double> f = {0.,0.,0.};
+			double fourteen, sixteen, two, fortyfive;
+			fourteen = 14.;
+			sixteen = 16.;
+			two = 2.;
+			fortyfive = 45.;
+			force.softcoreForce(f, r_ij, fourteen, sixteen, two);
 			std::vector<double> expForce = {0.,0.,0.};
 			double expPrefactor = -0.13808993529939517;
 			expForce[0] = expPrefactor * r_ij[0];
@@ -28,7 +33,7 @@ class ForceTest : public CxxTest::TestSuite
 			expForce[2] = expPrefactor * r_ij[2];
 			TS_ASSERT_EQUALS(f, expForce);
 			r_ij = {2.,4.,5.};
-			f = force.softcoreForce(r_ij, 45., 16., 2.);
+			force.softcoreForce(f, r_ij, fortyfive, sixteen,two);
 			expForce = {0.,0.,0.};
 			TS_ASSERT_EQUALS(f, expForce);
 		}

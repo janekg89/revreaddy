@@ -32,10 +32,11 @@ void RadialDistribution::record(
 	 */
 {
 	double radius;
-	std::vector<double> r_ij;
+	std::vector<double> r_ij={0.,0.,0.};
 	for (int i=0; i<activeParticles.size(); i++) {
 		for (int j=i+1; j<activeParticles.size(); j++) {
-			r_ij = getMinDistanceVector(
+			getMinDistanceVector(
+				r_ij,
 				activeParticles[i].position,
 				activeParticles[j].position,
 				this->isPeriodic,

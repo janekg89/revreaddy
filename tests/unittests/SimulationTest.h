@@ -61,7 +61,9 @@ class SimulationTest : public CxxTest::TestSuite
 			std::vector<double> x1  = {1.,1.,1.};
 			std::vector<double> x2  = {-1.,-1.,-1.};
 			std::vector<double> r12 = {-2.,-2.,-2.}; 
-			std::vector<double> r   = getMinDistanceVector(
+			std::vector<double> r   = {0.,0.,0.};
+			getMinDistanceVector(
+				r,
 				x1,
 				x2,
 				sim->isPeriodic,
@@ -70,7 +72,8 @@ class SimulationTest : public CxxTest::TestSuite
 			std::vector<double> x3  = {4.,4.,4.};
 			std::vector<double> x4  = {-4.,-4.,-4.};
 			std::vector<double> r34 = {2.,2.,2.};
-			r = getMinDistanceVector(
+			getMinDistanceVector(
+				r,
 				x3,
 				x4,
 				sim->isPeriodic,
