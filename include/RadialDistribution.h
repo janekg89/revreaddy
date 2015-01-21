@@ -35,7 +35,9 @@ class RadialDistribution : public Observable
 		bool isPeriodic;
 		double boxsize;
 
-		void record(std::vector<Particle> activeParticles, unsigned long int t);
+		void record(
+			std::vector<Particle>& activeParticles,
+			unsigned long int t);
 		void writeBufferToFile();
 
 		RadialDistribution(std::vector<double> range);

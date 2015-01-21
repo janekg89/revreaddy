@@ -12,7 +12,7 @@ void printVector(std::vector<double> vec)
 	std::cout << "]" << std::endl;
 }
 
-double squaredDistance(std::vector<double> arr1, std::vector<double> arr2)
+double squaredDistance(std::vector<double>& arr1, std::vector<double>& arr2)
 {
 	double result;
 	result = ( arr1[0] - arr2[0] ) * ( arr1[0] - arr2[0] );
@@ -21,6 +21,7 @@ double squaredDistance(std::vector<double> arr1, std::vector<double> arr2)
 	return result;
 }
 
+/*
 // get the minimum distance vector, pointing from r_i to r_j and write to r_ij
 void getMinDistanceVector(
 	std::vector<double>& r_ij,
@@ -45,3 +46,4 @@ void getMinDistanceVector(
 	r_ij[1] = dy;
 	r_ij[2] = dz;
 }
+*/

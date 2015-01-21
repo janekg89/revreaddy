@@ -28,7 +28,7 @@ class Trajectory : public Observable
 		std::vector< std::vector< particleTuple > > trajectory;
 
 		void record(
-			std::vector<Particle> activeParticles,
+			std::vector<Particle>& activeParticles,
 			unsigned long int t);
 		void writeBufferToFile();
 	

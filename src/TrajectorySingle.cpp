@@ -2,7 +2,7 @@
 #include "TrajectorySingle.h"
 
 void TrajectorySingle::record(
-	std::vector<Particle> activeParticles,
+	std::vector<Particle>& activeParticles,
 	unsigned long int t)
 {
 	std::vector<double> currentCoordinates = {0.,0.,0.};

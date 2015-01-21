@@ -93,20 +93,14 @@ void Simulation::calculateRepulsionForces()
 			radiiSquared = pow(
 				activeParticles[i].radius + activeParticles[j].radius,
 				2.);
-			try {
-				force->repulsionForce(
-					forceI,
-					r_ij,
-					rSquared,
-					radiiSquared,
-					repulsionStrength, 
-					activeParticles[i].type,
-					activeParticles[j].type);
-			}
-			catch(const char* msg) {
-				std::cerr << msg << "\n";
-				forceI = {0.,0.,0.};
-			}
+			force->repulsionForce(
+				forceI,
+				r_ij,
+				rSquared,
+				radiiSquared,
+				repulsionStrength, 
+				activeParticles[i].type,
+				activeParticles[j].type);
 			forceJ[0] = -1. * forceI[0];
 			forceJ[1] = -1. * forceI[1];
 			forceJ[2] = -1. * forceI[2];

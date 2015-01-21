@@ -18,7 +18,7 @@ class Observable
 		std::string filename;
 		// buffer is declared by children
 		virtual void record(
-			std::vector<Particle> activeParticles,
+			std::vector<Particle>& activeParticles,
 			unsigned long int t); // write data to buffer
 		virtual void writeBufferToFile(); // clear buffer
 		

@@ -18,7 +18,7 @@ class TrajectorySingle : public Observable
 	public:
 		/* shape: [time] [xyz]*/
 		void record(
-			std::vector<Particle> activeParticles,
+			std::vector<Particle>& activeParticles,
 			unsigned long int t);
 		void writeBufferToFile();
 };

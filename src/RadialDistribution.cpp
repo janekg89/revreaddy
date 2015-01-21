@@ -25,16 +25,17 @@ RadialDistribution::~RadialDistribution()
 
 
 void RadialDistribution::record(
-	std::vector<Particle> activeParticles,
+	std::vector<Particle>& activeParticles,
 	unsigned long int t)
 	/* Record the radial distribution already normalized 
 	 * correctly for the current timestep.
 	 */
 {
 	double radius;
-	std::vector<double> r_ij={0.,0.,0.};
+	//std::vector<double> r_ij={0.,0.,0.};
 	for (int i=0; i<activeParticles.size(); i++) {
 		for (int j=i+1; j<activeParticles.size(); j++) {
+			/*
 			getMinDistanceVector(
 				r_ij,
 				activeParticles[i].position,
@@ -43,6 +44,10 @@ void RadialDistribution::record(
 				this->boxsize 
 			);
 			radius = r_ij[0]*r_ij[0] + r_ij[1]*r_ij[1] + r_ij[2]*r_ij[2];
+			*/
+			radius = squaredDistance(
+				activeParticles[i].position,
+				activeParticles[j].position);
 			radius = sqrt(radius);
 			gsl_histogram_increment(this->radialDistribution, radius);
 		}

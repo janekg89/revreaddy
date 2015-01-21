@@ -14,7 +14,7 @@ Observable::~Observable()
 
 }
 
-void Observable::record(std::vector<Particle> activeParticles, unsigned long int t)
+void Observable::record(std::vector<Particle>& activeParticles, unsigned long int t)
 {
 
 }

@@ -21,23 +21,24 @@ void Force::repulsionForce(
 		this->softcoreForce(forceI, r_ij, rSquared, radiiSquared, strength);
 		return;
 	}
-	if ( (typeI == "lj") && (typeJ == "lj") ) {
+	else if ( (typeI == "lj") && (typeJ == "lj") ) {
 		double correctedSigmaSquared = TWO_POW_MIN_ONE_THIRD * radiiSquared;
 		this->LJ1206Force(forceI, r_ij, rSquared, correctedSigmaSquared, strength);
 		return;
 	}
-	if ( (typeI == "lj") && (typeJ == "soft") ) {
+	else if ( (typeI == "lj") && (typeJ == "soft") ) {
 		double correctedSigmaSquared = TWO_POW_MIN_ONE_THIRD * radiiSquared;
 		this->LJ1206Force(forceI, r_ij, rSquared, correctedSigmaSquared, strength);
 		return;
 	}
-	if ( (typeJ == "soft") && (typeJ == "lj") ) {
+	else if ( (typeJ == "soft") && (typeJ == "lj") ) {
 		double correctedSigmaSquared = TWO_POW_MIN_ONE_THIRD * radiiSquared;
 		this->LJ1206Force(forceI, r_ij, rSquared, correctedSigmaSquared, strength);
 		return;
 	}
 	else {
-		throw "Particle types are neither 'soft' nor 'lj' !";
+		forceI = {0.,0.,0.};
+		std::cout << "No known particle types are used!\n";
 	}
 }
 
