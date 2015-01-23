@@ -187,6 +187,43 @@ void Simulation::calculateRepulsionForces()
 	}
 }
 
+void Simulation::calculateRepulsionForcesRev()
+{
+	std::vector<double> forceI = {0.,0.,0.};
+	std::vector<double> forceJ = {0.,0.,0.};
+	// connecting vector from particle i to j
+	std::vector<double> r_ij = {0.,0.,0.}; 
+	double rSquared = 0.8; // distance of particles i,j squared
+	double radiiSquared = 1.; // squared sum of particles i,j radii
+	for (int i=0; i<activeParticles.size(); i++) {
+		for (int j=i+1; j<activeParticles.size(); j++) {
+			getMinDistanceVector(
+				r_ij,
+				activeParticles[i].position, 
+				activeParticles[j].position, 
+				this->isPeriodic, 
+				this->boxsize);
+			rSquared = r_ij[0]*r_ij[0] + r_ij[1]*r_ij[1] + r_ij[2]*r_ij[2];
+			radiiSquared = pow(
+				activeParticles[i].radius + activeParticles[j].radius,
+				2.);
+			force->repulsionForce(
+				forceI,
+				r_ij,
+				rSquared,
+				radiiSquared,
+				repulsionStrength, 
+				activeParticles[i].type,
+				activeParticles[j].type);
+			forceJ[0] = -1. * forceI[0];
+			forceJ[1] = -1. * forceI[1];
+			forceJ[2] = -1. * forceI[2];
+			activeParticles[i].addForce(forceI);
+			activeParticles[j].addForce(forceJ);
+		}
+	}
+}
+
 void Simulation::addParticle(
 	std::vector<double> initPos,
 	std::string particleType,

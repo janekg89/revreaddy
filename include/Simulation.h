@@ -54,6 +54,7 @@ class Simulation
 		/* double loop (i,j) over activeParticles and call 
 		 * according Forcetype for particle pair (i,j) */
 		void calculateRepulsionForces();
+		void calculateRepulsionForcesRev(); // reversible version
 
 		Simulation();
 		~Simulation();

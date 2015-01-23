@@ -138,7 +138,7 @@ void Force::softcoreEnergy(
 		return;
 	}
 	// E = strength * ( r - radii )**2
-	energy  = sqrt(rSquared) - sqrt(radiiSquared);
+	energy	= sqrt(rSquared) - sqrt(radiiSquared);
 	energy *= energy;
 	energy *= strength;
 }
@@ -153,6 +153,110 @@ void Force::LJ1206Energy(
 		energy = 0.;
 		return;
 	}
-	energy  = 4. * strength;
+	energy	= 4. * strength;
 	energy *= pow(sigmaSquared/rSquared,6.) - pow(sigmaSquared/rSquared,3.);
+}
+
+void Force::repulsionForceEnergy(
+	std::vector<double>& forceI,
+	double& energy,
+	std::vector<double>& r_ij,
+	double& rSquared,
+	double& radiiSquared,
+	double& strength,
+	std::string& typeI,
+	std::string& typeJ)
+{
+	if ( (typeI == "soft") && (typeJ == "soft") ) {
+		this->softcoreForceEnergy(
+			forceI,
+			energy,
+			r_ij,
+			rSquared,
+			radiiSquared,
+			strength);
+		return;
+	}
+	else if ( (typeI == "lj") && (typeJ == "lj") ) {
+		double correctedSigmaSquared = TWO_POW_MIN_ONE_THIRD * radiiSquared;
+		this->LJ1206ForceEnergy(
+			forceI,
+			energy,
+			r_ij,
+			rSquared,
+			correctedSigmaSquared,
+			strength);
+		return;
+	}
+	else if ( (typeI == "lj") && (typeJ == "soft") ) {
+		double correctedSigmaSquared = TWO_POW_MIN_ONE_THIRD * radiiSquared;
+		this->LJ1206ForceEnergy(
+			forceI,
+			energy,
+			r_ij,
+			rSquared,
+			correctedSigmaSquared,
+			strength);
+		return;
+	}
+	else if ( (typeJ == "soft") && (typeJ == "lj") ) {
+		double correctedSigmaSquared = TWO_POW_MIN_ONE_THIRD * radiiSquared;
+		this->LJ1206ForceEnergy(
+			forceI,
+			energy,
+			r_ij,
+			rSquared,
+			correctedSigmaSquared,
+			strength);
+		return;
+	}
+	else {
+		forceI = {0.,0.,0.};
+		std::cout << "No known particle types are used!\n";
+	}
+}
+
+void Force::softcoreForceEnergy(
+	std::vector<double>& forceI,//out
+	double& energy,
+	std::vector<double>& r_ij,//in
+	double& rSquared,
+	double& radiiSquared,
+	double& strength)
+{
+	if ( rSquared > radiiSquared ) {
+		forceI = {0.,0.,0.};
+		energy = 0.;
+		return;
+	}
+	// E=strength*(r - radii)**2, F=0.5*strength*(r - radii)/r * r_ij(vec)
+	double a = sqrt(rSquared);
+	double c = a - sqrt(radiiSquared);
+	energy = strength * c * c;
+	a = 0.5 * strength * c / a;
+	forceI[0] = a * r_ij[0];
+	forceI[1] = a * r_ij[1];
+	forceI[2] = a * r_ij[2];
+}
+
+void Force::LJ1206ForceEnergy(
+	std::vector<double>& forceI,//out
+	double& energy,
+	std::vector<double>& r_ij,//in
+	double& rSquared,
+	double& sigmaSquared,
+	double& strength)	
+{
+	if ( rSquared > (6.25*sigmaSquared) ) {
+		energy = 0.;
+		forceI = {0.,0.,0.,};
+		return;
+	}
+	double a = pow(sigmaSquared/rSquared, 3.);
+	double b = a * a;
+	energy = 4. * strength * ( b - a );
+	a = -24. * strength * ( 2. * b - a) / rSquared;
+	forceI[0] = a * r_ij[0];
+	forceI[1] = a * r_ij[1];
+	forceI[2] = a * r_ij[2];
 }

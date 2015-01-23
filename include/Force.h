@@ -16,39 +16,64 @@ class Force
 {
 	public:
 		void repulsionForce(
-			std::vector<double>& forceI,
-			std::vector<double>& r_ij,
+			std::vector<double>& forceI,//out
+			std::vector<double>& r_ij,//in
 			double& rSquared,
 			double& radiiSquared,
 			double& strength,
 			std::string& typeI,
 			std::string& typeJ);
 		void softcoreForce(
-			std::vector<double>& forceI,
-			std::vector<double>& r_ij,
+			std::vector<double>& forceI,//out
+			std::vector<double>& r_ij,//in
 			double& rSquared, 
 			double& radiiSquared,
 			double& strength);
 		void LJ1206Force(
-			std::vector<double>& forceI,
-			std::vector<double>& r_ij,
+			std::vector<double>& forceI,//out
+			std::vector<double>& r_ij,//in
 			double& rSquared,
 			double& sigmaSquared,
 			double& strength);
+
 		void repulsionEnergy(
-			double& energy,
-			double& rSquared,
+			double& energy,//out 
+			double& rSquared,//in
 			double& radiiSquared,
 			double& strength,
 			std::string& typeI,
 			std::string& typeJ);
 		void softcoreEnergy(
-			double& energy,
-			double& rSquared,
+			double& energy,//out
+			double& rSquared,//in
 			double& radiiSquared,
 			double& strength);
 		void LJ1206Energy(
+			double& energy,//out
+			double& rSquared,//in
+			double& sigmaSquared,
+			double& strength);
+
+		void repulsionForceEnergy(
+			std::vector<double>& forceI,//out
 			double& energy,
+			std::vector<double>& r_ij,//in
+			double& rSquared,
+			double& radiiSquared,
+			double& strength,
+			std::string& typeI,
+			std::string& typeJ);
+		void softcoreForceEnergy(
+			std::vector<double>& forceI,//out
+			double& energy,
+			std::vector<double>& r_ij,//in
+			double& rSquared, 
+			double& radiiSquared,
+			double& strength);
+		void LJ1206ForceEnergy(
+			std::vector<double>& forceI,//out
+			double& energy,
+			std::vector<double>& r_ij,//in
 			double& rSquared,
 			double& sigmaSquared,
 			double& strength);
