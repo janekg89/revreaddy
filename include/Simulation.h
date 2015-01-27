@@ -55,6 +55,8 @@ class Simulation
 		 * according Forcetype for particle pair (i,j) */
 		void calculateRepulsionForces();
 		void calculateRepulsionForcesRev(); // reversible version
+		void updateOldPositions(); // copy positions to oldPositions
+		void resetSingleEnergies();
 
 		Simulation();
 		~Simulation();

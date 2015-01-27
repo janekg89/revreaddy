@@ -30,9 +30,11 @@ void Simulation::run()
 	for (unsigned long int t = 1; t < maxTime; t++)
 	{
 		// groupForces()
-		this->calculateRepulsionForces();
-		this->propagateRev();
+		this->calculateRepulsionForcesRev();
 		this->recordObservables(t);
+		this->propagateRev();
+		this->updateOldPositions();
+		this->resetSingleEnergies();
 	}
 	std::cout << "Simulation has finished\n";
 }
@@ -77,17 +79,22 @@ void Simulation::propagateRev()
 {
 	std::vector<double> noiseTerm   = {0.,0.,0.};
 	std::vector<double> forceTerm   = {0.,0.,0.};
-	std::vector<double> oldPosition = {0.,0.,0.};
+	std::vector<double> oldForce    = {0.,0.,0.};
+	std::vector<double> newForce    = {0.,0.,0.};
+	std::vector<double> forceBuffer = {0.,0.,0.};
+	std::vector<double> r_ij        = {0.,0.,0.};
+	std::vector<double> deltaX      = {0.,0.,0.};
 	double noisePrefactor;
 	double forcePrefactor;
-	double oldSingleEnergy;
 	double newSingleEnergy;
 	double energyBuffer;
 	double distanceBuffer;
 	double radiiSquared;
+	double deltaEnergy;
+	double acceptance;
+	double uniform;
 	for (int i=0; i<activeParticles.size(); i++) {
-		oldPosition = activeParticles[i].position;
-		oldSingleEnergy = activeParticles[i].singleEnergy;
+		oldForce        = activeParticles[i].cumulativeForce;
 
 		noiseTerm = random->normal3D();
 		noisePrefactor = sqrt(
@@ -106,6 +113,16 @@ void Simulation::propagateRev()
 		activeParticles[i].move(forceTerm);
 		activeParticles[i].resetForce();
 
+		/* Note that actually one would have to call getMinDistanceVector
+		 * because of periodic boundary conditions. But we calc deltaX 
+		 * before applying those. */
+		deltaX[0] = activeParticles[i].position[0]
+		          - activeParticles[i].oldPosition[0];
+		deltaX[1] = activeParticles[i].position[1]
+		          - activeParticles[i].oldPosition[1];
+		deltaX[2] = activeParticles[i].position[2]
+		          - activeParticles[i].oldPosition[2];
+
 		if (isPeriodic)
 		{
 			if (activeParticles[i].position[0] < (-0.5 * boxsize) ) {
@@ -121,32 +138,62 @@ void Simulation::propagateRev()
 			else if (activeParticles[i].position[2] >= (0.5 * boxsize) ) {
 				activeParticles[i].position[2] -= boxsize;}
 		}
-		// new position has been proposed. now accept or reject.
+		// new position has been proposed. now calculate new energy
+		// and new force
 		newSingleEnergy = 0.;
+		newForce = {0.,0.,0.};
 		for (int j=0; j<activeParticles.size(); j++) {
 			if (i == j) { }
 			else {
-				getMinDistanceSquared(
-					distanceBuffer,
+				getMinDistanceVector(
+					r_ij,
 					activeParticles[i].position,
-					activeParticles[j].position,
+					activeParticles[j].oldPosition,//use oldPosition!
 					this->isPeriodic,
 					this->boxsize);
+				distanceBuffer=r_ij[0]*r_ij[0]+r_ij[1]*r_ij[1]+r_ij[2]*r_ij[2];
 				radiiSquared = pow(
 					activeParticles[i].radius + activeParticles[j].radius,
 					2.);
-				force->repulsionEnergy(
+				force->repulsionForceEnergy(
+					forceBuffer,
 					energyBuffer,
+					r_ij,
 					distanceBuffer,
 					radiiSquared,
 					repulsionStrength,
 					activeParticles[i].type,
 					activeParticles[j].type);
 				newSingleEnergy += energyBuffer;
+				newForce[0] += forceBuffer[0];
+				newForce[1] += forceBuffer[1];
+				newForce[2] += forceBuffer[2];
 			}
 		}
-		// TODO delta E = 1/2 (newSingleEnergy - oldSingleEnergy)
+		// Calculate acceptance probability
+		deltaEnergy = 0.5*(newSingleEnergy - activeParticles[i].singleEnergy);
+		acceptance  = 0.5*( deltaX[0]*(newForce[0]+oldForce[0])
+		                  + deltaX[1]*(newForce[1]+oldForce[1])
+		                  + deltaX[2]*(newForce[2]+oldForce[2]));
+		acceptance += activeParticles[i].diffusionConstant * this->timestep
+			* ( newForce[0]*newForce[0] + newForce[1]*newForce[1]
+			  + newForce[2]*newForce[2] + oldForce[0]*oldForce[0]
+			  + oldForce[1]*oldForce[1] + oldForce[2]*oldForce[2] )
+			/ (4. * this->kBoltzmann * this->temperature);
+		acceptance += deltaEnergy;
+		acceptance /= -1. * this->kBoltzmann * this->temperature;
+		acceptance = exp( acceptance );
 		// accept or reject
+		if ( acceptance > 1. ) {
+			/* accept = do nothing. particle is already moved */
+		}
+		else {
+			uniform = random->uniform();
+			if ( uniform < acceptance ) {/* accept */}
+			else {/* reject */
+				activeParticles[i].position = activeParticles[i].oldPosition;
+			}
+		}
 	}
 }
 
@@ -187,14 +234,16 @@ void Simulation::calculateRepulsionForces()
 	}
 }
 
+/* The reversible version of this function also calculates energies.*/
 void Simulation::calculateRepulsionForcesRev()
 {
 	std::vector<double> forceI = {0.,0.,0.};
 	std::vector<double> forceJ = {0.,0.,0.};
 	// connecting vector from particle i to j
-	std::vector<double> r_ij = {0.,0.,0.}; 
-	double rSquared = 0.8; // distance of particles i,j squared
+	std::vector<double> r_ij   = {0.,0.,0.}; 
+	double rSquared     = 0.8; // distance of particles i,j squared
 	double radiiSquared = 1.; // squared sum of particles i,j radii
+	double energy       = 0.; // interaction energy of particle pair (i,j)
 	for (int i=0; i<activeParticles.size(); i++) {
 		for (int j=i+1; j<activeParticles.size(); j++) {
 			getMinDistanceVector(
@@ -207,8 +256,9 @@ void Simulation::calculateRepulsionForcesRev()
 			radiiSquared = pow(
 				activeParticles[i].radius + activeParticles[j].radius,
 				2.);
-			force->repulsionForce(
+			force->repulsionForceEnergy(
 				forceI,
+				energy,
 				r_ij,
 				rSquared,
 				radiiSquared,
@@ -220,7 +270,23 @@ void Simulation::calculateRepulsionForcesRev()
 			forceJ[2] = -1. * forceI[2];
 			activeParticles[i].addForce(forceI);
 			activeParticles[j].addForce(forceJ);
+			activeParticles[i].singleEnergy += energy;
+			activeParticles[j].singleEnergy += energy;
 		}
+	}
+}
+
+void Simulation::updateOldPositions()
+{
+	for (int i=0; i<activeParticles.size(); i++) {
+		activeParticles[i].oldPosition = activeParticles[i].position;
+	}
+}
+
+void Simulation::resetSingleEnergies()
+{
+	for (int i=0; i<activeParticles.size(); i++) {
+		activeParticles[i].singleEnergy = 0.;
 	}
 }
 

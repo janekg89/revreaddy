@@ -9,6 +9,8 @@ Particle::Particle()
 	this->cumulativeForce 	= {0.,0.,0.};
 	this->position.shrink_to_fit();
 	this->cumulativeForce.shrink_to_fit();
+	this->oldPosition       = {0.,0.,0.};
+	this->oldPosition.shrink_to_fit();
 	this->type				= "soft";
 	this->diffusionConstant	= 1.;
 	this->radius            = 1.;
