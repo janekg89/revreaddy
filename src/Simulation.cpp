@@ -27,6 +27,8 @@ void Simulation::run()
 {
 	std::cout << "Simulation has started\n";
 	this->recordObservables(0);
+	this->updateOldPositions();
+	this->resetSingleEnergies();
 	for (unsigned long int t = 1; t < maxTime; t++)
 	{
 		// groupForces()
@@ -113,16 +115,6 @@ void Simulation::propagateRev()
 		activeParticles[i].move(forceTerm);
 		activeParticles[i].resetForce();
 
-		/* Note that actually one would have to call getMinDistanceVector
-		 * because of periodic boundary conditions. But we calc deltaX 
-		 * before applying those. */
-		deltaX[0] = activeParticles[i].position[0]
-		          - activeParticles[i].oldPosition[0];
-		deltaX[1] = activeParticles[i].position[1]
-		          - activeParticles[i].oldPosition[1];
-		deltaX[2] = activeParticles[i].position[2]
-		          - activeParticles[i].oldPosition[2];
-
 		if (isPeriodic)
 		{
 			if (activeParticles[i].position[0] < (-0.5 * boxsize) ) {
@@ -138,6 +130,14 @@ void Simulation::propagateRev()
 			else if (activeParticles[i].position[2] >= (0.5 * boxsize) ) {
 				activeParticles[i].position[2] -= boxsize;}
 		}
+
+		getMinDistanceVector(
+			deltaX,
+			activeParticles[i].oldPosition,
+			activeParticles[i].position,
+			this->isPeriodic,
+			this->boxsize);
+
 		// new position has been proposed. now calculate new energy
 		// and new force
 		newSingleEnergy = 0.;
@@ -183,6 +183,7 @@ void Simulation::propagateRev()
 		acceptance += deltaEnergy;
 		acceptance /= -1. * this->kBoltzmann * this->temperature;
 		acceptance = exp( acceptance );
+		std::cout << "i acceptance " << i << " " << acceptance << "\n";
 		// accept or reject
 		if ( acceptance > 1. ) {
 			/* accept = do nothing. particle is already moved */
