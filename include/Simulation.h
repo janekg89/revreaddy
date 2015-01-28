@@ -46,20 +46,13 @@ class Simulation
 		unsigned long int acceptions;
 		unsigned long int rejections;
 
-		void addParticle(
-			std::vector<double> initPos,
-			std::string particleType,
-			double rad,
-			double diffConst);
 		void run();
 		void saveOldState();//oldEnergy=energy, oldPos=pos, oldForce=force
 		void propagate();
-		void propagateRev(); 
 		void recordObservables(unsigned long int t);
 		/* double loop (i,j) over activeParticles and call 
 		 * according Forcetype for particle pair (i,j) */
-		void calculateRepulsionForces();
-		void calculateRepulsionForcesRev(); 
+		void calculateRepulsionForcesEnergies(); 
 		void resetForces();
 		void acceptOrReject();
 
@@ -68,10 +61,16 @@ class Simulation
 
 		/*------- functions that will be wrapped by python -----------*/
 
+		void addParticle(
+			std::vector<double> initPos,
+			std::string particleType,
+			double rad,
+			double diffConst);
+
 		/* Obtain the position of the particle activeParticles[index] */
 		std::vector<double> getPosition(int index);
 		void setPosition(int index, std::vector<double> newPos);
-		int getParticleNumber();
+		int  getParticleNumber();
 		void deleteAllParticles();
 		void writeAllObservablesToFile();
 		std::string showObservables();

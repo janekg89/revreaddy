@@ -27,15 +27,12 @@ class Particle
 		/* the cumulative force for the current timestep. */
 		std::vector<double> cumulativeForce;
 		std::vector<double> oldForce;
-		/* interaction energy with all other particles */
-		double singleEnergy;
 
 		Particle();
 		~Particle();
 		void move(std::vector<double> deviation);
 		void addForce(std::vector<double> force);
 		void resetForce();
-		void resetSingleEnergy();
 };
 
 #endif
