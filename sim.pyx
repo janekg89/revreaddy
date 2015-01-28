@@ -35,6 +35,7 @@ cdef extern from "Simulation.h":
 		void new_TrajectorySingle()
 		vector[vector[double]] getTrajectorySingle()
 
+# TODO new_RadialDistribution()
 cdef class pySimulation:
 	cdef Simulation *thisptr
 	def __cinit__(self):
