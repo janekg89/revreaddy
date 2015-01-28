@@ -19,6 +19,8 @@ cdef extern from "Simulation.h":
 		double boxsize
 		double repulsionStrength
 		bool verbose
+		unsigned long int acceptions
+		unsigned long int rejections
 
 		void addParticle(vector[double], string, double, double)
 		void run()
@@ -95,3 +97,14 @@ cdef class pySimulation:
 	property verbose:
 		def __get__(self): return self.thisptr.verbose
 		def __set__(self, verbose): self.thisptr.verbose = verbose
+	property acceptions:
+		def __get__(self): return self.thisptr.acceptions
+		def __set__(self, acceptions): self.thisptr.acceptions = acceptions
+	property rejections:
+		def __get__(self): return self.thisptr.rejections
+		def __set__(self, rejections): self.thisptr.rejections = rejections
+
+	# derived functions
+	def acceptanceRate(self):
+		acc = 1./(1.+ float(self.rejections)/float(self.acceptions) )
+		return round(acc, 5)

@@ -17,6 +17,8 @@ Simulation::Simulation()
 	verbose           = false;
 	energy            = 0.;
 	oldEnergy         = 0.;
+	acceptions        = 0;
+	rejections        = 0;
 }
 
 Simulation::~Simulation()
@@ -347,11 +349,13 @@ void Simulation::acceptOrReject()
 	// std::cout << "acceptance "<<acceptance<<"\n";
 	if ( acceptance > 1. ) {
 		/*accept = do nothing. particles keep their new positions and forces*/
+		acceptions += 1;
 	}
 	else {
 		double uniform = this->random->uniform();
-		if ( uniform < acceptance ) {/* accept */}
+		if ( uniform < acceptance ) {/* accept */ acceptions += 1;}
 		else {/* reject = restore old positions, forces, energy */
+			rejections += 1;
 			this->energy = this->oldEnergy;
 			for (int i=0; i<activeParticles.size(); i++) {
 				activeParticles[i].position 

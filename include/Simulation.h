@@ -43,6 +43,8 @@ class Simulation
 		bool verbose;
 		double energy;
 		double oldEnergy;
+		unsigned long int acceptions;
+		unsigned long int rejections;
 
 		void addParticle(
 			std::vector<double> initPos,
