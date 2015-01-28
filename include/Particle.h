@@ -24,9 +24,9 @@ class Particle
 		double radius;	// size of the particle
 		/* an individual diffusionConstant, typically determined by the type */
 		double diffusionConstant; 
-		/* the cumulative force for the current timestep. 
-		 * Should be zero after propagation */
+		/* the cumulative force for the current timestep. */
 		std::vector<double> cumulativeForce;
+		std::vector<double> oldForce;
 		/* interaction energy with all other particles */
 		double singleEnergy;
 

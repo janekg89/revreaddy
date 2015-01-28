@@ -6,9 +6,11 @@
 Particle::Particle()
 {
 	this->position 			= {0.,0.,0.};
-	this->cumulativeForce 	= {0.,0.,0.};
 	this->position.shrink_to_fit();
+	this->cumulativeForce 	= {0.,0.,0.};
 	this->cumulativeForce.shrink_to_fit();
+	this->oldForce          = {0.,0.,0.};
+	this->oldForce.shrink_to_fit();
 	this->oldPosition       = {0.,0.,0.};
 	this->oldPosition.shrink_to_fit();
 	this->type				= "soft";
@@ -19,6 +21,7 @@ Particle::Particle()
 	this->singleEnergy      = 0.;
 }
 
+// TODO delete vectors
 Particle::~Particle()
 {
 }

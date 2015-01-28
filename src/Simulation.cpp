@@ -15,6 +15,8 @@ Simulation::Simulation()
 	isPeriodic        = true;
 	boxsize           = 10.;
 	verbose           = false;
+	energy            = 0.;
+	oldEnergy         = 0.;
 }
 
 Simulation::~Simulation()
@@ -26,19 +28,29 @@ Simulation::~Simulation()
 void Simulation::run()
 {
 	std::cout << "Simulation has started\n";
+	this->resetForces();
+	this->calculateRepulsionForcesRev();
 	this->recordObservables(0);
-	this->updateOldPositions();
-	this->resetSingleEnergies();
 	for (unsigned long int t = 1; t < maxTime; t++)
 	{
 		// groupForces()
-		this->calculateRepulsionForcesRev();
+		this->saveOldState();
+		this->propagate(); // propose
+		this->resetForces();
+		this->calculateRepulsionForcesRev(); // calculate energy and force
+		this->acceptOrReject();
 		this->recordObservables(t);
-		this->propagateRev();
-		this->updateOldPositions();
-		this->resetSingleEnergies();
 	}
 	std::cout << "Simulation has finished\n";
+}
+
+void Simulation::saveOldState()
+{
+	this->oldEnergy = this->energy;
+	for (int i=0; i<activeParticles.size(); i++) {
+		activeParticles[i].oldPosition = activeParticles[i].position;
+		activeParticles[i].oldForce    = activeParticles[i].cumulativeForce;
+	}
 }
 
 void Simulation::propagate()
@@ -47,32 +59,38 @@ void Simulation::propagate()
 	std::vector<double> forceTerm = {0.,0.,0.};
 	double noisePrefactor;
 	double forcePrefactor;
-	for (auto&& particle : activeParticles)
+	for (int i=0; i<activeParticles.size(); i++)
 	{
 		noiseTerm = random->normal3D();
-		noisePrefactor = sqrt(2. * particle.diffusionConstant * timestep);
+		noisePrefactor = sqrt(
+			2. * activeParticles[i].diffusionConstant * timestep);
 		noiseTerm[0] *= noisePrefactor;
 		noiseTerm[1] *= noisePrefactor;
 		noiseTerm[2] *= noisePrefactor;
 
-		forcePrefactor = timestep * particle.diffusionConstant 
+		forcePrefactor = timestep * activeParticles[i].diffusionConstant 
 			/ (kBoltzmann * temperature);
-		forceTerm[0] = particle.cumulativeForce[0] * forcePrefactor;
-		forceTerm[1] = particle.cumulativeForce[1] * forcePrefactor;
-		forceTerm[2] = particle.cumulativeForce[2] * forcePrefactor;
+		forceTerm[0] = activeParticles[i].cumulativeForce[0] * forcePrefactor;
+		forceTerm[1] = activeParticles[i].cumulativeForce[1] * forcePrefactor;
+		forceTerm[2] = activeParticles[i].cumulativeForce[2] * forcePrefactor;
 
-		particle.move(noiseTerm);
-		particle.move(forceTerm);
-		particle.resetForce();
+		activeParticles[i].move(noiseTerm);
+		activeParticles[i].move(forceTerm);
 
 		if (isPeriodic)
 		{
-			if (particle.position[0] < (-0.5 * boxsize) ) {particle.position[0] += boxsize;}
-			if (particle.position[0] >= (0.5 * boxsize) ) {particle.position[0] -= boxsize;}
-			if (particle.position[1] < (-0.5 * boxsize) ) {particle.position[1] += boxsize;}
-			if (particle.position[1] >= (0.5 * boxsize) ) {particle.position[1] -= boxsize;}
-			if (particle.position[2] < (-0.5 * boxsize) ) {particle.position[2] += boxsize;}
-			if (particle.position[2] >= (0.5 * boxsize) ) {particle.position[2] -= boxsize;}
+			if (activeParticles[i].position[0] < (-0.5 * boxsize) ) {
+				activeParticles[i].position[0] += boxsize;}
+			else if (activeParticles[i].position[0] >= (0.5 * boxsize) ) {
+				activeParticles[i].position[0] -= boxsize;}
+			if (activeParticles[i].position[1] < (-0.5 * boxsize) ) {
+				activeParticles[i].position[1] += boxsize;}
+			else if (activeParticles[i].position[1] >= (0.5 * boxsize) ) {
+				activeParticles[i].position[1] -= boxsize;}
+			if (activeParticles[i].position[2] < (-0.5 * boxsize) ) {
+				activeParticles[i].position[2] += boxsize;}
+			else if (activeParticles[i].position[2] >= (0.5 * boxsize) ) {
+				activeParticles[i].position[2] -= boxsize;}
 		}
 	}
 }
@@ -244,7 +262,8 @@ void Simulation::calculateRepulsionForcesRev()
 	std::vector<double> r_ij   = {0.,0.,0.}; 
 	double rSquared     = 0.8; // distance of particles i,j squared
 	double radiiSquared = 1.; // squared sum of particles i,j radii
-	double energy       = 0.; // interaction energy of particle pair (i,j)
+	double energyBuffer = 0.; // interaction energy of particle pair (i,j)
+	this->energy = 0.;
 	for (int i=0; i<activeParticles.size(); i++) {
 		for (int j=i+1; j<activeParticles.size(); j++) {
 			getMinDistanceVector(
@@ -259,7 +278,7 @@ void Simulation::calculateRepulsionForcesRev()
 				2.);
 			force->repulsionForceEnergy(
 				forceI,
-				energy,
+				energyBuffer,
 				r_ij,
 				rSquared,
 				radiiSquared,
@@ -271,23 +290,76 @@ void Simulation::calculateRepulsionForcesRev()
 			forceJ[2] = -1. * forceI[2];
 			activeParticles[i].addForce(forceI);
 			activeParticles[j].addForce(forceJ);
-			activeParticles[i].singleEnergy += energy;
-			activeParticles[j].singleEnergy += energy;
+			this->energy += energyBuffer;
 		}
 	}
 }
 
-void Simulation::updateOldPositions()
+void Simulation::resetForces()
 {
 	for (int i=0; i<activeParticles.size(); i++) {
-		activeParticles[i].oldPosition = activeParticles[i].position;
+		activeParticles[i].resetForce();
 	}
 }
 
-void Simulation::resetSingleEnergies()
+void Simulation::acceptOrReject()
 {
+	double acceptance = 1.;
+	double firstTerm  = 0.;
+	double secondTerm = 0.;
+	std::vector<double> deltaX = {0.,0.,0.};
 	for (int i=0; i<activeParticles.size(); i++) {
-		activeParticles[i].singleEnergy = 0.;
+		getMinDistanceVector(
+			deltaX,
+			activeParticles[i].oldPosition,
+			activeParticles[i].position,
+			this->isPeriodic,
+			this->boxsize);
+		firstTerm  += deltaX[0]
+		            * ( activeParticles[i].oldForce[0]
+		              + activeParticles[i].cumulativeForce[0] );
+		firstTerm  += deltaX[1]
+		            * ( activeParticles[i].oldForce[1]
+		              + activeParticles[i].cumulativeForce[1] );
+		firstTerm  += deltaX[2]
+		            * ( activeParticles[i].oldForce[2]
+		              + activeParticles[i].cumulativeForce[2] );
+		secondTerm += activeParticles[i].diffusionConstant
+		            * ( activeParticles[i].cumulativeForce[0]
+		              * activeParticles[i].cumulativeForce[0]
+		              + activeParticles[i].cumulativeForce[1]
+		              * activeParticles[i].cumulativeForce[1]
+		              + activeParticles[i].cumulativeForce[2]
+		              * activeParticles[i].cumulativeForce[2]
+		              + activeParticles[i].oldForce[0]
+		              * activeParticles[i].oldForce[0]
+		              + activeParticles[i].oldForce[1]
+		              * activeParticles[i].oldForce[1]
+		              + activeParticles[i].oldForce[2]
+		              * activeParticles[i].oldForce[2] );
+	}
+	firstTerm  *= 0.5;
+	secondTerm *= this->timestep / (4. * this->kBoltzmann * this->temperature);
+	acceptance = firstTerm + secondTerm + this->energy - this->oldEnergy;
+	acceptance /= -1. * this->kBoltzmann * this->temperature;
+	acceptance = exp( acceptance );
+	// accept or reject
+	// std::cout << "acceptance "<<acceptance<<"\n";
+	if ( acceptance > 1. ) {
+		/*accept = do nothing. particles keep their new positions and forces*/
+	}
+	else {
+		double uniform = this->random->uniform();
+		if ( uniform < acceptance ) {/* accept */}
+		else {/* reject = restore old positions, forces, energy */
+			this->energy = this->oldEnergy;
+			for (int i=0; i<activeParticles.size(); i++) {
+				activeParticles[i].position 
+					= activeParticles[i].oldPosition;
+				activeParticles[i].cumulativeForce
+					= activeParticles[i].oldForce;
+			}
+		}
 	}
 }
 
