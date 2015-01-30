@@ -7,12 +7,16 @@ Particle::Particle()
 {
 	this->position 			= {0.,0.,0.};
 	this->position.shrink_to_fit();
+	this->boxCoordinates    = {0,0,0};
+	this->boxCoordinates.shrink_to_fit();
 	this->cumulativeForce 	= {0.,0.,0.};
 	this->cumulativeForce.shrink_to_fit();
 	this->oldForce          = {0.,0.,0.};
 	this->oldForce.shrink_to_fit();
 	this->oldPosition       = {0.,0.,0.};
 	this->oldPosition.shrink_to_fit();
+	this->oldBoxCoordinates = {0,0,0};
+	this->oldBoxCoordinates.shrink_to_fit();
 	this->type				= "soft";
 	this->diffusionConstant	= 1.;
 	this->radius            = 1.;

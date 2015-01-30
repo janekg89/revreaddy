@@ -16,7 +16,9 @@ class Particle
 	public:
 		std::string type; // determines potentials
 		std::vector<double> position; // current position
+		std::vector<long>   boxCoordinates; // id of box where particle is
 		std::vector<double> oldPosition; // position when forces were calc'd
+		std::vector<long>   oldBoxCoordinates;
 		unsigned int count; // how many timesteps can still be skipped
 		/* how many timesteps in total were skipped. Determines 
 		 * the distribution from which new position is drawn */

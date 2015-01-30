@@ -50,8 +50,12 @@ void Simulation::saveOldState()
 {
 	this->oldEnergy = this->energy;
 	for (int i=0; i<activeParticles.size(); i++) {
-		activeParticles[i].oldPosition = activeParticles[i].position;
-		activeParticles[i].oldForce    = activeParticles[i].cumulativeForce;
+		activeParticles[i].oldPosition 
+			= activeParticles[i].position;
+		activeParticles[i].oldBoxCoordinates 
+			= activeParticles[i].boxCoordinates;
+		activeParticles[i].oldForce 
+			= activeParticles[i].cumulativeForce;
 	}
 }
 
@@ -82,17 +86,29 @@ void Simulation::propagate()
 		if (isPeriodic)
 		{
 			if (activeParticles[i].position[0] < (-0.5 * boxsize) ) {
-				activeParticles[i].position[0] += boxsize;}
+				activeParticles[i].position[0] += boxsize;
+				activeParticles[i].boxCoordinates[0] -= 1;
+			}
 			else if (activeParticles[i].position[0] >= (0.5 * boxsize) ) {
-				activeParticles[i].position[0] -= boxsize;}
+				activeParticles[i].position[0] -= boxsize;
+				activeParticles[i].boxCoordinates[0] += 1;
+			}
 			if (activeParticles[i].position[1] < (-0.5 * boxsize) ) {
-				activeParticles[i].position[1] += boxsize;}
+				activeParticles[i].position[1] += boxsize;
+				activeParticles[i].boxCoordinates[1] -= 1;
+			}
 			else if (activeParticles[i].position[1] >= (0.5 * boxsize) ) {
-				activeParticles[i].position[1] -= boxsize;}
+				activeParticles[i].position[1] -= boxsize;
+				activeParticles[i].boxCoordinates[1] += 1;
+			}
 			if (activeParticles[i].position[2] < (-0.5 * boxsize) ) {
-				activeParticles[i].position[2] += boxsize;}
+				activeParticles[i].position[2] += boxsize;
+				activeParticles[i].boxCoordinates[2] -= 1;
+			}
 			else if (activeParticles[i].position[2] >= (0.5 * boxsize) ) {
-				activeParticles[i].position[2] -= boxsize;}
+				activeParticles[i].position[2] -= boxsize;
+				activeParticles[i].boxCoordinates[2] += 1;
+			}
 		}
 	}
 }
@@ -203,7 +219,7 @@ void Simulation::acceptOrReject()
 	else {
 		double uniform = this->random->uniform();
 		if ( uniform < acceptance ) {/* accept */ acceptions += 1;}
-		else {/* reject = restore old positions, forces, energy */
+		else {/* reject = restore old positions,boxCoordinates,forces,energy */
 			rejections += 1;
 			this->energy = this->oldEnergy;
 			for (int i=0; i<activeParticles.size(); i++) {
@@ -211,6 +227,8 @@ void Simulation::acceptOrReject()
 					= activeParticles[i].oldPosition;
 				activeParticles[i].cumulativeForce
 					= activeParticles[i].oldForce;
+				activeParticles[i].boxCoordinates
+					= activeParticles[i].oldBoxCoordinates;
 			}
 		}
 	}

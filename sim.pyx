@@ -35,11 +35,19 @@ cdef extern from "Simulation.h":
 		void new_TrajectorySingle()
 		vector[vector[double]] getTrajectorySingle()
 
-# TODO new_RadialDistribution()
+# TODO new_RadialDistribution() and new_MSD
 cdef class pySimulation:
 	cdef Simulation *thisptr
 	def __cinit__(self):
 		self.thisptr = new Simulation()
+	def __init__(self):
+		# this dict() sets the type ids used in the program
+		# the first three keys and values (none,0),(lj,1),(soft,2)
+		# should NOT be changed.
+		self.typeStringToId = dict()
+		self.typeStringToId["none"] = 0
+		self.typeStringToId["lj"]   = 1
+		self.typeStringToId["soft"] = 2
 	def __dealloc__(self):
 		del self.thisptr
 	def addParticle(
@@ -109,3 +117,4 @@ cdef class pySimulation:
 	def acceptanceRate(self):
 		acc = 1./(1.+ float(self.rejections)/float(self.acceptions) )
 		return round(acc, 5)
+	

@@ -17,19 +17,19 @@ int main()
 	sim->kBoltzmann = 1.;
 	sim->maxTime	= 1000;
 	sim->temperature= 1.;
-	sim->timestep	= 0.0001;
+	sim->timestep	= 0.01;
 	sim->isPeriodic = true;
 	sim->boxsize = 10.;
 	sim->repulsionStrength = 1.;
 
 	std::vector<double> x0 = {0., 0., 0.};
-	for (double i=0; i<2; i++)
-		for (double j=0; j<2; j++)
-			for (double k=0; k<2; k++) {
+	for (double i=0; i<5; i++)
+		for (double j=0; j<5; j++)
+			for (double k=0; k<5; k++) {
 				x0[0] = -0.49 * sim->boxsize + i;
 				x0[1] = -0.49 * sim->boxsize + j;
 				x0[2] = -0.49 * sim->boxsize + k;
-				sim->addParticle(x0, "lj", 0.5, 1.);
+				sim->addParticle(x0, "soft", 0.5, 1.);
 			}
 	Trajectory * traj = new Trajectory();
 	traj->filename = "traj.xyz";
@@ -51,11 +51,6 @@ int main()
 	sim->run();
 
 	traj->writeBufferToFile();
-	rad->writeBufferToFile();
 	
-	TrajectorySingle * trajSingle = new TrajectorySingle();
-	sim->observables.push_back(trajSingle);
-	sim->maxTime = 4;
-	sim->run();
 	return 0;
 }
