@@ -23,7 +23,7 @@ void Trajectory::record(
 	for (auto&& particle : activeParticles)
 	{
 		particleTuple pt;
-		pt.particleType = particle.type;
+		pt.particleTypeId = particle.typeId;
 		pt.particleCoordinates = particle.position;
 		pt.particleTime = t;
 		currentCoordinates.push_back(pt);
@@ -41,7 +41,7 @@ void Trajectory::writeBufferToFile()
 		file << "#timestep " << particles[0].particleTime << "\n"; 
 		for (auto&& particle : particles)
 		{
-			file << particle.particleType << "\t";
+			file << particle.particleTypeId << "\t";
 			file << particle.particleCoordinates[0] << "\t";
 			file << particle.particleCoordinates[1] << "\t";
 			file << particle.particleCoordinates[2] << "\n";

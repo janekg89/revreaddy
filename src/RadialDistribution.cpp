@@ -31,23 +31,15 @@ void RadialDistribution::record(
 	 * correctly for the current timestep.
 	 */
 {
-	double radius;
-	//std::vector<double> r_ij={0.,0.,0.};
+	double radius = 0.;
 	for (int i=0; i<activeParticles.size(); i++) {
 		for (int j=i+1; j<activeParticles.size(); j++) {
-			/*
-			getMinDistanceVector(
-				r_ij,
+			getMinDistanceSquared(
+				radius,
 				activeParticles[i].position,
 				activeParticles[j].position,
 				this->isPeriodic,
-				this->boxsize 
-			);
-			radius = r_ij[0]*r_ij[0] + r_ij[1]*r_ij[1] + r_ij[2]*r_ij[2];
-			*/
-			radius = squaredDistance(
-				activeParticles[i].position,
-				activeParticles[j].position);
+				this->boxsize);
 			radius = sqrt(radius);
 			gsl_histogram_increment(this->radialDistribution, radius);
 		}
@@ -63,7 +55,7 @@ void RadialDistribution::record(
 void RadialDistribution::writeBufferToFile()
 {
 	std::ofstream file;
-	file.open("radialdistribution.dat");
+	file.open(this->filename, std::ofstream::out);
 	for (auto&& center : this->binCenters) {
 		file << center << "\t";
 	}

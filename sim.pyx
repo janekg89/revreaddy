@@ -1,6 +1,6 @@
 # distutils: language = c++
 # distutils: extra_compile_args = -std=c++11
-# distutils: sources = src/Observable.cpp src/Simulation.cpp src/Particle.cpp src/Random.cpp src/Force.cpp src/Trajectory.cpp src/TrajectorySingle.cpp src/RadialDistribution.cpp src/utils.cpp
+# distutils: sources = src/Observable.cpp src/Simulation.cpp src/Particle.cpp src/Random.cpp src/Force.cpp src/Trajectory.cpp src/TrajectorySingle.cpp src/RadialDistribution.cpp src/utils.cpp src/MeanSquaredDisplacement.cpp
 # distutils: include_dirs = /usr/include /usr/local/include include
 # distutils: libraries = m gsl gslcblas
 
@@ -22,7 +22,7 @@ cdef extern from "Simulation.h":
 		unsigned long int acceptions
 		unsigned long int rejections
 
-		void addParticle(vector[double], string, double, double)
+		void addParticle(vector[double], unsigned int, double, double)
 		void run()
 		vector[double] getPosition(int)
 		void setPosition(int, vector[double])
@@ -34,26 +34,19 @@ cdef extern from "Simulation.h":
 		void new_Trajectory(string)
 		void new_TrajectorySingle()
 		vector[vector[double]] getTrajectorySingle()
+		void new_RadialDistribution(string, vector[double])
+		void new_MeanSquaredDisplacement(string, unsigned int)
 
-# TODO new_RadialDistribution() and new_MSD
 cdef class pySimulation:
 	cdef Simulation *thisptr
 	def __cinit__(self):
 		self.thisptr = new Simulation()
-	def __init__(self):
-		# this dict() sets the type ids used in the program
-		# the first three keys and values (none,0),(lj,1),(soft,2)
-		# should NOT be changed.
-		self.typeStringToId = dict()
-		self.typeStringToId["none"] = 0
-		self.typeStringToId["lj"]   = 1
-		self.typeStringToId["soft"] = 2
 	def __dealloc__(self):
 		del self.thisptr
 	def addParticle(
 		self,
 		initialPosition,
-		particleType='soft',
+		particleType=0,
 		radius=1.,
 		diffusionConst=1.):
 		self.thisptr.addParticle(
@@ -83,6 +76,10 @@ cdef class pySimulation:
 		self.thisptr.new_TrajectorySingle()
 	def getTrajectorySingle(self):
 		return self.thisptr.getTrajectorySingle()
+	def new_RadialDistribution(self, filename, ranges):
+		self.thisptr.new_RadialDistribution(filename, ranges)
+	def new_MeanSquaredDisplacement(self, filename, particleTypeId):
+		self.thisptr.new_MeanSquaredDisplacement(filename, particleTypeId)
 		
 	property maxTime:
 		def __get__(self): return self.thisptr.maxTime
@@ -117,4 +114,13 @@ cdef class pySimulation:
 	def acceptanceRate(self):
 		acc = 1./(1.+ float(self.rejections)/float(self.acceptions) )
 		return round(acc, 5)
-	
+	def efficiency(self):
+		return self.acceptanceRate() * self.timestep	
+
+# this dict() sets the type ids used in the program
+# the first three keys and values (none,0),(lj,1),(soft,2)
+# should NOT be changed.
+typeStringToId = dict()
+typeStringToId["none"] = 0
+typeStringToId["lj"]   = 1
+typeStringToId["soft"] = 2

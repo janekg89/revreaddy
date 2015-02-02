@@ -150,8 +150,8 @@ void Simulation::calculateRepulsionForcesEnergies()
 				rSquared,
 				radiiSquared,
 				repulsionStrength, 
-				activeParticles[i].type,
-				activeParticles[j].type);
+				activeParticles[i].typeId,
+				activeParticles[j].typeId);
 			forceJ[0] = -1. * forceI[0];
 			forceJ[1] = -1. * forceI[1];
 			forceJ[2] = -1. * forceI[2];
@@ -236,7 +236,7 @@ void Simulation::acceptOrReject()
 
 void Simulation::addParticle(
 	std::vector<double> initPos,
-	std::string particleType,
+	unsigned int particleTypeId,
 	double rad,
 	double diffConst)
 {
@@ -252,7 +252,7 @@ void Simulation::addParticle(
 		std::cerr << msg << "\n";
 		particle->position = {0., 0., 0.};
 	}
-	particle->type              = particleType;
+	particle->typeId            = particleTypeId;
 	particle->radius            = rad;
 	particle->diffusionConstant = diffConst;
 	this->activeParticles.push_back(*particle);//push_back copies arg into vec
@@ -328,13 +328,13 @@ void Simulation::new_Trajectory(std::string filename)
 {
 	Trajectory * obs = new Trajectory();
 	obs->filename = filename;
-	observables.push_back(obs);
+	this->observables.push_back(obs);
 }
 
 void Simulation::new_TrajectorySingle()
 {
 	TrajectorySingle * obs = new TrajectorySingle();
-	observables.push_back(obs);
+	this->observables.push_back(obs);
 }
 
 std::vector< std::vector<double> > Simulation::getTrajectorySingle()
@@ -350,4 +350,24 @@ std::vector< std::vector<double> > Simulation::getTrajectorySingle()
 	std::vector<double> x = {0.,0.,0.};
 	zero.push_back(x);
 	return zero;
+}
+
+void Simulation::new_RadialDistribution(
+	std::string filename,
+	std::vector<double> ranges)
+{
+	RadialDistribution * rad = new RadialDistribution(ranges);
+	rad->isPeriodic          = this->isPeriodic;
+	rad->boxsize             = this->boxsize;
+	rad->filename            = filename;
+	this->observables.push_back(rad);
+}
+
+void Simulation::new_MeanSquaredDisplacement(
+	std::string filename,
+	unsigned int particleTypeId)
+{
+	MeanSquaredDisplacement * msd=new MeanSquaredDisplacement(particleTypeId);
+	msd->filename = filename;
+	this->observables.push_back(msd);
 }

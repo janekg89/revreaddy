@@ -19,7 +19,7 @@ class Trajectory : public Observable
 		 * and its coordinates */
 		struct particleTuple
 		{
-			std::string particleType;
+			unsigned int particleTypeId;
 			std::vector<double> particleCoordinates;
 			unsigned long int particleTime;
 		};

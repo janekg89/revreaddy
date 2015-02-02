@@ -14,31 +14,22 @@ void Force::repulsionForce(
 	double& rSquared,
 	double& radiiSquared,
 	double& strength,
-	std::string& typeI,
-	std::string& typeJ)
+	unsigned int& typeI,
+	unsigned int& typeJ)
 {
-	if ( (typeI == "soft") && (typeJ == "soft") ) {
-		this->softcoreForce(forceI, r_ij, rSquared, radiiSquared, strength);
-		return;
-	}
-	else if ( (typeI == "lj") && (typeJ == "lj") ) {
+	if ( (typeI == 1) && (typeJ == 1) ) {
 		double correctedSigmaSquared = TWO_POW_MIN_ONE_THIRD * radiiSquared;
-		this->LJ1206Force(forceI, r_ij, rSquared, correctedSigmaSquared, strength);
-		return;
-	}
-	else if ( (typeI == "lj") && (typeJ == "soft") ) {
-		double correctedSigmaSquared = TWO_POW_MIN_ONE_THIRD * radiiSquared;
-		this->LJ1206Force(forceI, r_ij, rSquared, correctedSigmaSquared, strength);
-		return;
-	}
-	else if ( (typeJ == "soft") && (typeJ == "lj") ) {
-		double correctedSigmaSquared = TWO_POW_MIN_ONE_THIRD * radiiSquared;
-		this->LJ1206Force(forceI, r_ij, rSquared, correctedSigmaSquared, strength);
+		this->LJ1206Force(
+			forceI,
+			r_ij,
+			rSquared,
+			correctedSigmaSquared,
+			strength);
 		return;
 	}
 	else {
-		forceI = {0.,0.,0.};
-		std::cout << "No known particle types are used!\n";
+		this->softcoreForce(forceI, r_ij, rSquared, radiiSquared, strength);
+		return;
 	}
 }
 
@@ -83,36 +74,10 @@ void Force::repulsionEnergy(
 	double& rSquared,
 	double& radiiSquared,
 	double& strength,
-	std::string& typeI,
-	std::string& typeJ)
+	unsigned int& typeI,
+	unsigned int& typeJ)
 {
-	if ( (typeI == "soft") && (typeJ == "soft") ) {
-		this->softcoreEnergy(
-			energy,
-			rSquared,
-			radiiSquared,
-			strength);
-		return;
-	}
-	else if ( (typeI == "lj") && (typeJ == "lj") ) {
-		double correctedSigmaSquared = TWO_POW_MIN_ONE_THIRD * radiiSquared;
-		this->LJ1206Energy(
-			energy,
-			rSquared,
-			correctedSigmaSquared,
-			strength);
-		return;
-	}
-	else if ( (typeI == "lj") && (typeJ == "soft") ) {
-		double correctedSigmaSquared = TWO_POW_MIN_ONE_THIRD * radiiSquared;
-		this->LJ1206Energy(
-			energy,
-			rSquared,
-			correctedSigmaSquared,
-			strength);
-		return;
-	}
-	else if ( (typeJ == "soft") && (typeJ == "lj") ) {
+	if ( (typeI == 1) && (typeJ == 1) ) {
 		double correctedSigmaSquared = TWO_POW_MIN_ONE_THIRD * radiiSquared;
 		this->LJ1206Energy(
 			energy,
@@ -122,8 +87,12 @@ void Force::repulsionEnergy(
 		return;
 	}
 	else {
-		energy = 0.;
-		std::cout << "No known particle types are used!\n";
+		this->softcoreEnergy(
+			energy,
+			rSquared,
+			radiiSquared,
+			strength);
+		return;
 	}
 }
 
@@ -164,42 +133,10 @@ void Force::repulsionForceEnergy(
 	double& rSquared,
 	double& radiiSquared,
 	double& strength,
-	std::string& typeI,
-	std::string& typeJ)
+	unsigned int& typeI,
+	unsigned int& typeJ)
 {
-	if ( (typeI == "soft") && (typeJ == "soft") ) {
-		this->softcoreForceEnergy(
-			forceI,
-			energy,
-			r_ij,
-			rSquared,
-			radiiSquared,
-			strength);
-		return;
-	}
-	else if ( (typeI == "lj") && (typeJ == "lj") ) {
-		double correctedSigmaSquared = TWO_POW_MIN_ONE_THIRD * radiiSquared;
-		this->LJ1206ForceEnergy(
-			forceI,
-			energy,
-			r_ij,
-			rSquared,
-			correctedSigmaSquared,
-			strength);
-		return;
-	}
-	else if ( (typeI == "lj") && (typeJ == "soft") ) {
-		double correctedSigmaSquared = TWO_POW_MIN_ONE_THIRD * radiiSquared;
-		this->LJ1206ForceEnergy(
-			forceI,
-			energy,
-			r_ij,
-			rSquared,
-			correctedSigmaSquared,
-			strength);
-		return;
-	}
-	else if ( (typeJ == "soft") && (typeJ == "lj") ) {
+	if ( (typeI == 1) && (typeJ == 1) ) {
 		double correctedSigmaSquared = TWO_POW_MIN_ONE_THIRD * radiiSquared;
 		this->LJ1206ForceEnergy(
 			forceI,
@@ -211,8 +148,14 @@ void Force::repulsionForceEnergy(
 		return;
 	}
 	else {
-		forceI = {0.,0.,0.};
-		std::cout << "No known particle types are used!\n";
+		this->softcoreForceEnergy(
+			forceI,
+			energy,
+			r_ij,
+			rSquared,
+			radiiSquared,
+			strength);
+		return;
 	}
 }
 

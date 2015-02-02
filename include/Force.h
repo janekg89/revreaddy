@@ -9,7 +9,6 @@
 #include <vector>
 #include <math.h>
 #include <cmath>
-#include <string>
 #include <iostream>
 
 class Force
@@ -21,8 +20,8 @@ class Force
 			double& rSquared,
 			double& radiiSquared,
 			double& strength,
-			std::string& typeI,
-			std::string& typeJ);
+			unsigned int& typeI,
+			unsigned int& typeJ);
 		void softcoreForce(
 			std::vector<double>& forceI,//out
 			std::vector<double>& r_ij,//in
@@ -41,8 +40,8 @@ class Force
 			double& rSquared,//in
 			double& radiiSquared,
 			double& strength,
-			std::string& typeI,
-			std::string& typeJ);
+			unsigned int& typeI,
+			unsigned int& typeJ);
 		void softcoreEnergy(
 			double& energy,//out
 			double& rSquared,//in
@@ -61,8 +60,8 @@ class Force
 			double& rSquared,
 			double& radiiSquared,
 			double& strength,
-			std::string& typeI,
-			std::string& typeJ);
+			unsigned int& typeI,
+			unsigned int& typeJ);
 		void softcoreForceEnergy(
 			std::vector<double>& forceI,//out
 			double& energy,

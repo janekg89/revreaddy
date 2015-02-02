@@ -21,6 +21,7 @@
 #include "Trajectory.h"
 #include "TrajectorySingle.h"
 #include "RadialDistribution.h"
+#include "MeanSquaredDisplacement.h"
 #include "utils.h"
 
 class Simulation
@@ -63,7 +64,7 @@ class Simulation
 
 		void addParticle(
 			std::vector<double> initPos,
-			std::string particleType,
+			unsigned int particleTypeId,
 			double rad,
 			double diffConst);
 
@@ -78,6 +79,12 @@ class Simulation
 		void new_Trajectory(std::string filename);
 		void new_TrajectorySingle();
 		std::vector< std::vector<double> > getTrajectorySingle();
+		void new_RadialDistribution(
+			std::string filename,
+			std::vector<double> ranges);
+		void new_MeanSquaredDisplacement(
+			std::string filename,
+			unsigned int particleTypeId);
 };
 
 #endif // __SIMULATION_H_INCLUDED__

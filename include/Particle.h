@@ -4,17 +4,25 @@
  * This data structure will hold information
  * about a single particle. It will be constructed
  * for every particle in the simulation.
+ * 
+ * Particles' typeId governs which potentials are used
+ * and which reactions are performed. The convention is:
+ * 0 - None (will behave like a soft particle, but should
+ *     not be used though)
+ * 1 - Lennard-Jones particle
+ * 2 - soft particle
+ * ... all coming numbers are reserved for different user
+ *     specific soft particles.
  */
 
 #ifndef __PARTICLE_H_INCLUDED__
 #define __PARTICLE_H_INCLUDED__
-#include <string>
 #include <iostream>
 #include <vector>
 class Particle
 {
 	public:
-		std::string type; // determines potentials
+		unsigned int typeId; // determines potentials
 		std::vector<double> position; // current position
 		std::vector<long>   boxCoordinates; // id of box where particle is
 		std::vector<double> oldPosition; // position when forces were calc'd

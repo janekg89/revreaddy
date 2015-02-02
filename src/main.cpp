@@ -29,7 +29,7 @@ int main()
 				x0[0] = -0.49 * sim->boxsize + i;
 				x0[1] = -0.49 * sim->boxsize + j;
 				x0[2] = -0.49 * sim->boxsize + k;
-				sim->addParticle(x0, "soft", 0.5, 1.);
+				sim->addParticle(x0, 2, 0.5, 1.);
 			}
 	Trajectory * traj = new Trajectory();
 	traj->filename = "traj.xyz";
