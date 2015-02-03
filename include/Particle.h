@@ -40,8 +40,8 @@ class Particle
 
 		Particle();
 		~Particle();
-		void move(std::vector<double> deviation);
-		void addForce(std::vector<double> force);
+		void move(std::vector<double>& deviation);
+		void addForce(std::vector<double>& force);
 		void resetForce();
 };
 

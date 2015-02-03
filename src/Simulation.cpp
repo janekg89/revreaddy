@@ -9,6 +9,7 @@ Simulation::Simulation()
 	random            = new Random("ranlxs0");
 	force             = new Force();
 	timestep          = 0.001;
+	cumulativeRuntime = 0.;
 	temperature       = 1.;
 	kBoltzmann        = 1.;
 	repulsionStrength = 1.;
@@ -29,7 +30,8 @@ Simulation::~Simulation()
 
 void Simulation::run()
 {
-	std::cout << "Simulation has started\n";
+	std::cout << "Simulation started at time: "
+	          << this->cumulativeRuntime << "\n";
 	this->resetForces();
 	this->calculateRepulsionForcesEnergies();
 	this->recordObservables(0);
@@ -42,8 +44,10 @@ void Simulation::run()
 		this->calculateRepulsionForcesEnergies(); // calculate energy and force
 		this->acceptOrReject();
 		this->recordObservables(t);
+		this->cumulativeRuntime += this->timestep;
 	}
-	std::cout << "Simulation has finished\n";
+	std::cout << "Simulation finished at time: "
+	          << this->cumulativeRuntime << "\n";
 }
 
 void Simulation::saveOldState()
@@ -369,5 +373,6 @@ void Simulation::new_MeanSquaredDisplacement(
 {
 	MeanSquaredDisplacement * msd=new MeanSquaredDisplacement(particleTypeId);
 	msd->filename = filename;
+	msd->boxsize  = this->boxsize;
 	this->observables.push_back(msd);
 }

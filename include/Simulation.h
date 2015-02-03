@@ -36,6 +36,7 @@ class Simulation
 		//std::vector<Particle> consideredParticles; 
 		unsigned long int maxTime; // length of the simulation
 		double timestep;           // the timestep: usually 0.001
+		double cumulativeRuntime;  // keeps track of the advanced time
 		double temperature;
 		double kBoltzmann;
 		bool isPeriodic;           // use periodic boundary conditions or not

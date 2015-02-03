@@ -15,6 +15,7 @@ cdef extern from "Simulation.h":
 		unsigned long int maxTime
 		double temperature
 		double timestep
+		double cumulativeRuntime
 		bool isPeriodic
 		double boxsize
 		double repulsionStrength
@@ -90,6 +91,9 @@ cdef class pySimulation:
 	property timestep:
 		def __get__(self): return self.thisptr.timestep
 		def __set__(self, timestep): self.thisptr.timestep = timestep
+	property cumulativeRuntime:
+		def __get__(self): return self.thisptr.cumulativeRuntime
+		# there should not be a setter for cumulativeRuntime
 	property isPeriodic:
 		def __get__(self): return self.thisptr.isPeriodic
 		def __set__(self, isPeriodic): self.thisptr.isPeriodic = isPeriodic
@@ -112,8 +116,11 @@ cdef class pySimulation:
 
 	# derived functions
 	def acceptanceRate(self):
-		acc = 1./(1.+ float(self.rejections)/float(self.acceptions) )
-		return round(acc, 5)
+		if (self.acceptions == 0):
+			return 0.
+		else:
+			acc = 1./(1.+ float(self.rejections)/float(self.acceptions) )
+			return round(acc, 5)
 	def efficiency(self):
 		return self.acceptanceRate() * self.timestep	
 
