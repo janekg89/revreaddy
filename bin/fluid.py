@@ -9,7 +9,7 @@ simulation.temperature       = 1.
 simulation.repulsionStrength = 1.
 simulation.verbose           = False
 
-particleType      = 'soft'
+particleType      = sim.typeStringToId['soft']
 radius            = 1.
 diffusionConstant = 1.
 
