@@ -26,7 +26,13 @@ cdef extern from "Simulation.h":
 		void addParticle(vector[double], unsigned int, double, double)
 		void run()
 		vector[double] getPosition(int)
-		void setPosition(int, vector[double])
+		void           setPosition(int, vector[double])
+		unsigned int getTypeId(int)
+		void         setTypeId(int, unsigned int)
+		double getRadius(int)
+		void   setRadius(int, double)
+		double getDiffusionConstant(int)
+		void   setDiffusionConstant(int, double)
 		int getParticleNumber()
 		void deleteAllParticles()
 		void writeAllObservablesToFile()
@@ -46,21 +52,33 @@ cdef class pySimulation:
 		del self.thisptr
 	def addParticle(
 		self,
-		initialPosition,
-		particleType=0,
+		initialPosition=[0.,0.,0.],
+		particleTypeId=0,
 		radius=1.,
-		diffusionConst=1.):
+		diffusionConstant=1.):
 		self.thisptr.addParticle(
 			initialPosition,
-			particleType,
+			particleTypeId,
 			radius,
-			diffusionConst)
+			diffusionConstant)
 	def run(self):
 		self.thisptr.run()
 	def getPosition(self, index): 
 		return self.thisptr.getPosition(index)
 	def setPosition(self, index, newPos):
 		self.thisptr.setPosition(index, newPos)
+	def getTypeId(self, index):
+		return self.thisptr.getTypeId(index)
+	def setTypeId(self, index, typeId):
+		self.thisptr.setTypeId(index, typeId)
+	def getRadius(self, index):
+		return self.thisptr.getRadius(index)
+	def setRadius(self, index, radius):
+		self.thisptr.setRadius(index, radius)
+	def getDiffusionConstant(self, index):
+		return self.thisptr.getDiffusionConstant(index)
+	def setDiffusionConstant(self, index, diffusionConstant):
+		self.thisptr.setDiffusionConstant(index, diffusionConstant)
 	def getParticleNumber(self): 
 		return self.thisptr.getParticleNumber()
 	def deleteAllParticles(self):

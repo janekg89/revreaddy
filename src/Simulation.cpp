@@ -282,6 +282,30 @@ void Simulation::setPosition(int index, std::vector<double> newPos)
 	}
 }
 
+unsigned int Simulation::getTypeId(int index) {
+	return this->activeParticles[index].typeId;
+}
+
+void Simulation::setTypeId(int index, unsigned int typeId) {
+	this->activeParticles[index].typeId = typeId;
+}
+
+double Simulation::getRadius(int index) {
+	return this->activeParticles[index].radius;
+}
+
+void Simulation::setRadius(int index, double radius) {
+	this->activeParticles[index].radius = radius;
+}
+
+double Simulation::getDiffusionConstant(int index) {
+	return this->activeParticles[index].diffusionConstant;
+}
+
+void Simulation::setDiffusionConstant(int index, double diffusionConstant) {
+	this->activeParticles[index].diffusionConstant = diffusionConstant;
+}
+
 int Simulation::getParticleNumber()
 {
 	return this->activeParticles.size();

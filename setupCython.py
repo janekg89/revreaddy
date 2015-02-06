@@ -1,6 +1,7 @@
 from distutils.core import setup
 from Cython.Build import cythonize
 
-setup(ext_modules = cythonize(
-	"sim.pyx"
-))
+setup(
+	name = "sim",
+	ext_modules = cythonize("sim.pyx")
+)

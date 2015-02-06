@@ -71,7 +71,13 @@ class Simulation
 
 		/* Obtain the position of the particle activeParticles[index] */
 		std::vector<double> getPosition(int index);
-		void setPosition(int index, std::vector<double> newPos);
+		void                setPosition(int index, std::vector<double> newPos);
+		unsigned int getTypeId(int index);
+		void         setTypeId(int index, unsigned int typeId);
+		double getRadius(int index);
+		void   setRadius(int index, double radius);
+		double getDiffusionConstant(int index);
+		void   setDiffusionConstant(int index, double diffusionConstant);
 		int  getParticleNumber();
 		void deleteAllParticles();
 		void writeAllObservablesToFile();
