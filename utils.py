@@ -27,13 +27,13 @@ def saveSimulation(filename, simulation):
 
 def loadSimulation(filename):
 	with open(filename, 'r') as fHandle:
-		firstLine  =  fHandle.readlines()
+		firstLine  =  fHandle.readline()
 	system = np.fromstring(firstLine, sep="\t")
 	simulation             = sim.pySimulation()
 	simulation.boxsize     = system[1]
 	simulation.temperature = system[2]
 
-	N = system[0]
+	N = int(system[0])
 	particles = np.loadtxt(filename, skiprows=1)
 	for i in range(N):
 		simulation.addParticle(
