@@ -26,7 +26,7 @@ for x in np.arange(-L, L, 2.*radius):
             )
 
 t1 = time.clock()
-simulation.maxTime = 300
+simulation.maxTime = 3000
 simulation.run()
 t2 = time.clock()
 
