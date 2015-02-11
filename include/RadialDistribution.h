@@ -37,7 +37,7 @@ class RadialDistribution : public Observable
 
 		void record(
 			std::vector<Particle>& activeParticles,
-			unsigned long int t);
+			double t);
 		void writeBufferToFile();
 
 		RadialDistribution(std::vector<double> range);

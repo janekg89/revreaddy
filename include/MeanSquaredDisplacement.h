@@ -22,7 +22,9 @@ class MeanSquaredDisplacement : public Observable
 			std::vector<long>   boxCoordinates;
 		};
 		std::vector< positionTuple > startPoints;
+		double startTime;
 		// [timeIndex]
+		std::vector<double> time;
 		std::vector<double> meanSquaredDisplacements;
 		std::vector<double> standardDeviations;
 		std::vector<double> standardErrors;
@@ -30,7 +32,7 @@ class MeanSquaredDisplacement : public Observable
 
 		void record(
 			std::vector<Particle>& activeParticles,
-			unsigned long int t);
+			double t);
 		void writeBufferToFile();
 		
 		MeanSquaredDisplacement(unsigned int id);

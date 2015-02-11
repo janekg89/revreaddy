@@ -22,6 +22,7 @@ cdef extern from "Simulation.h":
 		bool verbose
 		unsigned long int acceptions
 		unsigned long int rejections
+		bool isReversible
 
 		void addParticle(vector[double], unsigned int, double, double)
 		void run()
@@ -131,6 +132,9 @@ cdef class pySimulation:
 	property rejections:
 		def __get__(self): return self.thisptr.rejections
 		def __set__(self, rejections): self.thisptr.rejections = rejections
+	property isReversible:
+		def __get__(self): return self.thisptr.isReversible
+		def __set__(self,isReversible): self.thisptr.isReversible=isReversible
 
 	# derived functions
 	def acceptanceRate(self):

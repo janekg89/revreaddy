@@ -20,6 +20,7 @@ Simulation::Simulation()
 	oldEnergy         = 0.;
 	acceptions        = 0;
 	rejections        = 0;
+	isReversible      = true;
 }
 
 Simulation::~Simulation()
@@ -34,7 +35,7 @@ void Simulation::run()
 	          << this->cumulativeRuntime << "\n";
 	this->resetForces();
 	this->calculateRepulsionForcesEnergies();
-	this->recordObservables(0);
+	this->recordObservables(this->cumulativeRuntime);
 	for (unsigned long int t = 1; t < maxTime; t++)
 	{
 		// groupForces()
@@ -42,9 +43,9 @@ void Simulation::run()
 		this->propagate(); // propose
 		this->resetForces();
 		this->calculateRepulsionForcesEnergies(); // calculate energy and force
-		this->acceptOrReject();
-		this->recordObservables(t);
+		if (this->isReversible) { this->acceptOrReject(); }
 		this->cumulativeRuntime += this->timestep;
+		this->recordObservables(this->cumulativeRuntime);
 	}
 	std::cout << "Simulation finished at time: "
 	          << this->cumulativeRuntime << "\n";
@@ -117,7 +118,7 @@ void Simulation::propagate()
 	}
 }
 
-void Simulation::recordObservables(unsigned long int t)
+void Simulation::recordObservables(double t)
 {
 	for (auto* obs : this->observables) {
 		obs->record(this->activeParticles, t);

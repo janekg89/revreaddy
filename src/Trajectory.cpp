@@ -17,7 +17,7 @@ Trajectory::~Trajectory()
 
 void Trajectory::record(
 	std::vector<Particle>& activeParticles,
-	unsigned long int t)
+	double t)
 {
 	std::vector<particleTuple>	currentCoordinates;
 	for (auto&& particle : activeParticles)

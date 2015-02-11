@@ -26,7 +26,7 @@ RadialDistribution::~RadialDistribution()
 
 void RadialDistribution::record(
 	std::vector<Particle>& activeParticles,
-	unsigned long int t)
+	double t)
 	/* Record the radial distribution already normalized 
 	 * correctly for the current timestep.
 	 */

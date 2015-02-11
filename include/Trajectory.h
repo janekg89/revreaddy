@@ -21,7 +21,7 @@ class Trajectory : public Observable
 		{
 			unsigned int particleTypeId;
 			std::vector<double> particleCoordinates;
-			unsigned long int particleTime;
+			double particleTime;
 		};
 		/* trajectory has the following shape:
 		 * [relativeTime] [particles] [tuple[type][coordinates][absTime]] */
@@ -29,7 +29,7 @@ class Trajectory : public Observable
 
 		void record(
 			std::vector<Particle>& activeParticles,
-			unsigned long int t);
+			double t);
 		void writeBufferToFile();
 	
 		Trajectory();

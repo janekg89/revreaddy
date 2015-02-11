@@ -19,7 +19,7 @@ class Observable
 		// buffer is declared by children
 		virtual void record(
 			std::vector<Particle>& activeParticles,
-			unsigned long int t); // write data to buffer
+			double t); // write data to buffer
 		virtual void writeBufferToFile(); // clear buffer
 		
 		/* define a 'virtual' variable to access Trajectory's trajectory 

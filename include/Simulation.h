@@ -47,11 +47,12 @@ class Simulation
 		double oldEnergy;
 		unsigned long int acceptions;
 		unsigned long int rejections;
+		bool isReversible;
 
 		void run();
 		void saveOldState();//oldEnergy=energy, oldPos=pos, oldForce=force
 		void propagate();
-		void recordObservables(unsigned long int t);
+		void recordObservables(double t);
 		/* double loop (i,j) over activeParticles and call 
 		 * according Forcetype for particle pair (i,j) */
 		void calculateRepulsionForcesEnergies(); 

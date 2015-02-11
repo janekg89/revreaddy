@@ -16,7 +16,7 @@ MeanSquaredDisplacement::~MeanSquaredDisplacement()
 
 void MeanSquaredDisplacement::record(
 	std::vector<Particle>& activeParticles,
-	unsigned long int t)
+	double t)
 {
 	if (this->meanSquaredDisplacements.size() == 0) {
 		for (int i=0; i<activeParticles.size(); i++) {
@@ -25,6 +25,7 @@ void MeanSquaredDisplacement::record(
 				pt.position = activeParticles[i].position;
 				pt.boxCoordinates = activeParticles[i].boxCoordinates;
 				this->startPoints.push_back(pt);
+				this->startTime = t;
 			}
 		}
 	}
@@ -76,6 +77,7 @@ void MeanSquaredDisplacement::record(
 	standardError     = sqrt(standardError);
 	this->standardDeviations.push_back(standardDeviation);
 	this->standardErrors.push_back(standardError);
+	this->time.push_back(t - this->startTime);
 }
 
 void MeanSquaredDisplacement::writeBufferToFile()
@@ -83,8 +85,9 @@ void MeanSquaredDisplacement::writeBufferToFile()
 	std::ofstream file;
 	file.open(this->filename);
 	file << "Number of particles: " << startPoints.size() << "\n";
-	file << "Mean Squared Displacement\tStandardDeviation\tStandardError\n";
+	file << "Time\tMean Squared Displacement\tStandardDeviation\tStandardError\n";
 	for (int i=0; i<meanSquaredDisplacements.size(); i++) {
+		file << time[i] << "\t";
 		file << meanSquaredDisplacements[i] << "\t";
 		file << standardDeviations[i] << "\t";
 		file << standardErrors[i] << "\n";
