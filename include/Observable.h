@@ -16,11 +16,15 @@ class Observable
 		int recPeriod; // number of timesteps between two recordings
 		int clearPeriod; // number of timesteps between two writeBufferToFile
 		std::string filename;
+		std::vector<unsigned long long> observedParticleIds;
 		// buffer is declared by children
 		virtual void record(
 			std::vector<Particle>& activeParticles,
 			double t); // write data to buffer
 		virtual void writeBufferToFile(); // clear buffer
+		int findParticleIndex(
+			std::vector<Particle>& activeParticles,
+			unsigned long long id);
 		
 		/* define a 'virtual' variable to access Trajectory's trajectory 
 		 * from Simulationn, which only knows about Observable. */

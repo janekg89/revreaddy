@@ -48,6 +48,7 @@ class Simulation
 		unsigned long int acceptions;
 		unsigned long int rejections;
 		bool isReversible;
+		unsigned long long uniqueIdCounter;
 
 		void run();
 		void saveOldState();//oldEnergy=energy, oldPos=pos, oldForce=force

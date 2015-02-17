@@ -2,11 +2,20 @@
 
 #include "MeanSquaredDisplacement.h"
 
-MeanSquaredDisplacement::MeanSquaredDisplacement(unsigned int id)
+MeanSquaredDisplacement::MeanSquaredDisplacement(
+	std::vector<Particle>& activeParticles,
+	unsigned int pTypeId)
 {
 	this->recPeriod = 1;
 	this->clearPeriod = 0;
-	this->particleTypeId = id;
+	this->particleTypeId = pTypeId;
+	/* add uniqueIds of all particles of type 
+	 * "particleTypeId" to observedParticleIds */
+	for (unsigned int i=0; i<activeParticles.size(); i++) {
+		if (activeParticles[i].typeId == this->particleTypeId) {
+			this->observedParticleIds.push_back( activeParticles[i].uniqueId );
+		}
+	}
 }
 
 MeanSquaredDisplacement::~MeanSquaredDisplacement()
@@ -14,6 +23,8 @@ MeanSquaredDisplacement::~MeanSquaredDisplacement()
 	this->recPeriod = 0;
 }
 
+// TODO now only record msd for particles within observedParticleIds
+// also consider what to do when particles get deleted
 void MeanSquaredDisplacement::record(
 	std::vector<Particle>& activeParticles,
 	double t)

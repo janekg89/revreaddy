@@ -6,21 +6,22 @@
 
 Simulation::Simulation()
 {
-	random            = new Random("ranlxs0");
-	force             = new Force();
-	timestep          = 0.001;
-	cumulativeRuntime = 0.;
-	temperature       = 1.;
-	kBoltzmann        = 1.;
-	repulsionStrength = 1.;
-	isPeriodic        = true;
-	boxsize           = 10.;
-	verbose           = false;
-	energy            = 0.;
-	oldEnergy         = 0.;
-	acceptions        = 0;
-	rejections        = 0;
-	isReversible      = true;
+	this->random            = new Random("ranlxs0");
+	this->force             = new Force();
+	this->timestep          = 0.001;
+	this->cumulativeRuntime = 0.;
+	this->temperature       = 1.;
+	this->kBoltzmann        = 1.;
+	this->repulsionStrength = 1.;
+	this->isPeriodic        = true;
+	this->boxsize           = 10.;
+	this->verbose           = false;
+	this->energy            = 0.;
+	this->oldEnergy         = 0.;
+	this->acceptions        = 0;
+	this->rejections        = 0;
+	this->isReversible      = true;
+	this->uniqueIdCounter   = 0;
 }
 
 Simulation::~Simulation()
@@ -260,6 +261,8 @@ void Simulation::addParticle(
 	particle->typeId            = particleTypeId;
 	particle->radius            = rad;
 	particle->diffusionConstant = diffConst;
+	particle->uniqueId          = this->uniqueIdCounter;
+	this->uniqueIdCounter      += 1;
 	this->activeParticles.push_back(*particle);//push_back copies arg into vec
 	delete particle;
 	if (this->verbose) {std::cout << "Particle added.\n";}

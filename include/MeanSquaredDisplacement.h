@@ -35,7 +35,9 @@ class MeanSquaredDisplacement : public Observable
 			double t);
 		void writeBufferToFile();
 		
-		MeanSquaredDisplacement(unsigned int id);
+		MeanSquaredDisplacement(
+			std::vector<Particle>& activeParticles,
+			unsigned int pTypeId);
 		~MeanSquaredDisplacement();
 };
 

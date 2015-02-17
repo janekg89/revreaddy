@@ -5,6 +5,7 @@
 #include "Particle.h"
 Particle::Particle()
 {
+	this->uniqueId          = 0;
 	this->position 			= {0.,0.,0.};
 	this->position.shrink_to_fit();
 	this->boxCoordinates    = {0,0,0};

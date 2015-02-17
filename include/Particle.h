@@ -22,6 +22,7 @@
 class Particle
 {
 	public:
+		unsigned long long uniqueId;
 		unsigned int typeId; // determines potentials
 		std::vector<double> position; // current position
 		std::vector<long>   boxCoordinates; // id of box where particle is
