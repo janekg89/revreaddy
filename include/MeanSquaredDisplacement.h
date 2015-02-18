@@ -28,6 +28,7 @@ class MeanSquaredDisplacement : public Observable
 		std::vector<double> meanSquaredDisplacements;
 		std::vector<double> standardDeviations;
 		std::vector<double> standardErrors;
+		std::vector<unsigned int> numberOfParticles;
 		double boxsize;
 
 		void record(
@@ -37,7 +38,9 @@ class MeanSquaredDisplacement : public Observable
 		
 		MeanSquaredDisplacement(
 			std::vector<Particle>& activeParticles,
-			unsigned int pTypeId);
+			unsigned int pTypeId,
+			double time,
+			double boxsize);
 		~MeanSquaredDisplacement();
 };
 

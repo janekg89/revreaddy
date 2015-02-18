@@ -25,7 +25,7 @@ void Observable::writeBufferToFile()
 }
 
 // return the particle index within activeParticles of particle with id id
-int findParticleIndex(
+int Observable::findParticleIndex(
 	std::vector<Particle>& activeParticles,
 	unsigned long long id) 
 { 

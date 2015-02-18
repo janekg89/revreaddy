@@ -31,26 +31,10 @@ int main()
 				x0[2] = -0.49 * sim->boxsize + k;
 				sim->addParticle(x0, 2, 0.5, 1.);
 			}
-	Trajectory * traj = new Trajectory();
-	traj->filename = "traj.xyz";
-	sim->observables.push_back(traj);
-
+	sim->new_Trajectory("traj.xyz");
+	sim->new_MeanSquaredDisplacement("msd.dat", 2);
 	sim->run();
-
-	std::vector<double> ranges;
-	for (double i=0; i<101; i++) {
-		ranges.push_back(0.1*i);
-	}
-	RadialDistribution * rad = new RadialDistribution( ranges );
-	rad->isPeriodic = sim->isPeriodic;
-	rad->boxsize = sim->boxsize;
-
-	sim->observables.push_back(rad);
-	sim->maxTime = 1;
-
-	sim->run();
-
-	traj->writeBufferToFile();
-	
+	sim->writeAllObservablesToFile();
+	sim->deleteAllObservables();
 	return 0;
 }

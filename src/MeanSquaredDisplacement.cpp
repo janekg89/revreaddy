@@ -4,86 +4,88 @@
 
 MeanSquaredDisplacement::MeanSquaredDisplacement(
 	std::vector<Particle>& activeParticles,
-	unsigned int pTypeId)
+	unsigned int pTypeId,
+	double time,
+	double boxsize)
 {
 	this->recPeriod = 1;
 	this->clearPeriod = 0;
 	this->particleTypeId = pTypeId;
+	this->startTime = time;
+	this->boxsize   = boxsize;
 	/* add uniqueIds of all particles of type 
 	 * "particleTypeId" to observedParticleIds */
 	for (unsigned int i=0; i<activeParticles.size(); i++) {
 		if (activeParticles[i].typeId == this->particleTypeId) {
 			this->observedParticleIds.push_back( activeParticles[i].uniqueId );
+			positionTuple pt;
+			pt.position = activeParticles[i].position;
+			pt.boxCoordinates = activeParticles[i].boxCoordinates;
+			this->startPoints.push_back(pt);
 		}
 	}
 }
 
 MeanSquaredDisplacement::~MeanSquaredDisplacement()
 {
-	this->recPeriod = 0;
 }
 
-// TODO now only record msd for particles within observedParticleIds
-// also consider what to do when particles get deleted
 void MeanSquaredDisplacement::record(
 	std::vector<Particle>& activeParticles,
 	double t)
 {
-	if (this->meanSquaredDisplacements.size() == 0) {
-		for (int i=0; i<activeParticles.size(); i++) {
-			if (activeParticles[i].typeId == this->particleTypeId) {
-				positionTuple pt;
-				pt.position = activeParticles[i].position;
-				pt.boxCoordinates = activeParticles[i].boxCoordinates;
-				this->startPoints.push_back(pt);
-				this->startTime = t;
-			}
-		}
-	}
 	std::vector<double> displacement = {0.,0.,0.};
 	std::vector<long>   relativeBoxCoordinates = {0,0,0};
 	std::vector<double> squaredDisplacements;
 	double squaredDisplacement = 0.;
 	double mean = 0.;
-	unsigned int index = 0;
-	for (int i=0; i<activeParticles.size(); i++) {
-		if (activeParticles[i].typeId == this->particleTypeId) {
-			relativeBoxCoordinates[0] = activeParticles[i].boxCoordinates[0] 
-			                          - startPoints[index].boxCoordinates[0];
-			relativeBoxCoordinates[1] = activeParticles[i].boxCoordinates[1]
-			                          - startPoints[index].boxCoordinates[1];
-			relativeBoxCoordinates[2] = activeParticles[i].boxCoordinates[2]
-			                          - startPoints[index].boxCoordinates[2];
+	int index = 0;
+	unsigned int stillExisting = 0;
+	for (int i=0; i < this->observedParticleIds.size(); i++) {
+		// check if particle still exists. if not: index = -1
+		index = this->findParticleIndex(
+			activeParticles,
+			observedParticleIds[i]);
+		if (index != -1) {
+			stillExisting += 1;
+			relativeBoxCoordinates[0] = activeParticles[index].boxCoordinates[0] 
+			                          - startPoints[i].boxCoordinates[0];
+			relativeBoxCoordinates[1] = activeParticles[index].boxCoordinates[1]
+			                          - startPoints[i].boxCoordinates[1];
+			relativeBoxCoordinates[2] = activeParticles[index].boxCoordinates[2]
+			                          - startPoints[i].boxCoordinates[2];
 			displacement[0] = (double) relativeBoxCoordinates[0] 
 			                * this->boxsize
-			                + activeParticles[i].position[0]
-			                - startPoints[index].position[0];
+			                + activeParticles[index].position[0]
+			                - startPoints[i].position[0];
 			displacement[1] = (double) relativeBoxCoordinates[1]
 			                * this->boxsize
-			                + activeParticles[i].position[1]
-			                - startPoints[index].position[1];
+			                + activeParticles[index].position[1]
+			                - startPoints[i].position[1];
 			displacement[2] = (double) relativeBoxCoordinates[2]
 			                * this->boxsize
-			                + activeParticles[i].position[2]
-			                - startPoints[index].position[2];
+			                + activeParticles[index].position[2]
+			                - startPoints[i].position[2];
 			squaredDisplacement = displacement[0]*displacement[0]
 			                    + displacement[1]*displacement[1]
 			                    + displacement[2]*displacement[2];
 			squaredDisplacements.push_back(squaredDisplacement);
 			mean += squaredDisplacement;
-			index += 1;
 		}
 	}
-	mean /= (double) this->startPoints.size();
+	// if no more particles still exist, stop here. nothing is recorded
+	if (stillExisting == 0) {return;}
+	this->numberOfParticles.push_back(stillExisting);
+	mean /= (double) stillExisting;
 	this->meanSquaredDisplacements.push_back(mean);
 	double standardDeviation = 0.;
 	for (int j=0; j<squaredDisplacements.size(); j++) {
 		standardDeviation += (squaredDisplacements[j] - mean)
 		                   * (squaredDisplacements[j] - mean);
 	}
-	standardDeviation /= (double) (this->startPoints.size() - 1);
+	standardDeviation /= (double) (stillExisting - 1);
 	double standardError = standardDeviation 
-	                     / (double) this->startPoints.size();
+	                     / (double) stillExisting; 
 	standardDeviation = sqrt(standardDeviation);
 	standardError     = sqrt(standardError);
 	this->standardDeviations.push_back(standardDeviation);
@@ -95,13 +97,14 @@ void MeanSquaredDisplacement::writeBufferToFile()
 {
 	std::ofstream file;
 	file.open(this->filename);
-	file << "Number of particles: " << startPoints.size() << "\n";
-	file << "Time\tMean Squared Displacement\tStandardDeviation\tStandardError\n";
+	file << "Time\tMeanSquaredDisplacement\tStandardDeviation\t"
+			"StandardError\tNumberOfParticles\n";
 	for (int i=0; i<meanSquaredDisplacements.size(); i++) {
 		file << time[i] << "\t";
 		file << meanSquaredDisplacements[i] << "\t";
 		file << standardDeviations[i] << "\t";
-		file << standardErrors[i] << "\n";
+		file << standardErrors[i] << "\t";
+		file << numberOfParticles[i] << "\n";
 	}
 	file.close();
 }

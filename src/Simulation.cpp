@@ -399,8 +399,11 @@ void Simulation::new_MeanSquaredDisplacement(
 	std::string filename,
 	unsigned int particleTypeId)
 {
-	MeanSquaredDisplacement * msd=new MeanSquaredDisplacement(particleTypeId);
+	MeanSquaredDisplacement * msd = new MeanSquaredDisplacement(
+		this->activeParticles,
+		particleTypeId,
+		this->cumulativeRuntime,
+		this->boxsize);
 	msd->filename = filename;
-	msd->boxsize  = this->boxsize;
 	this->observables.push_back(msd);
 }
