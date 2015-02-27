@@ -31,7 +31,7 @@ class RadialDistribution : public Observable
 		/* bins is basically a copy of the histogram to easy rescale each
 		 * bin individually. */
 		std::vector<double> bins;
-		std::string particleType; // the type for which to calculate the RDF
+		std::vector< std::vector<unsigned int> > consideredPairs;
 		bool isPeriodic;
 		double boxsize;
 
@@ -40,7 +40,10 @@ class RadialDistribution : public Observable
 			double t);
 		void writeBufferToFile();
 
-		RadialDistribution(std::vector<double> range);
+		RadialDistribution(
+			std::vector<double>& range,
+			bool isPeriodic,
+			double boxsize);
 		~RadialDistribution();
 };
 #endif // __RADIALDISTRIBUTION_H_INCLUDED__

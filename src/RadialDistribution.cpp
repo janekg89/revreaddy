@@ -2,11 +2,19 @@
 
 #include "RadialDistribution.h"
 
-RadialDistribution::RadialDistribution(std::vector<double> range)
+// TODO receive vector<vector<unsigned int>> representing a list of tuples
+// these tuples have pairs of particleTypeIds which should be considered
+// in rdf calculation.
+RadialDistribution::RadialDistribution(
+	std::vector<double>& range,
+	bool isPeriodic,
+	double boxsize)
 {
+	this->isPeriodic   = isPeriodic;
+	this->boxsize      = boxsize;
 	this->numberOfBins = range.size() - 1;
 	this->radialDistribution = gsl_histogram_alloc(this->numberOfBins);
-	this->rangeOfBins = range;
+	this->rangeOfBins  = range;
 	const double * cRange = &range[0];
 	gsl_histogram_set_ranges(this->radialDistribution, cRange, range.size());
 	// calculate centers of bins
@@ -22,7 +30,6 @@ RadialDistribution::~RadialDistribution()
 {
 	gsl_histogram_free(this->radialDistribution);
 }
-
 
 void RadialDistribution::record(
 	std::vector<Particle>& activeParticles,

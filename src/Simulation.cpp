@@ -388,10 +388,11 @@ void Simulation::new_RadialDistribution(
 	std::string filename,
 	std::vector<double> ranges)
 {
-	RadialDistribution * rad = new RadialDistribution(ranges);
-	rad->isPeriodic          = this->isPeriodic;
-	rad->boxsize             = this->boxsize;
-	rad->filename            = filename;
+	RadialDistribution * rad = new RadialDistribution(
+		ranges,
+		this->isPeriodic,
+		this->boxsize);
+	rad->filename = filename;
 	this->observables.push_back(rad);
 }
 
