@@ -8,7 +8,8 @@
 RadialDistribution::RadialDistribution(
 	std::vector<double>& range,
 	bool isPeriodic,
-	double boxsize)
+	double boxsize,
+	std::vector< std::vector<unsigned int> > considered)
 {
 	this->isPeriodic   = isPeriodic;
 	this->boxsize      = boxsize;
@@ -24,6 +25,7 @@ RadialDistribution::RadialDistribution(
 		this->binCenters.push_back(center);
 		this->bins.push_back(0.);
 	}
+	this->consideredPairs = considered;
 }
 
 RadialDistribution::~RadialDistribution()
@@ -31,24 +33,28 @@ RadialDistribution::~RadialDistribution()
 	gsl_histogram_free(this->radialDistribution);
 }
 
+/* Record the radial distribution already normalized 
+ * correctly for the current timestep.
+ */
 void RadialDistribution::record(
 	std::vector<Particle>& activeParticles,
 	double t)
-	/* Record the radial distribution already normalized 
-	 * correctly for the current timestep.
-	 */
 {
 	double radius = 0.;
 	for (int i=0; i<activeParticles.size(); i++) {
 		for (int j=i+1; j<activeParticles.size(); j++) {
-			getMinDistanceSquared(
-				radius,
-				activeParticles[i].position,
-				activeParticles[j].position,
-				this->isPeriodic,
-				this->boxsize);
-			radius = sqrt(radius);
-			gsl_histogram_increment(this->radialDistribution, radius);
+			if (this->isInConsidered(
+				activeParticles[i].typeId,
+				activeParticles[j].typeId)) {
+					getMinDistanceSquared(
+						radius,
+						activeParticles[i].position,
+						activeParticles[j].position,
+						this->isPeriodic,
+						this->boxsize);
+					radius = sqrt(radius);
+					gsl_histogram_increment(this->radialDistribution, radius);
+			}
 		}
 	}
 	// copy the hist to 'bins' while scaling every value correctly
@@ -57,6 +63,31 @@ void RadialDistribution::record(
 		           / (binCenters[i] * binCenters[i]);
 	}
 	gsl_histogram_reset(this->radialDistribution);
+}
+
+/* Finds out if tuple (a,b) is in consideredPairs*/
+bool RadialDistribution::isInConsidered(unsigned int a, unsigned int b)
+{
+	if (a <= b) {
+		for (unsigned int k=0; k<this->consideredPairs.size(); k++) {
+			if (this->consideredPairs[k][0] == a) {
+				if (this->consideredPairs[k][1] == b) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	else {
+		for (unsigned int k=0; k<this->consideredPairs.size(); k++) {
+			if (this->consideredPairs[k][0] == b) {
+				if (this->consideredPairs[k][1] == a) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 }
 
 void RadialDistribution::writeBufferToFile()

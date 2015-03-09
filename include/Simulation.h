@@ -90,7 +90,8 @@ class Simulation
 		std::vector< std::vector<double> > getTrajectorySingle();
 		void new_RadialDistribution(
 			std::string filename,
-			std::vector<double> ranges);
+			std::vector<double> ranges,
+			std::vector< std::vector<unsigned int> > considered);
 		void new_MeanSquaredDisplacement(
 			std::string filename,
 			unsigned int particleTypeId);

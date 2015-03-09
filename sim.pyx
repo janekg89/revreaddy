@@ -42,7 +42,7 @@ cdef extern from "Simulation.h":
 		void new_Trajectory(string)
 		void new_TrajectorySingle()
 		vector[vector[double]] getTrajectorySingle()
-		void new_RadialDistribution(string, vector[double])
+		void new_RadialDistribution(string, vector[double], vector[vector[uint]])
 		void new_MeanSquaredDisplacement(string, unsigned int)
 
 cdef class pySimulation:
@@ -96,8 +96,8 @@ cdef class pySimulation:
 		self.thisptr.new_TrajectorySingle()
 	def getTrajectorySingle(self):
 		return self.thisptr.getTrajectorySingle()
-	def new_RadialDistribution(self, filename, ranges):
-		self.thisptr.new_RadialDistribution(filename, ranges)
+	def new_RadialDistribution(self, filename, ranges, considered):
+		self.thisptr.new_RadialDistribution(filename, ranges, considered)
 	def new_MeanSquaredDisplacement(self, filename, particleTypeId):
 		self.thisptr.new_MeanSquaredDisplacement(filename, particleTypeId)
 		

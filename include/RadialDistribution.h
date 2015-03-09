@@ -31,6 +31,10 @@ class RadialDistribution : public Observable
 		/* bins is basically a copy of the histogram to easy rescale each
 		 * bin individually. */
 		std::vector<double> bins;
+		/* consideredPairs is a list of tuples of particleTypeIds
+		 * CONVENTION: the tuples MUST be ordered.
+		 * Correct: (0,1) , (3,5), (2,2) 
+		 * Not correct: (1,0), (4,1)*/
 		std::vector< std::vector<unsigned int> > consideredPairs;
 		bool isPeriodic;
 		double boxsize;
@@ -38,12 +42,15 @@ class RadialDistribution : public Observable
 		void record(
 			std::vector<Particle>& activeParticles,
 			double t);
+		/* Check if (a,b) is in consideredPairs.*/
+		bool isInConsidered(unsigned int a, unsigned int b);
 		void writeBufferToFile();
 
 		RadialDistribution(
 			std::vector<double>& range,
 			bool isPeriodic,
-			double boxsize);
+			double boxsize,
+			std::vector< std::vector<unsigned int> > considered);
 		~RadialDistribution();
 };
 #endif // __RADIALDISTRIBUTION_H_INCLUDED__

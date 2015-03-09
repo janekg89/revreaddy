@@ -386,12 +386,14 @@ std::vector< std::vector<double> > Simulation::getTrajectorySingle()
 
 void Simulation::new_RadialDistribution(
 	std::string filename,
-	std::vector<double> ranges)
+	std::vector<double> ranges,
+	std::vector< std::vector<unsigned int> > considered)
 {
 	RadialDistribution * rad = new RadialDistribution(
 		ranges,
 		this->isPeriodic,
-		this->boxsize);
+		this->boxsize,
+		considered);
 	rad->filename = filename;
 	this->observables.push_back(rad);
 }
