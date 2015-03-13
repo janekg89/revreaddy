@@ -22,6 +22,7 @@
 #include "TrajectorySingle.h"
 #include "RadialDistribution.h"
 #include "MeanSquaredDisplacement.h"
+#include "ProbabilityDensity.h"
 #include "utils.h"
 
 class Simulation
@@ -95,6 +96,11 @@ class Simulation
 		void new_MeanSquaredDisplacement(
 			std::string filename,
 			unsigned int particleTypeId);
+		void new_ProbabilityDensity(
+			std::string filename,
+			unsigned int pTypeId,
+			std::vector<double> range,
+			unsigned int coord);
 };
 
 #endif // __SIMULATION_H_INCLUDED__

@@ -1,6 +1,6 @@
 # distutils: language = c++
 # distutils: extra_compile_args = -std=c++11 
-# distutils: sources = src/Observable.cpp src/Simulation.cpp src/Particle.cpp src/Random.cpp src/Force.cpp src/Trajectory.cpp src/TrajectorySingle.cpp src/RadialDistribution.cpp src/utils.cpp src/MeanSquaredDisplacement.cpp
+# distutils: sources = src/Observable.cpp src/Simulation.cpp src/Particle.cpp src/Random.cpp src/Force.cpp src/Trajectory.cpp src/TrajectorySingle.cpp src/RadialDistribution.cpp src/utils.cpp src/MeanSquaredDisplacement.cpp src/ProbabilityDensity.cpp
 # distutils: include_dirs = /usr/include /usr/local/include include
 # distutils: libraries = m gsl gslcblas
 
@@ -44,6 +44,7 @@ cdef extern from "Simulation.h":
 		vector[vector[double]] getTrajectorySingle()
 		void new_RadialDistribution(string, vector[double], vector[vector[uint]])
 		void new_MeanSquaredDisplacement(string, unsigned int)
+		void new_ProbabilityDensity(string, unsigned int, vector[double], unsigned int)
 
 cdef class pySimulation:
 	cdef Simulation *thisptr
@@ -96,10 +97,12 @@ cdef class pySimulation:
 		self.thisptr.new_TrajectorySingle()
 	def getTrajectorySingle(self):
 		return self.thisptr.getTrajectorySingle()
-	def new_RadialDistribution(self, filename, ranges, considered):
+	def new_RadialDistribution(self, filename, ranges, considered=[[2,2]]):
 		self.thisptr.new_RadialDistribution(filename, ranges, considered)
 	def new_MeanSquaredDisplacement(self, filename, particleTypeId):
 		self.thisptr.new_MeanSquaredDisplacement(filename, particleTypeId)
+	def new_ProbabilityDensity(self, filename, pTypeId, ranges, coord):
+		self.thisptr.new_ProbabilityDensity(filename, pTypeId, ranges, coord)
 		
 	property maxTime:
 		def __get__(self): return self.thisptr.maxTime

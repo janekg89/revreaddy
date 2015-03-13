@@ -410,3 +410,18 @@ void Simulation::new_MeanSquaredDisplacement(
 	msd->filename = filename;
 	this->observables.push_back(msd);
 }
+
+void Simulation::new_ProbabilityDensity(
+	std::string filename,
+	unsigned int pTypeId,
+	std::vector<double> range,
+	unsigned int coord)
+{
+	ProbabilityDensity * prob = new ProbabilityDensity(
+		this->activeParticles,
+		pTypeId,
+		range,
+		coord);
+	prob->filename = filename;
+	this->observables.push_back(prob);
+}

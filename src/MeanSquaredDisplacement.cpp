@@ -48,11 +48,11 @@ void MeanSquaredDisplacement::record(
 			observedParticleIds[i]);
 		if (index != -1) {
 			stillExisting += 1;
-			relativeBoxCoordinates[0] = activeParticles[index].boxCoordinates[0] 
+			relativeBoxCoordinates[0] =activeParticles[index].boxCoordinates[0]
 			                          - startPoints[i].boxCoordinates[0];
-			relativeBoxCoordinates[1] = activeParticles[index].boxCoordinates[1]
+			relativeBoxCoordinates[1] =activeParticles[index].boxCoordinates[1]
 			                          - startPoints[i].boxCoordinates[1];
-			relativeBoxCoordinates[2] = activeParticles[index].boxCoordinates[2]
+			relativeBoxCoordinates[2] =activeParticles[index].boxCoordinates[2]
 			                          - startPoints[i].boxCoordinates[2];
 			displacement[0] = (double) relativeBoxCoordinates[0] 
 			                * this->boxsize
