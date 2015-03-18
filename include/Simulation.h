@@ -23,6 +23,7 @@
 #include "RadialDistribution.h"
 #include "MeanSquaredDisplacement.h"
 #include "ProbabilityDensity.h"
+#include "TypeDict.h"
 #include "utils.h"
 
 class Simulation
@@ -30,6 +31,7 @@ class Simulation
 	public:
 		Random * random;                // the random number generator
 		Force * force;                  // the force/energy handler
+		TypeDict * typeDict;			// dictionary for radii etc.
 		std::vector<Particle> activeParticles;
 		/* Stores children of Observable */
 		std::vector<Observable*> observables;

@@ -23,7 +23,7 @@ class Particle
 {
 	public:
 		unsigned long long uniqueId;
-		unsigned int typeId; // determines potentials
+		unsigned int typeId; // determines potentials, diffConst and radius
 		std::vector<double> position; // current position
 		std::vector<long>   boxCoordinates; // id of box where particle is
 		std::vector<double> oldPosition; // position when forces were calc'd
@@ -32,10 +32,6 @@ class Particle
 		/* how many timesteps in total were skipped. Determines 
 		 * the distribution from which new position is drawn */
 		unsigned int skip;
-		double radius;	// size of the particle
-		/* an individual diffusionConstant, typically determined by the type */
-		double diffusionConstant; 
-		/* the cumulative force for the current timestep. */
 		std::vector<double> cumulativeForce;
 		std::vector<double> oldForce;
 

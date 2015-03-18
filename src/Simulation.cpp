@@ -8,6 +8,7 @@ Simulation::Simulation()
 {
 	this->random            = new Random("ranlxs0");
 	this->force             = new Force();
+	this->typeDict          = new TypeDict();
 	this->timestep          = 0.001;
 	this->cumulativeRuntime = 0.;
 	this->temperature       = 1.;
@@ -22,6 +23,9 @@ Simulation::Simulation()
 	this->rejections        = 0;
 	this->isReversible      = true;
 	this->uniqueIdCounter   = 0;
+	this->typeDict.newType("default", 1., 0.); // 0
+	this->typeDict.newType("lj", 1., 1.); // 1
+	this->typeDict.newType("soft", 1., 1.); // 2
 }
 
 Simulation::~Simulation()
@@ -69,19 +73,21 @@ void Simulation::propagate()
 {
 	std::vector<double> noiseTerm = {0.,0.,0.};
 	std::vector<double> forceTerm = {0.,0.,0.};
-	double noisePrefactor;
-	double forcePrefactor;
+	double noisePrefactor = 1.;
+	double forcePrefactor = 1.;
+	double diffConst = 1.; //diffusion constant of current particle
 	for (int i=0; i<activeParticles.size(); i++)
 	{
+		// look up particles' diffusion constant from its typeId
+		diffConst=this->typeDict.diffusionConstants[activeParticles[i].typeId];
+
 		noiseTerm = random->normal3D();
-		noisePrefactor = sqrt(
-			2. * activeParticles[i].diffusionConstant * timestep);
+		noisePrefactor = sqrt(2. * diffConst * timestep);
 		noiseTerm[0] *= noisePrefactor;
 		noiseTerm[1] *= noisePrefactor;
 		noiseTerm[2] *= noisePrefactor;
 
-		forcePrefactor = timestep * activeParticles[i].diffusionConstant 
-			/ (kBoltzmann * temperature);
+		forcePrefactor = timestep * diffConst / (kBoltzmann * temperature);
 		forceTerm[0] = activeParticles[i].cumulativeForce[0] * forcePrefactor;
 		forceTerm[1] = activeParticles[i].cumulativeForce[1] * forcePrefactor;
 		forceTerm[2] = activeParticles[i].cumulativeForce[2] * forcePrefactor;
@@ -126,7 +132,6 @@ void Simulation::recordObservables(double t)
 	}
 }
 
-/* The reversible version of this function also calculates energies.*/
 void Simulation::calculateRepulsionForcesEnergies()
 {
 	std::vector<double> forceI = {0.,0.,0.};
@@ -136,9 +141,13 @@ void Simulation::calculateRepulsionForcesEnergies()
 	double rSquared     = 0.8; // distance of particles i,j squared
 	double radiiSquared = 1.; // squared sum of particles i,j radii
 	double energyBuffer = 0.; // interaction energy of particle pair (i,j)
+	double radiusI = 0.; // radius of particle i
+	double radiusJ = 0.; // radius of particle j
 	this->energy = 0.;
 	for (int i=0; i<activeParticles.size(); i++) {
+		radiusI = this->typeDict.radii[activeParticles[i].typeId];
 		for (int j=i+1; j<activeParticles.size(); j++) {
+			radiusJ = this->typeDict.radii[activeParticles[j].typeId];
 			getMinDistanceVector(
 				r_ij,
 				activeParticles[i].position, 
@@ -146,9 +155,7 @@ void Simulation::calculateRepulsionForcesEnergies()
 				this->isPeriodic, 
 				this->boxsize);
 			rSquared = r_ij[0]*r_ij[0] + r_ij[1]*r_ij[1] + r_ij[2]*r_ij[2];
-			radiiSquared = pow(
-				activeParticles[i].radius + activeParticles[j].radius,
-				2.);
+			radiiSquared = pow(radiusI + radiusJ, 2.);
 			force->repulsionForceEnergy(
 				forceI,
 				energyBuffer,
@@ -242,27 +249,23 @@ void Simulation::acceptOrReject()
 
 void Simulation::addParticle(
 	std::vector<double> initPos,
-	unsigned int particleTypeId,
-	double rad,
-	double diffConst)
+	unsigned int particleTypeId)
 {
-	Particle * particle         = new Particle();
-	try {
-		if ( initPos.size() == 3 ) { particle->position  = initPos; }
-		else {
-			throw "Particles' initial position has dimension mismatch!" 
-			      "Particle will be placed at {0,0,0}.";	
-		}
+	if (particleTypeId >= this->typeDict.getNumberOfTypes;) {
+		std::cout << "The given particle type does not exist!\n"
+		          << "Particle is not created.\n";
+		return;
 	}
-	catch(const char* msg) {
-		std::cerr << msg << "\n";
+	Particle * particle = new Particle();
+	if ( initPos.size() == 3 ) { particle->position  = initPos; }
+	else {
+		std::cout << "Particles' initial position has dimension mismatch!\n" 
+		          << "Particle will be placed at {0,0,0}.\n";	
 		particle->position = {0., 0., 0.};
 	}
-	particle->typeId            = particleTypeId;
-	particle->radius            = rad;
-	particle->diffusionConstant = diffConst;
-	particle->uniqueId          = this->uniqueIdCounter;
-	this->uniqueIdCounter      += 1;
+	particle->typeId = particleTypeId;
+	particle->uniqueId = this->uniqueIdCounter;
+	this->uniqueIdCounter += 1;
 	this->activeParticles.push_back(*particle);//push_back copies arg into vec
 	delete particle;
 	if (this->verbose) {std::cout << "Particle added.\n";}
@@ -281,8 +284,8 @@ void Simulation::setPosition(int index, std::vector<double> newPos)
 		this->activeParticles[index].position[2] = newPos[2];
 	}
 	else {
-		throw "New position has dimension mismatch!"
-		      "Particle remains at its old position.";
+		std::cout << "New position has dimension mismatch!\n"
+		          << "Particle remains at its old position.\n";
 	}
 }
 

@@ -44,7 +44,7 @@ void Force::softcoreForce(
 		forceI = {0.,0.,0.};
 		return;
 	}
-	double preFactor = 0.5 * strength * (1. - sqrt(radiiSquared/rSquared));
+	double preFactor = 2. * strength * (1. - sqrt(radiiSquared/rSquared));
 	forceI[0] = preFactor * r_ij[0];
 	forceI[1] = preFactor * r_ij[1]; 
 	forceI[2] = preFactor * r_ij[2];
@@ -172,11 +172,11 @@ void Force::softcoreForceEnergy(
 		energy = 0.;
 		return;
 	}
-	// E=strength*(r - radii)**2, F=0.5*strength*(r - radii)/r * r_ij(vec)
+	// E=strength*(r - radii)**2, F=2.*strength*(r - radii)/r * r_ij(vec)
 	double a = sqrt(rSquared);
 	double c = a - sqrt(radiiSquared);
 	energy = strength * c * c;
-	a = 0.5 * strength * c / a;
+	a = 2. * strength * c / a;
 	forceI[0] = a * r_ij[0];
 	forceI[1] = a * r_ij[1];
 	forceI[2] = a * r_ij[2];
