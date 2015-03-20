@@ -19,8 +19,6 @@ Particle::Particle()
 	this->oldBoxCoordinates = {0,0,0};
 	this->oldBoxCoordinates.shrink_to_fit();
 	this->typeId            = 0;
-	this->diffusionConstant	= 1.;
-	this->radius            = 1.;
 	this->skip              = 0;
 	this->count	            = 0;
 }

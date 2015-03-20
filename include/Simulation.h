@@ -70,19 +70,20 @@ class Simulation
 
 		void addParticle(
 			std::vector<double> initPos,
-			unsigned int particleTypeId,
-			double rad,
-			double diffConst);
+			unsigned int particleTypeId);
 
 		/* Obtain the position of the particle activeParticles[index] */
 		std::vector<double> getPosition(int index);
 		void                setPosition(int index, std::vector<double> newPos);
 		unsigned int getTypeId(int index);
 		void         setTypeId(int index, unsigned int typeId);
-		double getRadius(int index);
-		void   setRadius(int index, double radius);
-		double getDiffusionConstant(int index);
-		void   setDiffusionConstant(int index, double diffusionConstant);
+		void new_Type(
+			std::string name,
+			double radius,
+			double diffusionConstant);
+		std::vector<std::string> getDictNames();
+		std::vector<double> getDictRadii();
+		std::vector<double> getDictDiffusionConstants();
 		int  getParticleNumber();
 		void deleteAllParticles();
 		void writeAllObservablesToFile();

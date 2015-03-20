@@ -12,7 +12,7 @@ TypeDict::~TypeDict()
 
 }
 
-void TypeDict::newType(string name, double radius, double diffusionConst)
+void TypeDict::newType(std::string name, double radius, double diffusionConst)
 {
 	this->names.push_back(name);
 	this->radii.push_back(radius);

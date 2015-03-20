@@ -1,5 +1,10 @@
 import numpy as np
 import sim
+# TODO: apply the following idea!
+# The state of a simulation consists of two parts:
+#   * type dictionary .dic, telling which particle type has which properties
+#   * positions, a .xyz file containing a single frame
+#   * reactions .rea, a list of possible reactions
 
 def saveSimulation(filename, simulation):
 	# system contains [0] particlenumber, [1] boxsize, [2] temperature
@@ -25,6 +30,7 @@ def saveSimulation(filename, simulation):
 		particles[i,5] = simulation.getPosition(i)[2]
 	np.savetxt(filename, particles,  header=system, comments="")
 
+	
 def loadSimulation(filename):
 	with open(filename, 'r') as fHandle:
 		firstLine  =  fHandle.readline()

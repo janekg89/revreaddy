@@ -29,7 +29,7 @@ int main()
 				x0[0] = -0.49 * sim->boxsize + i;
 				x0[1] = -0.49 * sim->boxsize + j;
 				x0[2] = -0.49 * sim->boxsize + k;
-				sim->addParticle(x0, 2, 0.5, 1.);
+				sim->addParticle(x0, 2);
 			}
 	sim->new_Trajectory("traj.xyz");
 	sim->new_MeanSquaredDisplacement("msd.dat", 2);

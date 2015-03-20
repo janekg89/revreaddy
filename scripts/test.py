@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 import time
 import sim
 simulation = sim.pySimulation()
@@ -9,7 +10,7 @@ simulation.temperature       = 1.
 simulation.repulsionStrength = 1.
 simulation.verbose           = False
 
-particleType      = sim.typeStringToId['soft']
+particleType      = simulation.particleTypeToId("soft")
 radius            = 1.
 diffusionConstant = 1.
 
@@ -25,10 +26,14 @@ for x in np.arange(-L, L, 2.*radius):
                 diffusionConstant
             )
 
+simulation.new_Trajectory("traj.xyz")
+
 t1 = time.clock()
-simulation.maxTime = 3000
+simulation.maxTime = 10
 simulation.run()
 t2 = time.clock()
+
+simulation.writeAllObservablesToFile()
 
 print "Time for", simulation.getParticleNumber(),"particles and", \
       simulation.maxTime ,"timesteps:", t2 - t1, "seconds"

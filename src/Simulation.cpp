@@ -23,9 +23,9 @@ Simulation::Simulation()
 	this->rejections        = 0;
 	this->isReversible      = true;
 	this->uniqueIdCounter   = 0;
-	this->typeDict.newType("default", 1., 0.); // 0
-	this->typeDict.newType("lj", 1., 1.); // 1
-	this->typeDict.newType("soft", 1., 1.); // 2
+	this->typeDict->newType("default", 1., 0.); // 0
+	this->typeDict->newType("lj", 1., 1.); // 1
+	this->typeDict->newType("soft", 1., 1.); // 2
 }
 
 Simulation::~Simulation()
@@ -79,7 +79,7 @@ void Simulation::propagate()
 	for (int i=0; i<activeParticles.size(); i++)
 	{
 		// look up particles' diffusion constant from its typeId
-		diffConst=this->typeDict.diffusionConstants[activeParticles[i].typeId];
+		diffConst=this->typeDict->diffusionConstants[activeParticles[i].typeId];
 
 		noiseTerm = random->normal3D();
 		noisePrefactor = sqrt(2. * diffConst * timestep);
@@ -145,9 +145,9 @@ void Simulation::calculateRepulsionForcesEnergies()
 	double radiusJ = 0.; // radius of particle j
 	this->energy = 0.;
 	for (int i=0; i<activeParticles.size(); i++) {
-		radiusI = this->typeDict.radii[activeParticles[i].typeId];
+		radiusI = this->typeDict->radii[activeParticles[i].typeId];
 		for (int j=i+1; j<activeParticles.size(); j++) {
-			radiusJ = this->typeDict.radii[activeParticles[j].typeId];
+			radiusJ = this->typeDict->radii[activeParticles[j].typeId];
 			getMinDistanceVector(
 				r_ij,
 				activeParticles[i].position, 
@@ -204,7 +204,8 @@ void Simulation::acceptOrReject()
 		firstTerm  += deltaX[2]
 		            * ( activeParticles[i].oldForce[2]
 		              + activeParticles[i].cumulativeForce[2] );
-		secondTerm += activeParticles[i].diffusionConstant
+		secondTerm += 
+		          this->typeDict->diffusionConstants[activeParticles[i].typeId]
 		            * ( activeParticles[i].cumulativeForce[0]
 		              * activeParticles[i].cumulativeForce[0]
 		              + activeParticles[i].cumulativeForce[1]
@@ -251,7 +252,7 @@ void Simulation::addParticle(
 	std::vector<double> initPos,
 	unsigned int particleTypeId)
 {
-	if (particleTypeId >= this->typeDict.getNumberOfTypes;) {
+	if (particleTypeId >= this->typeDict->getNumberOfTypes()) {
 		std::cout << "The given particle type does not exist!\n"
 		          << "Particle is not created.\n";
 		return;
@@ -293,28 +294,37 @@ unsigned int Simulation::getTypeId(int index) {
 	return this->activeParticles[index].typeId;
 }
 
-void Simulation::setTypeId(int index, unsigned int typeId) {
+void Simulation::setTypeId(int index, unsigned int typeId) 
+{
+	if (typeId >= this->typeDict->getNumberOfTypes()) {
+		std::cout << "The given particle type does not exist!\n"
+		          << "Particle is not created.\n";
+		return;
+	}
 	this->activeParticles[index].typeId = typeId;
 }
 
-double Simulation::getRadius(int index) {
-	return this->activeParticles[index].radius;
-}
-
-void Simulation::setRadius(int index, double radius) {
-	this->activeParticles[index].radius = radius;
-}
-
-double Simulation::getDiffusionConstant(int index) {
-	return this->activeParticles[index].diffusionConstant;
-}
-
-void Simulation::setDiffusionConstant(int index, double diffusionConstant) {
-	this->activeParticles[index].diffusionConstant = diffusionConstant;
-}
-
-int Simulation::getParticleNumber()
+void Simulation::new_Type(
+	std::string name,
+	double radius,
+	double diffusionConstant) 
 {
+	this->typeDict->newType(name, radius, diffusionConstant);
+}
+
+std::vector<std::string> Simulation::getDictNames() {
+	return this->typeDict->names;
+}
+
+std::vector<double> Simulation::getDictRadii() {
+	return this->typeDict->radii;
+}
+
+std::vector<double> Simulation::getDictDiffusionConstants() {
+	return this->typeDict->diffusionConstants;
+}
+
+int Simulation::getParticleNumber() {
 	return this->activeParticles.size();
 }
 

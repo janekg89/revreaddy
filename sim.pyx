@@ -1,6 +1,6 @@
 # distutils: language = c++
 # distutils: extra_compile_args = -std=c++11 
-# distutils: sources = src/Observable.cpp src/Simulation.cpp src/Particle.cpp src/Random.cpp src/Force.cpp src/Trajectory.cpp src/TrajectorySingle.cpp src/RadialDistribution.cpp src/utils.cpp src/MeanSquaredDisplacement.cpp src/ProbabilityDensity.cpp
+# distutils: sources = src/Observable.cpp src/Simulation.cpp src/Particle.cpp src/Random.cpp src/Force.cpp src/Trajectory.cpp src/TrajectorySingle.cpp src/RadialDistribution.cpp src/utils.cpp src/MeanSquaredDisplacement.cpp src/ProbabilityDensity.cpp src/TypeDict.cpp
 # distutils: include_dirs = /usr/include /usr/local/include include
 # distutils: libraries = m gsl gslcblas
 
@@ -24,16 +24,16 @@ cdef extern from "Simulation.h":
 		unsigned long int rejections
 		bool isReversible
 
-		void addParticle(vector[double], unsigned int, double, double)
+		void addParticle(vector[double], unsigned int)
 		void run()
 		vector[double] getPosition(int)
 		void           setPosition(int, vector[double])
 		unsigned int getTypeId(int)
 		void         setTypeId(int, unsigned int)
-		double getRadius(int)
-		void   setRadius(int, double)
-		double getDiffusionConstant(int)
-		void   setDiffusionConstant(int, double)
+		void new_Type(string, double, double)
+		vector[string] getDictNames()
+		vector[double] getDictRadii()
+		vector[double] getDictDiffusionConstants()
 		int getParticleNumber()
 		void deleteAllParticles()
 		void writeAllObservablesToFile()
@@ -55,14 +55,10 @@ cdef class pySimulation:
 	def addParticle(
 		self,
 		initialPosition=[0.,0.,0.],
-		particleTypeId=0,
-		radius=1.,
-		diffusionConstant=1.):
+		particleTypeId=2):
 		self.thisptr.addParticle(
 			initialPosition,
-			particleTypeId,
-			radius,
-			diffusionConstant)
+			particleTypeId)
 	def run(self):
 		self.thisptr.run()
 	def getPosition(self, index): 
@@ -73,14 +69,14 @@ cdef class pySimulation:
 		return self.thisptr.getTypeId(index)
 	def setTypeId(self, index, typeId):
 		self.thisptr.setTypeId(index, typeId)
-	def getRadius(self, index):
-		return self.thisptr.getRadius(index)
-	def setRadius(self, index, radius):
-		self.thisptr.setRadius(index, radius)
-	def getDiffusionConstant(self, index):
-		return self.thisptr.getDiffusionConstant(index)
-	def setDiffusionConstant(self, index, diffusionConstant):
-		self.thisptr.setDiffusionConstant(index, diffusionConstant)
+	def new_Type(self, name, radius, diffusionConstant):
+		self.thisptr.new_Type(name, radius, diffusionConstant)
+	def getDictNames(self):
+		return self.thisptr.getDictNames()
+	def getDictRadii(self):
+		return self.thisptr.getDictRadii()
+	def getDictDiffusionConstants(self):
+		return self.thisptr.getDictDiffusionConstants()
 	def getParticleNumber(self): 
 		return self.thisptr.getParticleNumber()
 	def deleteAllParticles(self):
@@ -147,7 +143,19 @@ cdef class pySimulation:
 			acc = 1./(1.+ float(self.rejections)/float(self.acceptions) )
 			return round(acc, 5)
 	def efficiency(self):
-		return self.acceptanceRate() * self.timestep	
+		return self.acceptanceRate() * self.timestep
+
+	def showTypes(self):
+		names = self.getDictNames()
+		radii = self.getDictRadii()
+		diffs = self.getDictDiffusionConstants()
+		numberOfTypes = len(names)
+		print "Number of types:", numberOfTypes
+		form = "{:<5}{:<15}{:<15}{:<18}"
+		print form.format(*["Id","Name","Radius","DiffusionConstant"])
+		for i in range(numberOfTypes):
+			linestr = map(str,[i, names[i], radii[i], diffs[i]])
+			print form.format(*linestr)
 
 # this dict() sets the type ids used in the program
 # the first three keys and values (none,0),(lj,1),(soft,2)
