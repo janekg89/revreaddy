@@ -23,9 +23,9 @@ Simulation::Simulation()
 	this->rejections        = 0;
 	this->isReversible      = true;
 	this->uniqueIdCounter   = 0;
-	this->typeDict->newType("default", 1., 0.); // 0
-	this->typeDict->newType("lj", 1., 1.); // 1
-	this->typeDict->newType("soft", 1., 1.); // 2
+	this->typeDict->newType("default", 1., 0., 1.); // 0
+	this->typeDict->newType("lj", 1., 1., 1.); // 1
+	this->typeDict->newType("soft", 1., 1., 1.); // 2
 }
 
 Simulation::~Simulation()
@@ -307,9 +307,10 @@ void Simulation::setTypeId(int index, unsigned int typeId)
 void Simulation::new_Type(
 	std::string name,
 	double radius,
-	double diffusionConstant) 
+	double diffusionConstant,
+	double reactionRadius) 
 {
-	this->typeDict->newType(name, radius, diffusionConstant);
+	this->typeDict->newType(name, radius, diffusionConstant, reactionRadius);
 }
 
 std::vector<std::string> Simulation::getDictNames() {
@@ -322,6 +323,10 @@ std::vector<double> Simulation::getDictRadii() {
 
 std::vector<double> Simulation::getDictDiffusionConstants() {
 	return this->typeDict->diffusionConstants;
+}
+
+std::vector<double> Simulation::getDictReactionRadii() {
+	return this->typeDict->reactionRadii;
 }
 
 int Simulation::getParticleNumber() {

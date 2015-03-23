@@ -80,10 +80,12 @@ class Simulation
 		void new_Type(
 			std::string name,
 			double radius,
-			double diffusionConstant);
+			double diffusionConstant,
+			double reactionRadius);
 		std::vector<std::string> getDictNames();
 		std::vector<double> getDictRadii();
 		std::vector<double> getDictDiffusionConstants();
+		std::vector<double> getDictReactionRadii();
 		int  getParticleNumber();
 		void deleteAllParticles();
 		void writeAllObservablesToFile();

@@ -12,11 +12,16 @@ TypeDict::~TypeDict()
 
 }
 
-void TypeDict::newType(std::string name, double radius, double diffusionConst)
+void TypeDict::newType(
+	std::string name,
+	double radius,
+	double diffusionConst,
+	double reactionRadius)
 {
 	this->names.push_back(name);
 	this->radii.push_back(radius);
 	this->diffusionConstants.push_back(diffusionConst);
+	this->reactionRadii.push_back(reactionRadius);
 	this->numberOfTypes += 1;
 }
 

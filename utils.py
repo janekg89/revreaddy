@@ -1,36 +1,64 @@
 import numpy as np
 import sim
 # TODO: apply the following idea!
-# The state of a simulation consists of two parts:
+# The state of a simulation consists of four parts:
 #   * type dictionary .dic, telling which particle type has which properties
 #   * positions, a .xyz file containing a single frame
 #   * reactions .rea, a list of possible reactions
+#	* general properties .pro, temperature, boxsize, reversible,
+#	  periodic, timestep
 
 def saveSimulation(filename, simulation):
-	# system contains [0] particlenumber, [1] boxsize, [2] temperature
-	system = np.zeros(3)
-	system[0] = float(simulation.getParticleNumber())
-	system[1] = simulation.boxsize
-	system[2] = simulation.temperature
-	system    = map(str, system)
-	system    = map(lambda x: x+"\t", system)
-	system    = "".join(system)
-	system    = system[:-1]
-	# particles contain per row:
-	# [0] typeId, [1] radius, [2] diffusionConstant,,
-	# [3] x, [4] y, [5] z - coordinates
-	N = simulation.getParticleNumber()
-	particles = np.zeros((N, 6))
-	for i in range(N):
-		particles[i,0] = float(simulation.getTypeId(i))
-		particles[i,1] = simulation.getRadius(i)
-		particles[i,2] = simulation.getDiffusionConstant(i)
-		particles[i,3] = simulation.getPosition(i)[0]
-		particles[i,4] = simulation.getPosition(i)[1]
-		particles[i,5] = simulation.getPosition(i)[2]
-	np.savetxt(filename, particles,  header=system, comments="")
+	# construct .dic file
+	names = simulation.getDictNames()
+	radii = simulation.getDictRadii()
+	diffs = simulation.getDictDiffusionConstants()
+	reactionRadii = simulation.getDictReactionRadii()
+	numberOfTypes = len(names)
+	dicFile = open(filename+".dic", "w")
+	dicFile.write("Id\tName\tRadius\tDiffusionConstant\tReactionRadius\n")
+	for i in range(numberOfTypes):
+		line  = str(i)
+		line += str(names[i]) + "\t" + str(radii[i]) + "\t"
+		line += str(diffs[i]) + "\t" + str(reactionRadii[i]) + "\n"
+		dicFile.write(line)
+	dicFile.close()
 
-	
+	# construct .xyz file
+	xyzFile = open(filename+".xyz", "w")
+	numberOfParticles = simulation.getParticleNumber()
+	xyzFile.write(str(numberOfParticles) + "\n")
+	xyzFile.write("#particleTypeId\tx\ty\tz\n") # comment line
+	for i in range(numberOfParticles):
+		particleType = simulation.getTypeId(i)
+		particlePosition = simulation.getPosition(i)
+		line  = str(particleType) + "\t"
+		line += str(particlePosition[0]) + "\t"
+		line += str(particlePosition[1]) + "\t"
+		line += str(particlePosition[2]) + "\n"
+	xyzFile.close()
+
+	# construct .pro file
+	proFile = open(filename+".pro", "w")
+	line  = "Temperature\tBoxsize\tisReversible\t"
+	line += "isPeriodic\tTimestep\tRepulsionStrength\n"
+	proFile.write(line)
+	line  = str(simulation.temperature) + "\t"
+	line += str(simulation.boxsize) + "\t"
+	# bools are converted to ints (0 or 1) because the
+	# function bool() returns True when given the string "False"
+	# since "False" is a non-zero expression (thinking of bits)
+	line += str(int(simulation.isReversible)) + "\t"
+	line += str(int(simulation.isPeriodic)) + "\t"
+	line += str(simulation.timestep) + "\t"
+	line += str(simulation.repulsionStrength) + "\n"
+	proFile.write(line)
+	proFile.close()
+
+	# construct .rea file 
+	# ...
+
+# TODO: apply idea with .dic, .xyz, .pro and .rea files
 def loadSimulation(filename):
 	with open(filename, 'r') as fHandle:
 		firstLine  =  fHandle.readline()

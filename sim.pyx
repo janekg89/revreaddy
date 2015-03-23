@@ -30,10 +30,11 @@ cdef extern from "Simulation.h":
 		void           setPosition(int, vector[double])
 		unsigned int getTypeId(int)
 		void         setTypeId(int, unsigned int)
-		void new_Type(string, double, double)
+		void new_Type(string, double, double, double)
 		vector[string] getDictNames()
 		vector[double] getDictRadii()
 		vector[double] getDictDiffusionConstants()
+		vector[double] getDictReactionRadii()
 		int getParticleNumber()
 		void deleteAllParticles()
 		void writeAllObservablesToFile()
@@ -69,14 +70,16 @@ cdef class pySimulation:
 		return self.thisptr.getTypeId(index)
 	def setTypeId(self, index, typeId):
 		self.thisptr.setTypeId(index, typeId)
-	def new_Type(self, name, radius, diffusionConstant):
-		self.thisptr.new_Type(name, radius, diffusionConstant)
+	def new_Type(self, name, radius, diffusionConstant, reactionRadius):
+		self.thisptr.new_Type(name, radius, diffusionConstant, reactionRadius)
 	def getDictNames(self):
 		return self.thisptr.getDictNames()
 	def getDictRadii(self):
 		return self.thisptr.getDictRadii()
 	def getDictDiffusionConstants(self):
 		return self.thisptr.getDictDiffusionConstants()
+	def getDictReactionRadii(self):
+		return self.thisptr.getDictReactionRadii()
 	def getParticleNumber(self): 
 		return self.thisptr.getParticleNumber()
 	def deleteAllParticles(self):
