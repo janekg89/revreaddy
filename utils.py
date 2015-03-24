@@ -1,64 +1,71 @@
 import numpy as np
 import sim
-# TODO: apply the following idea!
+import h5py
 # The state of a simulation consists of four parts:
-#   * type dictionary .dic, telling which particle type has which properties
-#   * positions, a .xyz file containing a single frame
-#   * reactions .rea, a list of possible reactions
-#	* general properties .pro, temperature, boxsize, reversible,
+#   * type dictionary, telling which particle type has which properties
+#   * positions, xyz format
+#   * reactions, a list of possible reactions
+#	* general properties; temperature, boxsize, reversible,
 #	  periodic, timestep
+# These are put into hdf5 files!
 
 def saveSimulation(filename, simulation):
-	# construct .dic file
+	fileHandle = h5py.File(filename, "w")
+
+	# retrieve typedict info from simulation
 	names = simulation.getDictNames()
 	radii = simulation.getDictRadii()
 	diffs = simulation.getDictDiffusionConstants()
 	reactionRadii = simulation.getDictReactionRadii()
 	numberOfTypes = len(names)
-	dicFile = open(filename+".dic", "w")
-	dicFile.write("Id\tName\tRadius\tDiffusionConstant\tReactionRadius\n")
+	# construct typedict group
+	typedict = fileHandle.create_group("typedict")
+	typedict.create_dataset("numberOfTypes", (1,), dtype=np.uint64)
+	typedict["numberOfTypes"][0] = numberOfTypes
+	typedict.create_dataset("names", (numberOfTypes,), dtype="S30")
+	typedict.create_dataset("radii", (numberOfTypes,), dtype=np.float64)
+	typedict.create_dataset("diffusionConstants", (numberOfTypes,), dtype=np.float64)
+	typedict.create_dataset("reactionRadii", (numberOfTypes,), dtype=np.float64)
 	for i in range(numberOfTypes):
-		line  = str(i)
-		line += str(names[i]) + "\t" + str(radii[i]) + "\t"
-		line += str(diffs[i]) + "\t" + str(reactionRadii[i]) + "\n"
-		dicFile.write(line)
-	dicFile.close()
+		typedict["names"][i] = names[i]
+		typedict["radii"][i] = radii[i]
+		typedict["diffusionConstants"][i] = diffs[i]
+		typedict["reactionRadii"][i] = reactionRadii[i]
 
-	# construct .xyz file
-	xyzFile = open(filename+".xyz", "w")
+	# construct xyz group
+	xyz = fileHandle.create_group("xyz")
 	numberOfParticles = simulation.getParticleNumber()
-	xyzFile.write(str(numberOfParticles) + "\n")
-	xyzFile.write("#particleTypeId\tx\ty\tz\n") # comment line
+	xyz.create_dataset("numberOfParticles", (1,), dtype=np.uint64)
+	xyz["numberOfParticles"][0] = numberOfParticles
+	xyz.create_dataset("typeIds", (numberOfParticles,), dtype=np.uint64)
+	xyz.create_dataset("positions", (numberOfParticles,3), dtype=np.float64)
 	for i in range(numberOfParticles):
-		particleType = simulation.getTypeId(i)
+		xyz["typeIds"][i] = simulation.getTypeId(i)
 		particlePosition = simulation.getPosition(i)
-		line  = str(particleType) + "\t"
-		line += str(particlePosition[0]) + "\t"
-		line += str(particlePosition[1]) + "\t"
-		line += str(particlePosition[2]) + "\n"
-	xyzFile.close()
+		xyz["positions"][i,0] = particlePosition[0]
+		xyz["positions"][i,1] = particlePosition[1]
+		xyz["positions"][i,2] = particlePosition[2]
 
-	# construct .pro file
-	proFile = open(filename+".pro", "w")
-	line  = "Temperature\tBoxsize\tisReversible\t"
-	line += "isPeriodic\tTimestep\tRepulsionStrength\n"
-	proFile.write(line)
-	line  = str(simulation.temperature) + "\t"
-	line += str(simulation.boxsize) + "\t"
-	# bools are converted to ints (0 or 1) because the
-	# function bool() returns True when given the string "False"
-	# since "False" is a non-zero expression (thinking of bits)
-	line += str(int(simulation.isReversible)) + "\t"
-	line += str(int(simulation.isPeriodic)) + "\t"
-	line += str(simulation.timestep) + "\t"
-	line += str(simulation.repulsionStrength) + "\n"
-	proFile.write(line)
-	proFile.close()
+	# construct properties group
+	properties = fileHandle.create_group("properties")
+	properties.create_dataset("temperature", (1,), dtype=np.float64)
+	properties.create_dataset("boxsize", (1,), dtype=np.float64)
+	properties.create_dataset("isReversible", (1,), dtype=np.bool)
+	properties.create_dataset("isPeriodic", (1,), dtype=np.bool)
+	properties.create_dataset("timestep", (1,), dtype=np.float64)
+	properties.create_dataset("repulsionStrength", (1,), dtype=np.float64)
+	properties["temperature"][0] = simulation.temperature
+	properties["boxsize"][0] = simulation.boxsize
+	properties["isReversible"][0] = simulation.isReversible
+	properties["isPeriodic"][0] = simulation.isPeriodic
+	properties["timestep"][0] = simulation.timestep
+	properties["repulsionStrength"][0] = simulation.repulsionStrength
 
-	# construct .rea file 
+	# construct reactions group
 	# ...
+	fileHandle.close()
 
-# TODO: apply idea with .dic, .xyz, .pro and .rea files
+# TODO: Apply hdf5 !
 def loadSimulation(filename):
 	with open(filename, 'r') as fHandle:
 		firstLine  =  fHandle.readline()

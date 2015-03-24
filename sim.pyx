@@ -152,12 +152,13 @@ cdef class pySimulation:
 		names = self.getDictNames()
 		radii = self.getDictRadii()
 		diffs = self.getDictDiffusionConstants()
+		reactionRadii = self.getDictReactionRadii()
 		numberOfTypes = len(names)
 		print "Number of types:", numberOfTypes
-		form = "{:<5}{:<15}{:<15}{:<18}"
-		print form.format(*["Id","Name","Radius","DiffusionConstant"])
+		form = "{:<5}{:<15}{:<15}{:<18}{:<15}"
+		print form.format(*["Id","Name","Radius","DiffusionConstant","ReactionRadius"])
 		for i in range(numberOfTypes):
-			linestr = map(str,[i, names[i], radii[i], diffs[i]])
+			linestr = map(str,[i, names[i], radii[i], diffs[i], reactionRadii[i]])
 			print form.format(*linestr)
 
 # this dict() sets the type ids used in the program
