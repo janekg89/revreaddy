@@ -83,10 +83,10 @@ def saveSimulation(filename, simulation):
 		(numberOfTypes,),
 		dtype=np.float64)
 	for i in range(numberOfTypes):
-		typedict["names"][i] = names[i]
-		typedict["radii"][i] = radii[i]
+		typedict["names"][i]              = names[i]
+		typedict["radii"][i]              = radii[i]
 		typedict["diffusionConstants"][i] = diffs[i]
-		typedict["reactionRadii"][i] = reactionRadii[i]
+		typedict["reactionRadii"][i]      = reactionRadii[i]
 
 	# construct xyz group
 	xyz = fileHandle.create_group("xyz")
@@ -110,11 +110,11 @@ def saveSimulation(filename, simulation):
 	properties.create_dataset("isPeriodic", (1,), dtype=np.bool)
 	properties.create_dataset("timestep", (1,), dtype=np.float64)
 	properties.create_dataset("repulsionStrength", (1,), dtype=np.float64)
-	properties["temperature"][0] = simulation.temperature
-	properties["boxsize"][0] = simulation.boxsize
-	properties["isReversible"][0] = simulation.isReversible
-	properties["isPeriodic"][0] = simulation.isPeriodic
-	properties["timestep"][0] = simulation.timestep
+	properties["temperature"][0]       = simulation.temperature
+	properties["boxsize"][0]           = simulation.boxsize
+	properties["isReversible"][0]      = simulation.isReversible
+	properties["isPeriodic"][0]        = simulation.isPeriodic
+	properties["timestep"][0]          = simulation.timestep
 	properties["repulsionStrength"][0] = simulation.repulsionStrength
 
 	# construct reactions group
@@ -123,24 +123,30 @@ def saveSimulation(filename, simulation):
 
 # TODO: Apply hdf5 !
 def loadSimulation(filename):
-	with open(filename, 'r') as fHandle:
-		firstLine  =  fHandle.readline()
-	system = np.fromstring(firstLine, sep="\t")
-	simulation             = sim.pySimulation()
-	simulation.boxsize     = system[1]
-	simulation.temperature = system[2]
+	"""
+	Load the state of simulation from file and return
+	an according simulation object.
 
-	N = int(system[0])
-	particles = np.loadtxt(filename, skiprows=1)
-	for i in range(N):
-		simulation.addParticle(
-			initialPosition   = [
-				particles[i,3],
-				particles[i,4],
-				particles[i,5]
-			],
-			particleTypeId    = int(particles[i,0]),
-			radius            = particles[i,1],
-			diffusionConstant = particles[i,2]
-		)
+	:param filename: the file to be loaded
+	:type filename: string
+	:returns: pySimulation object
+
+	"""
+	simulation = sim.pySimulation()
+	fileHandle = h5py.File(filename, "r")
+	# retrieve properties
+	properties = fileHandle["properties"]
+	simulation.temperature       = properties["temperature"][0]
+	simulation.boxsize           = properties["boxsize"][0]
+	simulation.isReversible      = properties["isReversible"][0]
+	simulation.isPeriodic        = properties["isPeriodic"][0]
+	simulation.timestep          = properties["timestep"][0]
+	simulation.repulsionStrength = properties["repulsionStrength"][0]
+
+	#retrieve typedict
+
+	#retrieve positions
+
+	#retrieve reactions
+
 	return simulation
