@@ -81,11 +81,13 @@ class Simulation
 			std::string name,
 			double radius,
 			double diffusionConstant,
-			double reactionRadius);
+			double reactionRadius,
+			unsigned int forceType);
 		std::vector<std::string> getDictNames();
 		std::vector<double> getDictRadii();
 		std::vector<double> getDictDiffusionConstants();
 		std::vector<double> getDictReactionRadii();
+		std::vector<unsigned int> getDictForceTypes();
 		int  getParticleNumber();
 		void deleteAllParticles();
 		void writeAllObservablesToFile();

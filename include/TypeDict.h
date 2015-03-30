@@ -15,12 +15,14 @@ class TypeDict
 		std::vector<double> radii;
 		std::vector<double> diffusionConstants;
 		std::vector<double> reactionRadii;
+		std::vector<unsigned int> forceTypes;
 
 		void newType(
 			std::string name,
 			double radius,
 			double diffusionConst,
-			double reactionRadius);
+			double reactionRadius,
+			unsigned int forceType);
 		unsigned int getNumberOfTypes();
 
 		TypeDict();

@@ -24,9 +24,9 @@ Simulation::Simulation(bool hasDefaultTypes)
 	this->isReversible      = true;
 	this->uniqueIdCounter   = 0;
 	if (hasDefaultTypes) {
-		this->typeDict->newType("default", 1., 0., 1.); // 0
-		this->typeDict->newType("lj", 1., 1., 1.); // 1
-		this->typeDict->newType("soft", 1., 1., 1.); // 2
+		this->typeDict->newType("default", 1., 0., 1., 0); // 0
+		this->typeDict->newType("lj", 1., 1., 1., 1); // 1
+		this->typeDict->newType("soft", 1., 1., 1., 2); // 2
 	}
 }
 
@@ -165,8 +165,8 @@ void Simulation::calculateRepulsionForcesEnergies()
 				rSquared,
 				radiiSquared,
 				repulsionStrength, 
-				activeParticles[i].typeId,
-				activeParticles[j].typeId);
+				this->typeDict->forceTypes[activeParticles[i].typeId],
+				this->typeDict->forceTypes[activeParticles[j].typeId]);
 			forceJ[0] = -1. * forceI[0];
 			forceJ[1] = -1. * forceI[1];
 			forceJ[2] = -1. * forceI[2];
@@ -310,9 +310,15 @@ void Simulation::new_Type(
 	std::string name,
 	double radius,
 	double diffusionConstant,
-	double reactionRadius) 
+	double reactionRadius,
+	unsigned int forceType) 
 {
-	this->typeDict->newType(name, radius, diffusionConstant, reactionRadius);
+	this->typeDict->newType(
+		name,
+		radius, 
+		diffusionConstant,
+		reactionRadius,
+		forceType);
 }
 
 std::vector<std::string> Simulation::getDictNames() {
@@ -329,6 +335,10 @@ std::vector<double> Simulation::getDictDiffusionConstants() {
 
 std::vector<double> Simulation::getDictReactionRadii() {
 	return this->typeDict->reactionRadii;
+}
+
+std::vector<unsigned int> Simulation::getDictForceTypes() {
+	return this->typeDict->forceTypes;
 }
 
 int Simulation::getParticleNumber() {

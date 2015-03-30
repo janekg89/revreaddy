@@ -30,11 +30,12 @@ cdef extern from "Simulation.h":
 		void           setPosition(int, vector[double])
 		unsigned int getTypeId(int)
 		void         setTypeId(int, unsigned int)
-		void new_Type(string, double, double, double)
+		void new_Type(string, double, double, double, unsigned int)
 		vector[string] getDictNames()
 		vector[double] getDictRadii()
 		vector[double] getDictDiffusionConstants()
 		vector[double] getDictReactionRadii()
+		vector[uint]   getDictForceTypes()
 		int getParticleNumber()
 		void deleteAllParticles()
 		void writeAllObservablesToFile()
@@ -72,8 +73,19 @@ cdef class pySimulation:
 		return self.thisptr.getTypeId(index)
 	def setTypeId(self, index, typeId):
 		self.thisptr.setTypeId(index, typeId)
-	def new_Type(self, name, radius, diffusionConstant, reactionRadius):
-		self.thisptr.new_Type(name, radius, diffusionConstant, reactionRadius)
+	def new_Type(
+		self,
+		name,
+		radius,
+		diffusionConstant,
+		reactionRadius,
+		forceType):
+		self.thisptr.new_Type(
+			name,
+			radius,
+			diffusionConstant,
+			reactionRadius,
+			forceType)
 	def getDictNames(self):
 		return self.thisptr.getDictNames()
 	def getDictRadii(self):
@@ -82,6 +94,8 @@ cdef class pySimulation:
 		return self.thisptr.getDictDiffusionConstants()
 	def getDictReactionRadii(self):
 		return self.thisptr.getDictReactionRadii()
+	def getDictForceTypes(self):
+		return self.thisptr.getDictForceTypes()
 	def getParticleNumber(self): 
 		return self.thisptr.getParticleNumber()
 	def deleteAllParticles(self):
@@ -155,15 +169,20 @@ cdef class pySimulation:
 		radii = self.getDictRadii()
 		diffs = self.getDictDiffusionConstants()
 		reactionRadii = self.getDictReactionRadii()
+		forceTypes = self.getDictForceTypes()
 		numberOfTypes = len(names)
 		print "Number of types:", numberOfTypes
-		form = "{:<5}{:<15}{:<15}{:<18}{:<15}"
+		form = "{:<5}{:<15}{:<10}{:<14}{:<13}{:<8}"
 		print form.format(
-			*["Id","Name","Radius","DiffusionConstant","ReactionRadius"])
+			*["Id","Name","Radius","Diffusion-","Reaction-","Force-"])
+		print form.format(
+			*["","","","Constant","Radius","Type"])
+		print (5+15+10+14+13+8)*"-"
 		for i in range(numberOfTypes):
 			linestr = map(
 				str,
-				[i, names[i], radii[i], diffs[i], reactionRadii[i]])
+				[i, names[i], radii[i], 
+				 diffs[i], reactionRadii[i], forceTypes[i] ] )
 			print form.format(*linestr)
 		
 # this dict() sets the type ids used in the program

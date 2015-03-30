@@ -12,7 +12,7 @@
 
 int main()
 {
-	Simulation * sim = new Simulation();
+	Simulation * sim = new Simulation(true);
 
 	sim->kBoltzmann = 1.;
 	sim->maxTime	= 1000;
