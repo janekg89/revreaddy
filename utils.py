@@ -24,6 +24,7 @@ is organised as follows::
 	   -- radii, (numberOfTypes), float64
 	   -- diffusionConstants, (numberOfTypes), float64
 	   -- reactionRadii, (numberOfTypes), float64
+	   -- forceTypes, (numberOfTypes), uint64
 	-- xyz/
 	   -- numberOfParticles, (1), uint64
 	   -- typeIds, (numberOfParticles), uint64
@@ -67,6 +68,7 @@ def saveSimulation(filename, simulation):
 	radii = simulation.getDictRadii()
 	diffs = simulation.getDictDiffusionConstants()
 	reactionRadii = simulation.getDictReactionRadii()
+	forceTypes = simulation.getDictForceTypes()
 	numberOfTypes = len(names)
 	# construct typedict group
 	typedict = fileHandle.create_group("typedict")
@@ -82,11 +84,16 @@ def saveSimulation(filename, simulation):
 		"reactionRadii",
 		(numberOfTypes,),
 		dtype=np.float64)
+	typedict.create_dataset(
+		"forceTypes",
+		(numberOfTypes,),
+		dtype=np.uint64)
 	for i in range(numberOfTypes):
 		typedict["names"][i]              = names[i]
 		typedict["radii"][i]              = radii[i]
 		typedict["diffusionConstants"][i] = diffs[i]
 		typedict["reactionRadii"][i]      = reactionRadii[i]
+		typedict["forceTypes"][i]         = forceTypes[i]
 
 	# construct xyz group
 	xyz = fileHandle.create_group("xyz")
@@ -151,7 +158,8 @@ def loadSimulation(filename):
 			typedict["names"][i],
 			typedict["radii"][i],
 			typedict["diffusionConstants"][i],
-			typedict["reactionRadii"][i] )
+			typedict["reactionRadii"][i],
+			typedict["forceTypes"][i] )
 
 	#retrieve positions
 	xyz = fileHandle["xyz"]
