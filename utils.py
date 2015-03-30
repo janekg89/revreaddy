@@ -27,7 +27,7 @@ is organised as follows::
 	-- xyz/
 	   -- numberOfParticles, (1), uint64
 	   -- typeIds, (numberOfParticles), uint64
-	   -- positions, (numberOfParticles, uint64
+	   -- positions, (numberOfParticles, 3), float64
 	-- properties/
 	   -- temperature, (1), float64
 	   -- boxsize, (1), float64
@@ -121,19 +121,19 @@ def saveSimulation(filename, simulation):
 	# ...
 	fileHandle.close()
 
-# TODO: Apply hdf5 !
 def loadSimulation(filename):
 	"""
 	Load the state of simulation from file and return
-	an according simulation object.
+	an according *simulation* object.
 
 	:param filename: the file to be loaded
 	:type filename: string
 	:returns: pySimulation object
 
 	"""
-	simulation = sim.pySimulation()
+	simulation = sim.pySimulation(hasDefaultTypes=False)
 	fileHandle = h5py.File(filename, "r")
+
 	# retrieve properties
 	properties = fileHandle["properties"]
 	simulation.temperature       = properties["temperature"][0]
@@ -144,9 +144,23 @@ def loadSimulation(filename):
 	simulation.repulsionStrength = properties["repulsionStrength"][0]
 
 	#retrieve typedict
+	typedict = fileHandle["typedict"]
+	numberOfTypes = typedict["numberOfTypes"][0]
+	for i in range(numberOfTypes):
+		simulation.new_Type(
+			typedict["names"][i],
+			typedict["radii"][i],
+			typedict["diffusionConstants"][i],
+			typedict["reactionRadii"][i] )
 
 	#retrieve positions
-
-	#retrieve reactions
+	xyz = fileHandle["xyz"]
+	numberOfParticles = xyz["numberOfParticles"][0]
+	for i in range(numberOfParticles):
+		simulation.addParticle(
+			xyz["positions"][i],
+			xyz["typeIds"][i] )
+	
+	#retrieve reactions ...
 
 	return simulation

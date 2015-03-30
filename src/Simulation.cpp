@@ -4,7 +4,7 @@
 
 #include "Simulation.h"
 
-Simulation::Simulation()
+Simulation::Simulation(bool hasDefaultTypes)
 {
 	this->random            = new Random("ranlxs0");
 	this->force             = new Force();
@@ -23,9 +23,11 @@ Simulation::Simulation()
 	this->rejections        = 0;
 	this->isReversible      = true;
 	this->uniqueIdCounter   = 0;
-	this->typeDict->newType("default", 1., 0., 1.); // 0
-	this->typeDict->newType("lj", 1., 1., 1.); // 1
-	this->typeDict->newType("soft", 1., 1., 1.); // 2
+	if (hasDefaultTypes) {
+		this->typeDict->newType("default", 1., 0., 1.); // 0
+		this->typeDict->newType("lj", 1., 1., 1.); // 1
+		this->typeDict->newType("soft", 1., 1., 1.); // 2
+	}
 }
 
 Simulation::~Simulation()

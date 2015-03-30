@@ -11,7 +11,7 @@ cimport numpy as np
 
 cdef extern from "Simulation.h":
 	cdef cppclass Simulation:
-		Simulation() except +
+		Simulation(bool) except +
 		unsigned long int maxTime
 		double temperature
 		double timestep
@@ -43,14 +43,16 @@ cdef extern from "Simulation.h":
 		void new_Trajectory(string)
 		void new_TrajectorySingle()
 		vector[vector[double]] getTrajectorySingle()
-		void new_RadialDistribution(string, vector[double], vector[vector[uint]])
+		void new_RadialDistribution(string,vector[double],vector[vector[uint]])
 		void new_MeanSquaredDisplacement(string, unsigned int)
-		void new_ProbabilityDensity(string, unsigned int, vector[double], unsigned int)
+		void new_ProbabilityDensity(
+			string, unsigned int, 
+			vector[double], unsigned int)
 
 cdef class pySimulation:
 	cdef Simulation *thisptr
-	def __cinit__(self):
-		self.thisptr = new Simulation()
+	def __cinit__(self, hasDefaultTypes=True):
+		self.thisptr = new Simulation(hasDefaultTypes)
 	def __dealloc__(self):
 		del self.thisptr
 	def addParticle(
@@ -156,11 +158,14 @@ cdef class pySimulation:
 		numberOfTypes = len(names)
 		print "Number of types:", numberOfTypes
 		form = "{:<5}{:<15}{:<15}{:<18}{:<15}"
-		print form.format(*["Id","Name","Radius","DiffusionConstant","ReactionRadius"])
+		print form.format(
+			*["Id","Name","Radius","DiffusionConstant","ReactionRadius"])
 		for i in range(numberOfTypes):
-			linestr = map(str,[i, names[i], radii[i], diffs[i], reactionRadii[i]])
+			linestr = map(
+				str,
+				[i, names[i], radii[i], diffs[i], reactionRadii[i]])
 			print form.format(*linestr)
-
+		
 # this dict() sets the type ids used in the program
 # the first three keys and values (none,0),(lj,1),(soft,2)
 # should NOT be changed.

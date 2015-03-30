@@ -63,7 +63,7 @@ class Simulation
 		void resetForces();
 		void acceptOrReject();
 
-		Simulation();
+		Simulation(bool hasDefaultTypes);
 		~Simulation();
 
 		/*------- functions that will be wrapped by python -----------*/
