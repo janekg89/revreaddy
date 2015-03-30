@@ -1,6 +1,6 @@
 import numpy as np
 import time
-import sim
+import revreaddy.sim as sim
 simulation = sim.pySimulation()
 simulation.isPeriodic        = True
 simulation.boxsize           = 10.
