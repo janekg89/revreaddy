@@ -1,9 +1,3 @@
-# distutils: language = c++
-# distutils: extra_compile_args = -std=c++11 
-# distutils: sources = src/Observable.cpp src/Simulation.cpp src/Particle.cpp src/Random.cpp src/Force.cpp src/Trajectory.cpp src/RadialDistribution.cpp src/utils.cpp src/MeanSquaredDisplacement.cpp src/ProbabilityDensity.cpp src/TypeDict.cpp
-# distutils: include_dirs = /usr/include /usr/local/include include
-# distutils: libraries = m gsl gslcblas
-
 from libcpp.vector cimport vector
 from libcpp.string cimport string
 from libcpp cimport bool
