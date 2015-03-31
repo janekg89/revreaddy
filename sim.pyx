@@ -108,10 +108,6 @@ cdef class pySimulation:
 		self.thisptr.deleteAllObservables()
 	def new_Trajectory(self, filename): 
 		self.thisptr.new_Trajectory(filename)
-	def new_TrajectorySingle(self):
-		self.thisptr.new_TrajectorySingle()
-	def getTrajectorySingle(self):
-		return self.thisptr.getTrajectorySingle()
 	def new_RadialDistribution(self, filename, ranges, considered=[[2,2]]):
 		self.thisptr.new_RadialDistribution(filename, ranges, considered)
 	def new_MeanSquaredDisplacement(self, filename, particleTypeId):

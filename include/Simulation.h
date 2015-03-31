@@ -19,7 +19,6 @@
 #include "Force.h"
 #include "Observable.h"
 #include "Trajectory.h"
-#include "TrajectorySingle.h"
 #include "RadialDistribution.h"
 #include "MeanSquaredDisplacement.h"
 #include "ProbabilityDensity.h"
@@ -94,8 +93,6 @@ class Simulation
 		std::string showObservables();
 		void deleteAllObservables();
 		void new_Trajectory(std::string filename);
-		void new_TrajectorySingle();
-		std::vector< std::vector<double> > getTrajectorySingle();
 		void new_RadialDistribution(
 			std::string filename,
 			std::vector<double> ranges,

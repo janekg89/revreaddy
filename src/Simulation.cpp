@@ -393,27 +393,6 @@ void Simulation::new_Trajectory(std::string filename)
 	this->observables.push_back(obs);
 }
 
-void Simulation::new_TrajectorySingle()
-{
-	TrajectorySingle * obs = new TrajectorySingle();
-	this->observables.push_back(obs);
-}
-
-std::vector< std::vector<double> > Simulation::getTrajectorySingle()
-{
-	/* find the first Observable of type TrajectorySingle and return it */
-	for (auto* obs : this->observables) {
-		if (std::string (typeid(*obs).name()) == "16TrajectorySingle") {
-			return obs->trajectory;
-		}
-	}
-	// if that fails return a default 'zero' vector.
-	std::vector< std::vector<double> > zero;
-	std::vector<double> x = {0.,0.,0.};
-	zero.push_back(x);
-	return zero;
-}
-
 void Simulation::new_RadialDistribution(
 	std::string filename,
 	std::vector<double> ranges,
