@@ -9,6 +9,14 @@ Welcome to revreaddy's documentation!
 
 .. automodule:: revreaddy
 
+The external sim module
+=======================
+
+.. automodule:: sim
+	:members:
+	:undoc-members:
+	:show-inheritance:
+
 Utils
 =====
 .. automodule:: revreaddy.utils

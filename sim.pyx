@@ -1,3 +1,5 @@
+#!python
+#cython: embedsignature=True
 from libcpp.vector cimport vector
 from libcpp.string cimport string
 from libcpp cimport bool
@@ -45,6 +47,9 @@ cdef extern from "Simulation.h":
 			vector[double], unsigned int)
 
 cdef class pySimulation:
+	"""
+	The pySimulation class is the main object of revreaddy.
+	"""
 	cdef Simulation *thisptr
 	def __cinit__(self, hasDefaultTypes=True):
 		self.thisptr = new Simulation(hasDefaultTypes)
@@ -58,6 +63,7 @@ cdef class pySimulation:
 			initialPosition,
 			particleTypeId)
 	def run(self):
+		"""Run the simulation."""
 		self.thisptr.run()
 	def getPosition(self, index): 
 		return self.thisptr.getPosition(index)
