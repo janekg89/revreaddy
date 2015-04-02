@@ -3,6 +3,7 @@
 #ifndef __WALL_H_INCLUDED__
 #define __WALL_H_INCLUDED__
 #include <vector>
+#include <iostream>
 #include "Geometry.h"
 
 class Wall : public Geometry

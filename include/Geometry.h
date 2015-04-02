@@ -12,7 +12,8 @@ class Geometry
 		 * with geometry. */
 		std::vector<unsigned int> particleTypeIds;
 
-		void forceEnergy(
+		/* the actual implementation depends on the children of Geometry */
+		virtual void forceEnergy(
 			std::vector<double>& force,
 			double& energy,
 			std::vector<double>& particlePosition,

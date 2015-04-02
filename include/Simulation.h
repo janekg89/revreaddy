@@ -109,6 +109,7 @@ class Simulation
 			unsigned int pTypeId,
 			std::vector<double> range,
 			unsigned int coord);
+		void deleteAllGeometries();
 		void new_Wall(
 			std::vector<double> normal,
 			std::vector<double> point,

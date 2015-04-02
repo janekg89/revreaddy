@@ -34,7 +34,9 @@ class RadialDistribution : public Observable
 		/* consideredPairs is a list of tuples of particleTypeIds
 		 * CONVENTION: the tuples MUST be ordered.
 		 * Correct: (0,1) , (3,5), (2,2) 
-		 * Not correct: (1,0), (4,1)*/
+		 * Not correct: (1,0), (4,1)
+		 * This is because isInConsidered() searches for tuples (a,b)
+		 * where a<=b.*/
 		std::vector< std::vector<unsigned int> > consideredPairs;
 		bool isPeriodic;
 		double boxsize;

@@ -457,11 +457,29 @@ void Simulation::new_ProbabilityDensity(
 	this->observables.push_back(prob);
 }
 
+void Simulation::deleteAllGeometries()
+{
+	/* first delete the geometries, since they we're allocated with 'new'
+	 * then erase the pointers from the vector */
+	for (auto* geo : this->geometries) {
+		delete geo;
+	}
+	this->geometries.erase(
+		this->geometries.begin(),
+		this->geometries.begin() + this->geometries.size()
+	);
+}
+
 void Simulation::new_Wall(
 	std::vector<double> normal,
 	std::vector<double> point,
 	double strength,
 	std::vector<unsigned int>& particleTypeIds)
 {
-	
+	Wall * wall = new Wall(
+		normal,
+		point,
+		strength,
+		particleTypeIds);
+	this->geometries.push_back(wall);
 }

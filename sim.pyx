@@ -45,6 +45,10 @@ cdef extern from "Simulation.h":
 		void new_ProbabilityDensity(
 			string, unsigned int, 
 			vector[double], unsigned int)
+		void deleteAllGeometries()
+		void new_Wall(
+			vector[double], vector[double],
+			double, vector[uint])
 
 cdef class pySimulation:
 	"""
@@ -108,13 +112,20 @@ cdef class pySimulation:
 		self.thisptr.deleteAllObservables()
 	def new_Trajectory(self, filename): 
 		self.thisptr.new_Trajectory(filename)
-	# TODO: check sorting of considered
+	# TODO: check sorting of considered along second axis,
+	# right: [0,1], [2,4], [1,1]
+	# wrong: [1,0], [4,2]
 	def new_RadialDistribution(self, filename, ranges, considered=[[2,2]]):
 		self.thisptr.new_RadialDistribution(filename, ranges, considered)
 	def new_MeanSquaredDisplacement(self, filename, particleTypeId):
 		self.thisptr.new_MeanSquaredDisplacement(filename, particleTypeId)
 	def new_ProbabilityDensity(self, filename, pTypeId, ranges, coord):
 		self.thisptr.new_ProbabilityDensity(filename, pTypeId, ranges, coord)
+	def deleteAllGeometries(self):
+		self.thisptr.deleteAllGeometries()
+	# TODO: check sorting of particleTypeIds, before calling wall constructor
+	def new_Wall(self, normal, point, strength, particleTypeIds):
+		self.thisptr.new_Wall(normal, point, strength, particleTypeIds)
 		
 	property maxTime:
 		def __get__(self): return self.thisptr.maxTime
