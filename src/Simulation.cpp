@@ -41,7 +41,9 @@ void Simulation::run()
 	std::cout << "Simulation started at time: "
 	          << this->cumulativeRuntime << "\n";
 	this->resetForces();
+	this->energy = 0.;
 	this->calculateRepulsionForcesEnergies();
+	this->calculateGeometryForcesEnergies();
 	this->recordObservables(this->cumulativeRuntime);
 	for (unsigned long int t = 1; t < maxTime; t++)
 	{
@@ -49,7 +51,9 @@ void Simulation::run()
 		this->saveOldState();
 		this->propagate(); // propose
 		this->resetForces();
+		this->energy = 0.;
 		this->calculateRepulsionForcesEnergies(); // calculate energy and force
+		this->calculateGeometryForcesEnergies();
 		if (this->isReversible) { this->acceptOrReject(); }
 		this->cumulativeRuntime += this->timestep;
 		this->recordObservables(this->cumulativeRuntime);
@@ -145,7 +149,6 @@ void Simulation::calculateRepulsionForcesEnergies()
 	double energyBuffer = 0.; // interaction energy of particle pair (i,j)
 	double radiusI = 0.; // radius of particle i
 	double radiusJ = 0.; // radius of particle j
-	this->energy = 0.;
 	for (int i=0; i<activeParticles.size(); i++) {
 		radiusI = this->typeDict->radii[activeParticles[i].typeId];
 		for (int j=i+1; j<activeParticles.size(); j++) {
@@ -173,6 +176,25 @@ void Simulation::calculateRepulsionForcesEnergies()
 			activeParticles[i].addForce(forceI);
 			activeParticles[j].addForce(forceJ);
 			this->energy += energyBuffer;
+		}
+	}
+}
+
+void Simulation::calculateGeometryForcesEnergies()
+{
+	std::vector<double> forceI = {0.,0.,0.};
+	double energyBuffer = 0.;
+	for (int i=0; i<activeParticles.size(); i++) {
+		for (int j=0; j<geometries.size(); j++) {
+			if (geometries[j]->doesInteract(activeParticles[i].typeId)) {
+				geometries[j]->forceEnergy(
+					forceI,
+					energyBuffer,
+					activeParticles[i].position,
+					this->typeDict->radii[activeParticles[i].typeId]);
+				activeParticles[i].addForce(forceI);
+				this->energy += energyBuffer;
+			}
 		}
 	}
 }
@@ -433,4 +455,13 @@ void Simulation::new_ProbabilityDensity(
 		coord);
 	prob->filename = filename;
 	this->observables.push_back(prob);
+}
+
+void Simulation::new_Wall(
+	std::vector<double> normal,
+	std::vector<double> point,
+	double strength,
+	std::vector<unsigned int>& particleTypeIds)
+{
+	
 }

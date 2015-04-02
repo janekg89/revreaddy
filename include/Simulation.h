@@ -22,6 +22,8 @@
 #include "RadialDistribution.h"
 #include "MeanSquaredDisplacement.h"
 #include "ProbabilityDensity.h"
+#include "Geometry.h"
+#include "Wall.h"
 #include "TypeDict.h"
 #include "utils.h"
 
@@ -36,6 +38,7 @@ class Simulation
 		std::vector<Observable*> observables;
 		/* For later adaptive timestepping methods */
 		//std::vector<Particle> consideredParticles; 
+		std::vector<Geometry*> geometries;
 		unsigned long int maxTime; // length of the simulation
 		double timestep;           // the timestep: usually 0.001
 		double cumulativeRuntime;  // keeps track of the advanced time
@@ -59,6 +62,7 @@ class Simulation
 		/* double loop (i,j) over activeParticles and call 
 		 * according Forcetype for particle pair (i,j) */
 		void calculateRepulsionForcesEnergies(); 
+		void calculateGeometryForcesEnergies();
 		void resetForces();
 		void acceptOrReject();
 
@@ -105,6 +109,11 @@ class Simulation
 			unsigned int pTypeId,
 			std::vector<double> range,
 			unsigned int coord);
+		void new_Wall(
+			std::vector<double> normal,
+			std::vector<double> point,
+			double strength,
+			std::vector<unsigned int>& particleTypeIds);
 };
 
 #endif // __SIMULATION_H_INCLUDED__
