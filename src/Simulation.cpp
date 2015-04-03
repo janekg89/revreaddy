@@ -483,3 +483,15 @@ void Simulation::new_Wall(
 		particleTypeIds);
 	this->geometries.push_back(wall);
 }
+
+void Simulation::new_DoubleWellZ(
+	double distanceMinima,
+	double strength,
+	std::vector<unsigned int> particleTypeIds)
+{
+	DoubleWellZ * well = new DoubleWellZ(
+		distanceMinima,
+		strength,
+		particleTypeIds);
+	this->geometries.push_back(well);
+}

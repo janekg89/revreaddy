@@ -49,6 +49,7 @@ cdef extern from "Simulation.h":
 		void new_Wall(
 			vector[double], vector[double],
 			double, vector[uint])
+		void new_DoubleWellZ(double, double, vector[uint])
 
 cdef class pySimulation:
 	"""
@@ -126,6 +127,8 @@ cdef class pySimulation:
 	# TODO: check sorting of particleTypeIds, before calling wall constructor
 	def new_Wall(self, normal, point, strength, particleTypeIds):
 		self.thisptr.new_Wall(normal, point, strength, particleTypeIds)
+	def new_DoubleWellZ(self, distanceMinima, strength, particleTypeIds):
+		self.thisptr.new_DoubleWellZ(distanceMinima, strength, particleTypeIds)
 		
 	property maxTime:
 		def __get__(self): return self.thisptr.maxTime

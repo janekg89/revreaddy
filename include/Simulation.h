@@ -24,6 +24,7 @@
 #include "ProbabilityDensity.h"
 #include "Geometry.h"
 #include "Wall.h"
+#include "DoubleWellZ.h"
 #include "TypeDict.h"
 #include "utils.h"
 
@@ -115,6 +116,10 @@ class Simulation
 			std::vector<double> point,
 			double strength,
 			std::vector<unsigned int>& particleTypeIds);
+		void new_DoubleWellZ(
+			double distanceMinima,
+			double strength,
+			std::vector<unsigned int> particleTypeIds);
 };
 
 #endif // __SIMULATION_H_INCLUDED__
