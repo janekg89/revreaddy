@@ -21,17 +21,18 @@ void DoubleWellZ::forceEnergy(
 	std::vector<double>& particlePosition,
 	double& particleRadius)
 {
-	double term = particlePosition[2] / this->scale - SHIFT;
+	double term = ( particlePosition[2] - SHIFT ) / this->scale;
+	double tempTerm = term;
 	double energyTerm = 0.;
-	double forceTerm = -2. * term;
-	term       *= term;
-	forceTerm  += 0.9 * term;
-	energyTerm  = -1. * term;
-	term       *= term;
-	forceTerm  += 4.  * term;
-	energyTerm += 0.3 * term;
-	term       *= term;
-	energyTerm += term;
+	double forceTerm = -2. * tempTerm;
+	tempTerm   *= term;
+	forceTerm  += 0.9 * tempTerm;
+	energyTerm  = -1. * tempTerm;
+	tempTerm   *= term;
+	forceTerm  += 4.  * tempTerm;
+	energyTerm += 0.3 * tempTerm;
+	tempTerm   *= term;
+	energyTerm += tempTerm;
 	forceTerm  *= -1. * strength;
 	energy = energyTerm * strength;
 	force[0] = 0.;
