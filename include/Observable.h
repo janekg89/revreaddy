@@ -13,8 +13,10 @@
 class Observable
 {
 	public:
-		int recPeriod; // number of timesteps between two recordings
-		int clearPeriod; // number of timesteps between two writeBufferToFile
+		// number of timesteps between two recordings
+		unsigned int recPeriod; 
+		// number of timesteps between two writeBufferToFile
+		unsigned int clearPeriod; 
 		std::string filename;
 		std::vector<unsigned long long> observedParticleIds;
 		// buffer is declared by children

@@ -15,7 +15,6 @@ cdef extern from "Simulation.h":
 		bool isPeriodic
 		double boxsize
 		double repulsionStrength
-		bool verbose
 		unsigned long int acceptions
 		unsigned long int rejections
 		bool isReversible

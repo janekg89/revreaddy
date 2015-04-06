@@ -16,7 +16,6 @@ Simulation::Simulation(bool hasDefaultTypes)
 	this->repulsionStrength = 1.;
 	this->isPeriodic        = true;
 	this->boxsize           = 10.;
-	this->verbose           = false;
 	this->energy            = 0.;
 	this->oldEnergy         = 0.;
 	this->acceptions        = 0;
@@ -293,7 +292,6 @@ void Simulation::addParticle(
 	this->uniqueIdCounter += 1;
 	this->activeParticles.push_back(*particle);//push_back copies arg into vec
 	delete particle;
-	if (this->verbose) {std::cout << "Particle added.\n";}
 }
 
 std::vector<double> Simulation::getPosition(int index)

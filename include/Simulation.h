@@ -48,7 +48,6 @@ class Simulation
 		bool isPeriodic;           // use periodic boundary conditions or not
 		double boxsize;            // length of the periodic simulationbox
 		double repulsionStrength;  // force constant for particle repulsion
-		bool verbose;
 		double energy;
 		double oldEnergy;
 		unsigned long int acceptions;
