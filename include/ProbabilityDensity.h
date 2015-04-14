@@ -35,7 +35,8 @@ class ProbabilityDensity : public Observable
 			std::vector<Particle>& activeParticles,
 			unsigned int pTypeId,
 			std::vector<double>& range,
-			unsigned int coord);
+			unsigned int coord,
+			std::string inFilename);
 		~ProbabilityDensity();
 };
 

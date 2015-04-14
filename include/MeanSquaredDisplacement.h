@@ -40,7 +40,8 @@ class MeanSquaredDisplacement : public Observable
 			std::vector<Particle>& activeParticles,
 			unsigned int pTypeId,
 			double time,
-			double boxsize);
+			double boxsize,
+			std::string inFilename);
 		~MeanSquaredDisplacement();
 };
 

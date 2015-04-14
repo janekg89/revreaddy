@@ -9,10 +9,12 @@ RadialDistribution::RadialDistribution(
 	std::vector<double>& range,
 	bool isPeriodic,
 	double boxsize,
-	std::vector< std::vector<unsigned int> > considered)
+	std::vector< std::vector<unsigned int> > considered,
+	std::string inFilename)
 {
 	this->recPeriod    = 1;
 	this->clearPeriod  = 0;
+	this->filename     = inFilename;
 	this->isPeriodic   = isPeriodic;
 	this->boxsize      = boxsize;
 	this->numberOfBins = range.size() - 1;

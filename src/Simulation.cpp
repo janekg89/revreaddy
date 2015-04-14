@@ -43,7 +43,7 @@ void Simulation::run()
 	this->energy = 0.;
 	this->calculateRepulsionForcesEnergies();
 	this->calculateGeometryForcesEnergies();
-	this->recordObservables();
+	this->recordObservables(0);
 	for (unsigned long int timeIndex = 1; timeIndex < maxTime; timeIndex++)
 	{
 		// groupForces()
@@ -410,8 +410,7 @@ void Simulation::deleteAllObservables()
 
 void Simulation::new_Trajectory(std::string filename)
 {
-	Trajectory * obs = new Trajectory();
-	obs->filename = filename;
+	Trajectory * obs = new Trajectory(filename);
 	this->observables.push_back(obs);
 }
 
@@ -424,8 +423,8 @@ void Simulation::new_RadialDistribution(
 		ranges,
 		this->isPeriodic,
 		this->boxsize,
-		considered);
-	rad->filename = filename;
+		considered,
+		filename);
 	this->observables.push_back(rad);
 }
 
@@ -437,8 +436,8 @@ void Simulation::new_MeanSquaredDisplacement(
 		this->activeParticles,
 		particleTypeId,
 		this->cumulativeRuntime,
-		this->boxsize);
-	msd->filename = filename;
+		this->boxsize,
+		filename);
 	this->observables.push_back(msd);
 }
 
@@ -452,11 +451,20 @@ void Simulation::new_ProbabilityDensity(
 		this->activeParticles,
 		pTypeId,
 		range,
-		coord);
-	prob->filename = filename;
+		coord,
+		filename);
 	this->observables.push_back(prob);
 }
 
+void Simulation::new_Energy(unsigned long int recPeriod, std::string filename)
+{
+	Energy * ener = new Energy(
+		recPeriod,
+		0,
+		this,
+		filename);
+	this->observables.push_back(ener);
+}
 void Simulation::deleteAllGeometries()
 {
 	/* first delete the geometries, since they we're allocated with 'new'

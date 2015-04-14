@@ -22,9 +22,15 @@ void Wall::forceEnergy(
 {
 	double R = ( particlePosition[0] - point[0] ) * normal[0]
 	         + ( particlePosition[1] - point[1] ) * normal[1]
-	         + ( particlePosition[2] - point[2] ) * normal[2]
-	         - particleRadius;
-	if (R > 0.) {return;}
+	         + ( particlePosition[2] - point[2] ) * normal[2];
+	//         - particleRadius;
+	if (R > 0.) {
+		force[0] = 0.;
+		force[1] = 0.;
+		force[2] = 0.;
+		energy = 0.;
+		return;
+	}
 	else {
 		double preFactor = strength * R;
 		energy = preFactor * R;

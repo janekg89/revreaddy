@@ -4,10 +4,11 @@
 // it is written to file
 #include "Trajectory.h"
 
-Trajectory::Trajectory()
+Trajectory::Trajectory(std::string inFilename)
 {
 	this->recPeriod = 1;
 	this->clearPeriod = 0;
+	this->filename = inFilename;
 }
 
 Trajectory::~Trajectory()

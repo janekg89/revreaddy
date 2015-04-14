@@ -52,7 +52,8 @@ class RadialDistribution : public Observable
 			std::vector<double>& range,
 			bool isPeriodic,
 			double boxsize,
-			std::vector< std::vector<unsigned int> > considered);
+			std::vector< std::vector<unsigned int> > considered,
+			std::string inFilename);
 		~RadialDistribution();
 };
 #endif // __RADIALDISTRIBUTION_H_INCLUDED__

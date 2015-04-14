@@ -6,10 +6,12 @@ MeanSquaredDisplacement::MeanSquaredDisplacement(
 	std::vector<Particle>& activeParticles,
 	unsigned int pTypeId,
 	double time,
-	double boxsize)
+	double boxsize,
+	std::string inFilename)
 {
 	this->recPeriod = 1;
 	this->clearPeriod = 0;
+	this->filename = inFilename;
 	this->particleTypeId = pTypeId;
 	this->startTime = time;
 	this->boxsize   = boxsize;

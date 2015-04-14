@@ -8,6 +8,7 @@
 
 #ifndef __SIMULATION_H_INCLUDED__
 #define __SIMULATION_H_INCLUDED__
+class Simulation;
 #include <math.h>
 #include <cmath>
 #include <vector>
@@ -22,6 +23,7 @@
 #include "RadialDistribution.h"
 #include "MeanSquaredDisplacement.h"
 #include "ProbabilityDensity.h"
+#include "Energy.h"
 #include "Geometry.h"
 #include "Wall.h"
 #include "DoubleWellZ.h"
@@ -109,6 +111,7 @@ class Simulation
 			unsigned int pTypeId,
 			std::vector<double> range,
 			unsigned int coord);
+		void new_Energy(unsigned long int recPeriod, std::string filename);
 		void deleteAllGeometries();
 		void new_Wall(
 			std::vector<double> normal,

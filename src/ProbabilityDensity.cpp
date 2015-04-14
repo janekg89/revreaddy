@@ -6,10 +6,12 @@ ProbabilityDensity::ProbabilityDensity(
 	std::vector<Particle>& activeParticles,
 	unsigned int pTypeId,
 	std::vector<double>& range,
-	unsigned int coord)
+	unsigned int coord,
+	std::string inFilename)
 {
 	this->recPeriod = 1;
 	this->clearPeriod = 0;
+	this->filename = inFilename;
 	if (coord < 3) {this->coordinate = coord;}
 	else {coord = 0;}
 	this->rangeOfBins = range;
