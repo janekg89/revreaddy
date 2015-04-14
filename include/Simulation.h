@@ -58,7 +58,7 @@ class Simulation
 		void run();
 		void saveOldState();//oldEnergy=energy, oldPos=pos, oldForce=force
 		void propagate();
-		void recordObservables(double t);
+		void recordObservables(unsigned long int timeIndex);
 		/* double loop (i,j) over activeParticles and call 
 		 * according Forcetype for particle pair (i,j) */
 		void calculateRepulsionForcesEnergies(); 

@@ -21,9 +21,9 @@ class DoubleWellZ : public Geometry
 		double strength;
 
 		DoubleWellZ(
-			double& InDistanceMinima,
-			double& InStrength,
-			std::vector<unsigned int>& InParticleTypeIds);
+			double& inDistanceMinima,
+			double& inStrength,
+			std::vector<unsigned int>& inParticleTypeIds);
 
 		void forceEnergy(
 			std::vector<double>& force, //out

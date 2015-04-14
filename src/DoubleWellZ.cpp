@@ -5,14 +5,14 @@
 #define SCALEFACTOR 1.472667648
 
 DoubleWellZ::DoubleWellZ(
-	double& InDistanceMinima,
-	double& InStrength,
-	std::vector<unsigned int>& InParticleTypeIds)
+	double& inDistanceMinima,
+	double& inStrength,
+	std::vector<unsigned int>& inParticleTypeIds)
 {
-	this->distanceMinima = InDistanceMinima;
-	this->strength = InStrength;
+	this->distanceMinima = inDistanceMinima;
+	this->strength = inStrength;
 	this->scale = this->distanceMinima / SCALEFACTOR;
-	this->particleTypeIds = InParticleTypeIds;
+	this->particleTypeIds = inParticleTypeIds;
 }
 
 void DoubleWellZ::forceEnergy(

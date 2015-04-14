@@ -11,6 +11,8 @@ RadialDistribution::RadialDistribution(
 	double boxsize,
 	std::vector< std::vector<unsigned int> > considered)
 {
+	this->recPeriod    = 1;
+	this->clearPeriod  = 0;
 	this->isPeriodic   = isPeriodic;
 	this->boxsize      = boxsize;
 	this->numberOfBins = range.size() - 1;

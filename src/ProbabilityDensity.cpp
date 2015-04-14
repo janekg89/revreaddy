@@ -8,6 +8,8 @@ ProbabilityDensity::ProbabilityDensity(
 	std::vector<double>& range,
 	unsigned int coord)
 {
+	this->recPeriod = 1;
+	this->clearPeriod = 0;
 	if (coord < 3) {this->coordinate = coord;}
 	else {coord = 0;}
 	this->rangeOfBins = range;
