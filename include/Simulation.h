@@ -8,6 +8,9 @@
 
 #ifndef __SIMULATION_H_INCLUDED__
 #define __SIMULATION_H_INCLUDED__
+/* This forward declaration is still necessary due 
+ * to a non-resolved circular dependence with one or more
+ * observables. */
 class Simulation;
 #include <math.h>
 #include <cmath>
@@ -24,6 +27,7 @@ class Simulation;
 #include "MeanSquaredDisplacement.h"
 #include "ProbabilityDensity.h"
 #include "Energy.h"
+#include "Acceptance.h"
 #include "Geometry.h"
 #include "Wall.h"
 #include "DoubleWellZ.h"
@@ -52,6 +56,7 @@ class Simulation
 		double repulsionStrength;  // force constant for particle repulsion
 		double energy;
 		double oldEnergy;
+		double currentAcceptance;  // the last calculated acceptance prob
 		unsigned long int acceptions;
 		unsigned long int rejections;
 		bool isReversible;
@@ -112,6 +117,7 @@ class Simulation
 			std::vector<double> range,
 			unsigned int coord);
 		void new_Energy(unsigned long int recPeriod, std::string filename);
+		void new_Acceptance(unsigned long int recPeriod,std::string filename);
 		void deleteAllGeometries();
 		void new_Wall(
 			std::vector<double> normal,

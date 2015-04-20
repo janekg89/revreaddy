@@ -18,6 +18,7 @@ Simulation::Simulation(bool hasDefaultTypes)
 	this->boxsize           = 10.;
 	this->energy            = 0.;
 	this->oldEnergy         = 0.;
+	this->currentAcceptance = 1.;
 	this->acceptions        = 0;
 	this->rejections        = 0;
 	this->isReversible      = true;
@@ -249,6 +250,7 @@ void Simulation::acceptOrReject()
 	acceptance = firstTerm + secondTerm + this->energy - this->oldEnergy;
 	acceptance /= -1. * this->kBoltzmann * this->temperature;
 	acceptance = exp( acceptance );
+	this->currentAcceptance = acceptance;
 	// accept or reject
 	// std::cout << "acceptance "<<acceptance<<"\n";
 	if ( acceptance > 1. ) {
@@ -465,6 +467,17 @@ void Simulation::new_Energy(unsigned long int recPeriod, std::string filename)
 		filename);
 	this->observables.push_back(ener);
 }
+
+void Simulation::new_Acceptance(unsigned long int recPeriod, std::string filename)
+{
+	Acceptance * acc = new Acceptance(
+		recPeriod,
+		0,
+		this,
+		filename);
+	this->observables.push_back(acc);
+}
+
 void Simulation::deleteAllGeometries()
 {
 	/* first delete the geometries, since they we're allocated with 'new'
