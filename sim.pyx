@@ -45,6 +45,7 @@ cdef extern from "Simulation.h":
 			string, unsigned int, 
 			vector[double], unsigned int)
 		void new_Energy(unsigned long int, string)
+		void new_Acceptance(unsigned long int, string)
 		void deleteAllGeometries()
 		void new_Wall(
 			vector[double], vector[double],
@@ -124,6 +125,8 @@ cdef class pySimulation:
 		self.thisptr.new_ProbabilityDensity(filename, pTypeId, ranges, coord)
 	def new_Energy(self, recPeriod, filename):
 		self.thisptr.new_Energy(recPeriod, filename)
+	def new_Acceptance(self, recPeriod, filename):
+		self.thisptr.new_Acceptance(recPeriod, filename)
 	def deleteAllGeometries(self):
 		self.thisptr.deleteAllGeometries()
 	# TODO: check sorting of particleTypeIds, before calling wall constructor
