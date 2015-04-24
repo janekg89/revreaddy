@@ -11,7 +11,7 @@ OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
 # objects without main.o
 OBJECTSWM := $(subst build/main.o,,$(OBJECTS))
 CFLAGS := -g -std=c++11#-Wall
-LIB := -lgsl -lgslcblas -lm#-pthread -lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt
+LIB := -lgsl -lgslcblas -lm -lhdf5 -lhdf5_hl#-pthread -lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt
 INC := -I include
 UNITTESTS := $(shell find tests/unittests -type f -name *.h)
 UNITTESTTARGET := bin/unittest

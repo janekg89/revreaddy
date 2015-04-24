@@ -97,6 +97,42 @@ void MeanSquaredDisplacement::record(
 
 void MeanSquaredDisplacement::writeBufferToFile()
 {
+	// first determine the file extension
+	unsigned int lastDot = this->filename.find_last_of(".");
+	std::string extension = this->filename.substr(lastDot);
+	if ( (extension == ".h5") || (extension == ".hdf5") ) {
+		this->writeBufferToH5();
+	}
+	else if ( (extension == ".dat") || (extension == ".txt") ) {
+		this->writeBufferToDat();
+	}
+	else {
+		this->writeBufferToDat();
+	}
+}
+
+void MeanSquaredDisplacement::writeBufferToH5()
+{
+	BinaryFile file(this->filename);
+	file.addDatasetDouble(
+		"time",
+		this->time);
+	file.addDatasetDouble(
+		"meanSquaredDisplacement",
+		this->meanSquaredDisplacements);
+	file.addDatasetDouble(
+		"standardDeviation",
+		this->standardDeviations);
+	file.addDatasetDouble(
+		"standardError",
+		this->standardErrors);
+	file.addDatasetUnsignedInt(
+		"numberOfParticles",
+		this->numberOfParticles);
+}
+
+void MeanSquaredDisplacement::writeBufferToDat()
+{
 	std::ofstream file;
 	file.open(this->filename);
 	file << "Time\tMeanSquaredDisplacement\tStandardDeviation\t"
@@ -110,3 +146,4 @@ void MeanSquaredDisplacement::writeBufferToFile()
 	}
 	file.close();
 }
+

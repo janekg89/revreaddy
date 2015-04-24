@@ -35,6 +35,8 @@ class MeanSquaredDisplacement : public Observable
 			std::vector<Particle>& activeParticles,
 			double t);
 		void writeBufferToFile();
+		void writeBufferToH5();
+		void writeBufferToDat();
 		
 		MeanSquaredDisplacement(
 			std::vector<Particle>& activeParticles,

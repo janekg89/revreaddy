@@ -5,6 +5,7 @@ from libcpp.string cimport string
 from libcpp cimport bool
 cimport numpy as np
 
+
 cdef extern from "Simulation.h":
 	cdef cppclass Simulation:
 		Simulation(bool) except +

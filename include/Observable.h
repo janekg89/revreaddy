@@ -9,6 +9,7 @@
 #include <vector>
 #include <string>
 #include "Particle.h"
+#include "BinaryFile.h"
 
 class Observable
 {

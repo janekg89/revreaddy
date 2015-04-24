@@ -18,7 +18,7 @@ extensions = [
 		language = "c++",
 		extra_compile_args = ["-std=c++11"],
 		include_dirs = ["/usr/include","/usr/local/include","include"],
-		libraries = ["m","gsl","gslcblas"]
+		libraries = ["m","gsl","gslcblas","hdf5","hdf5_hl"]
 	)
 ]
 

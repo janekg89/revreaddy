@@ -30,6 +30,8 @@ class Acceptance : public Observable
 			std::vector<Particle>& activeParticles,
 			double t);
 		void writeBufferToFile();
+		void writeBufferToH5();
+		void writeBufferToDat();
 };
 
 #endif // __ACCEPTANCE_H_INCLUDED__

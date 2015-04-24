@@ -24,6 +24,32 @@ void Acceptance::record(
 
 void Acceptance::writeBufferToFile()
 {
+	unsigned int lastDot = this->filename.find_last_of(".");
+	std::string extension = this->filename.substr(lastDot);
+	if ( (extension == ".h5") || (extension == ".hdf5") ) {
+		this->writeBufferToH5();
+	}
+	else if ( (extension == ".dat") || (extension == ".txt") ) {
+		this->writeBufferToDat();
+	}
+	else {
+		this->writeBufferToDat();
+	}
+}
+
+void Acceptance::writeBufferToH5()
+{
+	BinaryFile file(this->filename);
+	file.addDatasetDouble(
+		"time",
+		this->times);
+	file.addDatasetDouble(
+		"acceptanceProb",
+		this->acceptanceProbs);
+}
+
+void Acceptance::writeBufferToDat()
+{
 	std::ofstream file;
 	file.open(this->filename, std::ofstream::out);
 	file << "Time\tAcceptanceProbability\n";
