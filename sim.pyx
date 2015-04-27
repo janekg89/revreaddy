@@ -148,6 +148,9 @@ cdef class pySimulation:
 	property cumulativeRuntime:
 		def __get__(self): return self.thisptr.cumulativeRuntime
 		# there should not be a setter for cumulativeRuntime
+		# but here it is
+		def __set__(self, cumulativeRuntime):
+			self.thisptr.cumulativeRuntime = cumulativeRuntime
 	property isPeriodic:
 		def __get__(self): return self.thisptr.isPeriodic
 		def __set__(self, isPeriodic): self.thisptr.isPeriodic = isPeriodic
