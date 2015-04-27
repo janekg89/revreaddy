@@ -30,6 +30,8 @@ class ProbabilityDensity : public Observable
 			std::vector<Particle>& activeParticles,
 			double t);
 		void writeBufferToFile();
+		void writeBufferToH5();
+		void writeBufferToDat();
 
 		ProbabilityDensity(
 			std::vector<Particle>& activeParticles,

@@ -2,7 +2,7 @@
 
 #include "RadialDistribution.h"
 
-// TODO receive vector<vector<unsigned int>> representing a list of tuples
+// receive vector<vector<unsigned int>> representing a list of tuples
 // these tuples have pairs of particleTypeIds which should be considered
 // in rdf calculation.
 RadialDistribution::RadialDistribution(
@@ -95,6 +95,33 @@ bool RadialDistribution::isInConsidered(unsigned int a, unsigned int b)
 }
 
 void RadialDistribution::writeBufferToFile()
+{
+	// first determine the file extension
+	unsigned int lastDot = this->filename.find_last_of(".");
+	std::string extension = this->filename.substr(lastDot);
+	if ( (extension == ".h5") || (extension == ".hdf5") ) {
+		this->writeBufferToH5();
+	}
+	else if ( (extension == ".dat") || (extension == ".txt") ) {
+		this->writeBufferToDat();
+	}
+	else {
+		this->writeBufferToDat();
+	}
+}
+
+void RadialDistribution::writeBufferToH5()
+{
+	BinaryFile file(this->filename);
+	file.addDatasetDouble(
+		"binCenters",
+		this->binCenters);
+	file.addDatasetDouble(
+		"bins",
+		this->bins);
+}
+
+void RadialDistribution::writeBufferToDat()
 {
 	std::ofstream file;
 	file.open(this->filename, std::ofstream::out);

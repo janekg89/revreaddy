@@ -47,6 +47,8 @@ class RadialDistribution : public Observable
 		/* Check if (a,b) is in consideredPairs.*/
 		bool isInConsidered(unsigned int a, unsigned int b);
 		void writeBufferToFile();
+		void writeBufferToH5();
+		void writeBufferToDat();
 
 		RadialDistribution(
 			std::vector<double>& range,

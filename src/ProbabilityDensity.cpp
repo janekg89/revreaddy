@@ -65,6 +65,33 @@ void ProbabilityDensity::record(
 
 void ProbabilityDensity::writeBufferToFile()
 {
+	// first determine the file extension
+	unsigned int lastDot = this->filename.find_last_of(".");
+	std::string extension = this->filename.substr(lastDot);
+	if ( (extension == ".h5") || (extension == ".hdf5") ) {
+		this->writeBufferToH5();
+	}
+	else if ( (extension == ".dat") || (extension == ".txt") ) {
+		this->writeBufferToDat();
+	}
+	else {
+		this->writeBufferToDat();
+	}
+}
+
+void ProbabilityDensity::writeBufferToH5()
+{
+	BinaryFile file(this->filename);
+	file.addDatasetDouble(
+		"binCenters",
+		this->binCenters);
+	file.addDatasetDouble(
+		"bins",
+		this->bins);
+}
+
+void ProbabilityDensity::writeBufferToDat()
+{
 	std::ofstream file;
 	file.open(this->filename, std::ofstream::out);
 	for (auto&& center : this->binCenters) {
