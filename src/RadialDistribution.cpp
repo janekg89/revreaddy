@@ -45,11 +45,13 @@ void RadialDistribution::record(
 	double t)
 {
 	double radius = 0.;
+	int n = 0;
 	for (int i=0; i<activeParticles.size(); i++) {
-		for (int j=i+1; j<activeParticles.size(); j++) {
+		for (int j=0; j<activeParticles.size(); j++) {
 			if (this->isInConsidered(
 				activeParticles[i].typeId,
 				activeParticles[j].typeId)) {
+				if (i != j) {
 					getMinDistanceSquared(
 						radius,
 						activeParticles[i].position,
@@ -58,9 +60,12 @@ void RadialDistribution::record(
 						this->boxsize);
 					radius = sqrt(radius);
 					gsl_histogram_increment(this->radialDistribution, radius);
+					n += 1;
+				}
 			}
 		}
 	}
+	std::cout << "n_i * n_j: " << n << "\n";
 	// copy the hist to 'bins' while scaling every value correctly
 	for (int i=0; i<bins.size(); i++) {
 		bins[i] += gsl_histogram_get(this->radialDistribution, i) 
