@@ -46,8 +46,10 @@ class Simulation
 		/* For later adaptive timestepping methods */
 		//std::vector<Particle> consideredParticles; 
 		std::vector<Geometry*> geometries;
+		/* Storage of all active reactions that may happen */
+		//std::vector<Reaction> reactions;
 		unsigned long int maxTime; // length of the simulation
-		double timestep;           // the timestep: usually 0.001
+		double timestep;           // the timestep: usually 0.001 or smaller
 		double cumulativeRuntime;  // keeps track of the advanced time
 		double temperature;
 		double kBoltzmann;
