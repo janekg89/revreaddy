@@ -1,4 +1,5 @@
-"""
+revreaddy v0.1
+**************
 
 A particle based reaction-diffusion simulation with a
 reversible integrator, which obeys detailed balance.
@@ -30,5 +31,3 @@ cython.
 
 Large parts are still undocumented and unittests are not
 up-to-date.
-
-"""
