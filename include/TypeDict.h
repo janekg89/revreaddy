@@ -1,5 +1,11 @@
 /* TypeDict.h
- * This structure contains information on every particle type. */
+ * This structure contains information on every particle type.
+ * The particles themselves only contain an id, which encodes 
+ * the index of the vectors stored here.
+ * E.g. If a particle has a typeId of 2, then its typeName 
+ * is typeDict.names[2].
+ * Hence, the state of the simulation is bound to this
+ * type dictionary. The particles alone are useless. */
 
 #ifndef __TYPEDICT_H_INCLUDED__
 #define __TYPEDICT_H_INCLUDED__
