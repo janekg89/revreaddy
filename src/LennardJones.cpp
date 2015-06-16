@@ -13,8 +13,16 @@ LennardJones::LennardJones(
 	this->name = inName;
 	this->type = "LennardJones";
 	this->epsilon = inEpsilon;
-	this->affectedTuple.push_back(inAffectedTuple[0]);
-	this->affectedTuple.push_back(inAffectedTuple[1]);
+	// apply the convention that the tuple must be sorted
+	if ( inAffectedTuple[0] < inAffectedTuple[1] ) {
+		this->affectedTuple.push_back(inAffectedTuple[0]);
+		this->affectedTuple.push_back(inAffectedTuple[1]);
+	}
+	else {
+		this->affectedTuple.push_back(inAffectedTuple[1]);
+		this->affectedTuple.push_back(inAffectedTuple[0]);	
+		std::cout << "LennardJones affectedTuple order was inverted\n";
+	}
 }
 
 void LennardJones::calculateForceEnergy(

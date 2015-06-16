@@ -12,6 +12,7 @@
 #include <vector>
 #include <string>
 
+//TODO remove forceTypes
 class TypeDict
 {
 	private:

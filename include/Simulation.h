@@ -139,6 +139,15 @@ class Simulation
 			double distanceMinima,
 			double strength,
 			std::vector<unsigned int> particleTypeIds);
+		void deleteAllForces();
+		void new_SoftRepulsion(
+			std::string name,
+			std::vector<unsigned int> affectedTuple,
+			double repulsionStrength);
+		void new_LennardJones(
+			std::string name,
+			std::vector<unsigned int> affectedTuple,
+			double epsilon);
 };
 
 #endif // __SIMULATION_H_INCLUDED__

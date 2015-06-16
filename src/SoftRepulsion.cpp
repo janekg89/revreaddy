@@ -11,8 +11,16 @@ SoftRepulsion::SoftRepulsion(
 	this->name = inName;
 	this->type = "SoftRepulsion";
 	this->repulsionStrength = inRepulsionStrength;
-	this->affectedTuple.push_back(inAffectedTuple[0]);
-	this->affectedTuple.push_back(inAffectedTuple[1]);
+	// apply the convention that the tuple must be sorted
+	if ( inAffectedTuple[0] < inAffectedTuple[1] ) {
+		this->affectedTuple.push_back(inAffectedTuple[0]);
+		this->affectedTuple.push_back(inAffectedTuple[1]);
+	}
+	else {
+		this->affectedTuple.push_back(inAffectedTuple[1]);
+		this->affectedTuple.push_back(inAffectedTuple[0]);	
+		std::cout << "softRepulsion affectedTuple order was inverted\n";
+	}
 }
 
 void SoftRepulsion::calculateForceEnergy(

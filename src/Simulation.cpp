@@ -566,3 +566,45 @@ void Simulation::new_DoubleWellZ(
 		particleTypeIds);
 	this->geometries.push_back(well);
 }
+
+void Simulation::deleteAllForces()
+{
+	/* first delete the forces, since they we're allocated with 'new'
+	 * then erase the pointers from the vector */
+	for (auto* f : this->possibleForces) {
+		delete f;
+	}
+	this->possibleForces.erase(
+		this->possibleForces.begin(),
+		this->possibleForces.begin() + this->possibleForces.size()
+	);
+}
+
+void Simulation::new_SoftRepulsion(
+	std::string name,
+	std::vector<unsigned int> affectedTuple,
+	double repulsionStrength)
+{
+	if (affectedTuple.size() != 2) {
+		std::cout << "The given tuple must be of length 2\n";
+		return;
+	}
+	if ( (affectedTuple[0] > ( this->typeDict->names.size() - 1) ) 
+	  || (affectedTuple[1] > ( this->typeDict->names.size() - 1) ) ) {
+		std::cout << "The given particle types do not exist. "
+		          << "Make sure to add them first.\n";
+		return;
+	}
+	if ( repulsionStrength < 0. ) {
+		std::cout << "The repulsion strength must be large than zero.\n";
+		return;
+	}
+	SoftRepulsion * soft = new SoftRepulsion(
+		name,
+		affectedTuple,
+		repulsionStrength);
+	// set cutoff correctly
+	soft->cutoff = this->typeDict->radii[affectedTuple[0]] 
+	             + this->typeDict->radii[affectedTuple[1]];
+	this->possibleForces.push_back(soft);
+}

@@ -17,7 +17,8 @@ class ParticleInteraction
 
 		std::string name;
 		std::string type; //"softRepulsion", "softAttraction", "LennardJones"
-		std::vector<unsigned int> affectedTuple; // length is always 2
+		/* affectedTuple is always of length 2 and always sorted */
+		std::vector<unsigned int> affectedTuple; 
 		double cutoff;
 		
 		bool isAffected(unsigned int i, unsigned int j);
