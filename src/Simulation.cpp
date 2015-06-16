@@ -13,6 +13,7 @@ Simulation::Simulation(bool hasDefaultTypes)
 	this->cumulativeRuntime = 0.;
 	this->temperature       = 1.;
 	this->kBoltzmann        = 1.;
+	// remove repulsion strength
 	this->repulsionStrength = 1.;
 	this->isPeriodic        = true;
 	this->boxsize           = 10.;
@@ -42,7 +43,7 @@ void Simulation::run()
 	          << this->cumulativeRuntime << "\n";
 	this->resetForces();
 	this->energy = 0.;
-	this->calculateRepulsionForcesEnergies();
+	this->calculateInteractionForcesEnergies();
 	this->calculateGeometryForcesEnergies();
 	this->recordObservables(0);
 	for (unsigned long int timeIndex = 1; timeIndex < maxTime; timeIndex++)
@@ -52,7 +53,7 @@ void Simulation::run()
 		this->propagate(); // propose
 		this->resetForces();
 		this->energy = 0.;
-		this->calculateRepulsionForcesEnergies(); // calculate energy and force
+		this->calculateInteractionForcesEnergies(); // calculate energy and force
 		this->calculateGeometryForcesEnergies();
 		if (this->isReversible) { this->acceptOrReject(); }
 		this->cumulativeRuntime += this->timestep;
@@ -140,7 +141,7 @@ void Simulation::recordObservables(unsigned long int timeIndex)
 	}
 }
 
-void Simulation::calculateRepulsionForcesEnergies()
+void Simulation::calculateInteractionForcesEnergies()
 {
 	std::vector<double> forceI = {0.,0.,0.};
 	std::vector<double> forceJ = {0.,0.,0.};
@@ -177,6 +178,53 @@ void Simulation::calculateRepulsionForcesEnergies()
 			forceJ[2] = -1. * forceI[2];
 			activeParticles[i].addForce(forceI);
 			activeParticles[j].addForce(forceJ);
+			this->energy += energyBuffer;
+		}
+	}
+}
+
+void Simulation::calculateSingleForceEnergy(
+	unsigned int indexI,
+	unsigned int indexJ)
+{
+	std::vector<double> forceI = {0.,0.,0.};
+	std::vector<double> forceJ = {0.,0.,0.};
+	// interaction energy of particle pair (i,j)
+	double energyBuffer = 0.; 
+	for (unsigned int k=0; k<this->possibleForces.size(); k++) {
+		if (
+			this->possibleForces[k]->isAffected(
+				this->activeParticles[indexI].typeId,
+				this->activeParticles[indexJ].typeId)
+		) {
+			// connecting vector from particle i to j
+			std::vector<double> r_ij = {0.,0.,0.}; 
+			getMinDistanceVector(
+				r_ij,
+				activeParticles[indexI].position, 
+				activeParticles[indexJ].position, 
+				this->isPeriodic, 
+				this->boxsize);
+			// distance of particle i,j squared
+			double rSquared = r_ij[0]*r_ij[0] + r_ij[1]*r_ij[1] + r_ij[2]*r_ij[2];
+			// radius of particle i
+			double radiusI = this->typeDict->radii[activeParticles[indexI].typeId]; 
+			// radius of particle j
+			double radiusJ = this->typeDict->radii[activeParticles[indexJ].typeId];
+			// squared sum of particles i,j radii
+			double radiiSquared = pow(radiusI + radiusJ, 2.);
+			// actual force call here
+			this->possibleForces[k]->calculateForceEnergy(
+				forceI,//out
+				energyBuffer,
+				r_ij,//in
+				rSquared,
+				radiiSquared);
+			forceJ[0] = -1. * forceI[0];
+			forceJ[1] = -1. * forceI[1];
+			forceJ[2] = -1. * forceI[2];
+			activeParticles[indexI].addForce(forceI);
+			activeParticles[indexJ].addForce(forceJ);
 			this->energy += energyBuffer;
 		}
 	}
@@ -330,6 +378,7 @@ void Simulation::setTypeId(int index, unsigned int typeId)
 	this->activeParticles[index].typeId = typeId;
 }
 
+/* REMOVE forceType from here*/
 void Simulation::new_Type(
 	std::string name,
 	double radius,
@@ -361,6 +410,7 @@ std::vector<double> Simulation::getDictReactionRadii() {
 	return this->typeDict->reactionRadii;
 }
 
+/* REMOVE THIS */
 std::vector<unsigned int> Simulation::getDictForceTypes() {
 	return this->typeDict->forceTypes;
 }

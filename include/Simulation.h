@@ -32,6 +32,7 @@ class Simulation;
 #include "Wall.h"
 #include "DoubleWellZ.h"
 #include "TypeDict.h"
+#include "ParticleInteraction.h"
 #include "utils.h"
 
 class Simulation
@@ -48,6 +49,9 @@ class Simulation
 		std::vector<Geometry*> geometries;
 		/* Storage of all active reactions that may happen */
 		//std::vector<Reaction> reactions;
+		/* All forces between particles */
+		std::vector<ParticleInteraction*> possibleForces;
+
 		unsigned long int maxTime; // length of the simulation
 		double timestep;           // the timestep: usually 0.001 or smaller
 		double cumulativeRuntime;  // keeps track of the advanced time
@@ -70,7 +74,12 @@ class Simulation
 		void recordObservables(unsigned long int timeIndex);
 		/* double loop (i,j) over activeParticles and call 
 		 * according Forcetype for particle pair (i,j) */
-		void calculateRepulsionForcesEnergies(); 
+		void calculateInteractionForcesEnergies(); 
+		/* evaluate the force and energy for
+		 * a given pair of particles */
+		void calculateSingleForceEnergy(
+			unsigned int indexI,
+			unsigned int indexJ);
 		void calculateGeometryForcesEnergies();
 		void resetForces();
 		void acceptOrReject();

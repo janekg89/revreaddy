@@ -12,18 +12,21 @@
 class ParticleInteraction
 {
 	public:
+		ParticleInteraction();
+		virtual ~ParticleInteraction();
+
 		std::string name;
-		std::string type;
-		std::vector<unsigned int> affectedTuple;
+		std::string type; //"softRepulsion", "softAttraction", "LennardJones"
+		std::vector<unsigned int> affectedTuple; // length is always 2
+		double cutoff;
 		
 		bool isAffected(unsigned int i, unsigned int j);
-		void calculateForceEnergy(
+		virtual void calculateForceEnergy(
 			std::vector<double>& forceI,//out
 			double& energy,
 			std::vector<double>& r_ij,//in
 			double& rSquared,
-			double& radiiSquared,
-			double& strength);
-}
+			double& radiiSquared);
+};
 
 #endif // __PARTICLEINTERACTION_H_INCLUDED__
