@@ -52,6 +52,9 @@ cdef extern from "Simulation.h":
 			vector[double], vector[double],
 			double, vector[uint])
 		void new_DoubleWellZ(double, double, vector[uint])
+		void deleteAllForces()
+		void new_SoftRepulsion(string, vector[uint], double)
+		void new_LennardJones(string, vector[uint], double)
 
 cdef class pySimulation:
 	"""
@@ -135,6 +138,12 @@ cdef class pySimulation:
 		self.thisptr.new_Wall(normal, point, strength, particleTypeIds)
 	def new_DoubleWellZ(self, distanceMinima, strength, particleTypeIds):
 		self.thisptr.new_DoubleWellZ(distanceMinima, strength, particleTypeIds)
+	def deleteAllForces(self):
+		self.thisptr.deleteAllForces()
+	def new_SoftRepulsion(self, name, affectedTuple, repulsionStrength):
+		self.thisptr.new_SoftRepulsion(name, affectedTuple, repulsionStrength)
+	def new_LennardJones(self, name, affectedTuple, epsilon):
+		self.thisptr.new_LennardJones(name, affectedTuple, epsilon)
 		
 	property maxTime:
 		def __get__(self): return self.thisptr.maxTime

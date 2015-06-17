@@ -33,6 +33,8 @@ class Simulation;
 #include "DoubleWellZ.h"
 #include "TypeDict.h"
 #include "ParticleInteraction.h"
+#include "SoftRepulsion.h"
+#include "LennardJones.h"
 #include "utils.h"
 
 class Simulation

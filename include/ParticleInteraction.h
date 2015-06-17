@@ -8,6 +8,7 @@
 #define __PARTICLEINTERACTION_H_INCLUDED__
 #include <string>
 #include <vector>
+#include <iostream>
 
 class ParticleInteraction
 {

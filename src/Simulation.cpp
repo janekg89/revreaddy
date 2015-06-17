@@ -586,17 +586,17 @@ void Simulation::new_SoftRepulsion(
 	double repulsionStrength)
 {
 	if (affectedTuple.size() != 2) {
-		std::cout << "The given tuple must be of length 2\n";
+		std::cout << "Error: The given tuple must be of length 2\n";
 		return;
 	}
 	if ( (affectedTuple[0] > ( this->typeDict->names.size() - 1) ) 
 	  || (affectedTuple[1] > ( this->typeDict->names.size() - 1) ) ) {
-		std::cout << "The given particle types do not exist. "
-		          << "Make sure to add them first.\n";
+		std::cout << "Error: The given particle type(s) do not exist. "
+		          << "Make sure to add them first\n";
 		return;
 	}
-	if ( repulsionStrength < 0. ) {
-		std::cout << "The repulsion strength must be large than zero.\n";
+	if ( repulsionStrength <= 0. ) {
+		std::cout << "Error: The repulsion strength must be larger than zero\n";
 		return;
 	}
 	SoftRepulsion * soft = new SoftRepulsion(
@@ -607,4 +607,35 @@ void Simulation::new_SoftRepulsion(
 	soft->cutoff = this->typeDict->radii[affectedTuple[0]] 
 	             + this->typeDict->radii[affectedTuple[1]];
 	this->possibleForces.push_back(soft);
+	std::cout << "Info: SoftRepulsion interaction added to possibleForces\n";
+}
+
+void Simulation::new_LennardJones(
+	std::string name,
+	std::vector<unsigned int> affectedTuple,
+	double epsilon)
+{
+	if (affectedTuple.size() != 2) {
+		std::cout << "Error: The given tuple must be of length 2\n";
+		return;
+	}
+	if ( (affectedTuple[0] > ( this->typeDict->names.size() - 1) ) 
+	  || (affectedTuple[1] > ( this->typeDict->names.size() - 1) ) ) {
+		std::cout << "Error: The given particle type(s) do not exist. "
+		          << "Make sure to add them first\n";
+		return;
+	}
+	if ( epsilon <= 0. ) {
+		std::cout << "Error: The given epsilon must be larger than zero\n";
+		return;
+	}
+	LennardJones * lj = new LennardJones(
+		name,
+		affectedTuple,
+		epsilon);
+	// set cutoff correctly
+	lj->cutoff = 2.5 * ( this->typeDict->radii[affectedTuple[0]]
+	                   + this->typeDict->radii[affectedTuple[1]] );
+	this->possibleForces.push_back(lj);
+	std::cout << "Info: LennardJones interaction added to possibleForces\n";
 }
