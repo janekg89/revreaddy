@@ -24,7 +24,7 @@ is organised as follows::
 	   -- radii, (numberOfTypes), float64
 	   -- diffusionConstants, (numberOfTypes), float64
 	   -- reactionRadii, (numberOfTypes), float64
-	   -- forceTypes, (numberOfTypes), uint64
+	   #-- forceTypes, (numberOfTypes), uint64
 	-- xyz/
 	   -- numberOfParticles, (1), uint64
 	   -- typeIds, (numberOfParticles), uint64
@@ -35,7 +35,7 @@ is organised as follows::
 	   -- isReversible, (1), bool
 	   -- isPeriodic, (1), bool
 	   -- timestep, (1), float64
-	   -- repulsionStrength, (1), float64
+	   #-- repulsionStrength, (1), float64
 	-- reactions/ 
 		... (to be continued)
 
@@ -50,6 +50,7 @@ information on hdf5 organisation/manipulation, see [h5py_].
 import numpy as np
 import sim
 import h5py
+# TODO add possibleForces to saved file
 def saveSimulation(filename, simulation):
 	"""
 	Save the state of a simulation to file given
@@ -68,7 +69,7 @@ def saveSimulation(filename, simulation):
 	radii = simulation.getDictRadii()
 	diffs = simulation.getDictDiffusionConstants()
 	reactionRadii = simulation.getDictReactionRadii()
-	forceTypes = simulation.getDictForceTypes()
+	#forceTypes = simulation.getDictForceTypes()
 	numberOfTypes = len(names)
 	# construct typedict group
 	typedict = fileHandle.create_group("typedict")
@@ -84,16 +85,16 @@ def saveSimulation(filename, simulation):
 		"reactionRadii",
 		(numberOfTypes,),
 		dtype=np.float64)
-	typedict.create_dataset(
-		"forceTypes",
-		(numberOfTypes,),
-		dtype=np.uint64)
+	#typedict.create_dataset(
+	#	"forceTypes",
+	#	(numberOfTypes,),
+	#	dtype=np.uint64)
 	for i in range(numberOfTypes):
 		typedict["names"][i]              = names[i]
 		typedict["radii"][i]              = radii[i]
 		typedict["diffusionConstants"][i] = diffs[i]
 		typedict["reactionRadii"][i]      = reactionRadii[i]
-		typedict["forceTypes"][i]         = forceTypes[i]
+		#typedict["forceTypes"][i]         = forceTypes[i]
 
 	# construct xyz group
 	xyz = fileHandle.create_group("xyz")
@@ -116,18 +117,19 @@ def saveSimulation(filename, simulation):
 	properties.create_dataset("isReversible", (1,), dtype=np.bool)
 	properties.create_dataset("isPeriodic", (1,), dtype=np.bool)
 	properties.create_dataset("timestep", (1,), dtype=np.float64)
-	properties.create_dataset("repulsionStrength", (1,), dtype=np.float64)
+	#properties.create_dataset("repulsionStrength", (1,), dtype=np.float64)
 	properties["temperature"][0]       = simulation.temperature
 	properties["boxsize"][0]           = simulation.boxsize
 	properties["isReversible"][0]      = simulation.isReversible
 	properties["isPeriodic"][0]        = simulation.isPeriodic
 	properties["timestep"][0]          = simulation.timestep
-	properties["repulsionStrength"][0] = simulation.repulsionStrength
+	#properties["repulsionStrength"][0] = simulation.repulsionStrength
 
 	# construct reactions group
 	# ...
 	fileHandle.close()
 
+# TODO add possibleForces
 def loadSimulation(filename):
 	"""
 	Load the state of simulation from file and return
@@ -138,7 +140,7 @@ def loadSimulation(filename):
 	:returns: pySimulation object
 
 	"""
-	simulation = sim.pySimulation(hasDefaultTypes=False)
+	simulation = sim.pySimulation()#hasDefaultTypes=False)
 	fileHandle = h5py.File(filename, "r")
 
 	# retrieve properties
@@ -148,7 +150,7 @@ def loadSimulation(filename):
 	simulation.isReversible      = properties["isReversible"][0]
 	simulation.isPeriodic        = properties["isPeriodic"][0]
 	simulation.timestep          = properties["timestep"][0]
-	simulation.repulsionStrength = properties["repulsionStrength"][0]
+	#simulation.repulsionStrength = properties["repulsionStrength"][0]
 
 	#retrieve typedict
 	typedict = fileHandle["typedict"]
@@ -158,8 +160,8 @@ def loadSimulation(filename):
 			typedict["names"][i],
 			typedict["radii"][i],
 			typedict["diffusionConstants"][i],
-			typedict["reactionRadii"][i],
-			typedict["forceTypes"][i] )
+			typedict["reactionRadii"][i])
+			#typedict["forceTypes"][i] )
 
 	#retrieve positions
 	xyz = fileHandle["xyz"]

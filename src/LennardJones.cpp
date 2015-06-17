@@ -14,14 +14,14 @@ LennardJones::LennardJones(
 	this->type = "LennardJones";
 	this->epsilon = inEpsilon;
 	// apply the convention that the tuple must be sorted
-	if ( inAffectedTuple[0] < inAffectedTuple[1] ) {
+	if ( inAffectedTuple[0] <= inAffectedTuple[1] ) {
 		this->affectedTuple.push_back(inAffectedTuple[0]);
 		this->affectedTuple.push_back(inAffectedTuple[1]);
 	}
 	else {
 		this->affectedTuple.push_back(inAffectedTuple[1]);
 		this->affectedTuple.push_back(inAffectedTuple[0]);	
-		std::cout << "LennardJones affectedTuple order was inverted\n";
+		std::cout << "Info: LennardJones affectedTuple order was inverted\n";
 	}
 }
 
