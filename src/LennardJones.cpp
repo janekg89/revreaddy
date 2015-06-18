@@ -12,7 +12,7 @@ LennardJones::LennardJones(
 {
 	this->name = inName;
 	this->type = "LennardJones";
-	this->epsilon = inEpsilon;
+	this->parameters = { inEpsilon };
 	// apply the convention that the tuple must be sorted
 	if ( inAffectedTuple[0] <= inAffectedTuple[1] ) {
 		this->affectedTuple.push_back(inAffectedTuple[0]);
@@ -40,8 +40,8 @@ void LennardJones::calculateForceEnergy(
 	}
 	double a = pow(sigmaSquared/rSquared, 3.);
 	double b = a * a;
-	energy = 4. * this->epsilon * ( b - a );
-	a = -24. * this->epsilon * ( 2. * b - a) / rSquared;
+	energy = 4. * this->parameters[0] * ( b - a );
+	a = -24. * this->parameters[0] * ( 2. * b - a) / rSquared;
 	forceI[0] = a * r_ij[0];
 	forceI[1] = a * r_ij[1];
 	forceI[2] = a * r_ij[2];

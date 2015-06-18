@@ -150,6 +150,11 @@ class Simulation
 			std::string name,
 			std::vector<unsigned int> affectedTuple,
 			double epsilon);
+		unsigned int getNumberForces();
+		std::string getForceName(unsigned int i);
+		std::string getForceType(unsigned int i);
+		std::vector<unsigned int> getForceAffectedTuple(unsigned int i);
+		std::vector<double> getForceParameters(unsigned int i);
 };
 
 #endif // __SIMULATION_H_INCLUDED__

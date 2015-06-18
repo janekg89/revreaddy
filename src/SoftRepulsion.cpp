@@ -10,7 +10,7 @@ SoftRepulsion::SoftRepulsion(
 {
 	this->name = inName;
 	this->type = "SoftRepulsion";
-	this->repulsionStrength = inRepulsionStrength;
+	this->parameters = { inRepulsionStrength };
 	// apply the convention that the tuple must be sorted
 	if ( inAffectedTuple[0] <= inAffectedTuple[1] ) {
 		this->affectedTuple.push_back(inAffectedTuple[0]);
@@ -38,8 +38,8 @@ void SoftRepulsion::calculateForceEnergy(
 	// E=strength*(r - radii)**2, F=2.*strength*(r - radii)/r * r_ij(vec)
 	double a = sqrt(rSquared);
 	double c = a - sqrt(radiiSquared);
-	energy = this->repulsionStrength * c * c;
-	a = 2. * this->repulsionStrength * c / a;
+	energy = this->parameters[0] * c * c;
+	a = 2. * this->parameters[0] * c / a;
 	forceI[0] = a * r_ij[0];
 	forceI[1] = a * r_ij[1];
 	forceI[2] = a * r_ij[2];

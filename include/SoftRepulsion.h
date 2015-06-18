@@ -17,7 +17,6 @@ class SoftRepulsion : public ParticleInteraction
 			std::vector<unsigned int> inAffectedTuple,
 			double inRepulsionStrength);
 		
-		double repulsionStrength;
 		void calculateForceEnergy(
 			std::vector<double>& forceI, //out
 			double& energy,

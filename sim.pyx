@@ -8,14 +8,13 @@ cimport numpy as np
 
 cdef extern from "Simulation.h":
 	cdef cppclass Simulation:
-		Simulation(bool) except +
+		Simulation() except +
 		unsigned long int maxTime
 		double temperature
 		double timestep
 		double cumulativeRuntime
 		bool isPeriodic
 		double boxsize
-		double repulsionStrength
 		unsigned long int acceptions
 		unsigned long int rejections
 		bool isReversible
@@ -26,12 +25,11 @@ cdef extern from "Simulation.h":
 		void           setPosition(int, vector[double])
 		unsigned int getTypeId(int)
 		void         setTypeId(int, unsigned int)
-		void new_Type(string, double, double, double, unsigned int)
+		void new_Type(string, double, double, double)
 		vector[string] getDictNames()
 		vector[double] getDictRadii()
 		vector[double] getDictDiffusionConstants()
 		vector[double] getDictReactionRadii()
-		vector[uint]   getDictForceTypes()
 		int getParticleNumber()
 		void deleteAllParticles()
 		void writeAllObservablesToFile()
@@ -55,20 +53,25 @@ cdef extern from "Simulation.h":
 		void deleteAllForces()
 		void new_SoftRepulsion(string, vector[uint], double)
 		void new_LennardJones(string, vector[uint], double)
+		unsigned int getNumberForces()
+		string getForceName(unsigned int)
+		string getForceType(unsigned int)
+		vector[uint] getForceAffectedTuple(unsigned int)
+		vector[double] getForceParameters(unsigned int) 
 
 cdef class pySimulation:
 	"""
 	The pySimulation class is the main object of revreaddy.
 	"""
 	cdef Simulation *thisptr
-	def __cinit__(self, hasDefaultTypes=True):
-		self.thisptr = new Simulation(hasDefaultTypes)
+	def __cinit__(self):
+		self.thisptr = new Simulation()
 	def __dealloc__(self):
 		del self.thisptr
 	def addParticle(
 		self,
 		initialPosition=[0.,0.,0.],
-		particleTypeId=2):
+		particleTypeId=0):
 		self.thisptr.addParticle(
 			initialPosition,
 			particleTypeId)
@@ -88,14 +91,12 @@ cdef class pySimulation:
 		name,
 		radius,
 		diffusionConstant,
-		reactionRadius,
-		forceType):
+		reactionRadius):
 		self.thisptr.new_Type(
 			name,
 			radius,
 			diffusionConstant,
-			reactionRadius,
-			forceType)
+			reactionRadius)
 	def getDictNames(self):
 		return self.thisptr.getDictNames()
 	def getDictRadii(self):
@@ -104,8 +105,6 @@ cdef class pySimulation:
 		return self.thisptr.getDictDiffusionConstants()
 	def getDictReactionRadii(self):
 		return self.thisptr.getDictReactionRadii()
-	def getDictForceTypes(self):
-		return self.thisptr.getDictForceTypes()
 	def getParticleNumber(self): 
 		return self.thisptr.getParticleNumber()
 	def deleteAllParticles(self):
@@ -144,6 +143,16 @@ cdef class pySimulation:
 		self.thisptr.new_SoftRepulsion(name, affectedTuple, repulsionStrength)
 	def new_LennardJones(self, name, affectedTuple, epsilon):
 		self.thisptr.new_LennardJones(name, affectedTuple, epsilon)
+	def getNumberForces(self):
+		return self.thisptr.getNumberForces()
+	def getForceName(self, index):
+		return self.thisptr.getForceName(index)
+	def getForceType(self, index):
+		return self.thisptr.getForceType(index)
+	def getForceAffectedTuple(self, index):
+		return self.thisptr.getForceAffectedTuple(index)
+	def getForceParameters(self, index):
+		return self.thisptr.getForceParameters(index)
 		
 	property maxTime:
 		def __get__(self): return self.thisptr.maxTime
@@ -166,10 +175,6 @@ cdef class pySimulation:
 	property boxsize:
 		def __get__(self): return self.thisptr.boxsize
 		def __set__(self, boxsize): self.thisptr.boxsize = boxsize
-	property repulsionStrength:
-		def __get__(self): return self.thisptr.repulsionStrength
-		def __set__(self, repulsionStrength): 
-			self.thisptr.repulsionStrength = repulsionStrength
 	property acceptions:
 		def __get__(self): return self.thisptr.acceptions
 		def __set__(self, acceptions): self.thisptr.acceptions = acceptions
@@ -195,22 +200,41 @@ cdef class pySimulation:
 		radii = self.getDictRadii()
 		diffs = self.getDictDiffusionConstants()
 		reactionRadii = self.getDictReactionRadii()
-		forceTypes = self.getDictForceTypes()
 		numberOfTypes = len(names)
 		print "Number of types:", numberOfTypes
-		form = "{:<5}{:<15}{:<10}{:<14}{:<13}{:<8}"
+		form = "{:<5}{:<15}{:<10}{:<14}{:<13}"
 		print form.format(
-			*["Id","Name","Radius","Diffusion-","Reaction-","Force-"])
+			*["Id","Name","Radius","Diffusion-","Reaction-"])
 		print form.format(
-			*["","","","Constant","Radius","Type"])
-		print (5+15+10+14+13+8)*"-"
+			*["","","","Constant","Radius"])
+		print (5+15+10+14+13)*"-"
 		for i in range(numberOfTypes):
 			linestr = map(
 				str,
 				[i, names[i], radii[i], 
-				 diffs[i], reactionRadii[i], forceTypes[i] ] )
+				 diffs[i], reactionRadii[i] ] )
 			print form.format(*linestr)
-		
+		return
+	
+	def showForces(self):
+		numberOfForces = self.getNumberForces()
+		names = [self.getForceName(i) for i in range(numberOfForces)]
+		types = [self.getForceType(i) for i in range(numberOfForces)]
+		affectedTuples = [self.getForceAffectedTuple(i) for i in range(numberOfForces)]
+		parameters = [self.getForceParameters(i) for i in range(numberOfForces)]
+		print "Number of forces:", numberOfForces
+		form = "{:<15}{:<20}{:<15}{:<15}"
+		print form.format(
+			*["Name","Type","Affected","Parameters"])
+		print (15+20+15+15)*"-"
+		for i in range(numberOfForces):
+			linestr = map(
+				str,
+				[names[i], types[i],
+				 affectedTuples[i], parameters[i] ] )
+			print form.format(*linestr)
+		return
+
 # this dict() sets the type ids used in the program
 # the first three keys and values (none,0),(lj,1),(soft,2)
 # should NOT be changed.

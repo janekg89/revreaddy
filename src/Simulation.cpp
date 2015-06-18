@@ -608,3 +608,28 @@ void Simulation::new_LennardJones(
 	this->possibleForces.push_back(lj);
 	std::cout << "Info: LennardJones interaction added to possibleForces\n";
 }
+
+unsigned int Simulation::getNumberForces()
+{
+	return this->possibleForces.size();
+}
+
+std::string Simulation::getForceName(unsigned int i)
+{
+	return this->possibleForces[i]->name;
+}
+
+std::string Simulation::getForceType(unsigned int i)
+{
+	return this->possibleForces[i]->type;
+}
+
+std::vector<unsigned int> Simulation::getForceAffectedTuple(unsigned int i)
+{
+	return this->possibleForces[i]->affectedTuple;
+}
+
+std::vector<double> Simulation::getForceParameters(unsigned int i)
+{
+	return this->possibleForces[i]->parameters;
+}

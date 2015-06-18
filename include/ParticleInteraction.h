@@ -20,6 +20,8 @@ class ParticleInteraction
 		std::string type; //"softRepulsion", "softAttraction", "LennardJones"
 		/* affectedTuple is always of length 2 and always sorted */
 		std::vector<unsigned int> affectedTuple; 
+		std::vector<double> parameters;
+		/* cutoff is important only for neighborlattice construction */
 		double cutoff;
 		
 		bool isAffected(unsigned int i, unsigned int j);
