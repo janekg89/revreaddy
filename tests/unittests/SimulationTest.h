@@ -197,7 +197,7 @@ class SimulationTest : public CxxTest::TestSuite
 			sim2->calculateInteractionForcesEnergiesNaive();
 
 			TS_ASSERT_EQUALS(sim1->energy, sim2->energy);
-			for (unsigned int i=0; i<2; i++) {
+			for (unsigned int i=0; i<4; i++) {
 				TS_ASSERT_EQUALS(
 					sim1->activeParticles[i].cumulativeForce,
 					sim2->activeParticles[i].cumulativeForce);
