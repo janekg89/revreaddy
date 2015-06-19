@@ -8,14 +8,14 @@
 The external sim module
 =======================
 
-.. automodule:: revreaddy.sim
+.. automodule:: sim
 	:members:
 	:undoc-members:
 	:show-inheritance:
 
 Utils
 =====
-.. automodule:: revreaddy.utils
+.. automodule:: utils
 	:members:
 	:undoc-members:
 	:show-inheritance:
