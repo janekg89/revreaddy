@@ -6,22 +6,23 @@
  */
 
 #include "Simulation.h"
-#include "utils.h"
-#include "Trajectory.h"
-#include "RadialDistribution.h"
 
 int main()
 {
-	Simulation * sim = new Simulation(true);
+	Simulation * sim = new Simulation();
 
 	sim->kBoltzmann = 1.;
 	sim->maxTime	= 1000;
 	sim->temperature= 1.;
-	sim->timestep	= 0.01;
+	sim->timestep	= 0.001;
 	sim->isPeriodic = true;
 	sim->boxsize = 10.;
-	sim->repulsionStrength = 1.;
+	sim->isReversible = false;
 
+	sim->new_Type("softy", 0.5 , 1., 1.);
+	std::vector<unsigned int> affected = {0, 0};
+	sim->new_SoftRepulsion("softy repulsion", affected, 1.);
+	
 	std::vector<double> x0 = {0., 0., 0.};
 	for (double i=0; i<5; i++)
 		for (double j=0; j<5; j++)
@@ -29,12 +30,16 @@ int main()
 				x0[0] = -0.49 * sim->boxsize + i;
 				x0[1] = -0.49 * sim->boxsize + j;
 				x0[2] = -0.49 * sim->boxsize + k;
-				sim->addParticle(x0, 2);
+				sim->addParticle(x0, 0);
 			}
 	sim->new_Trajectory("traj.xyz");
-	sim->new_MeanSquaredDisplacement("msd.dat", 2);
+	sim->new_MeanSquaredDisplacement("msd.dat", 0);
 	sim->run();
 	sim->writeAllObservablesToFile();
 	sim->deleteAllObservables();
+
+	std::cout << "acc" << sim->acceptions <<"\n";
+	std::cout << "rej" << sim->rejections <<"\n";
+
 	return 0;
 }

@@ -4,16 +4,14 @@
 
 #include "Simulation.h"
 
-Simulation::Simulation(bool hasDefaultTypes)
+Simulation::Simulation()//bool hasDefaultTypes)
 {
 	this->random            = new Random("ranlxs0");
-	this->force             = new Force();
 	this->typeDict          = new TypeDict();
 	this->timestep          = 0.001;
 	this->cumulativeRuntime = 0.;
 	this->temperature       = 1.;
 	this->kBoltzmann        = 1.;
-	this->repulsionStrength = 1.;
 	this->isPeriodic        = true;
 	this->boxsize           = 10.;
 	this->energy            = 0.;
@@ -23,17 +21,12 @@ Simulation::Simulation(bool hasDefaultTypes)
 	this->rejections        = 0;
 	this->isReversible      = true;
 	this->uniqueIdCounter   = 0;
-	if (hasDefaultTypes) {
-		this->typeDict->newType("default", 1., 0., 1., 0); // 0
-		this->typeDict->newType("lj", 1., 1., 1., 1); // 1
-		this->typeDict->newType("soft", 1., 1., 1., 2); // 2
-	}
 }
 
 Simulation::~Simulation()
 {
-	delete random;
-	delete force;
+	delete this->random;
+	delete this->typeDict;
 }
 
 void Simulation::run()
@@ -42,7 +35,7 @@ void Simulation::run()
 	          << this->cumulativeRuntime << "\n";
 	this->resetForces();
 	this->energy = 0.;
-	this->calculateRepulsionForcesEnergies();
+	this->calculateInteractionForcesEnergies();
 	this->calculateGeometryForcesEnergies();
 	this->recordObservables(0);
 	for (unsigned long int timeIndex = 1; timeIndex < maxTime; timeIndex++)
@@ -52,7 +45,7 @@ void Simulation::run()
 		this->propagate(); // propose
 		this->resetForces();
 		this->energy = 0.;
-		this->calculateRepulsionForcesEnergies(); // calculate energy and force
+		this->calculateInteractionForcesEnergies(); // calculate energy and force
 		this->calculateGeometryForcesEnergies();
 		if (this->isReversible) { this->acceptOrReject(); }
 		this->cumulativeRuntime += this->timestep;
@@ -140,43 +133,58 @@ void Simulation::recordObservables(unsigned long int timeIndex)
 	}
 }
 
-void Simulation::calculateRepulsionForcesEnergies()
+// TODO instead of naive double looping, use neighbor lattice
+void Simulation::calculateInteractionForcesEnergies()
+{
+	for (int i=0; i<activeParticles.size(); i++) {
+		for (int j=i+1; j<activeParticles.size(); j++) {
+			this->calculateSingleForceEnergy(i, j);
+		}
+	}
+}
+
+void Simulation::calculateSingleForceEnergy(
+	unsigned int indexI,
+	unsigned int indexJ)
 {
 	std::vector<double> forceI = {0.,0.,0.};
 	std::vector<double> forceJ = {0.,0.,0.};
-	// connecting vector from particle i to j
-	std::vector<double> r_ij   = {0.,0.,0.}; 
-	double rSquared     = 0.8; // distance of particles i,j squared
-	double radiiSquared = 1.; // squared sum of particles i,j radii
-	double energyBuffer = 0.; // interaction energy of particle pair (i,j)
-	double radiusI = 0.; // radius of particle i
-	double radiusJ = 0.; // radius of particle j
-	for (int i=0; i<activeParticles.size(); i++) {
-		radiusI = this->typeDict->radii[activeParticles[i].typeId];
-		for (int j=i+1; j<activeParticles.size(); j++) {
-			radiusJ = this->typeDict->radii[activeParticles[j].typeId];
+	// interaction energy of particle pair (i,j)
+	double energyBuffer = 0.; 
+	for (unsigned int k=0; k<this->possibleForces.size(); k++) {
+		if (
+			this->possibleForces[k]->isAffected(
+				this->activeParticles[indexI].typeId,
+				this->activeParticles[indexJ].typeId)
+		) {
+			// connecting vector from particle i to j
+			std::vector<double> r_ij = {0.,0.,0.}; 
 			getMinDistanceVector(
 				r_ij,
-				activeParticles[i].position, 
-				activeParticles[j].position, 
+				activeParticles[indexI].position, 
+				activeParticles[indexJ].position, 
 				this->isPeriodic, 
 				this->boxsize);
-			rSquared = r_ij[0]*r_ij[0] + r_ij[1]*r_ij[1] + r_ij[2]*r_ij[2];
-			radiiSquared = pow(radiusI + radiusJ, 2.);
-			force->repulsionForceEnergy(
-				forceI,
+			// distance of particle i,j squared
+			double rSquared = r_ij[0]*r_ij[0] + r_ij[1]*r_ij[1] + r_ij[2]*r_ij[2];
+			// radius of particle i
+			double radiusI = this->typeDict->radii[activeParticles[indexI].typeId]; 
+			// radius of particle j
+			double radiusJ = this->typeDict->radii[activeParticles[indexJ].typeId];
+			// squared sum of particles i,j radii
+			double radiiSquared = pow(radiusI + radiusJ, 2.);
+			// actual force call here
+			this->possibleForces[k]->calculateForceEnergy(
+				forceI,//out
 				energyBuffer,
-				r_ij,
+				r_ij,//in
 				rSquared,
-				radiiSquared,
-				repulsionStrength, 
-				this->typeDict->forceTypes[activeParticles[i].typeId],
-				this->typeDict->forceTypes[activeParticles[j].typeId]);
+				radiiSquared);
 			forceJ[0] = -1. * forceI[0];
 			forceJ[1] = -1. * forceI[1];
 			forceJ[2] = -1. * forceI[2];
-			activeParticles[i].addForce(forceI);
-			activeParticles[j].addForce(forceJ);
+			activeParticles[indexI].addForce(forceI);
+			activeParticles[indexJ].addForce(forceJ);
 			this->energy += energyBuffer;
 		}
 	}
@@ -334,15 +342,13 @@ void Simulation::new_Type(
 	std::string name,
 	double radius,
 	double diffusionConstant,
-	double reactionRadius,
-	unsigned int forceType) 
+	double reactionRadius)
 {
 	this->typeDict->newType(
 		name,
 		radius, 
 		diffusionConstant,
-		reactionRadius,
-		forceType);
+		reactionRadius);
 }
 
 std::vector<std::string> Simulation::getDictNames() {
@@ -359,10 +365,6 @@ std::vector<double> Simulation::getDictDiffusionConstants() {
 
 std::vector<double> Simulation::getDictReactionRadii() {
 	return this->typeDict->reactionRadii;
-}
-
-std::vector<unsigned int> Simulation::getDictForceTypes() {
-	return this->typeDict->forceTypes;
 }
 
 int Simulation::getParticleNumber() {
@@ -515,4 +517,102 @@ void Simulation::new_DoubleWellZ(
 		strength,
 		particleTypeIds);
 	this->geometries.push_back(well);
+}
+
+void Simulation::deleteAllForces()
+{
+	/* first delete the forces, since they we're allocated with 'new'
+	 * then erase the pointers from the vector */
+	for (auto* f : this->possibleForces) {
+		delete f;
+	}
+	this->possibleForces.erase(
+		this->possibleForces.begin(),
+		this->possibleForces.begin() + this->possibleForces.size()
+	);
+}
+
+void Simulation::new_SoftRepulsion(
+	std::string name,
+	std::vector<unsigned int> affectedTuple,
+	double repulsionStrength)
+{
+	if (affectedTuple.size() != 2) {
+		std::cout << "Error: The given tuple must be of length 2\n";
+		return;
+	}
+	if ( (affectedTuple[0] > ( this->typeDict->names.size() - 1) ) 
+	  || (affectedTuple[1] > ( this->typeDict->names.size() - 1) ) ) {
+		std::cout << "Error: The given particle type(s) do not exist. "
+		          << "Make sure to add them first\n";
+		return;
+	}
+	if ( repulsionStrength <= 0. ) {
+		std::cout << "Error: The repulsion strength must be larger than zero\n";
+		return;
+	}
+	SoftRepulsion * soft = new SoftRepulsion(
+		name,
+		affectedTuple,
+		repulsionStrength);
+	// set cutoff correctly
+	soft->cutoff = this->typeDict->radii[affectedTuple[0]] 
+	             + this->typeDict->radii[affectedTuple[1]];
+	this->possibleForces.push_back(soft);
+	std::cout << "Info: SoftRepulsion interaction added to possibleForces\n";
+}
+
+void Simulation::new_LennardJones(
+	std::string name,
+	std::vector<unsigned int> affectedTuple,
+	double epsilon)
+{
+	if (affectedTuple.size() != 2) {
+		std::cout << "Error: The given tuple must be of length 2\n";
+		return;
+	}
+	if ( (affectedTuple[0] > ( this->typeDict->names.size() - 1) ) 
+	  || (affectedTuple[1] > ( this->typeDict->names.size() - 1) ) ) {
+		std::cout << "Error: The given particle type(s) do not exist. "
+		          << "Make sure to add them first\n";
+		return;
+	}
+	if ( epsilon <= 0. ) {
+		std::cout << "Error: The given epsilon must be larger than zero\n";
+		return;
+	}
+	LennardJones * lj = new LennardJones(
+		name,
+		affectedTuple,
+		epsilon);
+	// set cutoff correctly
+	lj->cutoff = 2.5 * ( this->typeDict->radii[affectedTuple[0]]
+	                   + this->typeDict->radii[affectedTuple[1]] );
+	this->possibleForces.push_back(lj);
+	std::cout << "Info: LennardJones interaction added to possibleForces\n";
+}
+
+unsigned int Simulation::getNumberForces()
+{
+	return this->possibleForces.size();
+}
+
+std::string Simulation::getForceName(unsigned int i)
+{
+	return this->possibleForces[i]->name;
+}
+
+std::string Simulation::getForceType(unsigned int i)
+{
+	return this->possibleForces[i]->type;
+}
+
+std::vector<unsigned int> Simulation::getForceAffectedTuple(unsigned int i)
+{
+	return this->possibleForces[i]->affectedTuple;
+}
+
+std::vector<double> Simulation::getForceParameters(unsigned int i)
+{
+	return this->possibleForces[i]->parameters;
 }

@@ -20,7 +20,6 @@ class Simulation;
 #include <typeinfo>
 #include "Particle.h"
 #include "Random.h"
-#include "Force.h"
 #include "Observable.h"
 #include "Trajectory.h"
 #include "RadialDistribution.h"
@@ -32,13 +31,15 @@ class Simulation;
 #include "Wall.h"
 #include "DoubleWellZ.h"
 #include "TypeDict.h"
+#include "ParticleInteraction.h"
+#include "SoftRepulsion.h"
+#include "LennardJones.h"
 #include "utils.h"
 
 class Simulation
 {
 	public:
 		Random * random;                // the random number generator
-		Force * force;                  // the force/energy handler
 		TypeDict * typeDict;			// dictionary for radii etc.
 		std::vector<Particle> activeParticles;
 		/* Stores children of Observable */
@@ -48,6 +49,9 @@ class Simulation
 		std::vector<Geometry*> geometries;
 		/* Storage of all active reactions that may happen */
 		//std::vector<Reaction> reactions;
+		/* All forces between particles */
+		std::vector<ParticleInteraction*> possibleForces;
+
 		unsigned long int maxTime; // length of the simulation
 		double timestep;           // the timestep: usually 0.001 or smaller
 		double cumulativeRuntime;  // keeps track of the advanced time
@@ -55,7 +59,6 @@ class Simulation
 		double kBoltzmann;
 		bool isPeriodic;           // use periodic boundary conditions or not
 		double boxsize;            // length of the periodic simulationbox
-		double repulsionStrength;  // force constant for particle repulsion
 		double energy;
 		double oldEnergy;
 		double currentAcceptance;  // the last calculated acceptance prob
@@ -70,12 +73,17 @@ class Simulation
 		void recordObservables(unsigned long int timeIndex);
 		/* double loop (i,j) over activeParticles and call 
 		 * according Forcetype for particle pair (i,j) */
-		void calculateRepulsionForcesEnergies(); 
+		void calculateInteractionForcesEnergies(); 
+		/* evaluate the force and energy for
+		 * a given pair of particles */
+		void calculateSingleForceEnergy(
+			unsigned int indexI,
+			unsigned int indexJ);
 		void calculateGeometryForcesEnergies();
 		void resetForces();
 		void acceptOrReject();
 
-		Simulation(bool hasDefaultTypes);
+		Simulation();
 		~Simulation();
 
 		/*------- functions that will be wrapped by python -----------*/
@@ -93,13 +101,11 @@ class Simulation
 			std::string name,
 			double radius,
 			double diffusionConstant,
-			double reactionRadius,
-			unsigned int forceType);
+			double reactionRadius);
 		std::vector<std::string> getDictNames();
 		std::vector<double> getDictRadii();
 		std::vector<double> getDictDiffusionConstants();
 		std::vector<double> getDictReactionRadii();
-		std::vector<unsigned int> getDictForceTypes();
 		int  getParticleNumber();
 		void deleteAllParticles();
 		void writeAllObservablesToFile();
@@ -130,6 +136,20 @@ class Simulation
 			double distanceMinima,
 			double strength,
 			std::vector<unsigned int> particleTypeIds);
+		void deleteAllForces();
+		void new_SoftRepulsion(
+			std::string name,
+			std::vector<unsigned int> affectedTuple,
+			double repulsionStrength);
+		void new_LennardJones(
+			std::string name,
+			std::vector<unsigned int> affectedTuple,
+			double epsilon);
+		unsigned int getNumberForces();
+		std::string getForceName(unsigned int i);
+		std::string getForceType(unsigned int i);
+		std::vector<unsigned int> getForceAffectedTuple(unsigned int i);
+		std::vector<double> getForceParameters(unsigned int i);
 };
 
 #endif // __SIMULATION_H_INCLUDED__

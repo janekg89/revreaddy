@@ -16,14 +16,12 @@ void TypeDict::newType(
 	std::string name,
 	double radius,
 	double diffusionConst,
-	double reactionRadius,
-	unsigned int forceType)
+	double reactionRadius)
 {
 	this->names.push_back(name);
 	this->radii.push_back(radius);
 	this->diffusionConstants.push_back(diffusionConst);
 	this->reactionRadii.push_back(reactionRadius);
-	this->forceTypes.push_back(forceType);
 	this->numberOfTypes += 1;
 }
 

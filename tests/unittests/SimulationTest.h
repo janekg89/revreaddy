@@ -11,21 +11,59 @@
 class SimulationTest : public CxxTest::TestSuite
 {
 	public:
-		void test_addParticle_usualOperation(void)
+		
+		/* Add new particle types and check if this was applied
+		 * correctly. */
+		void test_newType(void)
 		{
 			Simulation * sim = new Simulation();
+			// name, radius, diffConst, reactionRadius
+			sim->new_Type("testtype", 2., 3., 4.);
+			sim->new_Type("foo", 4., 5., 6.);
+			// check the size of typeDict
+			TS_ASSERT_EQUALS(sim->typeDict->names.size(), 2);
+			TS_ASSERT_EQUALS(sim->typeDict->radii.size(), 2);
+			TS_ASSERT_EQUALS(sim->typeDict->diffusionConstants.size(), 2);
+			TS_ASSERT_EQUALS(sim->typeDict->reactionRadii.size(), 2);
+			TS_ASSERT_EQUALS(sim->typeDict->getNumberOfTypes(), 2);
+
+			// check for the values of typeDict
+			TS_ASSERT_EQUALS(sim->typeDict->names[0], "testtype");
+			TS_ASSERT_EQUALS(sim->typeDict->names[1], "foo");
+			TS_ASSERT_DIFFERS(sim->typeDict->names[1], " foo");
+			
+			TS_ASSERT_EQUALS(sim->typeDict->radii[0], 2.);
+			TS_ASSERT_EQUALS(sim->typeDict->radii[1], 4.);
+			TS_ASSERT_DIFFERS(sim->typeDict->radii[1], 10.);
+
+			TS_ASSERT_EQUALS(sim->typeDict->diffusionConstants[0], 3.);
+			TS_ASSERT_EQUALS(sim->typeDict->diffusionConstants[1], 5.);
+			TS_ASSERT_DIFFERS(sim->typeDict->diffusionConstants[1], 10.);
+
+			TS_ASSERT_EQUALS(sim->typeDict->reactionRadii[0], 4.);
+			TS_ASSERT_EQUALS(sim->typeDict->reactionRadii[1], 6.);
+			TS_ASSERT_DIFFERS(sim->typeDict->reactionRadii[1], 10.);
+			
+			delete sim;
+		}
+		
+		/* Add two particles and check whether their positions and
+		 * types are applied correctly. */
+		void test_addParticle(void)
+		{
+			Simulation * sim = new Simulation();
+			sim->new_Type("soft1", 2., 3., 4.);
+			sim->new_Type("soft2", 5., 6., 7.);
 			std::vector<double> x1 = {1.,2.,3.};
 			std::vector<double> x2 = {-3.,-2.,-1.};
-			sim->addParticle(x1, "soft", 2., 3.);
-			sim->addParticle(x2, "soft", 4., 5.);
+			sim->addParticle(x1, 0);
+			sim->addParticle(x2, 1);
 			std::vector<double> x3 = {1.,2.,3.};
 			std::vector<double> x4 = {-3.,-2.,-1.};
 			TS_ASSERT_EQUALS(sim->activeParticles[0].position, x3);
 			TS_ASSERT_EQUALS(sim->activeParticles[1].position, x4);
-			TS_ASSERT_EQUALS(sim->activeParticles[0].radius, 2.);
-			TS_ASSERT_EQUALS(sim->activeParticles[1].radius, 4.);
-			TS_ASSERT_EQUALS(sim->activeParticles[0].diffusionConstant, 3.);
-			TS_ASSERT_EQUALS(sim->activeParticles[1].diffusionConstant, 5.);
+			TS_ASSERT_EQUALS(sim->activeParticles[0].typeId, 0);
+			TS_ASSERT_EQUALS(sim->activeParticles[1].typeId, 1);
 			delete sim;
 		}
 		
@@ -41,7 +79,8 @@ class SimulationTest : public CxxTest::TestSuite
 			sim->temperature       = 1.;
 			sim->kBoltzmann        = 1.;
 			std::vector<double> x0 = {6.,0.,0.};
-			sim->addParticle(x0, "soft",  1., 0.);
+			sim->new_Type("soft", 1., 0., 1.);
+			sim->addParticle(x0, 0);
 			sim->propagate();
 			std::vector<double> x1 = {-4.,0.,0.};
 			TS_ASSERT_EQUALS(sim->activeParticles[0].position, x1);
@@ -84,34 +123,50 @@ class SimulationTest : public CxxTest::TestSuite
 		
 		/* Given 2 particles, check that the calculated force is correctly
 		 * assigned to each particle. One particle is at {1,1,1}, the other
-		 * at {2,3,4}. The force constant is k=2 and the particles' radii
+		 * at {2,3,4}. The force constant is k=1 and the particles' radii
 		 * are 2. so that the cutoff is s=4. The force is
-		 * F = k * (1 - s/R) * r_12, where r_12 is the vector pointing from
-		 * particle 1 to particle 2. 
+		 * F = 2* k * (1 - s/R) * r_12, where r_12 is the vector pointing from
+		 * particle 1 to particle 2. The energy is E = k*(R - s)**2
 		 */
-		void test_calculateRepulsionForces_cumulativeForce(void)
+		void test_calculateSingleForceEnergy_twoSoftParticles(void)
 		{
 			Simulation * sim = new Simulation();
 			sim->isPeriodic = true;
 			sim->boxsize = 10.;
-			sim->repulsionStrength = 2.;
+			sim->new_Type("soft", 2., 0., 1.);
+			sim->new_SoftRepulsion("softy", {0, 0}, 1.);
 			std::vector<double> x0 = {1.,1.,1.};
-			sim->addParticle(x0, "soft", 2., 0.);
+			sim->addParticle(x0, 0);
 			x0 = {2.,3.,4.};
-			sim->addParticle(x0, "soft", 2., 0.);
+			sim->addParticle(x0, 0);
 			//printArray(sim->activeParticles[0].cumulativeForce);
-			sim->calculateRepulsionForces();
+			sim->calculateSingleForceEnergy(0, 1);
 			//printArray(sim->activeParticles[0].cumulativeForce);
 			std::vector<double> f = {1.,2.,3.};
 			double preFactor = -0.13808993529939517;
 			f[0] *= preFactor;
 			f[1] *= preFactor;
 			f[2] *= preFactor;
-			TS_ASSERT_EQUALS(sim->activeParticles[0].cumulativeForce, f);
+			TS_ASSERT_DELTA(sim->activeParticles[0].cumulativeForce, f, 0.00000001);
 			f[0] *= -1.;
 			f[1] *= -1.;
 			f[2] *= -1.;
-			TS_ASSERT_EQUALS(sim->activeParticles[1].cumulativeForce, f);
+			TS_ASSERT_DELTA(sim->activeParticles[1].cumulativeForce, f, 0.00000001);
+			TS_ASSERT_DELTA(sim->energy, 0.066740905808468948, 0.0000001);
 			delete sim;
+		}
+
+		/* create a new interaction. check the cutoff distance. */
+		void test_new_SoftRepulsionAndLennardJones(void)
+		{
+			Simulation * sim = new Simulation();
+			sim->new_Type("A", 2., 1., 1.);
+			sim->new_Type("B", 5., 1., 1.);
+			sim->new_SoftRepulsion("rep", {0, 1}, 2.);
+			TS_ASSERT_EQUALS(sim->possibleForces[0]->cutoff, 7.);
+			sim->new_SoftRepulsion("rep2", {0, 0}, 3.);
+			TS_ASSERT_EQUALS(sim->possibleForces[1]->cutoff, 4.);
+			sim->new_LennardJones("lj", {1, 1}, 4.);
+			TS_ASSERT_EQUALS(sim->possibleForces[2]->cutoff, 25.);
 		}
 };
