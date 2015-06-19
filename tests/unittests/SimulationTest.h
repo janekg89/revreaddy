@@ -126,7 +126,7 @@ class SimulationTest : public CxxTest::TestSuite
 		 * at {2,3,4}. The force constant is k=1 and the particles' radii
 		 * are 2. so that the cutoff is s=4. The force is
 		 * F = 2* k * (1 - s/R) * r_12, where r_12 is the vector pointing from
-		 * particle 1 to particle 2. 
+		 * particle 1 to particle 2. The energy is E = k*(R - s)**2
 		 */
 		void test_calculateSingleForceEnergy_twoSoftParticles(void)
 		{
@@ -152,6 +152,21 @@ class SimulationTest : public CxxTest::TestSuite
 			f[1] *= -1.;
 			f[2] *= -1.;
 			TS_ASSERT_DELTA(sim->activeParticles[1].cumulativeForce, f, 0.00000001);
+			TS_ASSERT_DELTA(sim->energy, 0.066740905808468948, 0.0000001);
 			delete sim;
+		}
+
+		/* create a new interaction. check the cutoff distance. */
+		void test_new_SoftRepulsionAndLennardJones(void)
+		{
+			Simulation * sim = new Simulation();
+			sim->new_Type("A", 2., 1., 1.);
+			sim->new_Type("B", 5., 1., 1.);
+			sim->new_SoftRepulsion("rep", {0, 1}, 2.);
+			TS_ASSERT_EQUALS(sim->possibleForces[0]->cutoff, 7.);
+			sim->new_SoftRepulsion("rep2", {0, 0}, 3.);
+			TS_ASSERT_EQUALS(sim->possibleForces[1]->cutoff, 4.);
+			sim->new_LennardJones("lj", {1, 1}, 4.);
+			TS_ASSERT_EQUALS(sim->possibleForces[2]->cutoff, 25.);
 		}
 };
