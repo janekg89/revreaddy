@@ -133,12 +133,146 @@ void Simulation::recordObservables(unsigned long int timeIndex)
 	}
 }
 
-// TODO instead of naive double looping, use neighbor lattice
 void Simulation::calculateInteractionForcesEnergies()
 {
-	for (int i=0; i<activeParticles.size(); i++) {
-		for (int j=i+1; j<activeParticles.size(); j++) {
+	double minimalLength = this->boxsize;
+	for (unsigned int i=0; i<possibleForces.size(); i++) {
+		if (possibleForces[i]->cutoff < minimalLength) {
+			minimalLength = possibleForces[i]->cutoff;
+		}
+	}
+	double n = 1.;
+	unsigned int numberBoxes = 0;
+	while ( (this->boxsize / n) > minimalLength) {
+		n += 1.;
+		numberBoxes += 1;
+	}
+	/* if n=4 we will have 9 subboxes of length L/n-1, which
+	 * will result in having to check every box. This is
+	 * as inefficient as double looping. So:
+	 * ONLY construct neighborlist if we have at least 16
+	 * subboxes or n>4 */
+	if ( n > 4. ) {
+		// construct neighborlist
+		double boxLength = this->boxsize / ( n - 1. );
+
+		std::vector< std::vector< std::vector< std::vector<unsigned int>>>>
+		neighborList;
+
+		// reserve space for numberBoxes^3 lists containing particle indices
+		neighborList.resize(numberBoxes);
+		for (unsigned int x; x<numberBoxes; x++) {
+			neighborList[x].resize(numberBoxes);
+			for (unsigned int y; y<numberBoxes; y++) {
+				neighborList[x][y].resize(numberBoxes);
+			}
+		}
+		double delX = 0.;
+		double delY = 0.;
+		double delZ = 0.;
+		unsigned int xIndex = 0;
+		unsigned int yIndex = 0;
+		unsigned int zIndex = 0;
+		// find the right box triplet [x][y][z] for each particle
+		for (unsigned int i=0; i<activeParticles.size(); i++) {
+			delX = activeParticles[i].position[0] + 0.5*this->boxsize;
+			xIndex = (unsigned int) floor(delX / boxLength);
+			delY = activeParticles[i].position[1] + 0.5*this->boxsize;
+			yIndex = (unsigned int) floor(delY / boxLength);
+			delZ = activeParticles[i].position[2] + 0.5*this->boxsize;
+			zIndex = (unsigned int) floor(delZ / boxLength);
+			// add the particles index to the list of the corresponding box
+			neighborList[xIndex][yIndex][zIndex].push_back(i);
+		}
+		this->calculateInteractionForcesEnergiesWithLattice(neighborList);
+	}
+	else {
+		this->calculateInteractionForcesEnergiesNaive();
+	}
+}
+
+void Simulation::calculateInteractionForcesEnergiesNaive()
+{
+	for (unsigned int i=0; i<activeParticles.size(); i++) {
+		for (unsigned int j=i+1; j<activeParticles.size(); j++) {
 			this->calculateSingleForceEnergy(i, j);
+		}
+	}
+}
+
+void Simulation::calculateInteractionForcesEnergiesWithLattice(
+	std::vector< // x index of subbox
+		std::vector< // y index of subbox
+			std::vector< // z index of subbox
+				std::vector<unsigned int>  // activeParticles index
+			>
+		>
+	>& neighborList )
+{
+	// set up vector NxN filled with bools (false initially)
+	std::vector< std::vector<bool> > alreadyCalculatedPairs;
+	alreadyCalculatedPairs.resize(activeParticles.size());
+	for (unsigned int i=0; i<alreadyCalculatedPairs.size(); i++) {
+		alreadyCalculatedPairs[i].resize(activeParticles.size());
+		std::fill(
+			alreadyCalculatedPairs[i].begin(),
+			alreadyCalculatedPairs[i].end(),
+			false);
+	}
+	unsigned int numberBoxes = neighborList.size();
+	signed int otherX = 0;
+	signed int otherY = 0;
+	signed int otherZ = 0;
+	for (unsigned int x=0; x<numberBoxes; x++)
+	for (unsigned int y=0; y<numberBoxes; y++)
+	for (unsigned int z=0; z<numberBoxes; z++) {
+		for (signed int x_i = -1; x_i < 2; x_i++)
+		for (signed int y_i = -1; y_i < 2; y_i++)
+		for (signed int z_i = -1; z_i < 2; z_i++) {
+			if ( (x_i==0) && (y_i==0) && (z_i==0) ) {
+				for (unsigned int i=0;   i<neighborList[x][y][z].size(); i++)
+				for (unsigned int j=i+1; j<neighborList[x][y][z].size(); j++) {
+					this->calculateSingleForceEnergy(
+						neighborList[x][y][z][i],
+						neighborList[x][y][z][j]);
+					alreadyCalculatedPairs
+						[neighborList[x][y][z][i]]
+						[neighborList[x][y][z][j]] = true;
+					alreadyCalculatedPairs
+						[neighborList[x][y][z][j]]
+						[neighborList[x][y][z][i]] = true;
+				}
+			}
+			else {
+				//determine the "other" subbox. detect "over/underflows"
+				otherX = x + x_i;
+				if (otherX == -1) {otherX = numberBoxes - 1;}
+				if (otherX == numberBoxes) {otherX = 0;}
+				otherY = y + y_i;
+				if (otherY == -1) {otherY = numberBoxes - 1;}
+				if (otherY == numberBoxes) {otherY = 0;}
+				otherZ = z + z_i;
+				if (otherZ == -1) {otherZ = numberBoxes - 1;}
+				if (otherZ == numberBoxes) {otherZ = 0;}
+				for (unsigned int i=0; i<neighborList[x][y][z].size(); i++)
+				for (unsigned int j=0; j<neighborList[otherX][otherY][otherZ].size(); j++) {
+					// if not already calculated
+					if (! alreadyCalculatedPairs
+						[ neighborList[x][y][z][i] ]
+						[ neighborList[otherX][otherY][otherZ][j] ] ) {
+						// calculate interaction
+						this->calculateSingleForceEnergy(
+							neighborList[x][y][z][i],
+							neighborList[otherX][otherY][otherZ][j] );
+						alreadyCalculatedPairs
+							[ neighborList[x][y][z][i] ]
+							[ neighborList[otherX][otherY][otherZ][j] ] = true;
+						alreadyCalculatedPairs
+							[ neighborList[otherX][otherY][otherZ][j] ]
+							[ neighborList[x][y][z][i] ] = true;
+					}
+				}
+			}
 		}
 	}
 }
@@ -338,6 +472,7 @@ void Simulation::setTypeId(int index, unsigned int typeId)
 	this->activeParticles[index].typeId = typeId;
 }
 
+// TODO check if all numbers are > 0.
 void Simulation::new_Type(
 	std::string name,
 	double radius,

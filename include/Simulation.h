@@ -18,6 +18,7 @@ class Simulation;
 #include <iostream>
 #include <string>
 #include <typeinfo>
+#include <algorithm>
 #include "Particle.h"
 #include "Random.h"
 #include "Observable.h"
@@ -71,9 +72,23 @@ class Simulation
 		void saveOldState();//oldEnergy=energy, oldPos=pos, oldForce=force
 		void propagate();
 		void recordObservables(unsigned long int timeIndex);
-		/* double loop (i,j) over activeParticles and call 
-		 * according Forcetype for particle pair (i,j) */
+		/* First determine how to calculate the forces, i.e. if a 
+		 * neighborList approach pays off (have more than 9 boxes). */
 		void calculateInteractionForcesEnergies(); 
+		/* double loop (i,j) over activeParticles and call 
+		 * according Forcetype for particle pair (i,j) --> O(n^2) */
+		void calculateInteractionForcesEnergiesNaive();
+		/* does the same as above, but only considers interactions
+		 * of neighboring boxes, that have the size of the maximum
+		 * cutoff distance --> O(n) */
+		void calculateInteractionForcesEnergiesWithLattice(
+			std::vector< // x index of subbox
+				std::vector< // y index of subbox
+					std::vector< // z index of subbox
+						std::vector<unsigned int> // activeParticles index
+					>
+				>
+			>& neighborList);
 		/* evaluate the force and energy for
 		 * a given pair of particles */
 		void calculateSingleForceEnergy(
