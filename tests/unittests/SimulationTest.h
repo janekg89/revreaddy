@@ -169,4 +169,40 @@ class SimulationTest : public CxxTest::TestSuite
 			sim->new_LennardJones("lj", {1, 1}, 4.);
 			TS_ASSERT_EQUALS(sim->possibleForces[2]->cutoff, 25.);
 		}
+
+		/* create two systems, initially the same. calculate forces
+		 * in one system with neighborlattice and in the other
+		 * without neighborlattice. Results (forces and energy)
+		 * should be EXACTLY the same. */
+		void test_neighborLattice_ForcesEnergiesSameAsWithout(void)
+		{
+			Simulation * sim1 = new Simulation();
+			Simulation * sim2 = new Simulation();
+			sim1->boxsize = 10.;
+			sim2->boxsize = 10.;
+			sim1->new_Type("soft", .5, 1., 1.);
+			sim2->new_Type("soft", .5, 1., 1.);
+			sim1->new_SoftRepulsion("soft<->soft", {0,0}, 1.);
+			sim2->new_SoftRepulsion("soft<->soft", {0,0}, 1.);
+			sim1->addParticle({-4.,-3.,0.}, 0);
+			sim2->addParticle({-4.,-3.,0.}, 0);
+			sim1->addParticle({-3.3,-3.,0.}, 0);
+			sim2->addParticle({-3.3,-3.,0.}, 0);
+			sim1->addParticle({-1.9,-2.1,0.}, 0);
+			sim2->addParticle({-1.9,-2.1,0.}, 0);
+			sim1->addParticle({-2.2,-1.8,0.}, 0);
+			sim2->addParticle({-2.2,-1.8,0.}, 0);
+			
+			sim1->calculateInteractionForcesEnergiesWithLattice(10);
+			sim2->calculateInteractionForcesEnergiesNaive();
+
+			TS_ASSERT_EQUALS(sim1->energy, sim2->energy);
+			for (unsigned int i=0; i<2; i++) {
+				TS_ASSERT_EQUALS(
+					sim1->activeParticles[i].cumulativeForce,
+					sim2->activeParticles[i].cumulativeForce);
+			}
+		}
+
+
 };

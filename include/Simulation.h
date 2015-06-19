@@ -67,6 +67,7 @@ class Simulation
 		unsigned long int rejections;
 		bool isReversible;
 		unsigned long long uniqueIdCounter;
+		bool useNeighborList;
 
 		void run();
 		void saveOldState();//oldEnergy=energy, oldPos=pos, oldForce=force
@@ -81,14 +82,7 @@ class Simulation
 		/* does the same as above, but only considers interactions
 		 * of neighboring boxes, that have the size of the maximum
 		 * cutoff distance --> O(n) */
-		void calculateInteractionForcesEnergiesWithLattice(
-			std::vector< // x index of subbox
-				std::vector< // y index of subbox
-					std::vector< // z index of subbox
-						std::vector<unsigned int> // activeParticles index
-					>
-				>
-			>& neighborList);
+		void calculateInteractionForcesEnergiesWithLattice(unsigned int numberBoxes);
 		/* evaluate the force and energy for
 		 * a given pair of particles */
 		void calculateSingleForceEnergy(

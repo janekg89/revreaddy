@@ -21,6 +21,7 @@ Simulation::Simulation()//bool hasDefaultTypes)
 	this->rejections        = 0;
 	this->isReversible      = true;
 	this->uniqueIdCounter   = 0;
+	this->useNeighborList   = true;
 }
 
 Simulation::~Simulation()
@@ -45,7 +46,12 @@ void Simulation::run()
 		this->propagate(); // propose
 		this->resetForces();
 		this->energy = 0.;
-		this->calculateInteractionForcesEnergies(); // calculate energy and force
+		if (this->useNeighborList) {
+			this->calculateInteractionForcesEnergies(); // calculate energy and force
+		}
+		else {
+			this->calculateInteractionForcesEnergiesNaive();
+		}
 		this->calculateGeometryForcesEnergies();
 		if (this->isReversible) { this->acceptOrReject(); }
 		this->cumulativeRuntime += this->timestep;
@@ -141,50 +147,19 @@ void Simulation::calculateInteractionForcesEnergies()
 			minimalLength = possibleForces[i]->cutoff;
 		}
 	}
-	double n = 1.;
+	double counter = 1.;
 	unsigned int numberBoxes = 0;
-	while ( (this->boxsize / n) > minimalLength) {
-		n += 1.;
+	while ( (this->boxsize / counter) > minimalLength) {
 		numberBoxes += 1;
+		counter += 1;
 	}
 	/* if n=4 we will have 9 subboxes of length L/n-1, which
 	 * will result in having to check every box. This is
 	 * as inefficient as double looping. So:
 	 * ONLY construct neighborlist if we have at least 16
 	 * subboxes or n>4 */
-	if ( n > 4. ) {
-		// construct neighborlist
-		double boxLength = this->boxsize / ( n - 1. );
-
-		std::vector< std::vector< std::vector< std::vector<unsigned int>>>>
-		neighborList;
-
-		// reserve space for numberBoxes^3 lists containing particle indices
-		neighborList.resize(numberBoxes);
-		for (unsigned int x; x<numberBoxes; x++) {
-			neighborList[x].resize(numberBoxes);
-			for (unsigned int y; y<numberBoxes; y++) {
-				neighborList[x][y].resize(numberBoxes);
-			}
-		}
-		double delX = 0.;
-		double delY = 0.;
-		double delZ = 0.;
-		unsigned int xIndex = 0;
-		unsigned int yIndex = 0;
-		unsigned int zIndex = 0;
-		// find the right box triplet [x][y][z] for each particle
-		for (unsigned int i=0; i<activeParticles.size(); i++) {
-			delX = activeParticles[i].position[0] + 0.5*this->boxsize;
-			xIndex = (unsigned int) floor(delX / boxLength);
-			delY = activeParticles[i].position[1] + 0.5*this->boxsize;
-			yIndex = (unsigned int) floor(delY / boxLength);
-			delZ = activeParticles[i].position[2] + 0.5*this->boxsize;
-			zIndex = (unsigned int) floor(delZ / boxLength);
-			// add the particles index to the list of the corresponding box
-			neighborList[xIndex][yIndex][zIndex].push_back(i);
-		}
-		this->calculateInteractionForcesEnergiesWithLattice(neighborList);
+	if ( numberBoxes > 3 ) {
+		this->calculateInteractionForcesEnergiesWithLattice(numberBoxes);
 	}
 	else {
 		this->calculateInteractionForcesEnergiesNaive();
@@ -200,15 +175,44 @@ void Simulation::calculateInteractionForcesEnergiesNaive()
 	}
 }
 
-void Simulation::calculateInteractionForcesEnergiesWithLattice(
-	std::vector< // x index of subbox
-		std::vector< // y index of subbox
-			std::vector< // z index of subbox
-				std::vector<unsigned int>  // activeParticles index
-			>
-		>
-	>& neighborList )
+void Simulation::calculateInteractionForcesEnergiesWithLattice(unsigned int numberBoxes)
 {
+	// construct neighborlist
+	double n = (double) numberBoxes;
+	double boxLength = this->boxsize / n;
+
+	std::vector< std::vector< std::vector< std::vector<unsigned int> > > >
+	neighborList(numberBoxes,
+		std::vector< std::vector< std::vector<unsigned int> > >(numberBoxes,
+			std::vector< std::vector<unsigned int> >(numberBoxes,
+				std::vector<unsigned int>(0) ) ) );
+
+	// reserve space for numberBoxes^3 lists containing particle indices
+	neighborList.resize(numberBoxes);
+	for (unsigned int x; x<numberBoxes; x++) {
+		neighborList[x].resize(numberBoxes);
+		for (unsigned int y; y<numberBoxes; y++) {
+			neighborList[x][y].resize(numberBoxes);
+		}
+	}
+	double delX = 0.;
+	double delY = 0.;
+	double delZ = 0.;
+	unsigned int xIndex = 0;
+	unsigned int yIndex = 0;
+	unsigned int zIndex = 0;
+	// find the right box triplet [x][y][z] for each particle
+	for (unsigned int j=0; j<activeParticles.size(); j++) {
+		delX = activeParticles[j].position[0] + 0.5*this->boxsize;
+		xIndex = (unsigned int) floor(delX / boxLength);
+		delY = activeParticles[j].position[1] + 0.5*this->boxsize;
+		yIndex = (unsigned int) floor(delY / boxLength);
+		delZ = activeParticles[j].position[2] + 0.5*this->boxsize;
+		zIndex = (unsigned int) floor(delZ / boxLength);
+		// add the particles index to the list of the corresponding box
+		neighborList[xIndex][yIndex][zIndex].push_back(j);
+	}
+	// neighborList created
 	// set up vector NxN filled with bools (false initially)
 	std::vector< std::vector<bool> > alreadyCalculatedPairs;
 	alreadyCalculatedPairs.resize(activeParticles.size());
@@ -219,7 +223,6 @@ void Simulation::calculateInteractionForcesEnergiesWithLattice(
 			alreadyCalculatedPairs[i].end(),
 			false);
 	}
-	unsigned int numberBoxes = neighborList.size();
 	signed int otherX = 0;
 	signed int otherY = 0;
 	signed int otherZ = 0;
