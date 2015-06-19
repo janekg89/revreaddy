@@ -7,14 +7,11 @@
 Simulation::Simulation()//bool hasDefaultTypes)
 {
 	this->random            = new Random("ranlxs0");
-	// this->force             = new Force();
 	this->typeDict          = new TypeDict();
 	this->timestep          = 0.001;
 	this->cumulativeRuntime = 0.;
 	this->temperature       = 1.;
 	this->kBoltzmann        = 1.;
-	// remove repulsion strength
-	// this->repulsionStrength = 1.;
 	this->isPeriodic        = true;
 	this->boxsize           = 10.;
 	this->energy            = 0.;
@@ -24,17 +21,12 @@ Simulation::Simulation()//bool hasDefaultTypes)
 	this->rejections        = 0;
 	this->isReversible      = true;
 	this->uniqueIdCounter   = 0;
-	/*if (hasDefaultTypes) {
-		this->typeDict->newType("default", 1., 0., 1., 0); // 0
-		this->typeDict->newType("lj", 1., 1., 1., 1); // 1
-		this->typeDict->newType("soft", 1., 1., 1., 2); // 2
-	}*/
 }
 
 Simulation::~Simulation()
 {
-	delete random;
-	// delete force;
+	delete this->random;
+	delete this->typeDict;
 }
 
 void Simulation::run()
@@ -346,20 +338,17 @@ void Simulation::setTypeId(int index, unsigned int typeId)
 	this->activeParticles[index].typeId = typeId;
 }
 
-/* REMOVE forceType from here*/
 void Simulation::new_Type(
 	std::string name,
 	double radius,
 	double diffusionConstant,
 	double reactionRadius)
-//	unsigned int forceType) 
 {
 	this->typeDict->newType(
 		name,
 		radius, 
 		diffusionConstant,
 		reactionRadius);
-		//forceType);
 }
 
 std::vector<std::string> Simulation::getDictNames() {
@@ -377,12 +366,6 @@ std::vector<double> Simulation::getDictDiffusionConstants() {
 std::vector<double> Simulation::getDictReactionRadii() {
 	return this->typeDict->reactionRadii;
 }
-
-/* REMOVE THIS 
-std::vector<unsigned int> Simulation::getDictForceTypes() {
-	return this->typeDict->forceTypes;
-}
-*/
 
 int Simulation::getParticleNumber() {
 	return this->activeParticles.size();

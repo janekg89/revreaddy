@@ -20,7 +20,6 @@ class Simulation;
 #include <typeinfo>
 #include "Particle.h"
 #include "Random.h"
-//#include "Force.h"
 #include "Observable.h"
 #include "Trajectory.h"
 #include "RadialDistribution.h"
@@ -41,7 +40,6 @@ class Simulation
 {
 	public:
 		Random * random;                // the random number generator
-		//Force * force;                  // the force/energy handler
 		TypeDict * typeDict;			// dictionary for radii etc.
 		std::vector<Particle> activeParticles;
 		/* Stores children of Observable */
@@ -61,7 +59,6 @@ class Simulation
 		double kBoltzmann;
 		bool isPeriodic;           // use periodic boundary conditions or not
 		double boxsize;            // length of the periodic simulationbox
-		//double repulsionStrength;  // force constant for particle repulsion
 		double energy;
 		double oldEnergy;
 		double currentAcceptance;  // the last calculated acceptance prob
@@ -105,12 +102,10 @@ class Simulation
 			double radius,
 			double diffusionConstant,
 			double reactionRadius);
-			//unsigned int forceType);
 		std::vector<std::string> getDictNames();
 		std::vector<double> getDictRadii();
 		std::vector<double> getDictDiffusionConstants();
 		std::vector<double> getDictReactionRadii();
-		//std::vector<unsigned int> getDictForceTypes();
 		int  getParticleNumber();
 		void deleteAllParticles();
 		void writeAllObservablesToFile();

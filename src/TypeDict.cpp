@@ -17,13 +17,11 @@ void TypeDict::newType(
 	double radius,
 	double diffusionConst,
 	double reactionRadius)
-	//unsigned int forceType)
 {
 	this->names.push_back(name);
 	this->radii.push_back(radius);
 	this->diffusionConstants.push_back(diffusionConst);
 	this->reactionRadii.push_back(reactionRadius);
-	//this->forceTypes.push_back(forceType);
 	this->numberOfTypes += 1;
 }
 
