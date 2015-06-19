@@ -3,10 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-revreaddy v0.1
-**************
-
-.. automodule:: revreaddy
+.. include:: ../readme.rst
 
 The external sim module
 =======================
