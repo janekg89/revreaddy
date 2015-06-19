@@ -27,7 +27,61 @@ This early version features:
 
 revreaddy is mainly a python module which wraps the
 functionality of an underlying C++ software using
-cython.
+cython. Large parts are still undocumented. 
+Not many unittests.
 
-Large parts are still undocumented and unittests are not
-up-to-date.
+Installation
+============
+
+Requirements for compiling the cython extension:
+	* GNU scientific libraries (libgsl)
+	  for random number generation
+	* HDF5 (libhdf5/libhdf5_hl) for saving observables 
+	  to binary file formats
+
+Requirements for usage:
+	* Python 2
+	* h5py python module is required for saving
+	  and loading simulations with the
+	  utils.py module
+
+Build the extension in place with
+
+::
+
+	$ python setupCython.py build_ext --inplace
+
+This will generate the sim.so file, which is basically
+the whole simulation code. When building in place it
+is convenient to add the parent directory of revreaddy
+to your PYTHONPATH by typing
+
+::
+
+	$ export PYTHONPATH=/parentPathOfRevreaddy/
+
+in a bash terminal or add this line to your .bashrc file.
+You can now start working by importing revreaddy in a
+python script, e.g.
+
+::
+
+	>>> import revreaddy.sim as sim
+	>>> import revreaddy.utils as utils
+
+Unittests
+=========
+
+As a unittest framework, cxxtest is used on the c-side.
+These tests are build with
+
+::
+
+	$ make unittest
+
+and run with
+
+::
+
+	$ bin/unittest
+
