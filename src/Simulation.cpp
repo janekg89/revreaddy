@@ -153,11 +153,11 @@ void Simulation::calculateInteractionForcesEnergies()
 		numberBoxes += 1;
 		counter += 1;
 	}
-	/* if n=4 we will have 9 subboxes of length L/n-1, which
+	/* if n=3 we will have 9 subboxes of length L/n, which
 	 * will result in having to check every box. This is
 	 * as inefficient as double looping. So:
 	 * ONLY construct neighborlist if we have at least 16
-	 * subboxes or n>4 */
+	 * subboxes or n>3 */
 	if ( numberBoxes > 3 ) {
 		this->calculateInteractionForcesEnergiesWithLattice(numberBoxes);
 	}
@@ -288,6 +288,7 @@ void Simulation::calculateSingleForceEnergy(
 	std::vector<double> forceJ = {0.,0.,0.};
 	// interaction energy of particle pair (i,j)
 	double energyBuffer = 0.; 
+	// look for force that affects the pair (i,j)
 	for (unsigned int k=0; k<this->possibleForces.size(); k++) {
 		if (
 			this->possibleForces[k]->isAffected(
@@ -397,7 +398,6 @@ void Simulation::acceptOrReject()
 	acceptance = exp( acceptance );
 	this->currentAcceptance = acceptance;
 	// accept or reject
-	// std::cout << "acceptance "<<acceptance<<"\n";
 	if ( acceptance > 1. ) {
 		/*accept = do nothing. particles keep their new positions and forces*/
 		acceptions += 1;
@@ -706,7 +706,7 @@ void Simulation::new_LennardJones(
 	double epsilon)
 {
 	if (affectedTuple.size() != 2) {
-		std::cout << "Error: The given tuple must be of length 2\n";
+		std::cout << "Error: The given tuple must be of length 2" << std::endl;
 		return;
 	}
 	if ( (affectedTuple[0] > ( this->typeDict->names.size() - 1) ) 
