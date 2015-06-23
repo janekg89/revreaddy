@@ -550,9 +550,11 @@ void Simulation::deleteAllObservables()
 	);
 }
 
-void Simulation::new_Trajectory(std::string filename)
+//TODO recPeriod
+void Simulation::new_Trajectory(std::string filename, unsigned int recPeriod)
 {
 	Trajectory * obs = new Trajectory(filename);
+	obs->recPeriod = recPeriod;
 	this->observables.push_back(obs);
 }
 

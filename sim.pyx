@@ -36,6 +36,7 @@ cdef extern from "Simulation.h":
 		void writeAllObservablesToFile()
 		string showObservables()
 		void deleteAllObservables()
+		#TODO recPeriod
 		void new_Trajectory(string)
 		void new_TrajectorySingle()
 		vector[vector[double]] getTrajectorySingle()
