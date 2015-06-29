@@ -550,8 +550,7 @@ void Simulation::deleteAllObservables()
 	);
 }
 
-//TODO recPeriod
-void Simulation::new_Trajectory(std::string filename, unsigned int recPeriod)
+void Simulation::new_Trajectory(unsigned long int recPeriod, std::string filename)
 {
 	Trajectory * obs = new Trajectory(filename);
 	obs->recPeriod = recPeriod;
@@ -559,6 +558,7 @@ void Simulation::new_Trajectory(std::string filename, unsigned int recPeriod)
 }
 
 void Simulation::new_RadialDistribution(
+	unsigned long int recPeriod,
 	std::string filename,
 	std::vector<double> ranges,
 	std::vector< std::vector<unsigned int> > considered)
@@ -569,10 +569,12 @@ void Simulation::new_RadialDistribution(
 		this->boxsize,
 		considered,
 		filename);
+	rad->recPeriod = recPeriod;
 	this->observables.push_back(rad);
 }
 
 void Simulation::new_MeanSquaredDisplacement(
+	unsigned long int recPeriod,
 	std::string filename,
 	unsigned int particleTypeId)
 {
@@ -582,10 +584,12 @@ void Simulation::new_MeanSquaredDisplacement(
 		this->cumulativeRuntime,
 		this->boxsize,
 		filename);
+	msd->recPeriod = recPeriod;
 	this->observables.push_back(msd);
 }
 
 void Simulation::new_ProbabilityDensity(
+	unsigned long int recPeriod,
 	std::string filename,
 	unsigned int pTypeId,
 	std::vector<double> range,
@@ -597,6 +601,7 @@ void Simulation::new_ProbabilityDensity(
 		range,
 		coord,
 		filename);
+	prob->recPeriod = recPeriod;
 	this->observables.push_back(prob);
 }
 

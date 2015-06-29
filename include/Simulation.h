@@ -120,15 +120,18 @@ class Simulation
 		void writeAllObservablesToFile();
 		std::string showObservables();
 		void deleteAllObservables();
-		void new_Trajectory(std::string filename);
+		void new_Trajectory(unsigned long int recPeriod, std::string filename);
 		void new_RadialDistribution(
+			unsigned long int recPeriod,
 			std::string filename,
 			std::vector<double> ranges,
 			std::vector< std::vector<unsigned int> > considered);
 		void new_MeanSquaredDisplacement(
+			unsigned long int recPeriod,
 			std::string filename,
 			unsigned int particleTypeId);
 		void new_ProbabilityDensity(
+			unsigned long int recPeriod,
 			std::string filename,
 			unsigned int pTypeId,
 			std::vector<double> range,
