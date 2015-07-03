@@ -118,8 +118,10 @@ class Simulation
 		int  getParticleNumber();
 		void deleteAllParticles();
 		void writeAllObservablesToFile();
+		void writeLastObservableToFile();
 		std::string showObservables();
 		void deleteAllObservables();
+		void deleteLastObservable();
 		void new_Trajectory(unsigned long int recPeriod, std::string filename);
 		void new_RadialDistribution(
 			unsigned long int recPeriod,

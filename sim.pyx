@@ -4,7 +4,7 @@ from libcpp.vector cimport vector
 from libcpp.string cimport string
 from libcpp cimport bool
 cimport numpy as np
-
+import time
 
 cdef extern from "Simulation.h":
 	cdef cppclass Simulation:
@@ -34,8 +34,10 @@ cdef extern from "Simulation.h":
 		int getParticleNumber()
 		void deleteAllParticles()
 		void writeAllObservablesToFile()
+		void writeLastObservableToFile()
 		string showObservables()
 		void deleteAllObservables()
+		void deleteLastObservable()
 		void new_Trajectory(unsigned long int, string)
 		void new_RadialDistribution(
 			unsigned long int,
@@ -83,7 +85,10 @@ cdef class pySimulation:
 			particleTypeId)
 	def run(self):
 		"""Run the simulation."""
+		t1 = time.clock()
 		self.thisptr.run()
+		t2 = time.clock()
+		print "Time needed:", t2 - t1, "seconds"
 	def getPosition(self, index): 
 		return self.thisptr.getPosition(index)
 	def setPosition(self, index, newPos):
@@ -117,10 +122,14 @@ cdef class pySimulation:
 		self.thisptr.deleteAllParticles()
 	def writeAllObservablesToFile(self): 
 		self.thisptr.writeAllObservablesToFile()
+	def writeLastObservableToFile(self):
+		self.thisptr.writeLastObservableToFile()
 	def showObservables(self):
 		return self.thisptr.showObservables()
 	def deleteAllObservables(self): 
 		self.thisptr.deleteAllObservables()
+	def deleteLastObservable(self):
+		self.thisptr.deleteLastObservable()
 	def new_Trajectory(self, recPeriod, filename): 
 		self.thisptr.new_Trajectory(recPeriod, filename)
 	# TODO: check sorting of considered along second axis,
@@ -128,7 +137,7 @@ cdef class pySimulation:
 	# wrong: [1,0], [4,2]
 	def new_RadialDistribution(
 			self, recPeriod, filename,
-			ranges, considered=[[2,2]]):
+			ranges, considered=[[0,0]]):
 		self.thisptr.new_RadialDistribution(
 			recPeriod, filename,
 			ranges, considered)

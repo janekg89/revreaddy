@@ -524,6 +524,16 @@ void Simulation::writeAllObservablesToFile()
 	}
 }
 
+void Simulation::writeLastObservableToFile()
+{
+	if (this->observables.size() > 0) {
+		this->observables.back()->writeBufferToFile();
+	}
+	else {
+		std::cout << "Error: There are no observables to write" << std::endl;
+	}
+}
+
 std::string Simulation::showObservables()
 {
 	std::string content = "Observables: ";
@@ -548,6 +558,15 @@ void Simulation::deleteAllObservables()
 		this->observables.begin(),
 		this->observables.begin() + this->observables.size()
 	);
+}
+
+void Simulation::deleteLastObservable()
+{
+	/* first delete the observable, then its pointer in the vector */
+	if (this->observables.size() > 0) {
+		delete this->observables.back();
+		this->observables.pop_back();
+	}
 }
 
 void Simulation::new_Trajectory(unsigned long int recPeriod, std::string filename)

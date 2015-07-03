@@ -22,7 +22,7 @@ This early version features:
 	  mean-squared-displacement, probability density,
 	  radial distribution function, trajectory
 	* Neighborlattice force calculation leading to overall
-	  complexity O(#particles) (exception when rdf is
+	  complexity *O(#particles)* (exception when rdf is
 	  calculated on the fly)
 	* the current state of the simulation can be saved
 	  to a compact binary format with a single line
