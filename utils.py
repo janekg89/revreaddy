@@ -234,9 +234,6 @@ def fillCuboidWithParticles(simulation, r1, r2, numberOfParticles, particleType)
 	xRange = np.arange(x1, x2, distanceX) + distanceX / 2.
 	yRange = np.arange(y1, y2, distanceY) + distanceY / 2.
 	zRange = np.arange(z1, z2, distanceZ) + distanceZ / 2.
-	print distanceX
-	print distanceY
-	print distanceZ
 	counter = 0
 	for x in xRange:
 		for y in yRange:
