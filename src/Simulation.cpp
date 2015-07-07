@@ -21,6 +21,7 @@ Simulation::Simulation()//bool hasDefaultTypes)
 	this->rejections        = 0;
 	this->isReversible      = true;
 	this->uniqueIdCounter   = 0;
+	this->useNeighborList   = true;
 }
 
 Simulation::~Simulation()
@@ -29,6 +30,11 @@ Simulation::~Simulation()
 	delete this->typeDict;
 }
 
+/* TODO after one run() the observables' files should 
+ * be closed so that the intermediate results can be 
+ * accessed (e.g. from python). 
+ * When run is called the observables' files should 
+ * be opened again.*/
 void Simulation::run()
 {
 	std::cout << "Simulation started at time: "
@@ -45,7 +51,12 @@ void Simulation::run()
 		this->propagate(); // propose
 		this->resetForces();
 		this->energy = 0.;
-		this->calculateInteractionForcesEnergies(); // calculate energy and force
+		if (this->useNeighborList) {
+			this->calculateInteractionForcesEnergies(); // calculate energy and force
+		}
+		else {
+			this->calculateInteractionForcesEnergiesNaive();
+		}
 		this->calculateGeometryForcesEnergies();
 		if (this->isReversible) { this->acceptOrReject(); }
 		this->cumulativeRuntime += this->timestep;
@@ -133,12 +144,143 @@ void Simulation::recordObservables(unsigned long int timeIndex)
 	}
 }
 
-// TODO instead of naive double looping, use neighbor lattice
 void Simulation::calculateInteractionForcesEnergies()
 {
-	for (int i=0; i<activeParticles.size(); i++) {
-		for (int j=i+1; j<activeParticles.size(); j++) {
+	double minimalLength = this->boxsize;
+	for (unsigned int i=0; i<possibleForces.size(); i++) {
+		if (possibleForces[i]->cutoff < minimalLength) {
+			minimalLength = possibleForces[i]->cutoff;
+		}
+	}
+	double counter = 1.;
+	unsigned int numberBoxes = 0;
+	while ( (this->boxsize / counter) > minimalLength) {
+		numberBoxes += 1;
+		counter += 1;
+	}
+	/* if n=3 we will have 9 subboxes of length L/n, which
+	 * will result in having to check every box. This is
+	 * as inefficient as double looping. So:
+	 * ONLY construct neighborlist if we have at least 16
+	 * subboxes or n>3 */
+	if ( numberBoxes > 3 ) {
+		this->calculateInteractionForcesEnergiesWithLattice(numberBoxes);
+	}
+	else {
+		this->calculateInteractionForcesEnergiesNaive();
+	}
+}
+
+void Simulation::calculateInteractionForcesEnergiesNaive()
+{
+	for (unsigned int i=0; i<activeParticles.size(); i++) {
+		for (unsigned int j=i+1; j<activeParticles.size(); j++) {
 			this->calculateSingleForceEnergy(i, j);
+		}
+	}
+}
+
+void Simulation::calculateInteractionForcesEnergiesWithLattice(unsigned int numberBoxes)
+{
+	// construct neighborlist
+	double n = (double) numberBoxes;
+	double boxLength = this->boxsize / n;
+
+	std::vector< std::vector< std::vector< std::vector<unsigned int> > > >
+	neighborList(numberBoxes,
+		std::vector< std::vector< std::vector<unsigned int> > >(numberBoxes,
+			std::vector< std::vector<unsigned int> >(numberBoxes,
+				std::vector<unsigned int>(0) ) ) );
+
+	// reserve space for numberBoxes^3 lists containing particle indices
+	neighborList.resize(numberBoxes);
+	for (unsigned int x; x<numberBoxes; x++) {
+		neighborList[x].resize(numberBoxes);
+		for (unsigned int y; y<numberBoxes; y++) {
+			neighborList[x][y].resize(numberBoxes);
+		}
+	}
+	double delX = 0.;
+	double delY = 0.;
+	double delZ = 0.;
+	unsigned int xIndex = 0;
+	unsigned int yIndex = 0;
+	unsigned int zIndex = 0;
+	// find the right box triplet [x][y][z] for each particle
+	for (unsigned int j=0; j<activeParticles.size(); j++) {
+		delX = activeParticles[j].position[0] + 0.5*this->boxsize;
+		xIndex = (unsigned int) floor(delX / boxLength);
+		delY = activeParticles[j].position[1] + 0.5*this->boxsize;
+		yIndex = (unsigned int) floor(delY / boxLength);
+		delZ = activeParticles[j].position[2] + 0.5*this->boxsize;
+		zIndex = (unsigned int) floor(delZ / boxLength);
+		// add the particles index to the list of the corresponding box
+		neighborList[xIndex][yIndex][zIndex].push_back(j);
+	}
+	// neighborList created
+	// set up vector NxN filled with bools (false initially)
+	std::vector< std::vector<bool> > alreadyCalculatedPairs;
+	alreadyCalculatedPairs.resize(activeParticles.size());
+	for (unsigned int i=0; i<alreadyCalculatedPairs.size(); i++) {
+		alreadyCalculatedPairs[i].resize(activeParticles.size());
+		std::fill(
+			alreadyCalculatedPairs[i].begin(),
+			alreadyCalculatedPairs[i].end(),
+			false);
+	}
+	signed int otherX = 0;
+	signed int otherY = 0;
+	signed int otherZ = 0;
+	for (unsigned int x=0; x<numberBoxes; x++)
+	for (unsigned int y=0; y<numberBoxes; y++)
+	for (unsigned int z=0; z<numberBoxes; z++) {
+		for (signed int x_i = -1; x_i < 2; x_i++)
+		for (signed int y_i = -1; y_i < 2; y_i++)
+		for (signed int z_i = -1; z_i < 2; z_i++) {
+			if ( (x_i==0) && (y_i==0) && (z_i==0) ) {
+				for (unsigned int i=0;   i<neighborList[x][y][z].size(); i++)
+				for (unsigned int j=i+1; j<neighborList[x][y][z].size(); j++) {
+					this->calculateSingleForceEnergy(
+						neighborList[x][y][z][i],
+						neighborList[x][y][z][j]);
+					alreadyCalculatedPairs
+						[neighborList[x][y][z][i]]
+						[neighborList[x][y][z][j]] = true;
+					alreadyCalculatedPairs
+						[neighborList[x][y][z][j]]
+						[neighborList[x][y][z][i]] = true;
+				}
+			}
+			else {
+				//determine the "other" subbox. detect "over/underflows"
+				otherX = x + x_i;
+				if (otherX == -1) {otherX = numberBoxes - 1;}
+				if (otherX == numberBoxes) {otherX = 0;}
+				otherY = y + y_i;
+				if (otherY == -1) {otherY = numberBoxes - 1;}
+				if (otherY == numberBoxes) {otherY = 0;}
+				otherZ = z + z_i;
+				if (otherZ == -1) {otherZ = numberBoxes - 1;}
+				if (otherZ == numberBoxes) {otherZ = 0;}
+				for (unsigned int i=0; i<neighborList[x][y][z].size(); i++)
+				for (unsigned int j=0; j<neighborList[otherX][otherY][otherZ].size(); j++) {
+					// if not already calculated
+					if (! alreadyCalculatedPairs
+						[ neighborList[x][y][z][i] ]
+						[ neighborList[otherX][otherY][otherZ][j] ] ) {
+						// calculate interaction
+						this->calculateSingleForceEnergy(
+							neighborList[x][y][z][i],
+							neighborList[otherX][otherY][otherZ][j] );
+						alreadyCalculatedPairs
+							[ neighborList[x][y][z][i] ]
+							[ neighborList[otherX][otherY][otherZ][j] ] = true;
+						alreadyCalculatedPairs
+							[ neighborList[otherX][otherY][otherZ][j] ]
+							[ neighborList[x][y][z][i] ] = true;
+					}
+				}
+			}
 		}
 	}
 }
@@ -151,6 +293,7 @@ void Simulation::calculateSingleForceEnergy(
 	std::vector<double> forceJ = {0.,0.,0.};
 	// interaction energy of particle pair (i,j)
 	double energyBuffer = 0.; 
+	// look for force that affects the pair (i,j)
 	for (unsigned int k=0; k<this->possibleForces.size(); k++) {
 		if (
 			this->possibleForces[k]->isAffected(
@@ -260,7 +403,6 @@ void Simulation::acceptOrReject()
 	acceptance = exp( acceptance );
 	this->currentAcceptance = acceptance;
 	// accept or reject
-	// std::cout << "acceptance "<<acceptance<<"\n";
 	if ( acceptance > 1. ) {
 		/*accept = do nothing. particles keep their new positions and forces*/
 		acceptions += 1;
@@ -338,6 +480,7 @@ void Simulation::setTypeId(int index, unsigned int typeId)
 	this->activeParticles[index].typeId = typeId;
 }
 
+// TODO check if all numbers are > 0.
 void Simulation::new_Type(
 	std::string name,
 	double radius,
@@ -386,6 +529,16 @@ void Simulation::writeAllObservablesToFile()
 	}
 }
 
+void Simulation::writeLastObservableToFile()
+{
+	if (this->observables.size() > 0) {
+		this->observables.back()->writeBufferToFile();
+	}
+	else {
+		std::cout << "Error: There are no observables to write" << std::endl;
+	}
+}
+
 std::string Simulation::showObservables()
 {
 	std::string content = "Observables: ";
@@ -412,13 +565,24 @@ void Simulation::deleteAllObservables()
 	);
 }
 
-void Simulation::new_Trajectory(std::string filename)
+void Simulation::deleteLastObservable()
+{
+	/* first delete the observable, then its pointer in the vector */
+	if (this->observables.size() > 0) {
+		delete this->observables.back();
+		this->observables.pop_back();
+	}
+}
+
+void Simulation::new_Trajectory(unsigned long int recPeriod, std::string filename)
 {
 	Trajectory * obs = new Trajectory(filename);
+	obs->recPeriod = recPeriod;
 	this->observables.push_back(obs);
 }
 
 void Simulation::new_RadialDistribution(
+	unsigned long int recPeriod,
 	std::string filename,
 	std::vector<double> ranges,
 	std::vector< std::vector<unsigned int> > considered)
@@ -429,10 +593,12 @@ void Simulation::new_RadialDistribution(
 		this->boxsize,
 		considered,
 		filename);
+	rad->recPeriod = recPeriod;
 	this->observables.push_back(rad);
 }
 
 void Simulation::new_MeanSquaredDisplacement(
+	unsigned long int recPeriod,
 	std::string filename,
 	unsigned int particleTypeId)
 {
@@ -442,10 +608,12 @@ void Simulation::new_MeanSquaredDisplacement(
 		this->cumulativeRuntime,
 		this->boxsize,
 		filename);
+	msd->recPeriod = recPeriod;
 	this->observables.push_back(msd);
 }
 
 void Simulation::new_ProbabilityDensity(
+	unsigned long int recPeriod,
 	std::string filename,
 	unsigned int pTypeId,
 	std::vector<double> range,
@@ -457,6 +625,7 @@ void Simulation::new_ProbabilityDensity(
 		range,
 		coord,
 		filename);
+	prob->recPeriod = recPeriod;
 	this->observables.push_back(prob);
 }
 
@@ -568,7 +737,7 @@ void Simulation::new_LennardJones(
 	double epsilon)
 {
 	if (affectedTuple.size() != 2) {
-		std::cout << "Error: The given tuple must be of length 2\n";
+		std::cout << "Error: The given tuple must be of length 2" << std::endl;
 		return;
 	}
 	if ( (affectedTuple[0] > ( this->typeDict->names.size() - 1) ) 

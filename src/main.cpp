@@ -32,8 +32,8 @@ int main()
 				x0[2] = -0.49 * sim->boxsize + k;
 				sim->addParticle(x0, 0);
 			}
-	sim->new_Trajectory("traj.xyz");
-	sim->new_MeanSquaredDisplacement("msd.dat", 0);
+	sim->new_Trajectory(1, "traj.xyz");
+	sim->new_MeanSquaredDisplacement(1, "msd.dat", 0);
 	sim->run();
 	sim->writeAllObservablesToFile();
 	sim->deleteAllObservables();

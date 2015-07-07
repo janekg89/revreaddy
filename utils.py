@@ -54,7 +54,7 @@ information on hdf5 organisation/manipulation, see [h5py_].
 import numpy as np
 import sim
 import h5py
-# TODO add possibleForces to saved file
+
 def saveSimulation(filename, simulation):
 	"""
 	Save the state of a simulation to file given
@@ -159,7 +159,6 @@ def saveSimulation(filename, simulation):
 	# ...
 	fileHandle.close()
 
-# TODO add possibleForces
 def loadSimulation(filename):
 	"""
 	Load the state of simulation from file and return
@@ -224,3 +223,69 @@ def loadSimulation(filename):
 	#retrieve reactions ...
 
 	return simulation
+
+def fillCuboidWithParticles(simulation, r1, r2, numberOfParticles, particleType):
+	x1, x2 = r1[0], r2[0]
+	y1, y2 = r1[1], r2[1]
+	z1, z2 = r1[2], r2[2]
+	distanceX = (x2 - x1) / float(numberOfParticles)**(1./3.)
+	distanceY = (y2 - y1) / float(numberOfParticles)**(1./3.)
+	distanceZ = (z2 - z1) / float(numberOfParticles)**(1./3.)
+	xRange = np.arange(x1, x2, distanceX) + distanceX / 2.
+	yRange = np.arange(y1, y2, distanceY) + distanceY / 2.
+	zRange = np.arange(z1, z2, distanceZ) + distanceZ / 2.
+	counter = 0
+	for x in xRange:
+		for y in yRange:
+			for z in zRange:
+				if (counter < numberOfParticles):
+					simulation.addParticle([x,y,z], particleType)
+	return
+
+def showSnapshotMatPlotlib(simulation):
+	import matplotlib.pyplot as plt
+	from mpl_toolkits.mplot3d import Axes3D
+	fig = plt.figure()
+	ax = fig.add_subplot(111, projection='3d')
+	for i in range(simulation.getParticleNumber()):
+		position = simulation.getPosition(i)
+		ax.scatter(
+			position[0], position[1], position[2],
+			color="blue", marker="o", alpha=0.3, s=50.)
+
+def generateSnapshotVmd(filename, simulation):
+	N = simulation.getParticleNumber()
+	xyzFile = open(filename, "w")
+	xyzFile.write(str(N) + "\n")
+	xyzFile.write("#\n")
+	for i in range(N):
+		particleType = str( simulation.getTypeId(i) )
+		position = simulation.getPosition(i)
+		x = str( position[0] )
+		y = str( position[1] ) 
+		z = str( position[2] )
+		line = "T" + particleType + "\t" + x + "\t" + y + "\t" + z + "\n"
+		xyzFile.write(line)
+	xyzFile.close()
+
+	# mostly adapted from Johannes Schoeneberg's ReaDDy software
+	# see github.com/readdy
+	tclScript = open(filename + ".tcl", "w")
+	tclScript.write("mol delete top\n")
+	tclScript.write("mol load xyz " + filename + "\n")
+	tclScript.write("mol delrep 0 top\n")
+	tclScript.write("display resetview\n")
+	dictRadii = simulation.getDictRadii()
+	M = len( dictRadii )
+	for i in range(M):
+		tclScript.write(
+			"mol representation VDW " + str(dictRadii[i] * 0.7) + " 16.0\n"
+		)
+		tclScript.write("mol selection name T" + str(i) + "\n")
+		tclScript.write("mol addrep top\n")
+	tclScript.write("animate goto 0\n")
+	tclScript.write("color Display Background white\n")
+	tclScript.write(
+	"molinfo top set {center_matrix} {{{1 0 0 0}{0 1 0 0}{0 0 1 0}{0 0 0 1}}}\n"
+	)
+	tclScript.close()

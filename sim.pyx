@@ -4,7 +4,7 @@ from libcpp.vector cimport vector
 from libcpp.string cimport string
 from libcpp cimport bool
 cimport numpy as np
-
+import time
 
 cdef extern from "Simulation.h":
 	cdef cppclass Simulation:
@@ -18,6 +18,7 @@ cdef extern from "Simulation.h":
 		unsigned long int acceptions
 		unsigned long int rejections
 		bool isReversible
+		bool useNeighborList
 
 		void addParticle(vector[double], unsigned int)
 		void run()
@@ -33,16 +34,23 @@ cdef extern from "Simulation.h":
 		int getParticleNumber()
 		void deleteAllParticles()
 		void writeAllObservablesToFile()
+		void writeLastObservableToFile()
 		string showObservables()
 		void deleteAllObservables()
-		void new_Trajectory(string)
-		void new_TrajectorySingle()
-		vector[vector[double]] getTrajectorySingle()
-		void new_RadialDistribution(string,vector[double],vector[vector[uint]])
-		void new_MeanSquaredDisplacement(string, unsigned int)
+		void deleteLastObservable()
+		void new_Trajectory(unsigned long int, string)
+		void new_RadialDistribution(
+			unsigned long int,
+			string,
+			vector[double],
+			vector[vector[uint]])
+		void new_MeanSquaredDisplacement(unsigned long int, string, unsigned int)
 		void new_ProbabilityDensity(
-			string, unsigned int, 
-			vector[double], unsigned int)
+			unsigned long int,
+			string,
+			unsigned int,
+			vector[double],
+			unsigned int)
 		void new_Energy(unsigned long int, string)
 		void new_Acceptance(unsigned long int, string)
 		void deleteAllGeometries()
@@ -77,7 +85,10 @@ cdef class pySimulation:
 			particleTypeId)
 	def run(self):
 		"""Run the simulation."""
+		t1 = time.clock()
 		self.thisptr.run()
+		t2 = time.clock()
+		print "Time needed:", t2 - t1, "seconds"
 	def getPosition(self, index): 
 		return self.thisptr.getPosition(index)
 	def setPosition(self, index, newPos):
@@ -111,21 +122,34 @@ cdef class pySimulation:
 		self.thisptr.deleteAllParticles()
 	def writeAllObservablesToFile(self): 
 		self.thisptr.writeAllObservablesToFile()
+	def writeLastObservableToFile(self):
+		self.thisptr.writeLastObservableToFile()
 	def showObservables(self):
 		return self.thisptr.showObservables()
 	def deleteAllObservables(self): 
 		self.thisptr.deleteAllObservables()
-	def new_Trajectory(self, filename): 
-		self.thisptr.new_Trajectory(filename)
+	def deleteLastObservable(self):
+		self.thisptr.deleteLastObservable()
+	def new_Trajectory(self, recPeriod, filename): 
+		self.thisptr.new_Trajectory(recPeriod, filename)
 	# TODO: check sorting of considered along second axis,
 	# right: [0,1], [2,4], [1,1]
 	# wrong: [1,0], [4,2]
-	def new_RadialDistribution(self, filename, ranges, considered=[[2,2]]):
-		self.thisptr.new_RadialDistribution(filename, ranges, considered)
-	def new_MeanSquaredDisplacement(self, filename, particleTypeId):
-		self.thisptr.new_MeanSquaredDisplacement(filename, particleTypeId)
-	def new_ProbabilityDensity(self, filename, pTypeId, ranges, coord):
-		self.thisptr.new_ProbabilityDensity(filename, pTypeId, ranges, coord)
+	def new_RadialDistribution(
+			self, recPeriod, filename,
+			ranges, considered=[[0,0]]):
+		self.thisptr.new_RadialDistribution(
+			recPeriod, filename,
+			ranges, considered)
+	def new_MeanSquaredDisplacement(self, recPeriod, filename, particleTypeId):
+		self.thisptr.new_MeanSquaredDisplacement(
+			recPeriod, filename, particleTypeId)
+	def new_ProbabilityDensity(
+			self, recPeriod, filename, 
+			pTypeId, ranges, coord):
+		self.thisptr.new_ProbabilityDensity(
+			recPeriod, filename,
+			pTypeId, ranges, coord)
 	def new_Energy(self, recPeriod, filename):
 		self.thisptr.new_Energy(recPeriod, filename)
 	def new_Acceptance(self, recPeriod, filename):
@@ -184,6 +208,10 @@ cdef class pySimulation:
 	property isReversible:
 		def __get__(self): return self.thisptr.isReversible
 		def __set__(self,isReversible): self.thisptr.isReversible=isReversible
+	property useNeighborList:
+		def __get__(self): return self.thisptr.useNeighborList
+		def __set__(self,useNeighborList): 
+			self.thisptr.useNeighborList=useNeighborList
 
 	# derived functions
 	def acceptanceRate(self):

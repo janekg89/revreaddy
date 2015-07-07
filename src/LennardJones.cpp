@@ -33,7 +33,7 @@ void LennardJones::calculateForceEnergy(
 	double& radiiSquared)
 {
 	double sigmaSquared = TWO_POW_MIN_ONE_THIRD * radiiSquared;
-	if ( rSquared > (6.25*sigmaSquared) ) {
+	if ( rSquared > (6.25*radiiSquared) ) {
 		energy = 0.;
 		forceI = {0.,0.,0.,};
 		return;

@@ -18,6 +18,7 @@ class Simulation;
 #include <iostream>
 #include <string>
 #include <typeinfo>
+#include <algorithm>
 #include "Particle.h"
 #include "Random.h"
 #include "Observable.h"
@@ -66,14 +67,22 @@ class Simulation
 		unsigned long int rejections;
 		bool isReversible;
 		unsigned long long uniqueIdCounter;
+		bool useNeighborList;
 
 		void run();
 		void saveOldState();//oldEnergy=energy, oldPos=pos, oldForce=force
 		void propagate();
 		void recordObservables(unsigned long int timeIndex);
-		/* double loop (i,j) over activeParticles and call 
-		 * according Forcetype for particle pair (i,j) */
+		/* First determine how to calculate the forces, i.e. if a 
+		 * neighborList approach pays off (have more than 9 boxes). */
 		void calculateInteractionForcesEnergies(); 
+		/* double loop (i,j) over activeParticles and call 
+		 * according Forcetype for particle pair (i,j) --> O(n^2) */
+		void calculateInteractionForcesEnergiesNaive();
+		/* does the same as above, but only considers interactions
+		 * of neighboring boxes, that have the size of the maximum
+		 * cutoff distance --> O(n) */
+		void calculateInteractionForcesEnergiesWithLattice(unsigned int numberBoxes);
 		/* evaluate the force and energy for
 		 * a given pair of particles */
 		void calculateSingleForceEnergy(
@@ -109,17 +118,22 @@ class Simulation
 		int  getParticleNumber();
 		void deleteAllParticles();
 		void writeAllObservablesToFile();
+		void writeLastObservableToFile();
 		std::string showObservables();
 		void deleteAllObservables();
-		void new_Trajectory(std::string filename);
+		void deleteLastObservable();
+		void new_Trajectory(unsigned long int recPeriod, std::string filename);
 		void new_RadialDistribution(
+			unsigned long int recPeriod,
 			std::string filename,
 			std::vector<double> ranges,
 			std::vector< std::vector<unsigned int> > considered);
 		void new_MeanSquaredDisplacement(
+			unsigned long int recPeriod,
 			std::string filename,
 			unsigned int particleTypeId);
 		void new_ProbabilityDensity(
+			unsigned long int recPeriod,
 			std::string filename,
 			unsigned int pTypeId,
 			std::vector<double> range,

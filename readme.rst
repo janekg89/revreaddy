@@ -1,5 +1,5 @@
-revreaddy v0.1
-**************
+revreaddy pre v0.2
+******************
 
 A particle based reaction-diffusion simulation with a
 reversible integrator, which obeys detailed balance.
@@ -21,6 +21,9 @@ This early version features:
 	  (.dat/.txt). These are acceptance, energy,
 	  mean-squared-displacement, probability density,
 	  radial distribution function, trajectory
+	* Neighborlattice force calculation leading to overall
+	  complexity *O(#particles)* (exception when rdf is
+	  calculated on the fly)
 	* the current state of the simulation can be saved
 	  to a compact binary format with a single line
 	  and also loaded from file with a single line
@@ -61,6 +64,13 @@ to your PYTHONPATH by typing
 	$ export PYTHONPATH=/parentPathOfRevreaddy/
 
 in a bash terminal or add this line to your .bashrc file.
+If you already set PYTHONPATH for other projects, simply
+concatenate the path like
+
+::
+
+	$ export PYTHONPATH=$PYHTONPATH:/parentPathOfRevreaddy/
+
 You can now start working by importing revreaddy in a
 python script, e.g.
 

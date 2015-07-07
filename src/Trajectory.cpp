@@ -42,7 +42,7 @@ void Trajectory::writeBufferToFile()
 		file << "#timestep " << particles[0].particleTime << "\n"; 
 		for (auto&& particle : particles)
 		{
-			file << particle.particleTypeId << "\t";
+			file << "T" << particle.particleTypeId << "\t";
 			file << particle.particleCoordinates[0] << "\t";
 			file << particle.particleCoordinates[1] << "\t";
 			file << particle.particleCoordinates[2] << "\n";
