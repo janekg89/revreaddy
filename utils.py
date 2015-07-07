@@ -242,7 +242,7 @@ def fillCuboidWithParticles(simulation, r1, r2, numberOfParticles, particleType)
 					simulation.addParticle([x,y,z], particleType)
 	return
 
-def showSystem(simulation):
+def showSnapshotMatPlotlib(simulation):
 	import matplotlib.pyplot as plt
 	from mpl_toolkits.mplot3d import Axes3D
 	fig = plt.figure()
@@ -252,3 +252,40 @@ def showSystem(simulation):
 		ax.scatter(
 			position[0], position[1], position[2],
 			color="blue", marker="o", alpha=0.3, s=50.)
+
+def generateSnapshotVmd(filename, simulation):
+	N = simulation.getParticleNumber()
+	xyzFile = open(filename, "w")
+	xyzFile.write(str(N) + "\n")
+	xyzFile.write("#\n")
+	for i in range(N):
+		particleType = str( simulation.getTypeId(i) )
+		position = simulation.getPosition(i)
+		x = str( position[0] )
+		y = str( position[1] ) 
+		z = str( position[2] )
+		line = "T" + particleType + "\t" + x + "\t" + y + "\t" + z + "\n"
+		xyzFile.write(line)
+	xyzFile.close()
+
+	# mostly adapted from Johannes Schoeneberg's ReaDDy software
+	# see github.com/readdy
+	tclScript = open(filename + ".tcl", "w")
+	tclScript.write("mol delete top\n")
+	tclScript.write("mol load xyz " + filename + "\n")
+	tclScript.write("mol delrep 0 top\n")
+	tclScript.write("display resetview\n")
+	dictRadii = simulation.getDictRadii()
+	M = len( dictRadii )
+	for i in range(M):
+		tclScript.write(
+			"mol representation VDW " + str(dictRadii[i] * 0.7) + " 16.0\n"
+		)
+		tclScript.write("mol selection name T" + str(i) + "\n")
+		tclScript.write("mol addrep top\n")
+	tclScript.write("animate goto 0\n")
+	tclScript.write("color Display Background white\n")
+	tclScript.write(
+	"molinfo top set {center_matrix} {{{1 0 0 0}{0 1 0 0}{0 0 1 0}{0 0 0 1}}}\n"
+	)
+	tclScript.close()

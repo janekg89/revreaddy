@@ -6,6 +6,7 @@
 #define __BINARYFILE_H_INCLUDED__
 #include <vector>
 #include <string>
+#include <iostream>
 #include "hdf5.h"
 #include "hdf5_hl.h"
 

@@ -30,6 +30,11 @@ Simulation::~Simulation()
 	delete this->typeDict;
 }
 
+/* TODO after one run() the observables' files should 
+ * be closed so that the intermediate results can be 
+ * accessed (e.g. from python). 
+ * When run is called the observables' files should 
+ * be opened again.*/
 void Simulation::run()
 {
 	std::cout << "Simulation started at time: "
