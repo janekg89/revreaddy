@@ -30,7 +30,7 @@ class Observable
 		/* write to file but keep the buffer in memory */
 		virtual void writeBufferToFile();
 		/* write to file and clear the buffer in memory */
-		virtual void flushBufferToFile();
+		//virtual void flushBufferToFile();
 		int findParticleIndex(
 			std::vector<Particle>& activeParticles,
 			unsigned long long id);
