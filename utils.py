@@ -40,6 +40,8 @@ is organised as follows::
 	   -- isReversible, (1), bool
 	   -- isPeriodic, (1), bool
 	   -- timestep, (1), float64
+	-- geometries/
+		... (to be continued)
 	-- reactions/ 
 		... (to be continued)
 
