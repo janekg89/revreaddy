@@ -17,9 +17,10 @@ int main()
 	sim->timestep	= 0.001;
 	sim->isPeriodic = true;
 	sim->boxsize = 10.;
-	sim->isReversible = false;
+	sim->isReversibleDynamics = true;
+	sim->isReversibleReactions = true;
 
-	sim->new_Type("softy", 0.5 , 1., 1.);
+	sim->new_Type("softy", 0.5 , 1., 0.5);
 	std::vector<unsigned int> affected = {0, 0};
 	sim->new_SoftRepulsion("softy repulsion", affected, 1.);
 	
@@ -38,8 +39,8 @@ int main()
 	sim->writeAllObservablesToFile();
 	sim->deleteAllObservables();
 
-	std::cout << "acc" << sim->acceptions <<"\n";
-	std::cout << "rej" << sim->rejections <<"\n";
+	std::cout << "acc dynamics " << sim->acceptionsDynamics << std::endl;
+	std::cout << "rej dynamics " << sim->rejectionsDynamics << std::endl;
 
 	return 0;
 }

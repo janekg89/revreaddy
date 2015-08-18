@@ -11,10 +11,11 @@
 
 #ifndef __RANDOM_H_INCLUDED__
 #define __RANDOM_H_INCLUDED__
-#include <gsl/gsl_rng.h> 	// GNU random number generators
-#include <gsl/gsl_randist.h>// GNU random number distributions
 #include <string>
 #include <vector>
+#include <iostream>
+#include <gsl/gsl_rng.h> 	// GNU random number generators
+#include <gsl/gsl_randist.h>// GNU random number distributions
 
 class Random
 {

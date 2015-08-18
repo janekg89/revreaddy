@@ -19,6 +19,7 @@ class Simulation;
 #include <string>
 #include <typeinfo>
 #include <algorithm>
+#include <time.h>
 #include "Particle.h"
 #include "Random.h"
 #include "Observable.h"
@@ -40,38 +41,79 @@ class Simulation;
 class Simulation
 {
 	public:
+		/*------- variables for initial setup -------*/
+		
 		Random * random;                // the random number generator
+		// TODO change TypeDict rather to a vector containing
+		// "particleType"s, composition over inheritance
 		TypeDict * typeDict;			// dictionary for radii etc.
-		std::vector<Particle> activeParticles;
-		/* Stores children of Observable */
-		std::vector<Observable*> observables;
-		/* For later adaptive timestepping methods */
-		//std::vector<Particle> consideredParticles; 
-		std::vector<Geometry*> geometries;
-		/* Storage of all active reactions that may happen */
-		//std::vector<Reaction> reactions;
 		/* All forces between particles */
-		std::vector<ParticleInteraction*> possibleForces;
+		std::vector<ParticleInteraction*> possibleInteractions;
+		/* All first order potentials. Used to build geometries. */ 
+		std::vector<Geometry*> geometries;
+		/* Storage of all active reversible reactions that may happen */
+		//std::vector<Reaction*> possibleReactions;
+		/* Stores children of Observable. Those are called in
+		 * predefined intervals during run(). */
+		std::vector<Observable*> observables;
 
 		unsigned long int maxTime; // length of the simulation
 		double timestep;           // the timestep: usually 0.001 or smaller
-		double cumulativeRuntime;  // keeps track of the advanced time
 		double temperature;
 		double kBoltzmann;
 		bool isPeriodic;           // use periodic boundary conditions or not
 		double boxsize;            // length of the periodic simulationbox
-		double energy;
-		double oldEnergy;
-		double currentAcceptance;  // the last calculated acceptance prob
-		unsigned long int acceptions;
-		unsigned long int rejections;
-		bool isReversible;
-		unsigned long long uniqueIdCounter;
+		bool isReversibleDynamics;
+		bool isReversibleReactions;
 		bool useNeighborList;
 
-		void run();
-		void saveOldState();//oldEnergy=energy, oldPos=pos, oldForce=force
-		void propagate();
+		/*------- state variables, change during run() -------*/
+
+		/* activeParticles has an entry for every particle
+		 * which holds its position and typeId.
+		 * oldActiveParticles temporarily saves the particle
+		 * states in case the timestep is rejected and the old
+		 * state must be restored. */
+		std::vector<Particle> activeParticles;
+		std::vector<Particle> oldActiveParticles;
+		/* activePairs has an entry for every pair (i,j)
+		 * that is within reaction range at the current time.
+		 * oldActivePairs temporarily saves the state of
+		 * activePairs and is restored upon timestep-rejection. */
+		std::vector< std::vector<unsigned int> > activePairs;
+		std::vector< std::vector<unsigned int> > oldActivePairs;
+		/* MAYBE For later adaptive timestepping methods */
+		//std::vector<Particle> consideredParticles;
+		/* energy is the sum of all energy terms in the system by
+		 * particle interactions and geometries, i.e. first and second
+		 * order potential energies */
+		double energy;
+		double oldEnergy;
+		double cumulativeRuntime;  // keeps track of the advanced time
+		double currentAcceptance;  // the last calculated acceptance prob
+		unsigned long long uniqueIdCounter;
+		unsigned long int acceptionsDynamics;
+		unsigned long int rejectionsDynamics;
+		unsigned long int acceptionsReactions;
+		unsigned long int rejectionsReactions;
+
+		/*------- core functions/variables not accessible to python -------*/
+
+		/* Store the objects describing the current state:
+		 * energy, activeParticles (positions, forces) and activePairs */
+		void saveOldState();
+		/* Doing the opposite of the above */
+		void restoreOldState();
+		/* Perform Brownian Dynamics step on activeParticles
+		 * according to their accumulated forces */
+		void propagateDynamics();
+		/* Perform reactions. Unimolecular according to their
+		 * reaction rates and bimolecular only when the pair
+		 * is part of activePairs. Already return the ratios
+		 * of forward and backward probabilities. */
+		double propagateReactions();
+		/* Call every observables' record() function, if the timeIndex
+		 * corresponds to the predefined recording interval.*/
 		void recordObservables(unsigned long int timeIndex);
 		/* First determine how to calculate the forces, i.e. if a 
 		 * neighborList approach pays off (have more than 9 boxes). */
@@ -90,17 +132,19 @@ class Simulation
 			unsigned int indexJ);
 		void calculateGeometryForcesEnergies();
 		void resetForces();
-		void acceptOrReject();
+		double acceptanceDynamics();
+		double acceptanceReactions();
+		bool acceptOrReject(double acceptance);
+
+		/*------- functions that will be wrapped by python -------*/
 
 		Simulation();
 		~Simulation();
-
-		/*------- functions that will be wrapped by python -----------*/
-
+		/* Start the simulation. Iterate for maxTime timesteps.*/
+		void run();
 		void addParticle(
 			std::vector<double> initPos,
 			unsigned int particleTypeId);
-
 		/* Obtain the position of the particle activeParticles[index] */
 		std::vector<double> getPosition(int index);
 		void                setPosition(int index, std::vector<double> newPos);

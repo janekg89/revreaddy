@@ -15,13 +15,14 @@ cdef extern from "Simulation.h":
 		double cumulativeRuntime
 		bool isPeriodic
 		double boxsize
-		unsigned long int acceptions
-		unsigned long int rejections
-		bool isReversible
+		unsigned long int acceptionsDynamics
+		unsigned long int rejectionsDynamics
+		bool isReversibleDynamics
+		bool isReversibleReactions
 		bool useNeighborList
 
-		void addParticle(vector[double], unsigned int)
 		void run()
+		void addParticle(vector[double], unsigned int)
 		vector[double] getPosition(int)
 		void           setPosition(int, vector[double])
 		unsigned int getTypeId(int)
@@ -199,27 +200,32 @@ cdef class pySimulation:
 	property boxsize:
 		def __get__(self): return self.thisptr.boxsize
 		def __set__(self, boxsize): self.thisptr.boxsize = boxsize
-	property acceptions:
-		def __get__(self): return self.thisptr.acceptions
-		def __set__(self, acceptions): self.thisptr.acceptions = acceptions
-	property rejections:
-		def __get__(self): return self.thisptr.rejections
-		def __set__(self, rejections): self.thisptr.rejections = rejections
-	property isReversible:
-		def __get__(self): return self.thisptr.isReversible
-		def __set__(self,isReversible): self.thisptr.isReversible=isReversible
+	property acceptionsDynamics:
+		def __get__(self): return self.thisptr.acceptionsDynamics
+		def __set__(self, acceptionsDynamics):
+			self.thisptr.acceptionsDynamics = acceptionsDynamics
+	property rejectionsDynamics:
+		def __get__(self): return self.thisptr.rejectionsDynamics
+		def __set__(self, rejectionsDynamics):
+			self.thisptr.rejectionsDynamics = rejectionsDynamics
+	property isReversibleDynamics:
+		def __get__(self): return self.thisptr.isReversibleDynamics
+		def __set__(self,isReversibleDynamics):
+			self.thisptr.isReversibleDynamics = isReversibleDynamics
 	property useNeighborList:
 		def __get__(self): return self.thisptr.useNeighborList
 		def __set__(self,useNeighborList): 
 			self.thisptr.useNeighborList=useNeighborList
 
 	# derived functions
-	def acceptanceRate(self):
-		if (self.acceptions == 0):
+	def acceptanceRateDynamics(self):
+		if (self.acceptionsDynamics == 0):
 			return 0.
 		else:
-			acc = 1./(1.+ float(self.rejections)/float(self.acceptions) )
+			acc = 1./(1.+ float(self.rejectionsDynamics) \
+				/float(self.acceptionsDynamics) )
 			return round(acc, 5)
+
 	def efficiency(self):
 		return self.acceptanceRate() * self.timestep
 
@@ -262,11 +268,3 @@ cdef class pySimulation:
 				 affectedTuples[i], parameters[i] ] )
 			print form.format(*linestr)
 		return
-
-# this dict() sets the type ids used in the program
-# the first three keys and values (none,0),(lj,1),(soft,2)
-# should NOT be changed.
-typeStringToId = dict()
-typeStringToId["none"] = 0
-typeStringToId["lj"]   = 1
-typeStringToId["soft"] = 2

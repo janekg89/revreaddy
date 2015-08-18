@@ -19,16 +19,15 @@ Random::Random(std::string type)
 	this->randomGeneratorHandle = gsl_rng_alloc(this->randomGeneratorType);
 	this->toSeed();
 	gsl_rng_set(this->randomGeneratorHandle, this->seed);
-	printf(
-		"Random number generator of type '%s' "
-	    "has been intialized and seeded.\n",
-		gsl_rng_name(randomGeneratorHandle));
+	std::cout << "Info: Random number generator of type '"
+	          << gsl_rng_name(randomGeneratorHandle) 
+	          << "' has been intialized and seeded." << std::endl;
 }
 
 Random::~Random()
 {
 	gsl_rng_free(this->randomGeneratorHandle);
-	printf("Random number generator has been released.\n");
+	std::cout << "Info: Random number generator has been released." << std::endl;
 }
 
 void Random::toSeed()
@@ -37,7 +36,8 @@ void Random::toSeed()
 	devurandom = fopen("/dev/urandom","r");
 	fread(&this->seed, sizeof(this->seed), 1, devurandom);
 	fclose(devurandom);
-	printf("Got seed %lu from /dev/urandom.\n",this->seed);
+	std::cout << "Info: Got seed " << this->seed 
+	          << " from /dev/urandom." << std::endl;
 }
 
 double Random::normal()

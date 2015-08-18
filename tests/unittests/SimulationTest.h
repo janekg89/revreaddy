@@ -81,7 +81,7 @@ class SimulationTest : public CxxTest::TestSuite
 			std::vector<double> x0 = {6.,0.,0.};
 			sim->new_Type("soft", 1., 0., 1.);
 			sim->addParticle(x0, 0);
-			sim->propagate();
+			sim->propagateDynamics();
 			std::vector<double> x1 = {-4.,0.,0.};
 			TS_ASSERT_EQUALS(sim->activeParticles[0].position, x1);
 			delete sim;
@@ -163,11 +163,11 @@ class SimulationTest : public CxxTest::TestSuite
 			sim->new_Type("A", 2., 1., 1.);
 			sim->new_Type("B", 5., 1., 1.);
 			sim->new_SoftRepulsion("rep", {0, 1}, 2.);
-			TS_ASSERT_EQUALS(sim->possibleForces[0]->cutoff, 7.);
+			TS_ASSERT_EQUALS(sim->possibleInteractions[0]->cutoff, 7.);
 			sim->new_SoftRepulsion("rep2", {0, 0}, 3.);
-			TS_ASSERT_EQUALS(sim->possibleForces[1]->cutoff, 4.);
+			TS_ASSERT_EQUALS(sim->possibleInteractions[1]->cutoff, 4.);
 			sim->new_LennardJones("lj", {1, 1}, 4.);
-			TS_ASSERT_EQUALS(sim->possibleForces[2]->cutoff, 25.);
+			TS_ASSERT_EQUALS(sim->possibleInteractions[2]->cutoff, 25.);
 		}
 
 		/* create two systems, initially the same. calculate forces

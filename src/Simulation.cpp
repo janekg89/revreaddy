@@ -4,24 +4,25 @@
 
 #include "Simulation.h"
 
-Simulation::Simulation()//bool hasDefaultTypes)
+Simulation::Simulation()
 {
-	this->random            = new Random("ranlxs0");
-	this->typeDict          = new TypeDict();
-	this->timestep          = 0.001;
-	this->cumulativeRuntime = 0.;
-	this->temperature       = 1.;
-	this->kBoltzmann        = 1.;
-	this->isPeriodic        = true;
-	this->boxsize           = 10.;
-	this->energy            = 0.;
-	this->oldEnergy         = 0.;
-	this->currentAcceptance = 1.;
-	this->acceptions        = 0;
-	this->rejections        = 0;
-	this->isReversible      = true;
-	this->uniqueIdCounter   = 0;
-	this->useNeighborList   = true;
+	this->random                = new Random("ranlxs0");
+	this->typeDict              = new TypeDict();
+	this->timestep              = 0.001;
+	this->cumulativeRuntime     = 0.;
+	this->temperature           = 1.;
+	this->kBoltzmann            = 1.;
+	this->isPeriodic            = true;
+	this->boxsize               = 10.;
+	this->energy                = 0.;
+	this->oldEnergy             = 0.;
+	this->currentAcceptance     = 1.;
+	this->acceptionsDynamics    = 0;
+	this->rejectionsDynamics    = 0;
+	this->isReversibleDynamics  = true;
+	this->isReversibleReactions = true;
+	this->uniqueIdCounter       = 0;
+	this->useNeighborList       = true;
 }
 
 Simulation::~Simulation()
@@ -32,54 +33,78 @@ Simulation::~Simulation()
 
 /* TODO after one run() the observables' files should 
  * be closed so that the intermediate results can be 
- * accessed (e.g. from python). 
+ * accessed (e.g. from python). is that so??? 
  * When run is called the observables' files should 
  * be opened again.*/
 void Simulation::run()
 {
-	std::cout << "Simulation started at time: "
-	          << this->cumulativeRuntime << "\n";
+	std::cout << "Info: Started at simulation-time: "
+	          << this->cumulativeRuntime << std::endl;
+	std::cout << "Info: Run ..." << std::endl;
+	clock_t timer = clock();
 	this->resetForces();
 	this->energy = 0.;
 	this->calculateInteractionForcesEnergies();
 	this->calculateGeometryForcesEnergies();
 	this->recordObservables(0);
+	double acceptance = 1.;
 	for (unsigned long int timeIndex = 1; timeIndex < maxTime; timeIndex++)
 	{
-		// groupForces()
+		/* Dynamics */
 		this->saveOldState();
-		this->propagate(); // propose
+		this->propagateDynamics(); // propose
 		this->resetForces();
 		this->energy = 0.;
-		if (this->useNeighborList) {
-			this->calculateInteractionForcesEnergies(); // calculate energy and force
-		}
-		else {
-			this->calculateInteractionForcesEnergiesNaive();
-		}
+		this->calculateInteractionForcesEnergies(); // calculate energy and force
 		this->calculateGeometryForcesEnergies();
-		if (this->isReversible) { this->acceptOrReject(); }
+		acceptance = this->acceptanceDynamics();
+		if (this->isReversibleDynamics && ( ! this->acceptOrReject(acceptance) ) ) {
+			this->restoreOldState();
+			this->rejectionsDynamics += 1;
+		}
+		else { this->acceptionsDynamics += 1; }
+
+		/* Reactions */
+		this->saveOldState();
+		acceptance = this->propagateReactions();
+		this->resetForces();
+		this->energy = 0.;
+		this->calculateInteractionForcesEnergies();
+		this->calculateGeometryForcesEnergies();
+		acceptance *= this->acceptanceReactions();
+		if (this->isReversibleReactions && ( ! this->acceptOrReject(acceptance) )){
+			this->restoreOldState();
+			this->rejectionsReactions += 1;
+		}
+		else { this->acceptionsReactions += 1; }
+
+		/* Advance clock */
 		this->cumulativeRuntime += this->timestep;
 		this->recordObservables(timeIndex);
 	}
-	std::cout << "Simulation finished at time: "
-	          << this->cumulativeRuntime << "\n";
+	timer = clock() - timer;
+	std::cout << "Info: Finished at simulation-time: "
+	          << this->cumulativeRuntime << std::endl;
+	std::cout << "Info: Needed computation-time for run(): "
+	          << ((float) timer) / CLOCKS_PER_SEC 
+	          << " s" << std::endl;
 }
 
 void Simulation::saveOldState()
 {
 	this->oldEnergy = this->energy;
-	for (int i=0; i<activeParticles.size(); i++) {
-		activeParticles[i].oldPosition 
-			= activeParticles[i].position;
-		activeParticles[i].oldBoxCoordinates 
-			= activeParticles[i].boxCoordinates;
-		activeParticles[i].oldForce 
-			= activeParticles[i].cumulativeForce;
-	}
+	this->oldActiveParticles = this->activeParticles;
+	this->oldActivePairs = this->activePairs;
 }
 
-void Simulation::propagate()
+void Simulation::restoreOldState()
+{
+	this->energy = this->oldEnergy;
+	this->activeParticles = this->oldActiveParticles;
+	this->activePairs = this->oldActivePairs;
+}
+
+void Simulation::propagateDynamics()
 {
 	std::vector<double> noiseTerm = {0.,0.,0.};
 	std::vector<double> forceTerm = {0.,0.,0.};
@@ -135,6 +160,12 @@ void Simulation::propagate()
 	}
 }
 
+//TODO
+double Simulation::propagateReactions()
+{
+
+}
+
 void Simulation::recordObservables(unsigned long int timeIndex)
 {
 	for (auto* obs : this->observables) {
@@ -147,23 +178,23 @@ void Simulation::recordObservables(unsigned long int timeIndex)
 void Simulation::calculateInteractionForcesEnergies()
 {
 	double minimalLength = this->boxsize;
-	for (unsigned int i=0; i<possibleForces.size(); i++) {
-		if (possibleForces[i]->cutoff < minimalLength) {
-			minimalLength = possibleForces[i]->cutoff;
+	for (unsigned int i=0; i<possibleInteractions.size(); i++) {
+		if (possibleInteractions[i]->cutoff < minimalLength) {
+			minimalLength = possibleInteractions[i]->cutoff;
 		}
 	}
 	double counter = 1.;
 	unsigned int numberBoxes = 0;
 	while ( (this->boxsize / counter) > minimalLength) {
 		numberBoxes += 1;
-		counter += 1;
+		counter += 1.;
 	}
 	/* if n=3 we will have 9 subboxes of length L/n, which
 	 * will result in having to check every box. This is
 	 * as inefficient as double looping. So:
 	 * ONLY construct neighborlist if we have at least 16
 	 * subboxes or n>3 */
-	if ( numberBoxes > 3 ) {
+	if ( ( numberBoxes > 3 ) && this->useNeighborList ) {
 		this->calculateInteractionForcesEnergiesWithLattice(numberBoxes);
 	}
 	else {
@@ -294,9 +325,9 @@ void Simulation::calculateSingleForceEnergy(
 	// interaction energy of particle pair (i,j)
 	double energyBuffer = 0.; 
 	// look for force that affects the pair (i,j)
-	for (unsigned int k=0; k<this->possibleForces.size(); k++) {
+	for (unsigned int k=0; k<this->possibleInteractions.size(); k++) {
 		if (
-			this->possibleForces[k]->isAffected(
+			this->possibleInteractions[k]->isAffected(
 				this->activeParticles[indexI].typeId,
 				this->activeParticles[indexJ].typeId)
 		) {
@@ -309,6 +340,7 @@ void Simulation::calculateSingleForceEnergy(
 				this->isPeriodic, 
 				this->boxsize);
 			// distance of particle i,j squared
+			// TODO check if (i,j) is activePair = within reaction radius
 			double rSquared = r_ij[0]*r_ij[0] + r_ij[1]*r_ij[1] + r_ij[2]*r_ij[2];
 			// radius of particle i
 			double radiusI = this->typeDict->radii[activeParticles[indexI].typeId]; 
@@ -317,7 +349,7 @@ void Simulation::calculateSingleForceEnergy(
 			// squared sum of particles i,j radii
 			double radiiSquared = pow(radiusI + radiusJ, 2.);
 			// actual force call here
-			this->possibleForces[k]->calculateForceEnergy(
+			this->possibleInteractions[k]->calculateForceEnergy(
 				forceI,//out
 				energyBuffer,
 				r_ij,//in
@@ -359,7 +391,7 @@ void Simulation::resetForces()
 	}
 }
 
-void Simulation::acceptOrReject()
+double Simulation::acceptanceDynamics()
 {
 	double acceptance = 1.;
 	double firstTerm  = 0.;
@@ -368,18 +400,18 @@ void Simulation::acceptOrReject()
 	for (int i=0; i<activeParticles.size(); i++) {
 		getMinDistanceVector(
 			deltaX,
-			activeParticles[i].oldPosition,
+			oldActiveParticles[i].position,
 			activeParticles[i].position,
 			this->isPeriodic,
 			this->boxsize);
 		firstTerm  += deltaX[0]
-		            * ( activeParticles[i].oldForce[0]
+		            * ( oldActiveParticles[i].cumulativeForce[0]
 		              + activeParticles[i].cumulativeForce[0] );
 		firstTerm  += deltaX[1]
-		            * ( activeParticles[i].oldForce[1]
+		            * ( oldActiveParticles[i].cumulativeForce[1]
 		              + activeParticles[i].cumulativeForce[1] );
 		firstTerm  += deltaX[2]
-		            * ( activeParticles[i].oldForce[2]
+		            * ( oldActiveParticles[i].cumulativeForce[2]
 		              + activeParticles[i].cumulativeForce[2] );
 		secondTerm += 
 		          this->typeDict->diffusionConstants[activeParticles[i].typeId]
@@ -389,12 +421,12 @@ void Simulation::acceptOrReject()
 		              * activeParticles[i].cumulativeForce[1]
 		              + activeParticles[i].cumulativeForce[2]
 		              * activeParticles[i].cumulativeForce[2]
-		              + activeParticles[i].oldForce[0]
-		              * activeParticles[i].oldForce[0]
-		              + activeParticles[i].oldForce[1]
-		              * activeParticles[i].oldForce[1]
-		              + activeParticles[i].oldForce[2]
-		              * activeParticles[i].oldForce[2] );
+		              + oldActiveParticles[i].cumulativeForce[0]
+		              * oldActiveParticles[i].cumulativeForce[0]
+		              + oldActiveParticles[i].cumulativeForce[1]
+		              * oldActiveParticles[i].cumulativeForce[1]
+		              + oldActiveParticles[i].cumulativeForce[2]
+		              * oldActiveParticles[i].cumulativeForce[2] );
 	}
 	firstTerm  *= 0.5;
 	secondTerm *= this->timestep / (4. * this->kBoltzmann * this->temperature);
@@ -402,25 +434,30 @@ void Simulation::acceptOrReject()
 	acceptance /= -1. * this->kBoltzmann * this->temperature;
 	acceptance = exp( acceptance );
 	this->currentAcceptance = acceptance;
-	// accept or reject
+	return acceptance;
+}
+
+//TODO
+double Simulation::acceptanceReactions()
+{
+	return 1.;
+}
+
+bool Simulation::acceptOrReject(double acceptance)
+{
 	if ( acceptance > 1. ) {
-		/*accept = do nothing. particles keep their new positions and forces*/
-		acceptions += 1;
+		/* accept */
+		return true;
 	}
 	else {
 		double uniform = this->random->uniform();
-		if ( uniform < acceptance ) {/* accept */ acceptions += 1;}
-		else {/* reject = restore old positions,boxCoordinates,forces,energy */
-			rejections += 1;
-			this->energy = this->oldEnergy;
-			for (int i=0; i<activeParticles.size(); i++) {
-				activeParticles[i].position 
-					= activeParticles[i].oldPosition;
-				activeParticles[i].cumulativeForce
-					= activeParticles[i].oldForce;
-				activeParticles[i].boxCoordinates
-					= activeParticles[i].oldBoxCoordinates;
-			}
+		if ( uniform < acceptance ) {
+			/* accept */
+			return true;
+		}
+		else {
+			/* reject */
+			return false;
 		}
 	}
 }
@@ -692,12 +729,12 @@ void Simulation::deleteAllForces()
 {
 	/* first delete the forces, since they we're allocated with 'new'
 	 * then erase the pointers from the vector */
-	for (auto* f : this->possibleForces) {
+	for (auto* f : this->possibleInteractions) {
 		delete f;
 	}
-	this->possibleForces.erase(
-		this->possibleForces.begin(),
-		this->possibleForces.begin() + this->possibleForces.size()
+	this->possibleInteractions.erase(
+		this->possibleInteractions.begin(),
+		this->possibleInteractions.begin() + this->possibleInteractions.size()
 	);
 }
 
@@ -727,8 +764,8 @@ void Simulation::new_SoftRepulsion(
 	// set cutoff correctly
 	soft->cutoff = this->typeDict->radii[affectedTuple[0]] 
 	             + this->typeDict->radii[affectedTuple[1]];
-	this->possibleForces.push_back(soft);
-	std::cout << "Info: SoftRepulsion interaction added to possibleForces\n";
+	this->possibleInteractions.push_back(soft);
+	std::cout << "Info: SoftRepulsion interaction added to possibleInteractions\n";
 }
 
 void Simulation::new_LennardJones(
@@ -757,31 +794,31 @@ void Simulation::new_LennardJones(
 	// set cutoff correctly
 	lj->cutoff = 2.5 * ( this->typeDict->radii[affectedTuple[0]]
 	                   + this->typeDict->radii[affectedTuple[1]] );
-	this->possibleForces.push_back(lj);
-	std::cout << "Info: LennardJones interaction added to possibleForces\n";
+	this->possibleInteractions.push_back(lj);
+	std::cout << "Info: LennardJones interaction added to possibleInteractions\n";
 }
 
 unsigned int Simulation::getNumberForces()
 {
-	return this->possibleForces.size();
+	return this->possibleInteractions.size();
 }
 
 std::string Simulation::getForceName(unsigned int i)
 {
-	return this->possibleForces[i]->name;
+	return this->possibleInteractions[i]->name;
 }
 
 std::string Simulation::getForceType(unsigned int i)
 {
-	return this->possibleForces[i]->type;
+	return this->possibleInteractions[i]->type;
 }
 
 std::vector<unsigned int> Simulation::getForceAffectedTuple(unsigned int i)
 {
-	return this->possibleForces[i]->affectedTuple;
+	return this->possibleInteractions[i]->affectedTuple;
 }
 
 std::vector<double> Simulation::getForceParameters(unsigned int i)
 {
-	return this->possibleForces[i]->parameters;
+	return this->possibleInteractions[i]->parameters;
 }
