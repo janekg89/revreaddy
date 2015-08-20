@@ -71,12 +71,7 @@ def saveSimulation(filename, simulation):
 	fileHandle = h5py.File(filename, "w")
 
 	# retrieve typedict info from simulation
-	names = simulation.getDictNames()
-	radii = simulation.getDictRadii()
-	diffs = simulation.getDictDiffusionConstants()
-	reactionRadii = simulation.getDictReactionRadii()
-	#forceTypes = simulation.getDictForceTypes()
-	numberOfTypes = len(names)
+	numberOfTypes = simulation.getNumberOfTypes()
 	# construct typedict group
 	typedict = fileHandle.create_group("typedict")
 	typedict.create_dataset("numberOfTypes", (1,), dtype=np.uint64)
@@ -91,16 +86,11 @@ def saveSimulation(filename, simulation):
 		"reactionRadii",
 		(numberOfTypes,),
 		dtype=np.float64)
-	#typedict.create_dataset(
-	#	"forceTypes",
-	#	(numberOfTypes,),
-	#	dtype=np.uint64)
 	for i in range(numberOfTypes):
-		typedict["names"][i]              = names[i]
-		typedict["radii"][i]              = radii[i]
-		typedict["diffusionConstants"][i] = diffs[i]
-		typedict["reactionRadii"][i]      = reactionRadii[i]
-		#typedict["forceTypes"][i]         = forceTypes[i]
+		typedict["names"][i]              = simulation.getDictName(i)
+		typedict["radii"][i]              = simulation.getDictRadius(i)
+		typedict["diffusionConstants"][i] = simulation.getDictDiffusionConstant(i)
+		typedict["reactionRadii"][i]      = simulation.getDictReactionRadius(i)
 
 	# construct forcemap group
 	forcemap = fileHandle.create_group("forcemap")
@@ -192,7 +182,6 @@ def loadSimulation(filename):
 			typedict["radii"][i],
 			typedict["diffusionConstants"][i],
 			typedict["reactionRadii"][i])
-			#typedict["forceTypes"][i] )
 
 	#retrieve positions
 	xyz = fileHandle["xyz"]
@@ -277,11 +266,10 @@ def generateSnapshotVmd(filename, simulation):
 	tclScript.write("mol load xyz " + filename + "\n")
 	tclScript.write("mol delrep 0 top\n")
 	tclScript.write("display resetview\n")
-	dictRadii = simulation.getDictRadii()
-	M = len( dictRadii )
+	M = simulation.getNumberOfTypes()
 	for i in range(M):
 		tclScript.write(
-			"mol representation VDW " + str(dictRadii[i] * 0.7) + " 16.0\n"
+			"mol representation VDW " + str(simulation.getDictRadius(i) * 0.7) + " 16.0\n"
 		)
 		tclScript.write("mol selection name T" + str(i) + "\n")
 		tclScript.write("mol addrep top\n")

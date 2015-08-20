@@ -32,7 +32,7 @@ class Simulation;
 #include "Geometry.h"
 #include "Wall.h"
 #include "DoubleWellZ.h"
-#include "TypeDict.h"
+#include "ParticleType.h"
 #include "ParticleInteraction.h"
 #include "SoftRepulsion.h"
 #include "LennardJones.h"
@@ -44,9 +44,7 @@ class Simulation
 		/*------- variables for initial setup -------*/
 		
 		Random * random;                // the random number generator
-		// TODO change TypeDict rather to a vector containing
-		// "particleType"s, composition over inheritance
-		TypeDict * typeDict;			// dictionary for radii etc.
+		std::vector<ParticleType> typeDict;
 		/* All forces between particles */
 		std::vector<ParticleInteraction*> possibleInteractions;
 		/* All first order potentials. Used to build geometries. */ 
@@ -155,11 +153,12 @@ class Simulation
 			double radius,
 			double diffusionConstant,
 			double reactionRadius);
-		std::vector<std::string> getDictNames();
-		std::vector<double> getDictRadii();
-		std::vector<double> getDictDiffusionConstants();
-		std::vector<double> getDictReactionRadii();
-		int  getParticleNumber();
+		unsigned int getNumberOfTypes();
+		std::string getDictName(unsigned int i);
+		double getDictRadius(unsigned int i);
+		double getDictDiffusionConstant(unsigned int i);
+		double getDictReactionRadius(unsigned int i);
+		unsigned int  getParticleNumber();
 		void deleteAllParticles();
 		void writeAllObservablesToFile();
 		void writeLastObservableToFile();

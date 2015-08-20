@@ -28,11 +28,12 @@ cdef extern from "Simulation.h":
 		unsigned int getTypeId(int)
 		void         setTypeId(int, unsigned int)
 		void new_Type(string, double, double, double)
-		vector[string] getDictNames()
-		vector[double] getDictRadii()
-		vector[double] getDictDiffusionConstants()
-		vector[double] getDictReactionRadii()
-		int getParticleNumber()
+		unsigned int getNumberOfTypes()
+		string getDictName(unsigned int)
+		double getDictRadius(unsigned int)
+		double getDictDiffusionConstant(unsigned int)
+		double getDictReactionRadii(unsigned int)
+		unsigned int getParticleNumber()
 		void deleteAllParticles()
 		void writeAllObservablesToFile()
 		void writeLastObservableToFile()
@@ -109,14 +110,16 @@ cdef class pySimulation:
 			radius,
 			diffusionConstant,
 			reactionRadius)
-	def getDictNames(self):
-		return self.thisptr.getDictNames()
-	def getDictRadii(self):
-		return self.thisptr.getDictRadii()
-	def getDictDiffusionConstants(self):
-		return self.thisptr.getDictDiffusionConstants()
-	def getDictReactionRadii(self):
-		return self.thisptr.getDictReactionRadii()
+	def getNumberOfTypes(self):
+		return self.thisptr.getNumberOfTypes()
+	def getDictName(self, i):
+		return self.thisptr.getDictName(i)
+	def getDictRadius(self, i):
+		return self.thisptr.getDictRadius(i)
+	def getDictDiffusionConstant(self, i):
+		return self.thisptr.getDictDiffusionConstant(i)
+	def getDictReactionRadius(self, i):
+		return self.thisptr.getDictReactionRadius(i)
 	def getParticleNumber(self): 
 		return self.thisptr.getParticleNumber()
 	def deleteAllParticles(self):
@@ -230,11 +233,7 @@ cdef class pySimulation:
 		return self.acceptanceRate() * self.timestep
 
 	def showTypes(self):
-		names = self.getDictNames()
-		radii = self.getDictRadii()
-		diffs = self.getDictDiffusionConstants()
-		reactionRadii = self.getDictReactionRadii()
-		numberOfTypes = len(names)
+		numberOfTypes = self.getNumberOfTypes()
 		print "Number of types:", numberOfTypes
 		form = "{:<5}{:<15}{:<10}{:<14}{:<13}"
 		print form.format(
@@ -245,8 +244,8 @@ cdef class pySimulation:
 		for i in range(numberOfTypes):
 			linestr = map(
 				str,
-				[i, names[i], radii[i], 
-				 diffs[i], reactionRadii[i] ] )
+				[i, self.getDictName(i), self.getDictRadius(i), 
+				 self.getDictDiffusionConstant(i), self.getDictReactionRadius(i) ] )
 			print form.format(*linestr)
 		return
 	

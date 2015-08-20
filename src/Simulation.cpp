@@ -7,7 +7,7 @@
 Simulation::Simulation()
 {
 	this->random                = new Random("ranlxs0");
-	this->typeDict              = new TypeDict();
+	//this->typeDict              = new TypeDict();
 	this->timestep              = 0.001;
 	this->cumulativeRuntime     = 0.;
 	this->temperature           = 1.;
@@ -28,7 +28,7 @@ Simulation::Simulation()
 Simulation::~Simulation()
 {
 	delete this->random;
-	delete this->typeDict;
+	//delete this->typeDict;
 }
 
 /* TODO after one run() the observables' files should 
@@ -114,7 +114,7 @@ void Simulation::propagateDynamics()
 	for (int i=0; i<activeParticles.size(); i++)
 	{
 		// look up particles' diffusion constant from its typeId
-		diffConst=this->typeDict->diffusionConstants[activeParticles[i].typeId];
+		diffConst=this->typeDict[activeParticles[i].typeId].diffusionConstant;
 
 		noiseTerm = random->normal3D();
 		noisePrefactor = sqrt(2. * diffConst * timestep);
@@ -163,7 +163,7 @@ void Simulation::propagateDynamics()
 //TODO
 double Simulation::propagateReactions()
 {
-
+	return 1.;
 }
 
 void Simulation::recordObservables(unsigned long int timeIndex)
@@ -343,9 +343,9 @@ void Simulation::calculateSingleForceEnergy(
 			// TODO check if (i,j) is activePair = within reaction radius
 			double rSquared = r_ij[0]*r_ij[0] + r_ij[1]*r_ij[1] + r_ij[2]*r_ij[2];
 			// radius of particle i
-			double radiusI = this->typeDict->radii[activeParticles[indexI].typeId]; 
+			double radiusI = this->typeDict[activeParticles[indexI].typeId].radius; 
 			// radius of particle j
-			double radiusJ = this->typeDict->radii[activeParticles[indexJ].typeId];
+			double radiusJ = this->typeDict[activeParticles[indexJ].typeId].radius;
 			// squared sum of particles i,j radii
 			double radiiSquared = pow(radiusI + radiusJ, 2.);
 			// actual force call here
@@ -376,7 +376,7 @@ void Simulation::calculateGeometryForcesEnergies()
 					forceI,
 					energyBuffer,
 					activeParticles[i].position,
-					this->typeDict->radii[activeParticles[i].typeId]);
+					this->typeDict[activeParticles[i].typeId].radius);
 				activeParticles[i].addForce(forceI);
 				this->energy += energyBuffer;
 			}
@@ -414,7 +414,7 @@ double Simulation::acceptanceDynamics()
 		            * ( oldActiveParticles[i].cumulativeForce[2]
 		              + activeParticles[i].cumulativeForce[2] );
 		secondTerm += 
-		          this->typeDict->diffusionConstants[activeParticles[i].typeId]
+		          this->typeDict[activeParticles[i].typeId].diffusionConstant
 		            * ( activeParticles[i].cumulativeForce[0]
 		              * activeParticles[i].cumulativeForce[0]
 		              + activeParticles[i].cumulativeForce[1]
@@ -466,23 +466,22 @@ void Simulation::addParticle(
 	std::vector<double> initPos,
 	unsigned int particleTypeId)
 {
-	if (particleTypeId >= this->typeDict->getNumberOfTypes()) {
+	if (particleTypeId >= this->typeDict.size() ) {
 		std::cout << "The given particle type does not exist!\n"
-		          << "Particle is not created.\n";
+		          << "Particle is not created" << std::endl;
 		return;
 	}
-	Particle * particle = new Particle();
-	if ( initPos.size() == 3 ) { particle->position  = initPos; }
+	Particle particle;
+	if ( initPos.size() == 3 ) { particle.position  = initPos; }
 	else {
 		std::cout << "Particles' initial position has dimension mismatch!\n" 
-		          << "Particle will be placed at {0,0,0}.\n";	
-		particle->position = {0., 0., 0.};
+		          << "Particle will be placed at {0,0,0}" << std::endl;	
+		particle.position = {0., 0., 0.};
 	}
-	particle->typeId = particleTypeId;
-	particle->uniqueId = this->uniqueIdCounter;
+	particle.typeId = particleTypeId;
+	particle.uniqueId = this->uniqueIdCounter;
 	this->uniqueIdCounter += 1;
-	this->activeParticles.push_back(*particle);//push_back copies arg into vec
-	delete particle;
+	this->activeParticles.push_back(particle);//push_back copies arg into vec
 }
 
 std::vector<double> Simulation::getPosition(int index)
@@ -498,8 +497,8 @@ void Simulation::setPosition(int index, std::vector<double> newPos)
 		this->activeParticles[index].position[2] = newPos[2];
 	}
 	else {
-		std::cout << "New position has dimension mismatch!\n"
-		          << "Particle remains at its old position.\n";
+		std::cout << "Error: New position has dimension mismatch!\n"
+		          << "Particle remains at its old position" << std::endl;
 	}
 }
 
@@ -509,9 +508,9 @@ unsigned int Simulation::getTypeId(int index) {
 
 void Simulation::setTypeId(int index, unsigned int typeId) 
 {
-	if (typeId >= this->typeDict->getNumberOfTypes()) {
-		std::cout << "The given particle type does not exist!\n"
-		          << "Particle is not created.\n";
+	if (typeId >= this->typeDict.size() ) {
+		std::cout << "Error: The given particle type does not exist!\n"
+		          << "Particle is not created" << std::endl;
 		return;
 	}
 	this->activeParticles[index].typeId = typeId;
@@ -524,30 +523,50 @@ void Simulation::new_Type(
 	double diffusionConstant,
 	double reactionRadius)
 {
-	this->typeDict->newType(
+	if ( radius < 0. ) {
+		std::cout << "Error: The particle radius must be non-negative!\n"
+		          << "New type is not created" << std::endl;
+		return;
+	}
+	if ( diffusionConstant < 0. ) {
+		std::cout << "Error: The diffusionConstant must be non-negative!\n"
+		          << "New Type is not created" << std::endl;
+		return;
+	}
+	if ( reactionRadius < 0. ) {
+		std::cout << "Error: The reactionRadius must be non-negative!\n"
+		          << "New Type is not created" << std::endl;
+		return;
+	}
+	ParticleType pType(
 		name,
-		radius, 
+		radius,
 		diffusionConstant,
 		reactionRadius);
+	this->typeDict.push_back(pType);
 }
 
-std::vector<std::string> Simulation::getDictNames() {
-	return this->typeDict->names;
+unsigned int Simulation::getNumberOfTypes() {
+	return this->typeDict.size();
 }
 
-std::vector<double> Simulation::getDictRadii() {
-	return this->typeDict->radii;
+std::string Simulation::getDictName(unsigned int i) {
+	return this->typeDict[i].name;
 }
 
-std::vector<double> Simulation::getDictDiffusionConstants() {
-	return this->typeDict->diffusionConstants;
+double Simulation::getDictRadius(unsigned int i) {
+	return this->typeDict[i].radius;
 }
 
-std::vector<double> Simulation::getDictReactionRadii() {
-	return this->typeDict->reactionRadii;
+double Simulation::getDictDiffusionConstant(unsigned int i) {
+	return this->typeDict[i].diffusionConstant;
 }
 
-int Simulation::getParticleNumber() {
+double Simulation::getDictReactionRadius(unsigned int i) {
+	return this->typeDict[i].reactionRadius;
+}
+
+unsigned int Simulation::getParticleNumber() {
 	return this->activeParticles.size();
 }
 
@@ -744,17 +763,18 @@ void Simulation::new_SoftRepulsion(
 	double repulsionStrength)
 {
 	if (affectedTuple.size() != 2) {
-		std::cout << "Error: The given tuple must be of length 2\n";
+		std::cout << "Error: The given tuple must be of length 2" << std::endl;
 		return;
 	}
-	if ( (affectedTuple[0] > ( this->typeDict->names.size() - 1) ) 
-	  || (affectedTuple[1] > ( this->typeDict->names.size() - 1) ) ) {
-		std::cout << "Error: The given particle type(s) do not exist. "
-		          << "Make sure to add them first\n";
+	if ( (affectedTuple[0] > ( this->typeDict.size() - 1) ) 
+	  || (affectedTuple[1] > ( this->typeDict.size() - 1) ) ) {
+		std::cout << "Error: The given particle type(s) do not exist.\n"
+		          << "Make sure to add them first" << std::endl;
 		return;
 	}
 	if ( repulsionStrength <= 0. ) {
-		std::cout << "Error: The repulsion strength must be larger than zero\n";
+		std::cout << "Error: The repulsion strength must be larger than zero"
+		          << std::endl;
 		return;
 	}
 	SoftRepulsion * soft = new SoftRepulsion(
@@ -762,10 +782,11 @@ void Simulation::new_SoftRepulsion(
 		affectedTuple,
 		repulsionStrength);
 	// set cutoff correctly
-	soft->cutoff = this->typeDict->radii[affectedTuple[0]] 
-	             + this->typeDict->radii[affectedTuple[1]];
+	soft->cutoff = this->typeDict[affectedTuple[0]].radius 
+	             + this->typeDict[affectedTuple[1]].radius;
 	this->possibleInteractions.push_back(soft);
-	std::cout << "Info: SoftRepulsion interaction added to possibleInteractions\n";
+	std::cout << "Info: SoftRepulsion interaction added to possibleInteractions"
+	          << std::endl;
 }
 
 void Simulation::new_LennardJones(
@@ -777,14 +798,15 @@ void Simulation::new_LennardJones(
 		std::cout << "Error: The given tuple must be of length 2" << std::endl;
 		return;
 	}
-	if ( (affectedTuple[0] > ( this->typeDict->names.size() - 1) ) 
-	  || (affectedTuple[1] > ( this->typeDict->names.size() - 1) ) ) {
-		std::cout << "Error: The given particle type(s) do not exist. "
-		          << "Make sure to add them first\n";
+	if ( (affectedTuple[0] > ( this->typeDict.size() - 1) ) 
+	  || (affectedTuple[1] > ( this->typeDict.size() - 1) ) ) {
+		std::cout << "Error: The given particle type(s) do not exist.\n"
+		          << "Make sure to add them first" << std::endl;
 		return;
 	}
 	if ( epsilon <= 0. ) {
-		std::cout << "Error: The given epsilon must be larger than zero\n";
+		std::cout << "Error: The given epsilon must be larger than zero"
+		          << std::endl;
 		return;
 	}
 	LennardJones * lj = new LennardJones(
@@ -792,10 +814,11 @@ void Simulation::new_LennardJones(
 		affectedTuple,
 		epsilon);
 	// set cutoff correctly
-	lj->cutoff = 2.5 * ( this->typeDict->radii[affectedTuple[0]]
-	                   + this->typeDict->radii[affectedTuple[1]] );
+	lj->cutoff = 2.5 * ( this->typeDict[affectedTuple[0]].radius
+	                   + this->typeDict[affectedTuple[1]].radius );
 	this->possibleInteractions.push_back(lj);
-	std::cout << "Info: LennardJones interaction added to possibleInteractions\n";
+	std::cout << "Info: LennardJones interaction added to possibleInteractions"
+	          << std::endl;
 }
 
 unsigned int Simulation::getNumberForces()
