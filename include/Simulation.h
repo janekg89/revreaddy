@@ -74,12 +74,12 @@ class Simulation
 		 * state must be restored. */
 		std::vector<Particle> activeParticles;
 		std::vector<Particle> oldActiveParticles;
-		/* activePairs has an entry for every pair (i,j)
+		/* activePairs has an entry for every pair (i,j) unique ids
 		 * that is within reaction range at the current time.
 		 * oldActivePairs temporarily saves the state of
 		 * activePairs and is restored upon timestep-rejection. */
-		std::vector< std::vector<unsigned int> > activePairs;
-		std::vector< std::vector<unsigned int> > oldActivePairs;
+		std::vector< std::vector<unsigned long long> > activePairs;
+		std::vector< std::vector<unsigned long long> > oldActivePairs;
 		/* MAYBE For later adaptive timestepping methods */
 		//std::vector<Particle> consideredParticles;
 		/* energy is the sum of all energy terms in the system by
@@ -130,6 +130,7 @@ class Simulation
 			unsigned int indexJ);
 		void calculateGeometryForcesEnergies();
 		void resetForces();
+		void resetActivePairs();
 		double acceptanceDynamics();
 		double acceptanceReactions();
 		bool acceptOrReject(double acceptance);

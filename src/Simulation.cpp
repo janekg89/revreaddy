@@ -54,6 +54,7 @@ void Simulation::run()
 		this->saveOldState();
 		this->propagateDynamics(); // propose
 		this->resetForces();
+		this->resetActivePairs();
 		this->energy = 0.;
 		this->calculateInteractionForcesEnergies(); // calculate energy and force
 		this->calculateGeometryForcesEnergies();
@@ -68,6 +69,7 @@ void Simulation::run()
 		this->saveOldState();
 		acceptance = this->propagateReactions();
 		this->resetForces();
+		this->resetActivePairs();
 		this->energy = 0.;
 		this->calculateInteractionForcesEnergies();
 		this->calculateGeometryForcesEnergies();
@@ -177,6 +179,7 @@ void Simulation::recordObservables(unsigned long int timeIndex)
 
 void Simulation::calculateInteractionForcesEnergies()
 {
+	// TODO also consider reaction radii
 	double minimalLength = this->boxsize;
 	for (unsigned int i=0; i<possibleInteractions.size(); i++) {
 		if (possibleInteractions[i]->cutoff < minimalLength) {
@@ -340,12 +343,28 @@ void Simulation::calculateSingleForceEnergy(
 				this->isPeriodic, 
 				this->boxsize);
 			// distance of particle i,j squared
-			// TODO check if (i,j) is activePair = within reaction radius
-			double rSquared = r_ij[0]*r_ij[0] + r_ij[1]*r_ij[1] + r_ij[2]*r_ij[2];
-			// radius of particle i
-			double radiusI = this->typeDict[activeParticles[indexI].typeId].radius; 
-			// radius of particle j
-			double radiusJ = this->typeDict[activeParticles[indexJ].typeId].radius;
+			double rSquared 
+				= r_ij[0]*r_ij[0] + r_ij[1]*r_ij[1] + r_ij[2]*r_ij[2];
+			// radii of particle i and j
+			double radiusI
+				= this->typeDict[activeParticles[indexI].typeId].radius; 
+			double radiusJ 
+				= this->typeDict[activeParticles[indexJ].typeId].radius;
+			// squared sum of reactionRadii of particle i and j
+			double reactionRadiiSquared
+				= pow(
+				this->typeDict[activeParticles[indexI].typeId].reactionRadius
+				+ this->typeDict[activeParticles[indexJ].typeId].reactionRadius
+				,2.);
+			// check if particles i, j are within reactive distance
+			// if so, their unique ids will be added to activePairs
+			if ( rSquared <= reactionRadiiSquared ) {
+				std::vector<unsigned long long> activePair;
+				activePair.push_back(activeParticles[indexI].uniqueId);
+				activePair.push_back(activeParticles[indexJ].uniqueId);
+				activePair.shrink_to_fit();
+				this->activePairs.push_back(activePair);
+			}
 			// squared sum of particles i,j radii
 			double radiiSquared = pow(radiusI + radiusJ, 2.);
 			// actual force call here
@@ -391,6 +410,13 @@ void Simulation::resetForces()
 	}
 }
 
+void Simulation::resetActivePairs()
+{
+	this->activePairs.clear();
+}
+
+/* For the dynamical acceptance probability both states, old and new
+ * have to have the same number of particles.  */
 double Simulation::acceptanceDynamics()
 {
 	double acceptance = 1.;

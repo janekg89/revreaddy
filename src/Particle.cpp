@@ -12,20 +12,9 @@ Particle::Particle()
 	this->boxCoordinates.shrink_to_fit();
 	this->cumulativeForce 	= {0.,0.,0.};
 	this->cumulativeForce.shrink_to_fit();
-	this->oldForce          = {0.,0.,0.};
-	this->oldForce.shrink_to_fit();
-	this->oldPosition       = {0.,0.,0.};
-	this->oldPosition.shrink_to_fit();
-	this->oldBoxCoordinates = {0,0,0};
-	this->oldBoxCoordinates.shrink_to_fit();
 	this->typeId            = 0;
-	this->skip              = 0;
-	this->count	            = 0;
-}
-
-// TODO delete vectors
-Particle::~Particle()
-{
+	//this->skip              = 0;
+	//this->count	            = 0;
 }
 
 void Particle::move(std::vector<double>& deviation)
