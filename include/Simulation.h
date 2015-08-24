@@ -123,8 +123,9 @@ class Simulation
 		 * of neighboring boxes, that have the size of the maximum
 		 * cutoff distance --> O(n) */
 		void calculateInteractionForcesEnergiesWithLattice(unsigned int numberBoxes);
-		/* evaluate the force and energy for
-		 * a given pair of particles */
+		/* evaluate the force and energy for a given pair of
+		 * particles and store their unique ids in activePairs
+		 * if they are in reactive distance */
 		void calculateSingleForceEnergy(
 			unsigned int indexI,
 			unsigned int indexJ);

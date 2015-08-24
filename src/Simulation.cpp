@@ -43,11 +43,13 @@ void Simulation::run()
 	std::cout << "Info: Run ..." << std::endl;
 	clock_t timer = clock();
 	this->resetForces();
+	this->resetActivePairs();
 	this->energy = 0.;
 	this->calculateInteractionForcesEnergies();
 	this->calculateGeometryForcesEnergies();
 	this->recordObservables(0);
 	double acceptance = 1.;
+	bool isStepAccepted = true;
 	for (unsigned long int timeIndex = 1; timeIndex < maxTime; timeIndex++)
 	{
 		/* Dynamics */
@@ -59,7 +61,8 @@ void Simulation::run()
 		this->calculateInteractionForcesEnergies(); // calculate energy and force
 		this->calculateGeometryForcesEnergies();
 		acceptance = this->acceptanceDynamics();
-		if (this->isReversibleDynamics && ( ! this->acceptOrReject(acceptance) ) ) {
+		isStepAccepted = this->acceptOrReject(acceptance);
+		if (this->isReversibleDynamics && ( ! isStepAccepted ) ) {
 			this->restoreOldState();
 			this->rejectionsDynamics += 1;
 		}
@@ -74,7 +77,8 @@ void Simulation::run()
 		this->calculateInteractionForcesEnergies();
 		this->calculateGeometryForcesEnergies();
 		acceptance *= this->acceptanceReactions();
-		if (this->isReversibleReactions && ( ! this->acceptOrReject(acceptance) )){
+		isStepAccepted = this->acceptOrReject(acceptance);
+		if (this->isReversibleReactions && ( ! isStepAccepted ) ) {
 			this->restoreOldState();
 			this->rejectionsReactions += 1;
 		}
@@ -94,16 +98,16 @@ void Simulation::run()
 
 void Simulation::saveOldState()
 {
-	this->oldEnergy = this->energy;
+	this->oldEnergy          = this->energy;
 	this->oldActiveParticles = this->activeParticles;
-	this->oldActivePairs = this->activePairs;
+	this->oldActivePairs     = this->activePairs;
 }
 
 void Simulation::restoreOldState()
 {
-	this->energy = this->oldEnergy;
+	this->energy          = this->oldEnergy;
 	this->activeParticles = this->oldActiveParticles;
-	this->activePairs = this->oldActivePairs;
+	this->activePairs     = this->oldActivePairs;
 }
 
 void Simulation::propagateDynamics()
@@ -179,11 +183,25 @@ void Simulation::recordObservables(unsigned long int timeIndex)
 
 void Simulation::calculateInteractionForcesEnergies()
 {
-	// TODO also consider reaction radii
+	/* We want to find out if neighborlist pays off. 
+	 * First determine the minimal size of subboxes,
+	 * therefore check all interaction distances and
+	 * all reaction radii. */
 	double minimalLength = this->boxsize;
+	/* check interaction distances */
 	for (unsigned int i=0; i<possibleInteractions.size(); i++) {
 		if (possibleInteractions[i]->cutoff < minimalLength) {
 			minimalLength = possibleInteractions[i]->cutoff;
+		}
+	}
+	/* check reaction radii combinations (i,j) with i <= j */
+	for (unsigned int i=0; i<this->typeDict.size(); i++) {
+		for (unsigned int j=i; j<this->typeDict.size(); j++) {
+			double reactionRadii
+				= typeDict[i].reactionRadius + typeDict[j].reactionRadius;
+			if (reactionRadii < minimalLength) {
+				minimalLength = reactionRadii;
+			}
 		}
 	}
 	double counter = 1.;
@@ -214,7 +232,8 @@ void Simulation::calculateInteractionForcesEnergiesNaive()
 	}
 }
 
-void Simulation::calculateInteractionForcesEnergiesWithLattice(unsigned int numberBoxes)
+void Simulation::calculateInteractionForcesEnergiesWithLattice(
+	unsigned int numberBoxes)
 {
 	// construct neighborlist
 	double n = (double) numberBoxes;
@@ -327,6 +346,40 @@ void Simulation::calculateSingleForceEnergy(
 	std::vector<double> forceJ = {0.,0.,0.};
 	// interaction energy of particle pair (i,j)
 	double energyBuffer = 0.; 
+	/* First gather all parameters, distances and reaction
+	 * radii of particles, check if they are within reaction
+	 * distance and then check for forces that apply to the given
+	 * pair of particles. */
+	// connecting vector from particle i to j
+	std::vector<double> r_ij = {0.,0.,0.}; 
+	getMinDistanceVector(
+		r_ij,
+		activeParticles[indexI].position, 
+		activeParticles[indexJ].position, 
+		this->isPeriodic, 
+		this->boxsize);
+	// distance of particle i,j squared
+	double rSquared = r_ij[0]*r_ij[0] + r_ij[1]*r_ij[1] + r_ij[2]*r_ij[2];
+	// radii of particle i and j
+	double radiusI = this->typeDict[activeParticles[indexI].typeId].radius; 
+	double radiusJ = this->typeDict[activeParticles[indexJ].typeId].radius;
+	// squared sum of particles i,j radii
+	double radiiSquared = pow(radiusI + radiusJ, 2.);
+	// squared sum of reactionRadii of particle i and j
+	double reactionRadiiSquared
+		= pow(
+		  this->typeDict[activeParticles[indexI].typeId].reactionRadius
+		+ this->typeDict[activeParticles[indexJ].typeId].reactionRadius
+		, 2.);
+	// check if particles i, j are within reactive distance
+	// if so, their unique ids will be added to activePairs
+	if ( rSquared <= reactionRadiiSquared ) {
+		std::vector<unsigned long long> activePair;
+		activePair.push_back(activeParticles[indexI].uniqueId);
+		activePair.push_back(activeParticles[indexJ].uniqueId);
+		activePair.shrink_to_fit();
+		this->activePairs.push_back(activePair);
+	}
 	// look for force that affects the pair (i,j)
 	for (unsigned int k=0; k<this->possibleInteractions.size(); k++) {
 		if (
@@ -334,39 +387,6 @@ void Simulation::calculateSingleForceEnergy(
 				this->activeParticles[indexI].typeId,
 				this->activeParticles[indexJ].typeId)
 		) {
-			// connecting vector from particle i to j
-			std::vector<double> r_ij = {0.,0.,0.}; 
-			getMinDistanceVector(
-				r_ij,
-				activeParticles[indexI].position, 
-				activeParticles[indexJ].position, 
-				this->isPeriodic, 
-				this->boxsize);
-			// distance of particle i,j squared
-			double rSquared 
-				= r_ij[0]*r_ij[0] + r_ij[1]*r_ij[1] + r_ij[2]*r_ij[2];
-			// radii of particle i and j
-			double radiusI
-				= this->typeDict[activeParticles[indexI].typeId].radius; 
-			double radiusJ 
-				= this->typeDict[activeParticles[indexJ].typeId].radius;
-			// squared sum of reactionRadii of particle i and j
-			double reactionRadiiSquared
-				= pow(
-				this->typeDict[activeParticles[indexI].typeId].reactionRadius
-				+ this->typeDict[activeParticles[indexJ].typeId].reactionRadius
-				,2.);
-			// check if particles i, j are within reactive distance
-			// if so, their unique ids will be added to activePairs
-			if ( rSquared <= reactionRadiiSquared ) {
-				std::vector<unsigned long long> activePair;
-				activePair.push_back(activeParticles[indexI].uniqueId);
-				activePair.push_back(activeParticles[indexJ].uniqueId);
-				activePair.shrink_to_fit();
-				this->activePairs.push_back(activePair);
-			}
-			// squared sum of particles i,j radii
-			double radiiSquared = pow(radiusI + radiusJ, 2.);
 			// actual force call here
 			this->possibleInteractions[k]->calculateForceEnergy(
 				forceI,//out
@@ -493,14 +513,14 @@ void Simulation::addParticle(
 	unsigned int particleTypeId)
 {
 	if (particleTypeId >= this->typeDict.size() ) {
-		std::cout << "The given particle type does not exist!\n"
+		std::cout << "Error: The given particle type does not exist!\n"
 		          << "Particle is not created" << std::endl;
 		return;
 	}
 	Particle particle;
 	if ( initPos.size() == 3 ) { particle.position  = initPos; }
 	else {
-		std::cout << "Particles' initial position has dimension mismatch!\n" 
+		std::cout << "Error: Particles' initial position has dimension mismatch!\n" 
 		          << "Particle will be placed at {0,0,0}" << std::endl;	
 		particle.position = {0., 0., 0.};
 	}

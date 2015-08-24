@@ -21,28 +21,24 @@ class SimulationTest : public CxxTest::TestSuite
 			sim->new_Type("testtype", 2., 3., 4.);
 			sim->new_Type("foo", 4., 5., 6.);
 			// check the size of typeDict
-			TS_ASSERT_EQUALS(sim->typeDict->names.size(), 2);
-			TS_ASSERT_EQUALS(sim->typeDict->radii.size(), 2);
-			TS_ASSERT_EQUALS(sim->typeDict->diffusionConstants.size(), 2);
-			TS_ASSERT_EQUALS(sim->typeDict->reactionRadii.size(), 2);
-			TS_ASSERT_EQUALS(sim->typeDict->getNumberOfTypes(), 2);
+			TS_ASSERT_EQUALS(sim->typeDict.size(), 2);
 
 			// check for the values of typeDict
-			TS_ASSERT_EQUALS(sim->typeDict->names[0], "testtype");
-			TS_ASSERT_EQUALS(sim->typeDict->names[1], "foo");
-			TS_ASSERT_DIFFERS(sim->typeDict->names[1], " foo");
+			TS_ASSERT_EQUALS(sim->typeDict[0].name, "testtype");
+			TS_ASSERT_EQUALS(sim->typeDict[1].name, "foo");
+			TS_ASSERT_DIFFERS(sim->typeDict[1].name, " foo");
 			
-			TS_ASSERT_EQUALS(sim->typeDict->radii[0], 2.);
-			TS_ASSERT_EQUALS(sim->typeDict->radii[1], 4.);
-			TS_ASSERT_DIFFERS(sim->typeDict->radii[1], 10.);
+			TS_ASSERT_EQUALS(sim->typeDict[0].radius, 2.);
+			TS_ASSERT_EQUALS(sim->typeDict[1].radius, 4.);
+			TS_ASSERT_DIFFERS(sim->typeDict[1].radius, 10.);
 
-			TS_ASSERT_EQUALS(sim->typeDict->diffusionConstants[0], 3.);
-			TS_ASSERT_EQUALS(sim->typeDict->diffusionConstants[1], 5.);
-			TS_ASSERT_DIFFERS(sim->typeDict->diffusionConstants[1], 10.);
+			TS_ASSERT_EQUALS(sim->typeDict[0].diffusionConstant, 3.);
+			TS_ASSERT_EQUALS(sim->typeDict[1].diffusionConstant, 5.);
+			TS_ASSERT_DIFFERS(sim->typeDict[1].diffusionConstant, 10.);
 
-			TS_ASSERT_EQUALS(sim->typeDict->reactionRadii[0], 4.);
-			TS_ASSERT_EQUALS(sim->typeDict->reactionRadii[1], 6.);
-			TS_ASSERT_DIFFERS(sim->typeDict->reactionRadii[1], 10.);
+			TS_ASSERT_EQUALS(sim->typeDict[0].reactionRadius, 4.);
+			TS_ASSERT_EQUALS(sim->typeDict[1].reactionRadius, 6.);
+			TS_ASSERT_DIFFERS(sim->typeDict[1].reactionRadius, 10.);
 			
 			delete sim;
 		}
@@ -168,6 +164,31 @@ class SimulationTest : public CxxTest::TestSuite
 			TS_ASSERT_EQUALS(sim->possibleInteractions[1]->cutoff, 4.);
 			sim->new_LennardJones("lj", {1, 1}, 4.);
 			TS_ASSERT_EQUALS(sim->possibleInteractions[2]->cutoff, 25.);
+			delete sim;
+		}
+
+		/* Two types of particles A and B with reactionRadii 2 and 1
+		 * respectively. After initial setup the activePairs should
+		 * contain the correct pairs of unique ids */
+		void test_activePairs_correctEntries(void)
+		{
+			Simulation sim;
+			sim.new_Type("A", 1., 1., 2.);
+			sim.new_Type("B", 1., 1., 1.);
+			sim.boxsize = 10.;
+			sim.addParticle({0., -2., 0.}, 0); // Type A uniqueId 0
+			sim.addParticle({2., -2., 0.}, 1); // B 1
+			sim.addParticle({0., 3., 0.}, 1);  // B 2
+			sim.addParticle({2., 3., 0.}, 0);  // A 3
+			sim.addParticle({3., 3., 0.}, 1);  // B 4
+			sim.calculateInteractionForcesEnergiesNaive();
+			TS_ASSERT_EQUALS(sim.activePairs.size(), 3);
+			std::vector<unsigned long long> pair1 = {0, 1};
+			std::vector<unsigned long long> pair2 = {2, 3};
+			std::vector<unsigned long long> pair3 = {3, 4};
+			TS_ASSERT_EQUALS(sim.activePairs[0], pair1);
+			TS_ASSERT_EQUALS(sim.activePairs[1], pair2);
+			TS_ASSERT_EQUALS(sim.activePairs[2], pair3);
 		}
 
 		/* create two systems, initially the same. calculate forces
@@ -324,6 +345,9 @@ class SimulationTest : public CxxTest::TestSuite
 					sim2->activeParticles[i].cumulativeForce,
 					1e-12);
 			}
+
+			delete sim1;
+			delete sim2;
 		}
 
 		/* same as before but with LennardJones particles */
@@ -477,6 +501,9 @@ class SimulationTest : public CxxTest::TestSuite
 					sim2->activeParticles[i].cumulativeForce,
 					1e-12);
 			}
+			
+			delete sim1;
+			delete sim2;
 		}
 
 };

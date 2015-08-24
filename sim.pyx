@@ -32,7 +32,7 @@ cdef extern from "Simulation.h":
 		string getDictName(unsigned int)
 		double getDictRadius(unsigned int)
 		double getDictDiffusionConstant(unsigned int)
-		double getDictReactionRadii(unsigned int)
+		double getDictReactionRadius(unsigned int)
 		unsigned int getParticleNumber()
 		void deleteAllParticles()
 		void writeAllObservablesToFile()
@@ -46,7 +46,8 @@ cdef extern from "Simulation.h":
 			string,
 			vector[double],
 			vector[vector[uint]])
-		void new_MeanSquaredDisplacement(unsigned long int, string, unsigned int)
+		void new_MeanSquaredDisplacement(
+			unsigned long int, string, unsigned int)
 		void new_ProbabilityDensity(
 			unsigned long int,
 			string,
@@ -253,8 +254,12 @@ cdef class pySimulation:
 		numberOfForces = self.getNumberForces()
 		names = [self.getForceName(i) for i in range(numberOfForces)]
 		types = [self.getForceType(i) for i in range(numberOfForces)]
-		affectedTuples = [self.getForceAffectedTuple(i) for i in range(numberOfForces)]
-		parameters = [self.getForceParameters(i) for i in range(numberOfForces)]
+		affectedTuples = [
+			self.getForceAffectedTuple(i) for i in range(numberOfForces)
+		]
+		parameters = [
+			self.getForceParameters(i) for i in range(numberOfForces)
+		]
 		print "Number of forces:", numberOfForces
 		form = "{:<15}{:<20}{:<15}{:<15}"
 		print form.format(
