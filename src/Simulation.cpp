@@ -28,7 +28,6 @@ Simulation::Simulation()
 Simulation::~Simulation()
 {
 	delete this->random;
-	//delete this->typeDict;
 }
 
 /* TODO after one run() the observables' files should 

@@ -191,6 +191,88 @@ class SimulationTest : public CxxTest::TestSuite
 			TS_ASSERT_EQUALS(sim.activePairs[2], pair3);
 		}
 
+		/* Create a current state (energy, activeParticles, activePairs)
+		 * and check if it is saved correctly by comparing individual 
+		 * elements of current and old variables*/
+		void test_saveOldState(void)
+		{
+			Simulation sim;
+			sim.new_Type("A", 1., 1., 2.);
+			sim.new_Type("B", 1., 1., 1.);
+			sim.boxsize = 10.;
+			/* Set current state */
+			sim.addParticle({0., -2., 0.}, 0); // Type A uniqueId 0
+			sim.addParticle({2., -2., 0.}, 1); // B 1
+			sim.addParticle({0., 3., 0.}, 1);  // B 2
+			sim.addParticle({2., 3., 0.}, 0);  // A 3
+			sim.addParticle({3., 3., 0.}, 1);  // B 4
+			std::vector<unsigned long long> pair1 = {0, 1};
+			std::vector<unsigned long long> pair2 = {2, 3};
+			std::vector<unsigned long long> pair3 = {3, 4};
+			sim.activePairs.push_back(pair1);
+			sim.activePairs.push_back(pair2);
+			sim.activePairs.push_back(pair3);
+			sim.energy = 42.;
+			/* Perform save */
+			sim.saveOldState();
+			/* Check for equality of old and current variables.
+			 * First check activeParticles. */
+			TS_ASSERT_EQUALS(
+				sim.oldActiveParticles.size(), sim.activeParticles.size());
+			for (unsigned int i=0; i<sim.activeParticles.size(); i++) {
+				TS_ASSERT_EQUALS(
+					sim.oldActiveParticles[i], sim.activeParticles[i]);
+			}
+			
+			TS_ASSERT_EQUALS(
+				sim.oldActivePairs.size(), sim.activePairs.size());
+			TS_ASSERT_EQUALS(sim.oldActivePairs[0], pair1);
+			TS_ASSERT_EQUALS(sim.oldActivePairs[1], pair2);
+			TS_ASSERT_EQUALS(sim.oldActivePairs[2], pair3);
+			TS_ASSERT_EQUALS(sim.oldEnergy, 42.);
+		}
+
+		/* Same as test_saveOldState but testing restoreOldState */
+		void test_restoreOldState(void)
+		{
+			Simulation sim;
+			sim.new_Type("A", 1., 1., 2.);
+			sim.new_Type("B", 1., 1., 1.);
+			sim.boxsize = 10.;
+			/* Set current state */
+			sim.addParticle({0., -2., 0.}, 0); // Type A uniqueId 0
+			sim.addParticle({2., -2., 0.}, 1); // B 1
+			sim.addParticle({0., 3., 0.}, 1);  // B 2
+			sim.addParticle({2., 3., 0.}, 0);  // A 3
+			sim.addParticle({3., 3., 0.}, 1);  // B 4
+			sim.oldActiveParticles = sim.activeParticles;
+			sim.activeParticles.clear();
+			std::vector<unsigned long long> pair1 = {0, 1};
+			std::vector<unsigned long long> pair2 = {2, 3};
+			std::vector<unsigned long long> pair3 = {3, 4};
+			sim.oldActivePairs.push_back(pair1);
+			sim.oldActivePairs.push_back(pair2);
+			sim.oldActivePairs.push_back(pair3);
+			sim.oldEnergy = 42.;
+			/* Perform restore */
+			sim.restoreOldState();
+			/* Check for equality of old and current variables.
+			 * First check activeParticles. */
+			TS_ASSERT_EQUALS(
+				sim.oldActiveParticles.size(), sim.activeParticles.size());
+			for (unsigned int i=0; i<sim.activeParticles.size(); i++) {
+				TS_ASSERT_EQUALS(
+					sim.oldActiveParticles[i], sim.activeParticles[i]);
+			}
+			
+			TS_ASSERT_EQUALS(
+				sim.oldActivePairs.size(), sim.activePairs.size());
+			TS_ASSERT_EQUALS(sim.activePairs[0], pair1);
+			TS_ASSERT_EQUALS(sim.activePairs[1], pair2);
+			TS_ASSERT_EQUALS(sim.activePairs[2], pair3);
+			TS_ASSERT_EQUALS(sim.energy, 42.);		
+		}
+
 		/* create two systems, initially the same. calculate forces
 		 * in one system with neighborlattice and in the other
 		 * without neighborlattice. Results (forces and energy)

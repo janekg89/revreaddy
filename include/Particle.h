@@ -27,6 +27,11 @@ class Particle
 		void move(std::vector<double>& deviation);
 		void addForce(std::vector<double>& force);
 		void resetForce();
+
+		/* These comparison operators simply check for all variables
+		 * to be equal. */
+		bool operator==(const Particle& other);
+		bool operator!=(const Particle& other);
 };
 
 #endif
