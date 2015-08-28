@@ -3,14 +3,14 @@
  *
  * This is the main class, which uses all other classes.
  * Simulation performs the time loop which propagates
- * the particles.
- */
+ * the particles. */
 
 #ifndef __SIMULATION_H_INCLUDED__
 #define __SIMULATION_H_INCLUDED__
 /* This forward declaration is still necessary due 
  * to a non-resolved circular dependence with one or more
- * observables. */
+ * observables and Reactions, since they manipulate the
+ * current state directly. */
 class Simulation;
 #include <math.h>
 #include <cmath>
@@ -36,6 +36,9 @@ class Simulation;
 #include "ParticleInteraction.h"
 #include "SoftRepulsion.h"
 #include "LennardJones.h"
+#include "Reaction.h"
+#include "Conversion.h"
+#include "ReactionEvent.h"
 #include "utils.h"
 
 class Simulation
@@ -50,7 +53,7 @@ class Simulation
 		/* All first order potentials. Used to build geometries. */ 
 		std::vector<Geometry*> geometries;
 		/* Storage of all active reversible reactions that may happen */
-		//std::vector<Reaction*> possibleReactions;
+		std::vector<Reaction*> possibleReactions;
 		/* Stores children of Observable. Those are called in
 		 * predefined intervals during run(). */
 		std::vector<Observable*> observables;
@@ -64,6 +67,9 @@ class Simulation
 		bool isReversibleDynamics;
 		bool isReversibleReactions;
 		bool useNeighborList;
+		/* This variable is used only by the author to test different
+		 * methods of performing reactions. */
+		unsigned int reactionPropagation;
 
 		/*------- state variables, change during run() -------*/
 
@@ -88,7 +94,10 @@ class Simulation
 		double energy;
 		double oldEnergy;
 		double cumulativeRuntime;  // keeps track of the advanced time
-		double currentAcceptance;  // the last calculated acceptance prob
+		/* The last calculated acceptance probability for dynamical step */
+		double acceptProbDynamics;
+		/* The last calculated acceptance probability for reaction step */
+		double acceptProbReactions;
 		unsigned long long uniqueIdCounter;
 		unsigned long int acceptionsDynamics;
 		unsigned long int rejectionsDynamics;
@@ -209,6 +218,12 @@ class Simulation
 		std::string getForceType(unsigned int i);
 		std::vector<unsigned int> getForceAffectedTuple(unsigned int i);
 		std::vector<double> getForceParameters(unsigned int i);
+		void new_Conversion(
+			std::string name,
+			std::vector<unsigned int> forwardTypes,
+			std::vector<unsigned int> backwardTypes,
+			double forwardRate,
+			double backwardRate);
 };
 
 #endif // __SIMULATION_H_INCLUDED__

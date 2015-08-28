@@ -33,6 +33,8 @@ int main()
 				x0[2] = -0.49 * sim->boxsize + k;
 				sim->addParticle(x0, 0);
 			}
+	std::cout << sim->activeParticles.max_size() << std::endl;
+	/*
 	sim->new_Trajectory(1, "traj.xyz");
 	sim->new_MeanSquaredDisplacement(1, "msd.dat", 0);
 	sim->run();
@@ -41,6 +43,6 @@ int main()
 
 	std::cout << "acc dynamics " << sim->acceptionsDynamics << std::endl;
 	std::cout << "rej dynamics " << sim->rejectionsDynamics << std::endl;
-
+	*/
 	return 0;
 }

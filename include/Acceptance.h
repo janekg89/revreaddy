@@ -12,6 +12,7 @@
 #include "Observable.h"
 #include "Simulation.h"
 
+// TODO make two Acceptances one for Reactions, one for Dynamics
 class Acceptance : public Observable
 {
 	public:

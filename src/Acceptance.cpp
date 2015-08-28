@@ -18,7 +18,7 @@ void Acceptance::record(
 	std::vector<Particle>& activeParticles,
 	double t)
 {
-	this->acceptanceProbs.push_back(this->simulation->currentAcceptance);
+	this->acceptanceProbs.push_back(this->simulation->acceptProbDynamics);
 	this->times.push_back(t);
 }
 

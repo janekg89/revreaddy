@@ -16,13 +16,15 @@ Simulation::Simulation()
 	this->boxsize               = 10.;
 	this->energy                = 0.;
 	this->oldEnergy             = 0.;
-	this->currentAcceptance     = 1.;
+	this->acceptProbDynamics    = 1.;
+	this->acceptProbReactions   = 1.;
 	this->acceptionsDynamics    = 0;
 	this->rejectionsDynamics    = 0;
 	this->isReversibleDynamics  = true;
 	this->isReversibleReactions = true;
 	this->uniqueIdCounter       = 0;
 	this->useNeighborList       = true;
+	this->reactionPropagation   = 0;
 }
 
 Simulation::~Simulation()
@@ -60,6 +62,7 @@ void Simulation::run()
 		this->calculateInteractionForcesEnergies(); // calculate energy and force
 		this->calculateGeometryForcesEnergies();
 		acceptance = this->acceptanceDynamics();
+		this->acceptProbDynamics = acceptance;
 		isStepAccepted = this->acceptOrReject(acceptance);
 		if (this->isReversibleDynamics && ( ! isStepAccepted ) ) {
 			this->restoreOldState();
@@ -76,6 +79,7 @@ void Simulation::run()
 		this->calculateInteractionForcesEnergies();
 		this->calculateGeometryForcesEnergies();
 		acceptance *= this->acceptanceReactions();
+		this->acceptProbReactions = acceptance;
 		isStepAccepted = this->acceptOrReject(acceptance);
 		if (this->isReversibleReactions && ( ! isStepAccepted ) ) {
 			this->restoreOldState();
@@ -116,7 +120,7 @@ void Simulation::propagateDynamics()
 	double noisePrefactor = 1.;
 	double forcePrefactor = 1.;
 	double diffConst = 1.; //diffusion constant of current particle
-	for (int i=0; i<activeParticles.size(); i++)
+	for (unsigned long int i=0; i<activeParticles.size(); i++)
 	{
 		// look up particles' diffusion constant from its typeId
 		diffConst=this->typeDict[activeParticles[i].typeId].diffusionConstant;
@@ -168,7 +172,14 @@ void Simulation::propagateDynamics()
 //TODO
 double Simulation::propagateReactions()
 {
-	return 1.;
+	/* First construct the queue reactionCandidates, then shuffle it
+	 * and perform the reactions subsequently. If one particle
+	 * cannot be found via its uniqueId, because it was destroyed in
+	 * a previous reaction, skip this event and check the next 
+	 * candidate. Note that a ReactionEvent will be performed with
+	 * its predefined probability. */
+	double acceptance = 1.;
+	return acceptance;
 }
 
 void Simulation::recordObservables(unsigned long int timeIndex)
@@ -478,7 +489,6 @@ double Simulation::acceptanceDynamics()
 	acceptance = firstTerm + secondTerm + this->energy - this->oldEnergy;
 	acceptance /= -1. * this->kBoltzmann * this->temperature;
 	acceptance = exp( acceptance );
-	this->currentAcceptance = acceptance;
 	return acceptance;
 }
 
