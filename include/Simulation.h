@@ -80,7 +80,9 @@ class Simulation
 		 * state must be restored. */
 		std::vector<Particle> activeParticles;
 		std::vector<Particle> oldActiveParticles;
-		/* activePairs has an entry for every pair (i,j) unique ids
+		/* activePairs has an entry for every pair (i,j) particles'
+		 * indices (NOT uniqueIds, since particle indices are conserved
+		 * during until reactions are propagated)
 		 * that is within reaction range at the current time.
 		 * oldActivePairs temporarily saves the state of
 		 * activePairs and is restored upon timestep-rejection. */
