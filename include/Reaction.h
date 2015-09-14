@@ -20,6 +20,13 @@ class Reaction
 		double forwardRate;
 		double backwardRate;
 		
+		/* Check if the given types or type are/is 
+		 * affected by the reaction in forward direction. */
+		bool isAffectedForward(std::vector<unsigned int> types);
+		bool isAffectedForward(unsigned int type);
+		/* Same as above but checks for backward direction */
+		bool isAffectedBackward(std::vector<unsigned int> types);
+		bool isAffectedBackward(unsigned int type);
 		/* The following perform the reaction in the
 		 * given direction. particleIndices contains the 
 		 * activeParticles index of particles on which the reaction
@@ -28,7 +35,9 @@ class Reaction
 		 * uni or bimolecular. */
 		/* NOTE: These functions manipulate Simulation.activeParticles
 		 * but should do this only by using the methods provided by
-		 * Simulation, e.g. addParticle() */
+		 * Simulation, e.g. addParticle().
+		 * NOTE2: particleIndices are the positions in activeParticles 
+		 * not the uniqueIds. */
 		virtual double performForward(
 			std::vector<unsigned long int> particleIndices);
 		virtual double performBackward(

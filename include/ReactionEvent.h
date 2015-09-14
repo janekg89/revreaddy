@@ -18,7 +18,8 @@ class ReactionEvent
 		unsigned int reactionId;
 		/* true = forward, false = backward */
 		bool forwardOrBackward;
-		/* This vector has either one or two elements */
+		/* This vector has either one or two elements.
+		 * Stored here are the uniqueIds of particles. */
 		std::vector<unsigned long long> participants;
 };
 

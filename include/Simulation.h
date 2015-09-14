@@ -84,8 +84,8 @@ class Simulation
 		 * that is within reaction range at the current time.
 		 * oldActivePairs temporarily saves the state of
 		 * activePairs and is restored upon timestep-rejection. */
-		std::vector< std::vector<unsigned long long> > activePairs;
-		std::vector< std::vector<unsigned long long> > oldActivePairs;
+		std::vector< std::vector<unsigned long> > activePairs;
+		std::vector< std::vector<unsigned long> > oldActivePairs;
 		/* MAYBE For later adaptive timestepping methods */
 		//std::vector<Particle> consideredParticles;
 		/* energy is the sum of all energy terms in the system by
@@ -144,6 +144,14 @@ class Simulation
 		double acceptanceDynamics();
 		double acceptanceReactions();
 		bool acceptOrReject(double acceptance);
+		/* Return the position in activeParticles of the 
+		 * particle with the uniqueId id. Particles are added
+		 * to activeParticles only using addParticle(), which
+		 * means that it is sorted w.r.t. uniqueIds. Therefore
+		 * this function performs a binary search with
+		 * complexity O(log n). The return value is signed so
+		 * the case "no particle found" is expressed by "-1" */
+		long int findParticleIndex(unsigned long long id);
 
 		/*------- functions that will be wrapped by python -------*/
 

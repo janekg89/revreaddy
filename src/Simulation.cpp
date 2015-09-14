@@ -178,6 +178,52 @@ double Simulation::propagateReactions()
 	 * a previous reaction, skip this event and check the next 
 	 * candidate. Note that a ReactionEvent will be performed with
 	 * its predefined probability. */
+	std::vector<ReactionEvent> reactionCandidates;
+	/* Find bimolecular candidates */
+	for (unsigned long i=0; i<this->activePairs.size(); i++) {
+		// extract indices of the pair
+		unsigned long particle1Index = activePairs[i][0];
+		unsigned long particle2Index = activePairs[i][1];
+		// determine types of the pair
+		unsigned int particle1Type
+			= activeParticles[particle1Index].typeId;
+		unsigned int particle2Type
+			= activeParticles[particle2Index].typeId;
+		std::vector<unsigned int> types = {particle1Type, particle2Type};
+		for (unsigned int j=0; j<this->possibleReactions; j++) {
+			if ( possibleReactions[j]->isAffectedForward(types) ) {
+				std::vector<unsigned long long> participants;
+				participants.push_back(
+					activeParticles[particle1Index].uniqueId);
+				participants.push_back(
+					activeParticles[particle2Index].uniqueId);
+				ReactionEvent event(
+					j, // reactionId
+					true, // forwardOrBackward
+					participants); // uniqueIds of reaction participants
+			}
+			else if ( possibleReaction[j]->isAffectedBackward(types) ) {
+				std::vector<unsigned long long> participants;
+				participants.push_back(
+					activeParticles[particle1Index].uniqueId);
+				participants.push_back(
+					activeParticles[particle2Index].uniqueId);
+				ReactionEvent event(
+					j, // reactionId
+					false, // forwardOrBackward
+					participants); // uniqueIds of reaction participants			
+			}
+		}
+	}
+	/* Find unimolecular candidates */
+	for (unsigned long i=0; i<this->activeParticles.size(), i++) {
+		// TODO
+	}
+	std::random_shuffle(reactionCandidates.begin(), reactionCandidates.end());
+	/* Perform reactions subsequently */
+	for (unsigned long i=0; i<reactionCandidates.size(); i++) {
+		// TODO
+	}
 	double acceptance = 1.;
 	return acceptance;
 }
@@ -384,9 +430,9 @@ void Simulation::calculateSingleForceEnergy(
 	// check if particles i, j are within reactive distance
 	// if so, their unique ids will be added to activePairs
 	if ( rSquared <= reactionRadiiSquared ) {
-		std::vector<unsigned long long> activePair;
-		activePair.push_back(activeParticles[indexI].uniqueId);
-		activePair.push_back(activeParticles[indexJ].uniqueId);
+		std::vector<unsigned long> activePair;
+		activePair.push_back(indexI);
+		activePair.push_back(indexJ);
 		activePair.shrink_to_fit();
 		this->activePairs.push_back(activePair);
 	}
@@ -515,6 +561,21 @@ bool Simulation::acceptOrReject(double acceptance)
 			return false;
 		}
 	}
+}
+
+long int Simulation::findParticleIndex(unsigned long long id)
+{
+	unsigned long int max = this->activeParticles.size() - 1;
+	unsigned long int min = 0;
+	unsigned long int mid = 0;
+	while (max >= min) {
+		mid = min + (max - min) / 2;
+		if (this->activeParticles[mid].uniqueId == id) {return mid;}
+		else if (this->activeParticles[mid].uniqueId < id) {min = mid + 1;}
+		else {max = mid - 1;}
+	}
+	// particle was not found
+	return -1;
 }
 
 void Simulation::addParticle(

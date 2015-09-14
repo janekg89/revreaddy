@@ -6,28 +6,9 @@
 
 #ifndef __UTILS_H_INCLUDED__
 #define __UTILS_H_INCLUDED__
-#include <array>
 #include <vector>
 #include <iostream>
 #include <cmath>
-
-template<std::size_t SIZE>
-void printArray(std::array<double, SIZE>& arr)
-{
-	std::cout << "[ ";
-	for(auto& entry : arr)
-	{
-		std::cout << entry << " ";
-	}
-	std::cout << "]" << std::endl;
-}
-
-void printVector(std::vector<double> vec);
-
-double squaredDistance(
-	std::vector<double>& arr1,
-	std::vector<double>& arr2
-);
 
 inline void getMinDistanceVector(
 	std::vector<double>& r_ij,
@@ -77,4 +58,4 @@ inline void getMinDistanceSquared(
 	distance = dx*dx + dy*dy + dz*dz;
 }
 
-#endif
+#endif //__UTILS_H_INCLUDED__
