@@ -17,9 +17,11 @@ class Conversion : public Reaction
 			double inBackwardRate);
 		
 		double performForward(
-			std::vector<unsigned long long> particleIndices);
+			std::vector<unsigned long long> particleIndices,
+			Simulation* simulation);
 		double performBackward(
-			std::vector<unsigned long long> particleIndices);
+			std::vector<unsigned long long> particleIndices,
+			Simulation* simulation);
 };
 
 #endif //__CONVERSION_H_INCLUDED__

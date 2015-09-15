@@ -169,7 +169,6 @@ void Simulation::propagateDynamics()
 	}
 }
 
-//TODO
 double Simulation::propagateReactions()
 {
 	/* First construct the queue reactionCandidates, then shuffle it
@@ -190,7 +189,7 @@ double Simulation::propagateReactions()
 		unsigned int particle2Type
 			= activeParticles[particle2Index].typeId;
 		std::vector<unsigned int> types = {particle1Type, particle2Type};
-		for (unsigned int j=0; j<this->possibleReactions; j++) {
+		for (unsigned int j=0; j<this->possibleReactions.size(); j++) {
 			if ( possibleReactions[j]->isAffectedForward(types) ) {
 				std::vector<unsigned long long> participants;
 				participants.push_back(
@@ -202,7 +201,7 @@ double Simulation::propagateReactions()
 					true, // forwardOrBackward
 					participants); // uniqueIds of reaction participants
 			}
-			else if ( possibleReaction[j]->isAffectedBackward(types) ) {
+			else if ( possibleReactions[j]->isAffectedBackward(types) ) {
 				std::vector<unsigned long long> participants;
 				participants.push_back(
 					activeParticles[particle1Index].uniqueId);
@@ -216,7 +215,7 @@ double Simulation::propagateReactions()
 		}
 	}
 	/* Find unimolecular candidates */
-	for (unsigned long i=0; i<this->activeParticles.size(), i++) {
+	for (unsigned long i=0; i<this->activeParticles.size(); i++) {
 		// TODO
 	}
 	std::random_shuffle(reactionCandidates.begin(), reactionCandidates.end());

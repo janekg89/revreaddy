@@ -9,7 +9,8 @@
 #define __REACTION_H_INCLUDED__
 #include <string>
 #include <vector>
-#include "Simulation.h"
+#include "Simulation.h" // particles are added/removed
+#include "Particle.h" // positions must be obtained
 
 class Reaction
 {
@@ -35,13 +36,16 @@ class Reaction
 		 * uni or bimolecular. */
 		/* NOTE: These functions manipulate Simulation.activeParticles
 		 * but should do this only by using the methods provided by
-		 * Simulation, e.g. addParticle().
-		 * NOTE2: particleIndices are the positions in activeParticles 
+		 * Simulation, e.g. addParticle(). That is why they receive
+		 * a pointer to the Simulation that called it. */
+		/* NOTE2: particleIndices are the positions in activeParticles 
 		 * not the uniqueIds. */
 		virtual double performForward(
-			std::vector<unsigned long int> particleIndices);
+			std::vector<unsigned long int> particleIndices,
+			Simulation* simulation);
 		virtual double performBackward(
-			std::vector<unsigned long int> particleIndices);
+			std::vector<unsigned long int> particleIndices,
+			Simulation* simulation);
 };
 
 #endif //__REACTION_H_INCLUDED__

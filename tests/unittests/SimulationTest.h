@@ -169,7 +169,7 @@ class SimulationTest : public CxxTest::TestSuite
 
 		/* Two types of particles A and B with reactionRadii 2 and 1
 		 * respectively. After initial setup the activePairs should
-		 * contain the correct pairs of unique ids */
+		 * contain the correct pairs of indices */
 		void test_activePairs_correctEntries(void)
 		{
 			Simulation sim;
