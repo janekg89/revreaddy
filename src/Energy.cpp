@@ -5,20 +5,18 @@
 Energy::Energy(
 	unsigned int inRecPeriod,
 	unsigned int inClearPeriod,
-	Simulation * inSimulation,
 	std::string inFilename)
 {
 	this->recPeriod = inRecPeriod;
 	this->clearPeriod = inClearPeriod;
-	this->simulation = inSimulation;
 	this->filename = inFilename;
 }
 
 void Energy::record(
-	std::vector<Particle>& activeParticles,
+	World * world,
 	double t)
 {
-	this->energies.push_back(this->simulation->energy);
+	this->energies.push_back(world->energy);
 	this->times.push_back(t);
 }
 

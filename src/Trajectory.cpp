@@ -17,11 +17,11 @@ Trajectory::~Trajectory()
 }
 
 void Trajectory::record(
-	std::vector<Particle>& activeParticles,
+	World * world,
 	double t)
 {
 	std::vector<particleTuple>	currentCoordinates;
-	for (auto&& particle : activeParticles)
+	for (auto&& particle : world->activeParticles)
 	{
 		particleTuple pt;
 		pt.particleTypeId = particle.typeId;

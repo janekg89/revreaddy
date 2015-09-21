@@ -7,16 +7,29 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <typeinfo>
+#include "Observable.h"
+#include "Trajectory.h"
+#include "RadialDistribution.h"
+#include "MeanSquaredDisplacement.h"
+#include "ProbabilityDensity.h"
+#include "Energy.h"
+#include "Acceptance.h"
+#include "Geometry.h"
+#include "Wall.h"
+#include "DoubleWellZ.h"
 #include "ParticleType.h"
 #include "ParticleInteraction.h"
-#include "Geometry.h"
-#include "Observable.h"
+#include "SoftRepulsion.h"
+#include "LennardJones.h"
 #include "Reaction.h"
+#include "Conversion.h"
 
 class Config
 {
 	public:
-		Config();
+		Config(World * inWorld);
+		World * world;
 
 		std::vector<ParticleType> typeDict;
 		/* All forces between particles */

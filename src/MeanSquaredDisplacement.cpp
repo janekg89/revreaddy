@@ -33,7 +33,7 @@ MeanSquaredDisplacement::~MeanSquaredDisplacement()
 }
 
 void MeanSquaredDisplacement::record(
-	std::vector<Particle>& activeParticles,
+	World * world,
 	double t)
 {
 	std::vector<double> displacement = {0.,0.,0.};
@@ -46,27 +46,27 @@ void MeanSquaredDisplacement::record(
 	for (int i=0; i < this->observedParticleIds.size(); i++) {
 		// check if particle still exists. if not: index = -1
 		index = this->findParticleIndex(
-			activeParticles,
+			world->activeParticles,
 			observedParticleIds[i]);
 		if (index != -1) {
 			stillExisting += 1;
-			relativeBoxCoordinates[0] =activeParticles[index].boxCoordinates[0]
+			relativeBoxCoordinates[0] =world->activeParticles[index].boxCoordinates[0]
 			                          - startPoints[i].boxCoordinates[0];
-			relativeBoxCoordinates[1] =activeParticles[index].boxCoordinates[1]
+			relativeBoxCoordinates[1] =world->activeParticles[index].boxCoordinates[1]
 			                          - startPoints[i].boxCoordinates[1];
-			relativeBoxCoordinates[2] =activeParticles[index].boxCoordinates[2]
+			relativeBoxCoordinates[2] =world->activeParticles[index].boxCoordinates[2]
 			                          - startPoints[i].boxCoordinates[2];
 			displacement[0] = (double) relativeBoxCoordinates[0] 
 			                * this->boxsize
-			                + activeParticles[index].position[0]
+			                + world->activeParticles[index].position[0]
 			                - startPoints[i].position[0];
 			displacement[1] = (double) relativeBoxCoordinates[1]
 			                * this->boxsize
-			                + activeParticles[index].position[1]
+			                + world->activeParticles[index].position[1]
 			                - startPoints[i].position[1];
 			displacement[2] = (double) relativeBoxCoordinates[2]
 			                * this->boxsize
-			                + activeParticles[index].position[2]
+			                + world->activeParticles[index].position[2]
 			                - startPoints[i].position[2];
 			squaredDisplacement = displacement[0]*displacement[0]
 			                    + displacement[1]*displacement[1]
@@ -146,4 +146,3 @@ void MeanSquaredDisplacement::writeBufferToDat()
 	}
 	file.close();
 }
-

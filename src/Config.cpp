@@ -2,12 +2,21 @@
 
 #include "Config.h"
 
-Config::Config()
+Config::Config(World * inWorld)
 {
-
+	this->world                 = inWorld;
+	this->timestep              = 0.001;
+	this->temperature           = 1.;
+	this->kBoltzmann            = 1.;
+	this->isPeriodic            = true;
+	this->boxsize               = 10.;
+	this->isReversibleDynamics  = true;
+	this->isReversibleReactions = true;
+	this->useNeighborList       = true;
+	this->reactionPropagation   = 0;
 }
 
-void Simulation::new_Type(
+void Config::new_Type(
 	std::string name,
 	double radius,
 	double diffusionConstant,
@@ -36,39 +45,39 @@ void Simulation::new_Type(
 	this->typeDict.push_back(pType);
 }
 
-unsigned int Simulation::getNumberOfTypes() {
+unsigned int Config::getNumberOfTypes() {
 	return this->typeDict.size();
 }
 
-std::string Simulation::getDictName(unsigned int i) {
+std::string Config::getDictName(unsigned int i) {
 	return this->typeDict[i].name;
 }
 
-double Simulation::getDictRadius(unsigned int i) {
+double Config::getDictRadius(unsigned int i) {
 	return this->typeDict[i].radius;
 }
 
-double Simulation::getDictDiffusionConstant(unsigned int i) {
+double Config::getDictDiffusionConstant(unsigned int i) {
 	return this->typeDict[i].diffusionConstant;
 }
 
-double Simulation::getDictReactionRadius(unsigned int i) {
+double Config::getDictReactionRadius(unsigned int i) {
 	return this->typeDict[i].reactionRadius;
 }
 
-unsigned int Simulation::getParticleNumber() {
-	return this->activeParticles.size();
+unsigned int Config::getParticleNumber() {
+	return world->activeParticles.size();
 }
 
 
-void Simulation::writeAllObservablesToFile()
+void Config::writeAllObservablesToFile()
 {
 	for (auto* obs : this->observables) {
 		obs->writeBufferToFile();
 	}
 }
 
-void Simulation::writeLastObservableToFile()
+void Config::writeLastObservableToFile()
 {
 	if (this->observables.size() > 0) {
 		this->observables.back()->writeBufferToFile();
@@ -78,7 +87,7 @@ void Simulation::writeLastObservableToFile()
 	}
 }
 
-std::string Simulation::showObservables()
+std::string Config::showObservables()
 {
 	std::string content = "Observables: ";
 	if (this->observables.size() > 0) {
@@ -91,7 +100,7 @@ std::string Simulation::showObservables()
 	return content;
 }
 
-void Simulation::deleteAllObservables()
+void Config::deleteAllObservables()
 {
 	/* first delete the obs, since they we're allocated with 'new'
 	 * then erase the pointers from the vector */
@@ -104,7 +113,7 @@ void Simulation::deleteAllObservables()
 	);
 }
 
-void Simulation::deleteLastObservable()
+void Config::deleteLastObservable()
 {
 	/* first delete the observable, then its pointer in the vector */
 	if (this->observables.size() > 0) {
@@ -113,14 +122,14 @@ void Simulation::deleteLastObservable()
 	}
 }
 
-void Simulation::new_Trajectory(unsigned long int recPeriod, std::string filename)
+void Config::new_Trajectory(unsigned long int recPeriod, std::string filename)
 {
 	Trajectory * obs = new Trajectory(filename);
 	obs->recPeriod = recPeriod;
 	this->observables.push_back(obs);
 }
 
-void Simulation::new_RadialDistribution(
+void Config::new_RadialDistribution(
 	unsigned long int recPeriod,
 	std::string filename,
 	std::vector<double> ranges,
@@ -136,22 +145,22 @@ void Simulation::new_RadialDistribution(
 	this->observables.push_back(rad);
 }
 
-void Simulation::new_MeanSquaredDisplacement(
+void Config::new_MeanSquaredDisplacement(
 	unsigned long int recPeriod,
 	std::string filename,
 	unsigned int particleTypeId)
 {
 	MeanSquaredDisplacement * msd = new MeanSquaredDisplacement(
-		this->activeParticles,
+		world->activeParticles,
 		particleTypeId,
-		this->cumulativeRuntime,
+		world->cumulativeRuntime,
 		this->boxsize,
 		filename);
 	msd->recPeriod = recPeriod;
 	this->observables.push_back(msd);
 }
 
-void Simulation::new_ProbabilityDensity(
+void Config::new_ProbabilityDensity(
 	unsigned long int recPeriod,
 	std::string filename,
 	unsigned int pTypeId,
@@ -159,7 +168,7 @@ void Simulation::new_ProbabilityDensity(
 	unsigned int coord)
 {
 	ProbabilityDensity * prob = new ProbabilityDensity(
-		this->activeParticles,
+		world->activeParticles,
 		pTypeId,
 		range,
 		coord,
@@ -168,27 +177,25 @@ void Simulation::new_ProbabilityDensity(
 	this->observables.push_back(prob);
 }
 
-void Simulation::new_Energy(unsigned long int recPeriod, std::string filename)
+void Config::new_Energy(unsigned long int recPeriod, std::string filename)
 {
 	Energy * ener = new Energy(
 		recPeriod,
 		0,
-		this,
 		filename);
 	this->observables.push_back(ener);
 }
 
-void Simulation::new_Acceptance(unsigned long int recPeriod, std::string filename)
+void Config::new_Acceptance(unsigned long int recPeriod, std::string filename)
 {
 	Acceptance * acc = new Acceptance(
 		recPeriod,
 		0,
-		this,
 		filename);
 	this->observables.push_back(acc);
 }
 
-void Simulation::deleteAllGeometries()
+void Config::deleteAllGeometries()
 {
 	/* first delete the geometries, since they we're allocated with 'new'
 	 * then erase the pointers from the vector */
@@ -201,7 +208,7 @@ void Simulation::deleteAllGeometries()
 	);
 }
 
-void Simulation::new_Wall(
+void Config::new_Wall(
 	std::vector<double> normal,
 	std::vector<double> point,
 	double strength,
@@ -215,7 +222,7 @@ void Simulation::new_Wall(
 	this->geometries.push_back(wall);
 }
 
-void Simulation::new_DoubleWellZ(
+void Config::new_DoubleWellZ(
 	double distanceMinima,
 	double strength,
 	std::vector<unsigned int> particleTypeIds)
@@ -227,7 +234,7 @@ void Simulation::new_DoubleWellZ(
 	this->geometries.push_back(well);
 }
 
-void Simulation::deleteAllForces()
+void Config::deleteAllForces()
 {
 	/* first delete the forces, since they we're allocated with 'new'
 	 * then erase the pointers from the vector */
@@ -240,7 +247,7 @@ void Simulation::deleteAllForces()
 	);
 }
 
-void Simulation::new_SoftRepulsion(
+void Config::new_SoftRepulsion(
 	std::string name,
 	std::vector<unsigned int> affectedTuple,
 	double repulsionStrength)
@@ -272,7 +279,7 @@ void Simulation::new_SoftRepulsion(
 	          << std::endl;
 }
 
-void Simulation::new_LennardJones(
+void Config::new_LennardJones(
 	std::string name,
 	std::vector<unsigned int> affectedTuple,
 	double epsilon)
@@ -304,27 +311,27 @@ void Simulation::new_LennardJones(
 	          << std::endl;
 }
 
-unsigned int Simulation::getNumberForces()
+unsigned int Config::getNumberForces()
 {
 	return this->possibleInteractions.size();
 }
 
-std::string Simulation::getForceName(unsigned int i)
+std::string Config::getForceName(unsigned int i)
 {
 	return this->possibleInteractions[i]->name;
 }
 
-std::string Simulation::getForceType(unsigned int i)
+std::string Config::getForceType(unsigned int i)
 {
 	return this->possibleInteractions[i]->type;
 }
 
-std::vector<unsigned int> Simulation::getForceAffectedTuple(unsigned int i)
+std::vector<unsigned int> Config::getForceAffectedTuple(unsigned int i)
 {
 	return this->possibleInteractions[i]->affectedTuple;
 }
 
-std::vector<double> Simulation::getForceParameters(unsigned int i)
+std::vector<double> Config::getForceParameters(unsigned int i)
 {
 	return this->possibleInteractions[i]->parameters;
 }

@@ -11,15 +11,15 @@
 
 #ifndef __RADIALDISTRIBUTION_H_INCLUDED__
 #define __RADIALDISTRIBUTION_H_INCLUDED__
-#include "Observable.h"
-#include "Particle.h"
-#include "Simulation.h" // use getMinDistance(r1, r2)
 #include <vector>
 #include <fstream>
 #include <string>
 #include <gsl/gsl_histogram.h>
 #define _USE_MATH_DEFINES
 #include <cmath>
+#include "Observable.h"
+#include "Particle.h"
+#include "utils.h"
 
 class RadialDistribution : public Observable
 {
@@ -42,7 +42,7 @@ class RadialDistribution : public Observable
 		double boxsize;
 
 		void record(
-			std::vector<Particle>& activeParticles,
+			World * world,
 			double t);
 		/* Check if (a,b) is in consideredPairs.*/
 		bool isInConsidered(unsigned int a, unsigned int b);
@@ -58,4 +58,5 @@ class RadialDistribution : public Observable
 			std::string inFilename);
 		~RadialDistribution();
 };
+
 #endif // __RADIALDISTRIBUTION_H_INCLUDED__

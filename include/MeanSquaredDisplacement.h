@@ -32,7 +32,7 @@ class MeanSquaredDisplacement : public Observable
 		double boxsize;
 
 		void record(
-			std::vector<Particle>& activeParticles,
+			World * world,
 			double t);
 		void writeBufferToFile();
 		void writeBufferToH5();

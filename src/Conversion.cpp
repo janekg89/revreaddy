@@ -16,16 +16,21 @@ Conversion::Conversion(
 	this->backwardRate = inBackwardRate;
 }
 
-double performForward(
+Conversion::~Conversion()
+{
+
+}
+
+double Conversion::performForward(
 	std::vector<unsigned long int> particleIndices,
-	Simulation* simulation)
+	World * world)
 {
 	return 1.;
 }
 
-double performBackward(
+double Conversion::performBackward(
 	std::vector<unsigned long int> particleIndices,
-	Simulation* simulation)
+	World * world)
 {
 	return 1.;
 }

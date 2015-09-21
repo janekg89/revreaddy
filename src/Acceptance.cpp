@@ -5,20 +5,18 @@
 Acceptance::Acceptance(
 	unsigned int inRecPeriod,
 	unsigned int inClearPeriod,
-	Simulation * inSimulation,
 	std::string inFilename)
 {
 	this->recPeriod = inRecPeriod;
 	this->clearPeriod = inClearPeriod;
-	this->simulation = inSimulation;
 	this->filename = inFilename;
 }
 
 void Acceptance::record(
-	std::vector<Particle>& activeParticles,
+	World * world,
 	double t)
 {
-	this->acceptanceProbs.push_back(this->simulation->acceptProbDynamics);
+	this->acceptanceProbs.push_back(world->acceptProbDynamics);
 	this->times.push_back(t);
 }
 

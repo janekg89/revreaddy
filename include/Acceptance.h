@@ -10,7 +10,6 @@
 #include <vector>
 #include <string>
 #include "Observable.h"
-#include "Simulation.h"
 
 // TODO make two Acceptances one for Reactions, one for Dynamics
 class Acceptance : public Observable
@@ -18,17 +17,14 @@ class Acceptance : public Observable
 	public:
 		std::vector<double> acceptanceProbs;
 		std::vector<double> times;
-		/* pointer to the simulation, owning this observable */
-		Simulation * simulation;
 		
 		Acceptance(
 			unsigned int inRecPeriod,
 			unsigned int inClearPeriod,
-			Simulation * inSimulation,
 			std::string inFilename);
 
 		void record(
-			std::vector<Particle>& activeParticles,
+			World * world,
 			double t);
 		void writeBufferToFile();
 		void writeBufferToH5();

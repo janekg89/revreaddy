@@ -41,19 +41,19 @@ ProbabilityDensity::~ProbabilityDensity()
 }
 
 void ProbabilityDensity::record(
-	std::vector<Particle>& activeParticles,
+	World * world,
 	double t)
 {
 	int index = 0;
 	for (int i=0; i < this->observedParticleIds.size(); i++) {
 		// check if particle still exists. if not: index = -1
 		index = this->findParticleIndex(
-			activeParticles,
+			world->activeParticles,
 			observedParticleIds[i]);
 		if (index != -1) {
 			gsl_histogram_increment(
 				this->probabilityDensity,
-				activeParticles[index].position[this->coordinate]);
+				world->activeParticles[index].position[this->coordinate]);
 		}
 	}
 	// copy the hist to "bins" and reset the gsl hist

@@ -5,11 +5,11 @@
 
 #ifndef __PROBABILITYDENSITY_H_INCLUDED__
 #define __PROBABILITYDENSITY_H_INCLUDED__
-#include "Observable.h"
-#include "Particle.h"
 #include <vector>
 #include <fstream>
 #include <gsl/gsl_histogram.h>
+#include "Observable.h"
+#include "Particle.h"
 
 class ProbabilityDensity : public Observable
 {
@@ -27,7 +27,7 @@ class ProbabilityDensity : public Observable
 		unsigned int particleTypeId;
 
 		void record(
-			std::vector<Particle>& activeParticles,
+			World * world,
 			double t);
 		void writeBufferToFile();
 		void writeBufferToH5();

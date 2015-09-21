@@ -2,6 +2,16 @@
 
 #include "Reaction.h"
 
+Reaction::Reaction()
+{
+
+}
+
+Reaction::~Reaction()
+{
+	
+}
+
 // TODO could be faster, when types are checked for inequality first ???
 // TODO also it looks ugly!
 bool Reaction::isAffectedForward(std::vector<unsigned int> types)
@@ -50,4 +60,18 @@ bool Reaction::isAffectedBackward(unsigned int type)
 {
 	if ( this->backwardTypes.size()!=1 ) {return false;}
 	else {return (type==this->backwardTypes[0]);}
+}
+
+double Reaction::performForward(
+	std::vector<unsigned long int> particleIndices,
+	World * world)
+{
+	return 1.;
+}
+
+double Reaction::performBackward(
+	std::vector<unsigned long int> particleIndices,
+	World * world)
+{
+	return 1.;
 }

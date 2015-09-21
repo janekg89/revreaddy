@@ -6,22 +6,16 @@
 
 Simulation::Simulation()
 {
-	this->random                = new Random("ranlxs0");
-	//this->typeDict              = new TypeDict();
-	this->timestep              = 0.001;
-	this->temperature           = 1.;
-	this->kBoltzmann            = 1.;
-	this->isPeriodic            = true;
-	this->boxsize               = 10.;
-	this->isReversibleDynamics  = true;
-	this->isReversibleReactions = true;
-	this->useNeighborList       = true;
-	this->reactionPropagation   = 0;
+	this->random = new Random("ranlxs0");
+	this->world  = new World();
+	this->config = new Config(world);
 }
 
 Simulation::~Simulation()
 {
 	delete this->random;
+	delete this->world;
+	delete this->config;
 }
 
 /* TODO after one run() the observables' files should 
@@ -32,60 +26,60 @@ Simulation::~Simulation()
 void Simulation::run()
 {
 	std::cout << "Info: Started at simulation-time: "
-	          << this->cumulativeRuntime << std::endl;
+	          << world->cumulativeRuntime << std::endl;
 	std::cout << "Info: Run ..." << std::endl;
 	clock_t timer = clock();
 	this->resetForces();
 	this->resetActivePairs();
-	this->energy = 0.;
+	world->energy = 0.;
 	this->calculateInteractionForcesEnergies();
 	this->calculateGeometryForcesEnergies();
 	this->recordObservables(0);
 	double acceptance = 1.;
 	bool isStepAccepted = true;
-	for (unsigned long int timeIndex = 1; timeIndex < maxTime; timeIndex++)
+	for (unsigned long timeIndex = 1; timeIndex < config->maxTime; timeIndex++)
 	{
 		/* Dynamics */
 		this->saveOldState();
 		this->propagateDynamics(); // propose
 		this->resetForces();
 		this->resetActivePairs();
-		this->energy = 0.;
+		world->energy = 0.;
 		this->calculateInteractionForcesEnergies(); // calculate energy and force
 		this->calculateGeometryForcesEnergies();
 		acceptance = this->acceptanceDynamics();
-		this->acceptProbDynamics = acceptance;
+		world->acceptProbDynamics = acceptance;
 		isStepAccepted = this->acceptOrReject(acceptance);
-		if (this->isReversibleDynamics && ( ! isStepAccepted ) ) {
+		if (config->isReversibleDynamics && ( ! isStepAccepted ) ) {
 			this->restoreOldState();
-			this->rejectionsDynamics += 1;
+			world->rejectionsDynamics += 1;
 		}
-		else { this->acceptionsDynamics += 1; }
+		else { world->acceptionsDynamics += 1; }
 
 		/* Reactions */
 		this->saveOldState();
 		acceptance = this->propagateReactions();
 		this->resetForces();
 		this->resetActivePairs();
-		this->energy = 0.;
+		world->energy = 0.;
 		this->calculateInteractionForcesEnergies();
 		this->calculateGeometryForcesEnergies();
 		acceptance *= this->acceptanceReactions();
-		this->acceptProbReactions = acceptance;
+		world->acceptProbReactions = acceptance;
 		isStepAccepted = this->acceptOrReject(acceptance);
-		if (this->isReversibleReactions && ( ! isStepAccepted ) ) {
+		if (config->isReversibleReactions && ( ! isStepAccepted ) ) {
 			this->restoreOldState();
-			this->rejectionsReactions += 1;
+			world->rejectionsReactions += 1;
 		}
-		else { this->acceptionsReactions += 1; }
+		else { world->acceptionsReactions += 1; }
 
 		/* Advance clock */
-		this->cumulativeRuntime += this->timestep;
+		world->cumulativeRuntime += config->timestep;
 		this->recordObservables(timeIndex);
 	}
 	timer = clock() - timer;
 	std::cout << "Info: Finished at simulation-time: "
-	          << this->cumulativeRuntime << std::endl;
+	          << world->cumulativeRuntime << std::endl;
 	std::cout << "Info: Needed computation-time for run(): "
 	          << ((float) timer) / CLOCKS_PER_SEC 
 	          << " s" << std::endl;
@@ -93,16 +87,16 @@ void Simulation::run()
 
 void Simulation::saveOldState()
 {
-	this->oldEnergy          = this->energy;
-	this->oldActiveParticles = this->activeParticles;
-	this->oldActivePairs     = this->activePairs;
+	world->oldEnergy          = world->energy;
+	world->oldActiveParticles = world->activeParticles;
+	world->oldActivePairs     = world->activePairs;
 }
 
 void Simulation::restoreOldState()
 {
-	this->energy          = this->oldEnergy;
-	this->activeParticles = this->oldActiveParticles;
-	this->activePairs     = this->oldActivePairs;
+	world->energy          = world->oldEnergy;
+	world->activeParticles = world->oldActiveParticles;
+	world->activePairs     = world->oldActivePairs;
 }
 
 void Simulation::propagateDynamics()
@@ -112,50 +106,52 @@ void Simulation::propagateDynamics()
 	double noisePrefactor = 1.;
 	double forcePrefactor = 1.;
 	double diffConst = 1.; //diffusion constant of current particle
-	for (unsigned long int i=0; i<activeParticles.size(); i++)
+	for (unsigned long int i=0; i<world->activeParticles.size(); i++)
 	{
 		// look up particles' diffusion constant from its typeId
-		diffConst=this->typeDict[activeParticles[i].typeId].diffusionConstant;
+		diffConst = config->typeDict[
+			world->activeParticles[i].typeId].diffusionConstant;
 
 		noiseTerm = random->normal3D();
-		noisePrefactor = sqrt(2. * diffConst * timestep);
+		noisePrefactor = sqrt(2. * diffConst * config->timestep);
 		noiseTerm[0] *= noisePrefactor;
 		noiseTerm[1] *= noisePrefactor;
 		noiseTerm[2] *= noisePrefactor;
 
-		forcePrefactor = timestep * diffConst / (kBoltzmann * temperature);
-		forceTerm[0] = activeParticles[i].cumulativeForce[0] * forcePrefactor;
-		forceTerm[1] = activeParticles[i].cumulativeForce[1] * forcePrefactor;
-		forceTerm[2] = activeParticles[i].cumulativeForce[2] * forcePrefactor;
+		forcePrefactor = config->timestep * diffConst 
+			/ (config->kBoltzmann * config->temperature);
+		forceTerm[0] = world->activeParticles[i].cumulativeForce[0] * forcePrefactor;
+		forceTerm[1] = world->activeParticles[i].cumulativeForce[1] * forcePrefactor;
+		forceTerm[2] = world->activeParticles[i].cumulativeForce[2] * forcePrefactor;
 
-		activeParticles[i].move(noiseTerm);
-		activeParticles[i].move(forceTerm);
+		world->activeParticles[i].move(noiseTerm);
+		world->activeParticles[i].move(forceTerm);
 
-		if (isPeriodic)
+		if (config->isPeriodic)
 		{
-			if (activeParticles[i].position[0] < (-0.5 * boxsize) ) {
-				activeParticles[i].position[0] += boxsize;
-				activeParticles[i].boxCoordinates[0] -= 1;
+			if (world->activeParticles[i].position[0] < (-0.5 * config->boxsize) ) {
+				world->activeParticles[i].position[0] += config->boxsize;
+				world->activeParticles[i].boxCoordinates[0] -= 1;
 			}
-			else if (activeParticles[i].position[0] >= (0.5 * boxsize) ) {
-				activeParticles[i].position[0] -= boxsize;
-				activeParticles[i].boxCoordinates[0] += 1;
+			else if (world->activeParticles[i].position[0] >= (0.5 * config->boxsize) ) {
+				world->activeParticles[i].position[0] -= config->boxsize;
+				world->activeParticles[i].boxCoordinates[0] += 1;
 			}
-			if (activeParticles[i].position[1] < (-0.5 * boxsize) ) {
-				activeParticles[i].position[1] += boxsize;
-				activeParticles[i].boxCoordinates[1] -= 1;
+			if (world->activeParticles[i].position[1] < (-0.5 * config->boxsize) ) {
+				world->activeParticles[i].position[1] += config->boxsize;
+				world->activeParticles[i].boxCoordinates[1] -= 1;
 			}
-			else if (activeParticles[i].position[1] >= (0.5 * boxsize) ) {
-				activeParticles[i].position[1] -= boxsize;
-				activeParticles[i].boxCoordinates[1] += 1;
+			else if (world->activeParticles[i].position[1] >= (0.5 * config->boxsize) ) {
+				world->activeParticles[i].position[1] -= config->boxsize;
+				world->activeParticles[i].boxCoordinates[1] += 1;
 			}
-			if (activeParticles[i].position[2] < (-0.5 * boxsize) ) {
-				activeParticles[i].position[2] += boxsize;
-				activeParticles[i].boxCoordinates[2] -= 1;
+			if (world->activeParticles[i].position[2] < (-0.5 * config->boxsize) ) {
+				world->activeParticles[i].position[2] += config->boxsize;
+				world->activeParticles[i].boxCoordinates[2] -= 1;
 			}
-			else if (activeParticles[i].position[2] >= (0.5 * boxsize) ) {
-				activeParticles[i].position[2] -= boxsize;
-				activeParticles[i].boxCoordinates[2] += 1;
+			else if (world->activeParticles[i].position[2] >= (0.5 * config->boxsize) ) {
+				world->activeParticles[i].position[2] -= config->boxsize;
+				world->activeParticles[i].boxCoordinates[2] += 1;
 			}
 		}
 	}
@@ -171,43 +167,45 @@ double Simulation::propagateReactions()
 	 * its predefined probability. */
 	std::vector<ReactionEvent> reactionCandidates;
 	/* Find bimolecular candidates */
-	for (unsigned long i=0; i<this->activePairs.size(); i++) {
+	for (unsigned long i=0; i<world->activePairs.size(); i++) {
 		// extract indices of the pair
-		unsigned long particle1Index = activePairs[i][0];
-		unsigned long particle2Index = activePairs[i][1];
+		unsigned long particle1Index = world->activePairs[i][0];
+		unsigned long particle2Index = world->activePairs[i][1];
 		// determine types of the pair
 		unsigned int particle1Type
-			= activeParticles[particle1Index].typeId;
+			= world->activeParticles[particle1Index].typeId;
 		unsigned int particle2Type
-			= activeParticles[particle2Index].typeId;
+			= world->activeParticles[particle2Index].typeId;
 		std::vector<unsigned int> types = {particle1Type, particle2Type};
-		for (unsigned int j=0; j<this->possibleReactions.size(); j++) {
-			if ( possibleReactions[j]->isAffectedForward(types) ) {
+		for (unsigned int j=0; j<config->possibleReactions.size(); j++) {
+			if ( config->possibleReactions[j]->isAffectedForward(types) ) {
 				std::vector<unsigned long long> participants;
 				participants.push_back(
-					activeParticles[particle1Index].uniqueId);
+					world->activeParticles[particle1Index].uniqueId);
 				participants.push_back(
-					activeParticles[particle2Index].uniqueId);
+					world->activeParticles[particle2Index].uniqueId);
 				ReactionEvent event(
 					j, // reactionId
 					true, // forwardOrBackward
 					participants); // uniqueIds of reaction participants
+				reactionCandidates.push_back(event);
 			}
-			else if ( possibleReactions[j]->isAffectedBackward(types) ) {
+			else if ( config->possibleReactions[j]->isAffectedBackward(types) ) {
 				std::vector<unsigned long long> participants;
 				participants.push_back(
-					activeParticles[particle1Index].uniqueId);
+					world->activeParticles[particle1Index].uniqueId);
 				participants.push_back(
-					activeParticles[particle2Index].uniqueId);
+					world->activeParticles[particle2Index].uniqueId);
 				ReactionEvent event(
 					j, // reactionId
 					false, // forwardOrBackward
 					participants); // uniqueIds of reaction participants			
+				reactionCandidates.push_back(event);
 			}
 		}
 	}
 	/* Find unimolecular candidates */
-	for (unsigned long i=0; i<this->activeParticles.size(); i++) {
+	for (unsigned long i=0; i<world->activeParticles.size(); i++) {
 		// TODO
 	}
 	std::random_shuffle(reactionCandidates.begin(), reactionCandidates.end());
@@ -221,9 +219,9 @@ double Simulation::propagateReactions()
 
 void Simulation::recordObservables(unsigned long int timeIndex)
 {
-	for (auto* obs : this->observables) {
+	for (auto* obs : config->observables) {
 		if (timeIndex % obs->recPeriod == 0) {
-			obs->record(this->activeParticles, this->cumulativeRuntime);
+			obs->record(world, world->cumulativeRuntime);
 		}
 	}
 }
@@ -234,18 +232,18 @@ void Simulation::calculateInteractionForcesEnergies()
 	 * First determine the minimal size of subboxes,
 	 * therefore check all interaction distances and
 	 * all reaction radii. */
-	double minimalLength = this->boxsize;
+	double minimalLength = config->boxsize;
 	/* check interaction distances */
-	for (unsigned int i=0; i<possibleInteractions.size(); i++) {
-		if (possibleInteractions[i]->cutoff < minimalLength) {
-			minimalLength = possibleInteractions[i]->cutoff;
+	for (unsigned int i=0; i<config->possibleInteractions.size(); i++) {
+		if (config->possibleInteractions[i]->cutoff < minimalLength) {
+			minimalLength = config->possibleInteractions[i]->cutoff;
 		}
 	}
 	/* check reaction radii combinations (i,j) with i <= j */
-	for (unsigned int i=0; i<this->typeDict.size(); i++) {
-		for (unsigned int j=i; j<this->typeDict.size(); j++) {
+	for (unsigned int i=0; i<config->typeDict.size(); i++) {
+		for (unsigned int j=i; j<config->typeDict.size(); j++) {
 			double reactionRadii
-				= typeDict[i].reactionRadius + typeDict[j].reactionRadius;
+				= config->typeDict[i].reactionRadius + config->typeDict[j].reactionRadius;
 			if (reactionRadii < minimalLength) {
 				minimalLength = reactionRadii;
 			}
@@ -253,7 +251,7 @@ void Simulation::calculateInteractionForcesEnergies()
 	}
 	double counter = 1.;
 	unsigned int numberBoxes = 0;
-	while ( (this->boxsize / counter) > minimalLength) {
+	while ( (config->boxsize / counter) > minimalLength) {
 		numberBoxes += 1;
 		counter += 1.;
 	}
@@ -262,7 +260,7 @@ void Simulation::calculateInteractionForcesEnergies()
 	 * as inefficient as double looping. So:
 	 * ONLY construct neighborlist if we have at least 16
 	 * subboxes or n>3 */
-	if ( ( numberBoxes > 3 ) && this->useNeighborList ) {
+	if ( ( numberBoxes > 3 ) && config->useNeighborList ) {
 		this->calculateInteractionForcesEnergiesWithLattice(numberBoxes);
 	}
 	else {
@@ -272,8 +270,8 @@ void Simulation::calculateInteractionForcesEnergies()
 
 void Simulation::calculateInteractionForcesEnergiesNaive()
 {
-	for (unsigned int i=0; i<activeParticles.size(); i++) {
-		for (unsigned int j=i+1; j<activeParticles.size(); j++) {
+	for (unsigned int i=0; i<world->activeParticles.size(); i++) {
+		for (unsigned int j=i+1; j<world->activeParticles.size(); j++) {
 			this->calculateSingleForceEnergy(i, j);
 		}
 	}
@@ -284,7 +282,7 @@ void Simulation::calculateInteractionForcesEnergiesWithLattice(
 {
 	// construct neighborlist
 	double n = (double) numberBoxes;
-	double boxLength = this->boxsize / n;
+	double boxLength = config->boxsize / n;
 
 	std::vector< std::vector< std::vector< std::vector<unsigned int> > > >
 	neighborList(numberBoxes,
@@ -307,12 +305,12 @@ void Simulation::calculateInteractionForcesEnergiesWithLattice(
 	unsigned int yIndex = 0;
 	unsigned int zIndex = 0;
 	// find the right box triplet [x][y][z] for each particle
-	for (unsigned int j=0; j<activeParticles.size(); j++) {
-		delX = activeParticles[j].position[0] + 0.5*this->boxsize;
+	for (unsigned int j=0; j<world->activeParticles.size(); j++) {
+		delX = world->activeParticles[j].position[0] + 0.5*config->boxsize;
 		xIndex = (unsigned int) floor(delX / boxLength);
-		delY = activeParticles[j].position[1] + 0.5*this->boxsize;
+		delY = world->activeParticles[j].position[1] + 0.5*config->boxsize;
 		yIndex = (unsigned int) floor(delY / boxLength);
-		delZ = activeParticles[j].position[2] + 0.5*this->boxsize;
+		delZ = world->activeParticles[j].position[2] + 0.5*config->boxsize;
 		zIndex = (unsigned int) floor(delZ / boxLength);
 		// add the particles index to the list of the corresponding box
 		neighborList[xIndex][yIndex][zIndex].push_back(j);
@@ -320,9 +318,9 @@ void Simulation::calculateInteractionForcesEnergiesWithLattice(
 	// neighborList created
 	// set up vector NxN filled with bools (false initially)
 	std::vector< std::vector<bool> > alreadyCalculatedPairs;
-	alreadyCalculatedPairs.resize(activeParticles.size());
+	alreadyCalculatedPairs.resize(world->activeParticles.size());
 	for (unsigned int i=0; i<alreadyCalculatedPairs.size(); i++) {
-		alreadyCalculatedPairs[i].resize(activeParticles.size());
+		alreadyCalculatedPairs[i].resize(world->activeParticles.size());
 		std::fill(
 			alreadyCalculatedPairs[i].begin(),
 			alreadyCalculatedPairs[i].end(),
@@ -401,22 +399,24 @@ void Simulation::calculateSingleForceEnergy(
 	std::vector<double> r_ij = {0.,0.,0.}; 
 	getMinDistanceVector(
 		r_ij,
-		activeParticles[indexI].position, 
-		activeParticles[indexJ].position, 
-		this->isPeriodic, 
-		this->boxsize);
+		world->activeParticles[indexI].position, 
+		world->activeParticles[indexJ].position, 
+		config->isPeriodic, 
+		config->boxsize);
 	// distance of particle i,j squared
 	double rSquared = r_ij[0]*r_ij[0] + r_ij[1]*r_ij[1] + r_ij[2]*r_ij[2];
 	// radii of particle i and j
-	double radiusI = this->typeDict[activeParticles[indexI].typeId].radius; 
-	double radiusJ = this->typeDict[activeParticles[indexJ].typeId].radius;
+	double radiusI = config->typeDict[
+		world->activeParticles[indexI].typeId].radius; 
+	double radiusJ = config->typeDict[
+		world->activeParticles[indexJ].typeId].radius;
 	// squared sum of particles i,j radii
 	double radiiSquared = pow(radiusI + radiusJ, 2.);
 	// squared sum of reactionRadii of particle i and j
 	double reactionRadiiSquared
 		= pow(
-		  this->typeDict[activeParticles[indexI].typeId].reactionRadius
-		+ this->typeDict[activeParticles[indexJ].typeId].reactionRadius
+		 config->typeDict[world->activeParticles[indexI].typeId].reactionRadius
+		+config->typeDict[world->activeParticles[indexJ].typeId].reactionRadius
 		, 2.);
 	// check if particles i, j are within reactive distance
 	// if so, their unique ids will be added to activePairs
@@ -425,17 +425,17 @@ void Simulation::calculateSingleForceEnergy(
 		activePair.push_back(indexI);
 		activePair.push_back(indexJ);
 		activePair.shrink_to_fit();
-		this->activePairs.push_back(activePair);
+		world->activePairs.push_back(activePair);
 	}
 	// look for force that affects the pair (i,j)
-	for (unsigned int k=0; k<this->possibleInteractions.size(); k++) {
+	for (unsigned int k=0; k<config->possibleInteractions.size(); k++) {
 		if (
-			this->possibleInteractions[k]->isAffected(
-				this->activeParticles[indexI].typeId,
-				this->activeParticles[indexJ].typeId)
+			config->possibleInteractions[k]->isAffected(
+				world->activeParticles[indexI].typeId,
+				world->activeParticles[indexJ].typeId)
 		) {
 			// actual force call here
-			this->possibleInteractions[k]->calculateForceEnergy(
+			config->possibleInteractions[k]->calculateForceEnergy(
 				forceI,//out
 				energyBuffer,
 				r_ij,//in
@@ -444,9 +444,9 @@ void Simulation::calculateSingleForceEnergy(
 			forceJ[0] = -1. * forceI[0];
 			forceJ[1] = -1. * forceI[1];
 			forceJ[2] = -1. * forceI[2];
-			activeParticles[indexI].addForce(forceI);
-			activeParticles[indexJ].addForce(forceJ);
-			this->energy += energyBuffer;
+			world->activeParticles[indexI].addForce(forceI);
+			world->activeParticles[indexJ].addForce(forceJ);
+			world->energy += energyBuffer;
 		}
 	}
 }
@@ -455,16 +455,16 @@ void Simulation::calculateGeometryForcesEnergies()
 {
 	std::vector<double> forceI = {0.,0.,0.};
 	double energyBuffer = 0.;
-	for (int i=0; i<activeParticles.size(); i++) {
-		for (int j=0; j<geometries.size(); j++) {
-			if (geometries[j]->doesInteract(activeParticles[i].typeId)) {
-				geometries[j]->forceEnergy(
+	for (int i=0; i<world->activeParticles.size(); i++) {
+		for (int j=0; j<config->geometries.size(); j++) {
+			if (config->geometries[j]->doesInteract(world->activeParticles[i].typeId)) {
+				config->geometries[j]->forceEnergy(
 					forceI,
 					energyBuffer,
-					activeParticles[i].position,
-					this->typeDict[activeParticles[i].typeId].radius);
-				activeParticles[i].addForce(forceI);
-				this->energy += energyBuffer;
+					world->activeParticles[i].position,
+					config->typeDict[world->activeParticles[i].typeId].radius);
+				world->activeParticles[i].addForce(forceI);
+				world->energy += energyBuffer;
 			}
 		}
 	}
@@ -472,14 +472,14 @@ void Simulation::calculateGeometryForcesEnergies()
 
 void Simulation::resetForces()
 {
-	for (int i=0; i<activeParticles.size(); i++) {
-		activeParticles[i].resetForce();
+	for (int i=0; i<world->activeParticles.size(); i++) {
+		world->activeParticles[i].resetForce();
 	}
 }
 
 void Simulation::resetActivePairs()
 {
-	this->activePairs.clear();
+	world->activePairs.clear();
 }
 
 /* For the dynamical acceptance probability both states, old and new
@@ -490,41 +490,41 @@ double Simulation::acceptanceDynamics()
 	double firstTerm  = 0.;
 	double secondTerm = 0.;
 	std::vector<double> deltaX = {0.,0.,0.};
-	for (int i=0; i<activeParticles.size(); i++) {
+	for (int i=0; i<world->activeParticles.size(); i++) {
 		getMinDistanceVector(
 			deltaX,
-			oldActiveParticles[i].position,
-			activeParticles[i].position,
-			this->isPeriodic,
-			this->boxsize);
+			world->oldActiveParticles[i].position,
+			world->activeParticles[i].position,
+			config->isPeriodic,
+			config->boxsize);
 		firstTerm  += deltaX[0]
-		            * ( oldActiveParticles[i].cumulativeForce[0]
-		              + activeParticles[i].cumulativeForce[0] );
+		            * ( world->oldActiveParticles[i].cumulativeForce[0]
+		              + world->activeParticles[i].cumulativeForce[0] );
 		firstTerm  += deltaX[1]
-		            * ( oldActiveParticles[i].cumulativeForce[1]
-		              + activeParticles[i].cumulativeForce[1] );
+		            * ( world->oldActiveParticles[i].cumulativeForce[1]
+		              + world->activeParticles[i].cumulativeForce[1] );
 		firstTerm  += deltaX[2]
-		            * ( oldActiveParticles[i].cumulativeForce[2]
-		              + activeParticles[i].cumulativeForce[2] );
+		            * ( world->oldActiveParticles[i].cumulativeForce[2]
+		              + world->activeParticles[i].cumulativeForce[2] );
 		secondTerm += 
-		          this->typeDict[activeParticles[i].typeId].diffusionConstant
-		            * ( activeParticles[i].cumulativeForce[0]
-		              * activeParticles[i].cumulativeForce[0]
-		              + activeParticles[i].cumulativeForce[1]
-		              * activeParticles[i].cumulativeForce[1]
-		              + activeParticles[i].cumulativeForce[2]
-		              * activeParticles[i].cumulativeForce[2]
-		              + oldActiveParticles[i].cumulativeForce[0]
-		              * oldActiveParticles[i].cumulativeForce[0]
-		              + oldActiveParticles[i].cumulativeForce[1]
-		              * oldActiveParticles[i].cumulativeForce[1]
-		              + oldActiveParticles[i].cumulativeForce[2]
-		              * oldActiveParticles[i].cumulativeForce[2] );
+		          config->typeDict[world->activeParticles[i].typeId].diffusionConstant
+		            * ( world->activeParticles[i].cumulativeForce[0]
+		              * world->activeParticles[i].cumulativeForce[0]
+		              + world->activeParticles[i].cumulativeForce[1]
+		              * world->activeParticles[i].cumulativeForce[1]
+		              + world->activeParticles[i].cumulativeForce[2]
+		              * world->activeParticles[i].cumulativeForce[2]
+		              + world->oldActiveParticles[i].cumulativeForce[0]
+		              * world->oldActiveParticles[i].cumulativeForce[0]
+		              + world->oldActiveParticles[i].cumulativeForce[1]
+		              * world->oldActiveParticles[i].cumulativeForce[1]
+		              + world->oldActiveParticles[i].cumulativeForce[2]
+		              * world->oldActiveParticles[i].cumulativeForce[2] );
 	}
 	firstTerm  *= 0.5;
-	secondTerm *= this->timestep / (4. * this->kBoltzmann * this->temperature);
-	acceptance = firstTerm + secondTerm + this->energy - this->oldEnergy;
-	acceptance /= -1. * this->kBoltzmann * this->temperature;
+	secondTerm *= config->timestep / (4. * config->kBoltzmann * config->temperature);
+	acceptance = firstTerm + secondTerm + world->energy - world->oldEnergy;
+	acceptance /= -1. * config->kBoltzmann * config->temperature;
 	acceptance = exp( acceptance );
 	return acceptance;
 }
@@ -556,13 +556,13 @@ bool Simulation::acceptOrReject(double acceptance)
 
 long int Simulation::findParticleIndex(unsigned long long id)
 {
-	unsigned long int max = this->activeParticles.size() - 1;
+	unsigned long int max = world->activeParticles.size() - 1;
 	unsigned long int min = 0;
 	unsigned long int mid = 0;
 	while (max >= min) {
 		mid = min + (max - min) / 2;
-		if (this->activeParticles[mid].uniqueId == id) {return mid;}
-		else if (this->activeParticles[mid].uniqueId < id) {min = mid + 1;}
+		if (world->activeParticles[mid].uniqueId == id) {return mid;}
+		else if (world->activeParticles[mid].uniqueId < id) {min = mid + 1;}
 		else {max = mid - 1;}
 	}
 	// particle was not found
@@ -573,7 +573,7 @@ void Simulation::addParticle(
 	std::vector<double> initPos,
 	unsigned int particleTypeId)
 {
-	if (particleTypeId >= this->typeDict.size() ) {
+	if (particleTypeId >= config->typeDict.size() ) {
 		std::cout << "Error: The given particle type does not exist!\n"
 		          << "Particle is not created" << std::endl;
 		return;
@@ -586,22 +586,22 @@ void Simulation::addParticle(
 		particle.position = {0., 0., 0.};
 	}
 	particle.typeId = particleTypeId;
-	particle.uniqueId = this->uniqueIdCounter;
-	this->uniqueIdCounter += 1;
-	this->activeParticles.push_back(particle);//push_back copies arg into vec
+	particle.uniqueId = world->uniqueIdCounter;
+	world->uniqueIdCounter += 1;
+	world->activeParticles.push_back(particle);//push_back copies arg into vec
 }
 
 std::vector<double> Simulation::getPosition(int index)
 {
-	return this->activeParticles[index].position;
+	return world->activeParticles[index].position;
 }
 
 void Simulation::setPosition(int index, std::vector<double> newPos)
 {
 	if (newPos.size() == 3) {
-		this->activeParticles[index].position[0] = newPos[0];
-		this->activeParticles[index].position[1] = newPos[1];
-		this->activeParticles[index].position[2] = newPos[2];
+		world->activeParticles[index].position[0] = newPos[0];
+		world->activeParticles[index].position[1] = newPos[1];
+		world->activeParticles[index].position[2] = newPos[2];
 	}
 	else {
 		std::cout << "Error: New position has dimension mismatch!\n"
@@ -610,23 +610,23 @@ void Simulation::setPosition(int index, std::vector<double> newPos)
 }
 
 unsigned int Simulation::getTypeId(int index) {
-	return this->activeParticles[index].typeId;
+	return world->activeParticles[index].typeId;
 }
 
 void Simulation::setTypeId(int index, unsigned int typeId) 
 {
-	if (typeId >= this->typeDict.size() ) {
+	if (typeId >= config->typeDict.size() ) {
 		std::cout << "Error: The given particle type does not exist!\n"
 		          << "Particle is not created" << std::endl;
 		return;
 	}
-	this->activeParticles[index].typeId = typeId;
+	world->activeParticles[index].typeId = typeId;
 }
 
 void Simulation::deleteAllParticles()
 {
-	 this->activeParticles.erase(
-		this->activeParticles.begin(),
-		this->activeParticles.begin() + this->activeParticles.size()
+	 world->activeParticles.erase(
+		world->activeParticles.begin(),
+		world->activeParticles.begin() + world->activeParticles.size()
 	);
 }

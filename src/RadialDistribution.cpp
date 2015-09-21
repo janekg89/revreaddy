@@ -41,20 +41,20 @@ RadialDistribution::~RadialDistribution()
  * correctly for the current timestep.
  */
 void RadialDistribution::record(
-	std::vector<Particle>& activeParticles,
+	World * world,
 	double t)
 {
 	double radius = 0.;
-	for (int i=0; i<activeParticles.size(); i++) {
-		for (int j=0; j<activeParticles.size(); j++) {
+	for (int i=0; i<world->activeParticles.size(); i++) {
+		for (int j=0; j<world->activeParticles.size(); j++) {
 			if (this->isInConsidered(
-				activeParticles[i].typeId,
-				activeParticles[j].typeId)) {
+				world->activeParticles[i].typeId,
+				world->activeParticles[j].typeId)) {
 				if (i != j) {
 					getMinDistanceSquared(
 						radius,
-						activeParticles[i].position,
-						activeParticles[j].position,
+						world->activeParticles[i].position,
+						world->activeParticles[j].position,
 						this->isPeriodic,
 						this->boxsize);
 					radius = sqrt(radius);

@@ -28,7 +28,7 @@ class Trajectory : public Observable
 		std::vector< std::vector< particleTuple > > trajectory;
 
 		void record(
-			std::vector<Particle>& activeParticles,
+			World * world,
 			double t);
 		void writeBufferToFile();
 	

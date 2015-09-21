@@ -46,8 +46,8 @@ class Simulation;
 class Simulation
 {
 	public:
-		World world;
-		Config config;
+		World * world;
+		Config * config;
 		Random * random;                // the random number generator
 
 		/*------- core functions/variables not accessible to python -------*/

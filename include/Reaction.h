@@ -9,12 +9,14 @@
 #define __REACTION_H_INCLUDED__
 #include <string>
 #include <vector>
-#include "Simulation.h" // particles are added/removed
+#include "World.h"
 #include "Particle.h" // positions must be obtained
 
 class Reaction
 {
 	public:
+		Reaction();
+		virtual ~Reaction();
 		std::string name;
 		std::vector<unsigned int> forwardTypes;
 		std::vector<unsigned int> backwardTypes;
@@ -42,10 +44,10 @@ class Reaction
 		 * not the uniqueIds. */
 		virtual double performForward(
 			std::vector<unsigned long int> particleIndices,
-			Simulation* simulation);
+			World * world);
 		virtual double performBackward(
 			std::vector<unsigned long int> particleIndices,
-			Simulation* simulation);
+			World * world);
 };
 
 #endif //__REACTION_H_INCLUDED__

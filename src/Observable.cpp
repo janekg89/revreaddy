@@ -14,7 +14,7 @@ Observable::~Observable()
 
 }
 
-void Observable::record(std::vector<Particle>& activeParticles, double t)
+void Observable::record(World * world, double t)
 {
 
 }

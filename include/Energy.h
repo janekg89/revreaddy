@@ -10,24 +10,20 @@
 #include <vector>
 #include <string>
 #include "Observable.h"
-#include "Simulation.h"
 
 class Energy : public Observable
 {
 	public:
 		std::vector<double> energies;
 		std::vector<double> times;
-		/* pointer to the simulation, owning this observable */
-		Simulation * simulation;
 
 		Energy(
 			unsigned int inRecPeriod,
 			unsigned int inClearPeriod,
-			Simulation * inSimulation,
 			std::string inFilename);
 
 		void record(
-			std::vector<Particle>& activeParticles,
+			World * world,
 			double t);
 		void writeBufferToFile();
 		void writeBufferToH5();

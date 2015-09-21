@@ -8,6 +8,8 @@
 #define __OBSERVABLE_H_INCLUDED__
 #include <vector>
 #include <string>
+#include <fstream>
+#include "World.h"
 #include "Particle.h"
 #include "BinaryFile.h"
 
@@ -22,7 +24,7 @@ class Observable
 		std::vector<unsigned long long> observedParticleIds;
 		// buffer is declared by children
 		virtual void record(
-			std::vector<Particle>& activeParticles,
+			World * world,
 			double t); // write data to buffer
 		// TODO in the future only use flushing to avoid
 		// bugs occuring when writing data, that has already
@@ -42,4 +44,5 @@ class Observable
 		Observable();
 		virtual ~Observable();		
 };
+
 #endif // __OBSERVABLE_H_INCLUDED__

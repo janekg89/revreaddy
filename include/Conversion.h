@@ -5,6 +5,8 @@
 #ifndef __CONVERSION_H_INCLUDED__
 #define __CONVERSION_H_INCLUDED__
 #include "Reaction.h"
+#include <vector>
+#include <string>
 
 class Conversion : public Reaction
 {
@@ -15,13 +17,14 @@ class Conversion : public Reaction
 			std::vector<unsigned int> inBackwardTypes,
 			double inForwardRate,
 			double inBackwardRate);
-		
+		~Conversion();
+
 		double performForward(
 			std::vector<unsigned long int> particleIndices,
-			Simulation* simulation);
+			World * world);
 		double performBackward(
 			std::vector<unsigned long int> particleIndices,
-			Simulation* simulation);
+			World * world);
 };
 
 #endif //__CONVERSION_H_INCLUDED__
