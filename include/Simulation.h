@@ -20,6 +20,8 @@ class Simulation;
 #include <typeinfo>
 #include <algorithm>
 #include <time.h>
+#include "World.h"
+#include "Config.h"
 #include "Particle.h"
 #include "Random.h"
 #include "Observable.h"
@@ -44,67 +46,9 @@ class Simulation;
 class Simulation
 {
 	public:
-		/*------- variables for initial setup -------*/
-		
+		World world;
+		Config config;
 		Random * random;                // the random number generator
-		std::vector<ParticleType> typeDict;
-		/* All forces between particles */
-		std::vector<ParticleInteraction*> possibleInteractions;
-		/* All first order potentials. Used to build geometries. */ 
-		std::vector<Geometry*> geometries;
-		/* Storage of all active reversible reactions that may happen */
-		std::vector<Reaction*> possibleReactions;
-		/* Stores children of Observable. Those are called in
-		 * predefined intervals during run(). */
-		std::vector<Observable*> observables;
-
-		unsigned long int maxTime; // length of the simulation
-		double timestep;           // the timestep: usually 0.001 or smaller
-		double temperature;
-		double kBoltzmann;
-		bool isPeriodic;           // use periodic boundary conditions or not
-		double boxsize;            // length of the periodic simulationbox
-		bool isReversibleDynamics;
-		bool isReversibleReactions;
-		bool useNeighborList;
-		/* This variable is used only by the author to test different
-		 * methods of performing reactions. */
-		unsigned int reactionPropagation;
-
-		/*------- state variables, change during run() -------*/
-
-		/* activeParticles has an entry for every particle
-		 * which holds its position and typeId.
-		 * oldActiveParticles temporarily saves the particle
-		 * states in case the timestep is rejected and the old
-		 * state must be restored. */
-		std::vector<Particle> activeParticles;
-		std::vector<Particle> oldActiveParticles;
-		/* activePairs has an entry for every pair (i,j) particles'
-		 * indices (NOT uniqueIds, since particle indices are conserved
-		 * during until reactions are propagated)
-		 * that is within reaction range at the current time.
-		 * oldActivePairs temporarily saves the state of
-		 * activePairs and is restored upon timestep-rejection. */
-		std::vector< std::vector<unsigned long> > activePairs;
-		std::vector< std::vector<unsigned long> > oldActivePairs;
-		/* MAYBE For later adaptive timestepping methods */
-		//std::vector<Particle> consideredParticles;
-		/* energy is the sum of all energy terms in the system by
-		 * particle interactions and geometries, i.e. first and second
-		 * order potential energies */
-		double energy;
-		double oldEnergy;
-		double cumulativeRuntime;  // keeps track of the advanced time
-		/* The last calculated acceptance probability for dynamical step */
-		double acceptProbDynamics;
-		/* The last calculated acceptance probability for reaction step */
-		double acceptProbReactions;
-		unsigned long long uniqueIdCounter;
-		unsigned long int acceptionsDynamics;
-		unsigned long int rejectionsDynamics;
-		unsigned long int acceptionsReactions;
-		unsigned long int rejectionsReactions;
 
 		/*------- core functions/variables not accessible to python -------*/
 
@@ -169,71 +113,7 @@ class Simulation
 		void                setPosition(int index, std::vector<double> newPos);
 		unsigned int getTypeId(int index);
 		void         setTypeId(int index, unsigned int typeId);
-		void new_Type(
-			std::string name,
-			double radius,
-			double diffusionConstant,
-			double reactionRadius);
-		unsigned int getNumberOfTypes();
-		std::string getDictName(unsigned int i);
-		double getDictRadius(unsigned int i);
-		double getDictDiffusionConstant(unsigned int i);
-		double getDictReactionRadius(unsigned int i);
-		unsigned int  getParticleNumber();
 		void deleteAllParticles();
-		void writeAllObservablesToFile();
-		void writeLastObservableToFile();
-		std::string showObservables();
-		void deleteAllObservables();
-		void deleteLastObservable();
-		void new_Trajectory(unsigned long int recPeriod, std::string filename);
-		void new_RadialDistribution(
-			unsigned long int recPeriod,
-			std::string filename,
-			std::vector<double> ranges,
-			std::vector< std::vector<unsigned int> > considered);
-		void new_MeanSquaredDisplacement(
-			unsigned long int recPeriod,
-			std::string filename,
-			unsigned int particleTypeId);
-		void new_ProbabilityDensity(
-			unsigned long int recPeriod,
-			std::string filename,
-			unsigned int pTypeId,
-			std::vector<double> range,
-			unsigned int coord);
-		void new_Energy(unsigned long int recPeriod, std::string filename);
-		void new_Acceptance(unsigned long int recPeriod,std::string filename);
-		void deleteAllGeometries();
-		void new_Wall(
-			std::vector<double> normal,
-			std::vector<double> point,
-			double strength,
-			std::vector<unsigned int>& particleTypeIds);
-		void new_DoubleWellZ(
-			double distanceMinima,
-			double strength,
-			std::vector<unsigned int> particleTypeIds);
-		void deleteAllForces();
-		void new_SoftRepulsion(
-			std::string name,
-			std::vector<unsigned int> affectedTuple,
-			double repulsionStrength);
-		void new_LennardJones(
-			std::string name,
-			std::vector<unsigned int> affectedTuple,
-			double epsilon);
-		unsigned int getNumberForces();
-		std::string getForceName(unsigned int i);
-		std::string getForceType(unsigned int i);
-		std::vector<unsigned int> getForceAffectedTuple(unsigned int i);
-		std::vector<double> getForceParameters(unsigned int i);
-		void new_Conversion(
-			std::string name,
-			std::vector<unsigned int> forwardTypes,
-			std::vector<unsigned int> backwardTypes,
-			double forwardRate,
-			double backwardRate);
 };
 
 #endif // __SIMULATION_H_INCLUDED__
