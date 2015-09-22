@@ -46,6 +46,9 @@ class Simulation;
 class Simulation
 {
 	public:
+		Simulation(World * inWorld, Config * inConfig);
+		~Simulation();
+
 		World * world;
 		Config * config;
 		Random * random;                // the random number generator
@@ -101,8 +104,7 @@ class Simulation
 
 		/*------- functions that will be wrapped by python -------*/
 
-		Simulation();
-		~Simulation();
+
 		/* Start the simulation. Iterate for maxTime timesteps.*/
 		void run();
 };

@@ -82,7 +82,7 @@ cdef extern from "Simulation.h":
 		vector[double] getForceParameters(unsigned int)
 
 	cdef cppclass Simulation:
-		Simulation() except +
+		Simulation(World*, Config*) except +
 
 		World * world
 		Config * config
@@ -99,12 +99,12 @@ cdef class pySimulation:
 	cdef World *world
 	cdef Config *config
 	def __cinit__(self):
-		self.thisptr = new Simulation()
-		self.world = self.thisptr.world
-		self.config = self.thisptr.config
+		self.world = new World();
+		self.config = new Config(self.world);
+		self.thisptr = new Simulation(self.world, self.config)
 	def __dealloc__(self):
-		del self.config
-		del self.world
+		#del self.config
+		#del self.world
 		del self.thisptr
 
 	property maxTime:

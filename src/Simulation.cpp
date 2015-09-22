@@ -4,11 +4,11 @@
 
 #include "Simulation.h"
 
-Simulation::Simulation()
+Simulation::Simulation(World * inWorld, Config * inConfig)
 {
 	this->random = new Random("ranlxs0");
-	this->world  = new World();
-	this->config = new Config(world);
+	this->world  = inWorld;
+	this->config = inConfig;
 }
 
 Simulation::~Simulation()
