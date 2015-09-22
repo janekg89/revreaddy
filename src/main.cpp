@@ -32,18 +32,16 @@ int main()
 				x0[0] = -0.49 * sim->config->boxsize + i;
 				x0[1] = -0.49 * sim->config->boxsize + j;
 				x0[2] = -0.49 * sim->config->boxsize + k;
-				sim->addParticle(x0, 0);
+				sim->world->addParticle(x0, 0);
 			}
-	std::cout << sim->world->activeParticles.max_size() << std::endl;
-	/*
-	sim->new_Trajectory(1, "traj.xyz");
-	sim->new_MeanSquaredDisplacement(1, "msd.dat", 0);
-	sim->run();
-	sim->writeAllObservablesToFile();
-	sim->deleteAllObservables();
 
-	std::cout << "acc dynamics " << sim->acceptionsDynamics << std::endl;
-	std::cout << "rej dynamics " << sim->rejectionsDynamics << std::endl;
-	*/
+	sim->config->new_Trajectory(1, "traj.xyz");
+	sim->config->new_MeanSquaredDisplacement(1, "msd.dat", 0);
+	sim->run();
+	sim->config->writeAllObservablesToFile();
+	sim->config->deleteAllObservables();
+
+	std::cout << "acc dynamics " << sim->world->acceptionsDynamics << std::endl;
+	std::cout << "rej dynamics " << sim->world->rejectionsDynamics << std::endl;
 	return 0;
 }

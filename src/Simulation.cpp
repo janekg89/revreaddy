@@ -13,9 +13,9 @@ Simulation::Simulation()
 
 Simulation::~Simulation()
 {
-	delete this->random;
-	delete this->world;
 	delete this->config;
+	delete this->world;
+	delete this->random;
 }
 
 /* TODO after one run() the observables' files should 
@@ -124,6 +124,8 @@ void Simulation::propagateDynamics()
 		forceTerm[1] = world->activeParticles[i].cumulativeForce[1] * forcePrefactor;
 		forceTerm[2] = world->activeParticles[i].cumulativeForce[2] * forcePrefactor;
 
+		std::cout << "Simulation::propagateDynamics noise[0] " 
+		<< noiseTerm[0] << std::endl;
 		world->activeParticles[i].move(noiseTerm);
 		world->activeParticles[i].move(forceTerm);
 
@@ -567,66 +569,4 @@ long int Simulation::findParticleIndex(unsigned long long id)
 	}
 	// particle was not found
 	return -1;
-}
-
-void Simulation::addParticle(
-	std::vector<double> initPos,
-	unsigned int particleTypeId)
-{
-	if (particleTypeId >= config->typeDict.size() ) {
-		std::cout << "Error: The given particle type does not exist!\n"
-		          << "Particle is not created" << std::endl;
-		return;
-	}
-	Particle particle;
-	if ( initPos.size() == 3 ) { particle.position  = initPos; }
-	else {
-		std::cout << "Error: Particles' initial position has dimension mismatch!\n" 
-		          << "Particle will be placed at {0,0,0}" << std::endl;	
-		particle.position = {0., 0., 0.};
-	}
-	particle.typeId = particleTypeId;
-	particle.uniqueId = world->uniqueIdCounter;
-	world->uniqueIdCounter += 1;
-	world->activeParticles.push_back(particle);//push_back copies arg into vec
-}
-
-std::vector<double> Simulation::getPosition(int index)
-{
-	return world->activeParticles[index].position;
-}
-
-void Simulation::setPosition(int index, std::vector<double> newPos)
-{
-	if (newPos.size() == 3) {
-		world->activeParticles[index].position[0] = newPos[0];
-		world->activeParticles[index].position[1] = newPos[1];
-		world->activeParticles[index].position[2] = newPos[2];
-	}
-	else {
-		std::cout << "Error: New position has dimension mismatch!\n"
-		          << "Particle remains at its old position" << std::endl;
-	}
-}
-
-unsigned int Simulation::getTypeId(int index) {
-	return world->activeParticles[index].typeId;
-}
-
-void Simulation::setTypeId(int index, unsigned int typeId) 
-{
-	if (typeId >= config->typeDict.size() ) {
-		std::cout << "Error: The given particle type does not exist!\n"
-		          << "Particle is not created" << std::endl;
-		return;
-	}
-	world->activeParticles[index].typeId = typeId;
-}
-
-void Simulation::deleteAllParticles()
-{
-	 world->activeParticles.erase(
-		world->activeParticles.begin(),
-		world->activeParticles.begin() + world->activeParticles.size()
-	);
 }

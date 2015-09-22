@@ -7,26 +7,38 @@ cimport numpy as np
 import time
 
 cdef extern from "Simulation.h":
-	cdef cppclass Simulation:
-		Simulation() except +
-		unsigned long int maxTime
-		double temperature
-		double timestep
-		double cumulativeRuntime
-		bool isPeriodic
-		double boxsize
+
+	cdef cppclass World:
+		World() except +
+
 		unsigned long int acceptionsDynamics
 		unsigned long int rejectionsDynamics
+		unsigned long int acceptionsReactions
+		unsigned long int rejectionsReactions
+		double cumulativeRuntime
+
+		void addParticle(vector[double], unsigned long int)
+		void removeParticle(unsigned long int)
+		vector[double] getPosition(unsigned long int)
+		void setPosition(unsigned long int, vector[double])
+		unsigned int getTypeId(unsigned long int)
+		void setTypeId(unsigned long int, unsigned int)
+		void deleteAllParticles()
+
+	cdef cppclass Config:
+		Config(World*) except +
+
+		unsigned long int maxTime
+		double temperature
+		double kBoltzmann
+		double timestep
+		bool isPeriodic
+		double boxsize
 		bool isReversibleDynamics
 		bool isReversibleReactions
 		bool useNeighborList
+		unsigned int reactionPropagation
 
-		void run()
-		void addParticle(vector[double], unsigned int)
-		vector[double] getPosition(int)
-		void           setPosition(int, vector[double])
-		unsigned int getTypeId(int)
-		void         setTypeId(int, unsigned int)
 		void new_Type(string, double, double, double)
 		unsigned int getNumberOfTypes()
 		string getDictName(unsigned int)
@@ -34,7 +46,6 @@ cdef extern from "Simulation.h":
 		double getDictDiffusionConstant(unsigned int)
 		double getDictReactionRadius(unsigned int)
 		unsigned int getParticleNumber()
-		void deleteAllParticles()
 		void writeAllObservablesToFile()
 		void writeLastObservableToFile()
 		string showObservables()
@@ -68,160 +79,180 @@ cdef extern from "Simulation.h":
 		string getForceName(unsigned int)
 		string getForceType(unsigned int)
 		vector[uint] getForceAffectedTuple(unsigned int)
-		vector[double] getForceParameters(unsigned int) 
+		vector[double] getForceParameters(unsigned int)
+
+	cdef cppclass Simulation:
+		Simulation() except +
+
+		World * world
+		Config * config
+
+		void run()
+
+ 
 
 cdef class pySimulation:
 	"""
 	The pySimulation class is the main object of revreaddy.
 	"""
 	cdef Simulation *thisptr
+	cdef World *world
+	cdef Config *config
 	def __cinit__(self):
 		self.thisptr = new Simulation()
+		self.world = self.thisptr.world
+		self.config = self.thisptr.config
 	def __dealloc__(self):
+		del self.config
+		del self.world
 		del self.thisptr
+
+	property maxTime:
+		def __get__(self): return self.config.maxTime
+		def __set__(self, maxTime): self.config.maxTime = maxTime
+	property temperature:
+		def __get__(self): return self.config.temperature
+		def __set__(self, temperature): self.config.temperature = temperature
+	property timestep:
+		def __get__(self): return self.config.timestep
+		def __set__(self, timestep): self.config.timestep = timestep
+	property cumulativeRuntime:
+		def __get__(self): return self.world.cumulativeRuntime
+		# there should not be a setter for cumulativeRuntime
+		# but here it is
+		def __set__(self, cumulativeRuntime):
+			self.world.cumulativeRuntime = cumulativeRuntime
+	property isPeriodic:
+		def __get__(self): return self.config.isPeriodic
+		def __set__(self, isPeriodic): self.config.isPeriodic = isPeriodic
+	property boxsize:
+		def __get__(self): return self.config.boxsize
+		def __set__(self, boxsize): self.config.boxsize = boxsize
+	property acceptionsDynamics:
+		def __get__(self): return self.world.acceptionsDynamics
+		def __set__(self, acceptionsDynamics):
+			self.world.acceptionsDynamics = acceptionsDynamics
+	property rejectionsDynamics:
+		def __get__(self): return self.world.rejectionsDynamics
+		def __set__(self, rejectionsDynamics):
+			self.world.rejectionsDynamics = rejectionsDynamics
+	property isReversibleDynamics:
+		def __get__(self): return self.config.isReversibleDynamics
+		def __set__(self,isReversibleDynamics):
+			self.config.isReversibleDynamics = isReversibleDynamics
+	property useNeighborList:
+		def __get__(self): return self.config.useNeighborList
+		def __set__(self,useNeighborList): 
+			self.config.useNeighborList=useNeighborList
+	property reactionPropagation:
+		def __get__(self): return self.config.reactionPropagation
+		def __set__(self, reactionPropagation):
+			self.config.reactionPropagation = reactionPropagation
+
+	def run(self):
+		"""Run the simulation."""
+		self.thisptr.run()
 	def addParticle(
 		self,
 		initialPosition=[0.,0.,0.],
 		particleTypeId=0):
-		self.thisptr.addParticle(
+		self.world.addParticle(
 			initialPosition,
 			particleTypeId)
-	def run(self):
-		"""Run the simulation."""
-		t1 = time.clock()
-		self.thisptr.run()
-		t2 = time.clock()
-		print "Time needed:", t2 - t1, "seconds"
+	def removeParticle(self, index):
+		self.world.removeParticle(index)
 	def getPosition(self, index): 
-		return self.thisptr.getPosition(index)
+		return self.world.getPosition(index)
 	def setPosition(self, index, newPos):
-		self.thisptr.setPosition(index, newPos)
+		self.world.setPosition(index, newPos)
 	def getTypeId(self, index):
-		return self.thisptr.getTypeId(index)
+		return self.world.getTypeId(index)
 	def setTypeId(self, index, typeId):
-		self.thisptr.setTypeId(index, typeId)
+		self.world.setTypeId(index, typeId)
+	def deleteAllParticles(self):
+		self.world.deleteAllParticles()
 	def new_Type(
 		self,
 		name,
 		radius,
 		diffusionConstant,
 		reactionRadius):
-		self.thisptr.new_Type(
+		self.config.new_Type(
 			name,
 			radius,
 			diffusionConstant,
 			reactionRadius)
 	def getNumberOfTypes(self):
-		return self.thisptr.getNumberOfTypes()
+		return self.config.getNumberOfTypes()
 	def getDictName(self, i):
-		return self.thisptr.getDictName(i)
+		return self.config.getDictName(i)
 	def getDictRadius(self, i):
-		return self.thisptr.getDictRadius(i)
+		return self.config.getDictRadius(i)
 	def getDictDiffusionConstant(self, i):
-		return self.thisptr.getDictDiffusionConstant(i)
+		return self.config.getDictDiffusionConstant(i)
 	def getDictReactionRadius(self, i):
-		return self.thisptr.getDictReactionRadius(i)
+		return self.config.getDictReactionRadius(i)
 	def getParticleNumber(self): 
-		return self.thisptr.getParticleNumber()
-	def deleteAllParticles(self):
-		self.thisptr.deleteAllParticles()
+		return self.config.getParticleNumber()
 	def writeAllObservablesToFile(self): 
-		self.thisptr.writeAllObservablesToFile()
+		self.config.writeAllObservablesToFile()
 	def writeLastObservableToFile(self):
-		self.thisptr.writeLastObservableToFile()
+		self.config.writeLastObservableToFile()
 	def showObservables(self):
-		return self.thisptr.showObservables()
+		return self.config.showObservables()
 	def deleteAllObservables(self): 
-		self.thisptr.deleteAllObservables()
+		self.config.deleteAllObservables()
 	def deleteLastObservable(self):
-		self.thisptr.deleteLastObservable()
+		self.config.deleteLastObservable()
 	def new_Trajectory(self, recPeriod, filename): 
-		self.thisptr.new_Trajectory(recPeriod, filename)
+		self.config.new_Trajectory(recPeriod, filename)
 	# TODO: check sorting of considered along second axis,
 	# right: [0,1], [2,4], [1,1]
 	# wrong: [1,0], [4,2]
 	def new_RadialDistribution(
 			self, recPeriod, filename,
 			ranges, considered=[[0,0]]):
-		self.thisptr.new_RadialDistribution(
+		self.config.new_RadialDistribution(
 			recPeriod, filename,
 			ranges, considered)
 	def new_MeanSquaredDisplacement(self, recPeriod, filename, particleTypeId):
-		self.thisptr.new_MeanSquaredDisplacement(
+		self.config.new_MeanSquaredDisplacement(
 			recPeriod, filename, particleTypeId)
 	def new_ProbabilityDensity(
 			self, recPeriod, filename, 
 			pTypeId, ranges, coord):
-		self.thisptr.new_ProbabilityDensity(
+		self.config.new_ProbabilityDensity(
 			recPeriod, filename,
 			pTypeId, ranges, coord)
 	def new_Energy(self, recPeriod, filename):
-		self.thisptr.new_Energy(recPeriod, filename)
+		self.config.new_Energy(recPeriod, filename)
 	def new_Acceptance(self, recPeriod, filename):
-		self.thisptr.new_Acceptance(recPeriod, filename)
+		self.config.new_Acceptance(recPeriod, filename)
 	def deleteAllGeometries(self):
-		self.thisptr.deleteAllGeometries()
+		self.config.deleteAllGeometries()
 	# TODO: check sorting of particleTypeIds, before calling wall constructor
 	def new_Wall(self, normal, point, strength, particleTypeIds):
-		self.thisptr.new_Wall(normal, point, strength, particleTypeIds)
+		self.config.new_Wall(normal, point, strength, particleTypeIds)
 	def new_DoubleWellZ(self, distanceMinima, strength, particleTypeIds):
-		self.thisptr.new_DoubleWellZ(distanceMinima, strength, particleTypeIds)
+		self.config.new_DoubleWellZ(distanceMinima, strength, particleTypeIds)
 	def deleteAllForces(self):
-		self.thisptr.deleteAllForces()
+		self.config.deleteAllForces()
 	def new_SoftRepulsion(self, name, affectedTuple, repulsionStrength):
-		self.thisptr.new_SoftRepulsion(name, affectedTuple, repulsionStrength)
+		self.config.new_SoftRepulsion(name, affectedTuple, repulsionStrength)
 	def new_LennardJones(self, name, affectedTuple, epsilon):
-		self.thisptr.new_LennardJones(name, affectedTuple, epsilon)
+		self.config.new_LennardJones(name, affectedTuple, epsilon)
 	def getNumberForces(self):
-		return self.thisptr.getNumberForces()
+		return self.config.getNumberForces()
 	def getForceName(self, index):
-		return self.thisptr.getForceName(index)
+		return self.config.getForceName(index)
 	def getForceType(self, index):
-		return self.thisptr.getForceType(index)
+		return self.config.getForceType(index)
 	def getForceAffectedTuple(self, index):
-		return self.thisptr.getForceAffectedTuple(index)
+		return self.config.getForceAffectedTuple(index)
 	def getForceParameters(self, index):
-		return self.thisptr.getForceParameters(index)
+		return self.config.getForceParameters(index)
 		
-	property maxTime:
-		def __get__(self): return self.thisptr.maxTime
-		def __set__(self, maxTime): self.thisptr.maxTime = maxTime
-	property temperature:
-		def __get__(self): return self.thisptr.temperature
-		def __set__(self, temperature): self.thisptr.temperature = temperature
-	property timestep:
-		def __get__(self): return self.thisptr.timestep
-		def __set__(self, timestep): self.thisptr.timestep = timestep
-	property cumulativeRuntime:
-		def __get__(self): return self.thisptr.cumulativeRuntime
-		# there should not be a setter for cumulativeRuntime
-		# but here it is
-		def __set__(self, cumulativeRuntime):
-			self.thisptr.cumulativeRuntime = cumulativeRuntime
-	property isPeriodic:
-		def __get__(self): return self.thisptr.isPeriodic
-		def __set__(self, isPeriodic): self.thisptr.isPeriodic = isPeriodic
-	property boxsize:
-		def __get__(self): return self.thisptr.boxsize
-		def __set__(self, boxsize): self.thisptr.boxsize = boxsize
-	property acceptionsDynamics:
-		def __get__(self): return self.thisptr.acceptionsDynamics
-		def __set__(self, acceptionsDynamics):
-			self.thisptr.acceptionsDynamics = acceptionsDynamics
-	property rejectionsDynamics:
-		def __get__(self): return self.thisptr.rejectionsDynamics
-		def __set__(self, rejectionsDynamics):
-			self.thisptr.rejectionsDynamics = rejectionsDynamics
-	property isReversibleDynamics:
-		def __get__(self): return self.thisptr.isReversibleDynamics
-		def __set__(self,isReversibleDynamics):
-			self.thisptr.isReversibleDynamics = isReversibleDynamics
-	property useNeighborList:
-		def __get__(self): return self.thisptr.useNeighborList
-		def __set__(self,useNeighborList): 
-			self.thisptr.useNeighborList=useNeighborList
-
-	# derived functions
+	# DERIVED FUNCTIONS
 	def acceptanceRateDynamics(self):
 		if (self.acceptionsDynamics == 0):
 			return 0.

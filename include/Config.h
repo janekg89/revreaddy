@@ -8,6 +8,7 @@
 #include <string>
 #include <iostream>
 #include <typeinfo>
+#include "World.h"
 #include "Observable.h"
 #include "Trajectory.h"
 #include "RadialDistribution.h"
