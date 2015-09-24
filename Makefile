@@ -1,14 +1,12 @@
 CC := g++ # This is the main compiler
-# CC := clang --analyze # and comment out the linker last line for sanity
 SRCDIR := src
 BUILDDIR := build
 TARGET := bin/runner
  
 SRCEXT := cpp
-#SOURCES := src/main.cpp src/Random.cpp src/Particle.cpp  src/Simulation.cpp  src/Potential.cpp src/Trajectory.cpp src/Observable.cpp
 SOURCES := $(shell find $(SRCDIR) -type f -name "*.$(SRCEXT)")
 OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
-# objects without main.o
+# objects without main.o. needed for unittest
 OBJECTSWM := $(subst build/main.o,,$(OBJECTS))
 CFLAGS := -g -std=c++11#-Wall
 LIB := -lgsl -lgslcblas -lm -lhdf5 -lhdf5_hl#-pthread -lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt
