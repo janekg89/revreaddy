@@ -43,5 +43,6 @@ int main()
 
 	std::cout << "acc dynamics " << sim->world->acceptionsDynamics << std::endl;
 	std::cout << "rej dynamics " << sim->world->rejectionsDynamics << std::endl;
+
 	return 0;
 }

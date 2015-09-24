@@ -4,11 +4,11 @@
 
 #include "Simulation.h"
 
-Simulation::Simulation(World * inWorld, Config * inConfig)
+Simulation::Simulation()
 {
 	this->random = new Random("ranlxs0");
-	this->world  = inWorld;
-	this->config = inConfig;
+	this->world  = new World();
+	this->config = new Config(this->world);
 }
 
 Simulation::~Simulation()
@@ -25,10 +25,6 @@ Simulation::~Simulation()
  * be opened again.*/
 void Simulation::run()
 {
-	std::cout << "Info: Started at simulation-time: "
-	          << world->cumulativeRuntime << std::endl;
-	std::cout << "Info: Run ..." << std::endl;
-	clock_t timer = clock();
 	this->resetForces();
 	this->resetActivePairs();
 	world->energy = 0.;
@@ -77,12 +73,6 @@ void Simulation::run()
 		world->cumulativeRuntime += config->timestep;
 		this->recordObservables(timeIndex);
 	}
-	timer = clock() - timer;
-	std::cout << "Info: Finished at simulation-time: "
-	          << world->cumulativeRuntime << std::endl;
-	std::cout << "Info: Needed computation-time for run(): "
-	          << ((float) timer) / CLOCKS_PER_SEC 
-	          << " s" << std::endl;
 }
 
 void Simulation::saveOldState()

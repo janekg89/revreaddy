@@ -5,6 +5,7 @@ from libcpp.string cimport string
 from libcpp cimport bool
 cimport numpy as np
 import time
+import logging
 
 cdef extern from "Simulation.h":
 
@@ -82,7 +83,7 @@ cdef extern from "Simulation.h":
 		vector[double] getForceParameters(unsigned int)
 
 	cdef cppclass Simulation:
-		Simulation(World*, Config*) except +
+		Simulation() except +
 
 		World * world
 		Config * config
@@ -99,13 +100,14 @@ cdef class pySimulation:
 	cdef World *world
 	cdef Config *config
 	def __cinit__(self):
-		self.world = new World();
-		self.config = new Config(self.world);
-		self.thisptr = new Simulation(self.world, self.config)
+		# Simulation allocates World and Config for itself
+		self.thisptr = new Simulation()
+		self.world = self.thisptr.world
+		self.config = self.thisptr.config
+		logging.info("pySimulation constructed.")
 	def __dealloc__(self):
-		#del self.config
-		#del self.world
 		del self.thisptr
+		logging.info("pySimulation released.")
 
 	property maxTime:
 		def __get__(self): return self.config.maxTime
@@ -151,11 +153,21 @@ cdef class pySimulation:
 
 	def run(self):
 		"""Run the simulation."""
+		logging.info("Started at " + \
+			str(self.world.cumulativeRuntime) + " cumulative runtime.")
+		timer = time.clock()
 		self.thisptr.run()
+		timer = time.clock() - timer
+		logging.info("Stopped at " + \
+			str(self.world.cumulativeRuntime) + " cumulative runtime.")
+		logging.info("Needed " + str(timer) + " s for computation.")
 	def addParticle(
 		self,
 		initialPosition=[0.,0.,0.],
 		particleTypeId=0):
+		if (particleTypeId >= self.getNumberOfTypes()):
+			logging.error(
+				"Particle type does not exist. Particle is not created.")
 		self.world.addParticle(
 			initialPosition,
 			particleTypeId)

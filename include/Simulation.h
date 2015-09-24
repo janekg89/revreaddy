@@ -46,7 +46,7 @@ class Simulation;
 class Simulation
 {
 	public:
-		Simulation(World * inWorld, Config * inConfig);
+		Simulation();
 		~Simulation();
 
 		World * world;
