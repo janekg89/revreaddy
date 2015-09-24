@@ -279,3 +279,26 @@ def generateSnapshotVmd(filename, simulation):
 	"molinfo top set {center_matrix} {{{1 0 0 0}{0 1 0 0}{0 0 1 0}{0 0 0 1}}}\n"
 	)
 	tclScript.close()
+
+# assume that xyz trajname already exists
+def generateVmdScript(trajname, simulation):
+	# mostly adapted from Johannes Schoeneberg's ReaDDy software
+	# see github.com/readdy
+	tclScript = open(trajname + ".tcl", "w")
+	tclScript.write("mol delete top\n")
+	tclScript.write("mol load xyz " + trajname + "\n")
+	tclScript.write("mol delrep 0 top\n")
+	tclScript.write("display resetview\n")
+	M = simulation.getNumberOfTypes()
+	for i in range(M):
+		tclScript.write(
+			"mol representation VDW " + str(simulation.getDictRadius(i) * 0.7) + " 16.0\n"
+		)
+		tclScript.write("mol selection name T" + str(i) + "\n")
+		tclScript.write("mol addrep top\n")
+	tclScript.write("animate goto 0\n")
+	tclScript.write("color Display Background white\n")
+	tclScript.write(
+	"molinfo top set {center_matrix} {{{1 0 0 0}{0 1 0 0}{0 0 1 0}{0 0 0 1}}}\n"
+	)
+	tclScript.close()

@@ -212,7 +212,7 @@ void Config::new_Wall(
 	std::vector<double> normal,
 	std::vector<double> point,
 	double strength,
-	std::vector<unsigned int>& particleTypeIds)
+	std::vector<unsigned int> particleTypeIds)
 {
 	Wall * wall = new Wall(
 		normal,

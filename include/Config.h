@@ -96,7 +96,7 @@ class Config
 			std::vector<double> normal,
 			std::vector<double> point,
 			double strength,
-			std::vector<unsigned int>& particleTypeIds);
+			std::vector<unsigned int> particleTypeIds);
 		void new_DoubleWellZ(
 			double distanceMinima,
 			double strength,

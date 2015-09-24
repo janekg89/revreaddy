@@ -124,8 +124,6 @@ void Simulation::propagateDynamics()
 		forceTerm[1] = world->activeParticles[i].cumulativeForce[1] * forcePrefactor;
 		forceTerm[2] = world->activeParticles[i].cumulativeForce[2] * forcePrefactor;
 
-		std::cout << "Simulation::propagateDynamics noise[0] " 
-		<< noiseTerm[0] << std::endl;
 		world->activeParticles[i].move(noiseTerm);
 		world->activeParticles[i].move(forceTerm);
 
