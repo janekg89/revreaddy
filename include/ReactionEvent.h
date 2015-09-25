@@ -6,7 +6,7 @@
 #define __REACTIONEVENT_H_INCLUDED__
 #include <vector>
 
-class ReactionEvent
+struct ReactionEvent
 {
 	public:
 		ReactionEvent(
@@ -15,7 +15,7 @@ class ReactionEvent
 			std::vector<unsigned long long> inParticipants);
 
 		/* position in possibleReactions vector*/
-		unsigned int reactionId;
+		unsigned reactionId;
 		/* true = forward, false = backward */
 		bool forwardOrBackward;
 		/* This vector has either one or two elements.

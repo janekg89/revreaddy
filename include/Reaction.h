@@ -36,9 +36,9 @@ class Reaction
 		 * will be performed. This is either one or 
 		 * two numbers, since reactions are either 
 		 * uni or bimolecular. */
-		/* NOTE: These functions manipulate Simulation.activeParticles
+		/* NOTE: These functions manipulate world->activeParticles
 		 * but should do this only by using the methods provided by
-		 * Simulation, e.g. addParticle(). That is why they receive
+		 * World, e.g. add/removeParticle(). That is why they receive
 		 * a pointer to the Simulation that called it. */
 		/* NOTE2: particleIndices are the positions in activeParticles 
 		 * not the uniqueIds. */

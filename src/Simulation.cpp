@@ -195,15 +195,77 @@ double Simulation::propagateReactions()
 		}
 	}
 	/* Find unimolecular candidates */
+	/* unimolecularParticleTypes is a list of typeIds that can undergo a
+	 * unimolecular reaction like a -> b or a -> b+c, it also contains
+	 * the corresponding reactionId and direction. */
+	std::vector<UnimolecularCandidate> unimolecularParticleTypes;
+	/* Search the possibleReactions for unimolecular reactions*/
+	for (unsigned i=0; i<config->possibleReactions.size(); i++) {
+		if ( config->possibleReactions[i]->forwardTypes.size() == 1 ) {
+			UnimolecularCandidate uni(
+				config->possibleReactions[i]->forwardTypes[0],//particleTypeId
+				i, // reactionId
+				true); // forwardOrBackward
+			unimolecularParticleTypes.push_back(uni);
+		}
+		if ( config->possibleReactions[i]->backwardTypes.size() == 1 ) {
+			UnimolecularCandidate uni(
+				config->possibleReactions[i]->backwardTypes[0],//particleTypeId
+				i, // reactionId
+				false); // forwardOrBackward
+			unimolecularParticleTypes.push_back(uni);
+		}
+	}
+	/* From the above, now actually find the particular 
+	 * unimolecular reaction candidates. */
 	for (unsigned long i=0; i<world->activeParticles.size(); i++) {
-		// TODO
+		for (unsigned j=0; j<unimolecularParticleTypes.size(); j++) {
+			/* if the type of the current particle matches a type of the
+			 * prepared unimolecularParticleTypes then this unimoelcuar reaction
+			 * event is added to the actual reactionCandidates. */
+			if (world->activeParticles[i].typeId 
+				== unimolecularParticleTypes[j].particleTypeId) {
+				std::vector<unsigned long long> participants;
+				participants.push_back(world->activeParticles[i].uniqueId);
+				ReactionEvent event(
+					unimolecularParticleTypes[j].reactionId, // reactionId
+					unimolecularParticleTypes[j].forwardOrBackward,//direction
+					participants); // uniqueId
+				reactionCandidates.push_back(event);
+			}
+		}
 	}
 	std::random_shuffle(reactionCandidates.begin(), reactionCandidates.end());
 	/* Perform reactions subsequently */
-	for (unsigned long i=0; i<reactionCandidates.size(); i++) {
-		// TODO
-	}
 	double acceptance = 1.;
+	for (unsigned long i=0; i<reactionCandidates.size(); i++) {
+		/* First find out if all participants still exist */
+		bool participantsAlive = true;
+		std::vector<unsigned long> particleIndices;
+		std::vector<unsigned long long> participants 
+			= reactionCandidates[i].participants;
+		for (unsigned j=0; participants.size(); j++) {
+			signed long index = this->findParticleIndex(participants[j]);
+			if (index == -1) {participantsAlive = false;}
+			else {particleIndices.push_back(index);}
+		}
+		/* If one of the particpants does not exist, 
+		 * continue with the next reactionEvent */
+		if (participantsAlive == false) {continue;}
+		/* Find out the direction of reaction and perform */
+		bool forwardOrBackward = reactionCandidates[i].forwardOrBackward;
+		unsigned reactionId = reactionCandidates[i].reactionId;
+		if (forwardOrBackward == true) {
+			acceptance *= config->possibleReactions[reactionId]->performForward(
+				particleIndices,
+				world);
+		}
+		if (forwardOrBackward == false) {
+			acceptance *= config->possibleReactions[reactionId]->performBackward(
+				particleIndices,
+				world);
+		}
+	}
 	return acceptance;
 }
 

@@ -41,6 +41,7 @@ class Simulation;
 #include "Reaction.h"
 #include "Conversion.h"
 #include "ReactionEvent.h"
+#include "UnimolecularCandidate.h"
 #include "utils.h"
 
 class Simulation
@@ -51,7 +52,7 @@ class Simulation
 
 		World * world;
 		Config * config;
-		Random * random;                // the random number generator
+		Random * random; // the random number generator
 
 		/*------- core functions/variables not accessible to python -------*/
 
@@ -100,10 +101,9 @@ class Simulation
 		 * this function performs a binary search with
 		 * complexity O(log n). The return value is signed so
 		 * the case "no particle found" is expressed by "-1" */
-		long int findParticleIndex(unsigned long long id);
+		long findParticleIndex(unsigned long long id);
 
 		/*------- functions that will be wrapped by python -------*/
-
 
 		/* Start the simulation. Iterate for maxTime timesteps.*/
 		void run();
