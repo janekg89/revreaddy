@@ -11,6 +11,7 @@
 #include <vector>
 #include "World.h"
 #include "Particle.h" // positions must be obtained
+#include "Random.h" // probabilities drawn
 
 class Reaction
 {
@@ -22,6 +23,7 @@ class Reaction
 		std::vector<unsigned int> backwardTypes;
 		double forwardRate;
 		double backwardRate;
+		Random * random; // pointer to the random number generator
 		
 		/* Check if the given types or type are/is 
 		 * affected by the reaction in forward direction. */
@@ -44,10 +46,12 @@ class Reaction
 		 * not the uniqueIds. */
 		virtual double performForward(
 			std::vector<unsigned long int> particleIndices,
-			World * world);
+			World * world,
+			double timestep);
 		virtual double performBackward(
 			std::vector<unsigned long int> particleIndices,
-			World * world);
+			World * world,
+			double timestep);
 };
 
 #endif //__REACTION_H_INCLUDED__

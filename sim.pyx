@@ -81,6 +81,8 @@ cdef extern from "Simulation.h":
 		string getForceType(unsigned int)
 		vector[uint] getForceAffectedTuple(unsigned int)
 		vector[double] getForceParameters(unsigned int)
+		void deleteAllReactions()
+		void new_Conversion(string, unsigned int, unsigned int, double, double)
 
 	cdef cppclass Simulation:
 		Simulation() except +
@@ -142,6 +144,10 @@ cdef class pySimulation:
 		def __get__(self): return self.config.isReversibleDynamics
 		def __set__(self,isReversibleDynamics):
 			self.config.isReversibleDynamics = isReversibleDynamics
+	property isReversibleReactions:
+		def __get__(self): return self.config.isReversibleReactions
+		def __set__(self,isReversibleReactions):
+			self.config.isReversibleReactions = isReversibleReactions
 	property useNeighborList:
 		def __get__(self): return self.config.useNeighborList
 		def __set__(self,useNeighborList): 
@@ -168,6 +174,7 @@ cdef class pySimulation:
 		if (particleTypeId >= self.getNumberOfTypes()):
 			logging.error(
 				"Particle type does not exist. Particle is not created.")
+			return
 		self.world.addParticle(
 			initialPosition,
 			particleTypeId)
@@ -263,6 +270,20 @@ cdef class pySimulation:
 		return self.config.getForceAffectedTuple(index)
 	def getForceParameters(self, index):
 		return self.config.getForceParameters(index)
+	def deleteAllReactions(self):
+		self.config.deleteAllReactions()
+	def new_Conversion(self, name, forwardType,
+		backwardType, forwardRate, backwardRate):
+		if (forwardType >= self.getNumberOfTypes()):
+			logging.error(
+				"ForwardType does not exist. Reaction not created.")
+			return
+		if (backwardType >= self.getNumberOfTypes()):
+			logging.error(
+				"BackwardType does not exist. Reaction not created.")
+			return
+		self.config.new_Conversion(name, forwardType,
+			backwardType, forwardRate, backwardRate)
 		
 	# DERIVED FUNCTIONS
 	def acceptanceRateDynamics(self):
@@ -315,3 +336,9 @@ cdef class pySimulation:
 				 affectedTuples[i], parameters[i] ] )
 			print form.format(*linestr)
 		return
+
+	def howManyParticles(self, particleType):
+		counter = 0
+		for i in range(0, self.getParticleNumber()):
+			if (self.getTypeId(i) == particleType): counter += 1
+		return (str(counter) + "/" + str(self.getParticleNumber()))

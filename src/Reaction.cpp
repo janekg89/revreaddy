@@ -64,14 +64,16 @@ bool Reaction::isAffectedBackward(unsigned int type)
 
 double Reaction::performForward(
 	std::vector<unsigned long int> particleIndices,
-	World * world)
+	World * world,
+	double timestep)
 {
 	return 1.;
 }
 
 double Reaction::performBackward(
 	std::vector<unsigned long int> particleIndices,
-	World * world)
+	World * world,
+	double timestep)
 {
 	return 1.;
 }

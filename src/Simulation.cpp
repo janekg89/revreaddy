@@ -8,7 +8,7 @@ Simulation::Simulation()
 {
 	this->random = new Random("ranlxs0");
 	this->world  = new World();
-	this->config = new Config(this->world);
+	this->config = new Config(this->world, this->random);
 }
 
 Simulation::~Simulation()
@@ -235,16 +235,17 @@ double Simulation::propagateReactions()
 			}
 		}
 	}
+	// TODO check seeding
 	std::random_shuffle(reactionCandidates.begin(), reactionCandidates.end());
 	/* Perform reactions subsequently */
-	double acceptance = 1.;
+	double conditionalProbs = 1.;
 	for (unsigned long i=0; i<reactionCandidates.size(); i++) {
 		/* First find out if all participants still exist */
 		bool participantsAlive = true;
 		std::vector<unsigned long> particleIndices;
 		std::vector<unsigned long long> participants 
 			= reactionCandidates[i].participants;
-		for (unsigned j=0; participants.size(); j++) {
+		for (unsigned j=0; j<participants.size(); j++) {
 			signed long index = this->findParticleIndex(participants[j]);
 			if (index == -1) {participantsAlive = false;}
 			else {particleIndices.push_back(index);}
@@ -256,17 +257,19 @@ double Simulation::propagateReactions()
 		bool forwardOrBackward = reactionCandidates[i].forwardOrBackward;
 		unsigned reactionId = reactionCandidates[i].reactionId;
 		if (forwardOrBackward == true) {
-			acceptance *= config->possibleReactions[reactionId]->performForward(
+			conditionalProbs *= config->possibleReactions[reactionId]->performForward(
 				particleIndices,
-				world);
+				world,
+				config->timestep);
 		}
 		if (forwardOrBackward == false) {
-			acceptance *= config->possibleReactions[reactionId]->performBackward(
+			conditionalProbs *= config->possibleReactions[reactionId]->performBackward(
 				particleIndices,
-				world);
+				world,
+				config->timestep);
 		}
 	}
-	return acceptance;
+	return conditionalProbs;
 }
 
 void Simulation::recordObservables(unsigned long int timeIndex)

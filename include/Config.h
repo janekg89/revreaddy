@@ -9,6 +9,7 @@
 #include <iostream>
 #include <typeinfo>
 #include "World.h"
+#include "Random.h"
 #include "Observable.h"
 #include "Trajectory.h"
 #include "RadialDistribution.h"
@@ -29,9 +30,14 @@
 class Config
 {
 	public:
-		Config(World * inWorld);
+		/* world belongs to config, so config is allowed to destroy it.
+		 * random belongs to Simulation, it is only borrowed and must not
+		 * be destroyed. This is because Reactions need random numbers
+		 * to calculate probabilites. TODO resolve this */
+		Config(World * inWorld, Random * inRandom);
 		~Config();
 		World * world;
+		Random * random;
 
 		std::vector<ParticleType> typeDict;
 		/* All forces between particles */
@@ -116,10 +122,11 @@ class Config
 		std::string getForceType(unsigned int i);
 		std::vector<unsigned int> getForceAffectedTuple(unsigned int i);
 		std::vector<double> getForceParameters(unsigned int i);
+		void deleteAllReactions();
 		void new_Conversion(
 			std::string name,
-			std::vector<unsigned int> forwardTypes,
-			std::vector<unsigned int> backwardTypes,
+			unsigned forwardType,
+			unsigned backwardType,
 			double forwardRate,
 			double backwardRate);	
 };

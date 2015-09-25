@@ -2,9 +2,10 @@
 
 #include "Config.h"
 
-Config::Config(World * inWorld)
+Config::Config(World * inWorld, Random * inRandom)
 {
 	this->world                 = inWorld;
+	this->random                = inRandom;
 	this->timestep              = 0.001;
 	this->temperature           = 1.;
 	this->kBoltzmann            = 1.;
@@ -21,6 +22,7 @@ Config::~Config()
 	this->deleteAllObservables();
 	this->deleteAllGeometries();
 	this->deleteAllForces();
+	this->deleteAllReactions();
 }
 
 void Config::new_Type(
@@ -332,4 +334,35 @@ std::vector<unsigned int> Config::getForceAffectedTuple(unsigned int i)
 std::vector<double> Config::getForceParameters(unsigned int i)
 {
 	return this->possibleInteractions[i]->parameters;
+}
+
+void Config::deleteAllReactions()
+{
+	/* first delete the reactions, since they we're allocated with 'new'
+	 * then erase the pointers from the vector */
+	for (auto* reaction : this->possibleReactions) {
+		delete reaction;
+	}
+	this->possibleReactions.clear();	
+}
+
+void Config::new_Conversion(
+	std::string name,
+	unsigned forwardType,
+	unsigned backwardType,
+	double forwardRate,
+	double backwardRate)
+{
+	std::vector<unsigned> forwardTypes;
+	forwardTypes.push_back(forwardType);
+	std::vector<unsigned> backwardTypes;
+	backwardTypes.push_back(backwardType);
+	Conversion * conv = new Conversion(
+		name,
+		forwardTypes,
+		backwardTypes,
+		forwardRate,
+		backwardRate,
+		this->random);
+	this->possibleReactions.push_back(conv);
 }
