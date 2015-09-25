@@ -21,7 +21,7 @@ ProbabilityDensity::ProbabilityDensity(
 	gsl_histogram_set_ranges(this->probabilityDensity, cRange, range.size());
 	/* calculate centers of bins */
 	double center;
-	for (int i=0; i < (rangeOfBins.size() - 1) ; i++) {
+	for (unsigned i=0; i < (rangeOfBins.size() - 1) ; i++) {
 		center = 0.5 * (rangeOfBins[i] + rangeOfBins[i+1] );
 		this->binCenters.push_back(center);
 		this->bins.push_back(0.);
@@ -29,7 +29,7 @@ ProbabilityDensity::ProbabilityDensity(
 	this->particleTypeId = pTypeId;
 	/* add uniqueIds of all particles of type 
 	 * "particleTypeId" to observedParticleIds */
-	for (unsigned int i=0; i<activeParticles.size(); i++) {
+	for (unsigned i=0; i<activeParticles.size(); i++) {
 		if (activeParticles[i].typeId == this->particleTypeId) {
 			this->observedParticleIds.push_back( activeParticles[i].uniqueId );
 		}
@@ -45,7 +45,7 @@ void ProbabilityDensity::record(
 	double t)
 {
 	int index = 0;
-	for (int i=0; i < this->observedParticleIds.size(); i++) {
+	for (unsigned i=0; i < this->observedParticleIds.size(); i++) {
 		// check if particle still exists. if not: index = -1
 		index = this->findParticleIndex(
 			world->activeParticles,
@@ -57,7 +57,7 @@ void ProbabilityDensity::record(
 		}
 	}
 	// copy the hist to "bins" and reset the gsl hist
-	for (int i=0; i<bins.size(); i++) {
+	for (unsigned i=0; i<bins.size(); i++) {
 		bins[i] += gsl_histogram_get(this->probabilityDensity, i);
 	}
 	gsl_histogram_reset(this->probabilityDensity);

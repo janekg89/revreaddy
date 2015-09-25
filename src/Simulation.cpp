@@ -96,7 +96,7 @@ void Simulation::propagateDynamics()
 	double noisePrefactor = 1.;
 	double forcePrefactor = 1.;
 	double diffConst = 1.; //diffusion constant of current particle
-	for (unsigned long int i=0; i<world->activeParticles.size(); i++)
+	for (unsigned long i=0; i<world->activeParticles.size(); i++)
 	{
 		// look up particles' diffusion constant from its typeId
 		diffConst = config->typeDict[
@@ -260,8 +260,8 @@ void Simulation::calculateInteractionForcesEnergies()
 
 void Simulation::calculateInteractionForcesEnergiesNaive()
 {
-	for (unsigned int i=0; i<world->activeParticles.size(); i++) {
-		for (unsigned int j=i+1; j<world->activeParticles.size(); j++) {
+	for (unsigned long i=0; i<world->activeParticles.size(); i++) {
+		for (unsigned long j=i+1; j<world->activeParticles.size(); j++) {
 			this->calculateSingleForceEnergy(i, j);
 		}
 	}
@@ -274,11 +274,11 @@ void Simulation::calculateInteractionForcesEnergiesWithLattice(
 	double n = (double) numberBoxes;
 	double boxLength = config->boxsize / n;
 
-	std::vector< std::vector< std::vector< std::vector<unsigned int> > > >
+	std::vector< std::vector< std::vector< std::vector<unsigned long> > > >
 	neighborList(numberBoxes,
-		std::vector< std::vector< std::vector<unsigned int> > >(numberBoxes,
-			std::vector< std::vector<unsigned int> >(numberBoxes,
-				std::vector<unsigned int>(0) ) ) );
+		std::vector< std::vector< std::vector<unsigned long> > >(numberBoxes,
+			std::vector< std::vector<unsigned long> >(numberBoxes,
+				std::vector<unsigned long>(0) ) ) );
 
 	// reserve space for numberBoxes^3 lists containing particle indices
 	neighborList.resize(numberBoxes);
@@ -295,7 +295,7 @@ void Simulation::calculateInteractionForcesEnergiesWithLattice(
 	unsigned int yIndex = 0;
 	unsigned int zIndex = 0;
 	// find the right box triplet [x][y][z] for each particle
-	for (unsigned int j=0; j<world->activeParticles.size(); j++) {
+	for (unsigned long j=0; j<world->activeParticles.size(); j++) {
 		delX = world->activeParticles[j].position[0] + 0.5*config->boxsize;
 		xIndex = (unsigned int) floor(delX / boxLength);
 		delY = world->activeParticles[j].position[1] + 0.5*config->boxsize;
@@ -445,8 +445,8 @@ void Simulation::calculateGeometryForcesEnergies()
 {
 	std::vector<double> forceI = {0.,0.,0.};
 	double energyBuffer = 0.;
-	for (int i=0; i<world->activeParticles.size(); i++) {
-		for (int j=0; j<config->geometries.size(); j++) {
+	for (unsigned long i=0; i<world->activeParticles.size(); i++) {
+		for (unsigned long j=0; j<config->geometries.size(); j++) {
 			if (config->geometries[j]->doesInteract(world->activeParticles[i].typeId)) {
 				config->geometries[j]->forceEnergy(
 					forceI,
@@ -462,7 +462,7 @@ void Simulation::calculateGeometryForcesEnergies()
 
 void Simulation::resetForces()
 {
-	for (int i=0; i<world->activeParticles.size(); i++) {
+	for (unsigned long i=0; i<world->activeParticles.size(); i++) {
 		world->activeParticles[i].resetForce();
 	}
 }
@@ -480,7 +480,7 @@ double Simulation::acceptanceDynamics()
 	double firstTerm  = 0.;
 	double secondTerm = 0.;
 	std::vector<double> deltaX = {0.,0.,0.};
-	for (int i=0; i<world->activeParticles.size(); i++) {
+	for (unsigned long i=0; i<world->activeParticles.size(); i++) {
 		getMinDistanceVector(
 			deltaX,
 			world->oldActiveParticles[i].position,
@@ -546,9 +546,9 @@ bool Simulation::acceptOrReject(double acceptance)
 
 long int Simulation::findParticleIndex(unsigned long long id)
 {
-	unsigned long int max = world->activeParticles.size() - 1;
-	unsigned long int min = 0;
-	unsigned long int mid = 0;
+	unsigned long max = world->activeParticles.size() - 1;
+	unsigned long min = 0;
+	unsigned long mid = 0;
 	while (max >= min) {
 		mid = min + (max - min) / 2;
 		if (world->activeParticles[mid].uniqueId == id) {return mid;}

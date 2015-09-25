@@ -24,7 +24,7 @@ RadialDistribution::RadialDistribution(
 	gsl_histogram_set_ranges(this->radialDistribution, cRange, range.size());
 	// calculate centers of bins
 	double center;
-	for (int i=0; i < (rangeOfBins.size() - 1) ; i++) {
+	for (unsigned i=0; i < (rangeOfBins.size() - 1) ; i++) {
 		center = 0.5 * ( rangeOfBins[i] + rangeOfBins[i+1] );
 		this->binCenters.push_back(center);
 		this->bins.push_back(0.);
@@ -45,8 +45,8 @@ void RadialDistribution::record(
 	double t)
 {
 	double radius = 0.;
-	for (int i=0; i<world->activeParticles.size(); i++) {
-		for (int j=0; j<world->activeParticles.size(); j++) {
+	for (unsigned long i=0; i<world->activeParticles.size(); i++) {
+		for (unsigned long j=0; j<world->activeParticles.size(); j++) {
 			if (this->isInConsidered(
 				world->activeParticles[i].typeId,
 				world->activeParticles[j].typeId)) {
@@ -64,7 +64,7 @@ void RadialDistribution::record(
 		}
 	}
 	// copy the hist to 'bins' while scaling every value correctly
-	for (int i=0; i<bins.size(); i++) {
+	for (unsigned i=0; i<bins.size(); i++) {
 		bins[i] += gsl_histogram_get(this->radialDistribution, i) 
 		           / (binCenters[i] * binCenters[i]);
 	}

@@ -43,7 +43,7 @@ void MeanSquaredDisplacement::record(
 	double mean = 0.;
 	int index = 0;
 	unsigned int stillExisting = 0;
-	for (int i=0; i < this->observedParticleIds.size(); i++) {
+	for (unsigned i=0; i < this->observedParticleIds.size(); i++) {
 		// check if particle still exists. if not: index = -1
 		index = this->findParticleIndex(
 			world->activeParticles,
@@ -81,7 +81,7 @@ void MeanSquaredDisplacement::record(
 	mean /= (double) stillExisting;
 	this->meanSquaredDisplacements.push_back(mean);
 	double standardDeviation = 0.;
-	for (int j=0; j<squaredDisplacements.size(); j++) {
+	for (unsigned j=0; j<squaredDisplacements.size(); j++) {
 		standardDeviation += (squaredDisplacements[j] - mean)
 		                   * (squaredDisplacements[j] - mean);
 	}
@@ -137,7 +137,7 @@ void MeanSquaredDisplacement::writeBufferToDat()
 	file.open(this->filename);
 	file << "Time\tMeanSquaredDisplacement\tStandardDeviation\t"
 			"StandardError\tNumberOfParticles\n";
-	for (int i=0; i<meanSquaredDisplacements.size(); i++) {
+	for (unsigned i=0; i<meanSquaredDisplacements.size(); i++) {
 		file << time[i] << "\t";
 		file << meanSquaredDisplacements[i] << "\t";
 		file << standardDeviations[i] << "\t";

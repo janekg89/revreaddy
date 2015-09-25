@@ -8,6 +8,8 @@
 class Geometry
 {
 	public:
+		Geometry();
+		virtual ~Geometry();
 		/* SORTED list of particle type ids that interact
 		 * with geometry. */
 		std::vector<unsigned int> particleTypeIds;

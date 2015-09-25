@@ -2,6 +2,16 @@
 
 #include "Geometry.h"
 
+Geometry::Geometry()
+{
+
+}
+
+Geometry::~Geometry()
+{
+
+}
+
 void Geometry::forceEnergy(
 	std::vector<double>& force,
 	double& energy,
