@@ -30,6 +30,7 @@ class Config
 {
 	public:
 		Config(World * inWorld);
+		~Config();
 		World * world;
 
 		std::vector<ParticleType> typeDict;

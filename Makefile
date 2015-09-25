@@ -8,12 +8,12 @@ SOURCES := $(shell find $(SRCDIR) -type f -name "*.$(SRCEXT)")
 OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
 # objects without main.o. needed for unittest
 OBJECTSWM := $(subst build/main.o,,$(OBJECTS))
-CFLAGS := -g -std=c++11#-Wall
+CFLAGS := -g -std=c++11 -Wall
 LIB := -lgsl -lgslcblas -lm -lhdf5 -lhdf5_hl#-pthread -lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt
 INC := -I include
-UNITTESTS := $(shell find tests/unittests -type f -name *.h)
-UNITTESTTARGET := bin/unittest
 UNITTESTDIR := tests/unittests
+UNITTESTTARGET := bin/unittest
+UNITTESTS := $(shell find $(UNITTESTDIR) -type f -name *.h)
 
 $(TARGET): $(OBJECTS)
 	@echo " Linking..."

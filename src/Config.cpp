@@ -16,6 +16,13 @@ Config::Config(World * inWorld)
 	this->reactionPropagation   = 0;
 }
 
+Config::~Config()
+{
+	this->deleteAllObservables();
+	this->deleteAllGeometries();
+	this->deleteAllForces();
+}
+
 void Config::new_Type(
 	std::string name,
 	double radius,
@@ -107,10 +114,7 @@ void Config::deleteAllObservables()
 	for (auto* obs : this->observables) {
 		delete obs;
 	}
-	this->observables.erase(
-		this->observables.begin(),
-		this->observables.begin() + this->observables.size()
-	);
+	this->observables.clear();
 }
 
 void Config::deleteLastObservable()
@@ -202,10 +206,7 @@ void Config::deleteAllGeometries()
 	for (auto* geo : this->geometries) {
 		delete geo;
 	}
-	this->geometries.erase(
-		this->geometries.begin(),
-		this->geometries.begin() + this->geometries.size()
-	);
+	this->geometries.clear();
 }
 
 void Config::new_Wall(
@@ -241,10 +242,7 @@ void Config::deleteAllForces()
 	for (auto* f : this->possibleInteractions) {
 		delete f;
 	}
-	this->possibleInteractions.erase(
-		this->possibleInteractions.begin(),
-		this->possibleInteractions.begin() + this->possibleInteractions.size()
-	);
+	this->possibleInteractions.clear();
 }
 
 void Config::new_SoftRepulsion(
