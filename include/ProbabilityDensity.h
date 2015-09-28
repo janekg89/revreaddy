@@ -14,32 +14,34 @@
 class ProbabilityDensity : public Observable
 {
 	public:
-		gsl_histogram * probabilityDensity;
-		/* The coordinate (x,y,z) = (0,1,2), of which to record
-		 * the probability density. */
-		unsigned int coordinate;
-		size_t numberOfBins;
-		std::vector<double> rangeOfBins;
-		std::vector<double> binCenters;
-		/* bins is basically a copy of the histogram to easy rescale each
-		 * bin individually. */
-		std::vector<double> bins;
-		unsigned int particleTypeId;
+	gsl_histogram * probabilityDensity;
+	/* The coordinate (x,y,z) = (0,1,2), of which to record
+	 * the probability density. */
+	unsigned int coordinate;
+	size_t numberOfBins;
+	std::vector<double> rangeOfBins;
+	std::vector<double> binCenters;
+	/* bins is basically a copy of the histogram to easy rescale each
+	 * bin individually. */
+	std::vector<double> bins;
+	unsigned int particleTypeId;
 
-		void record(
-			World * world,
-			double t);
-		void writeBufferToFile();
-		void writeBufferToH5();
-		void writeBufferToDat();
+	void record(
+		World * world,
+		double t);
+	void writeBufferToFile();
+	void writeBufferToH5();
+	void writeBufferToDat();
 
-		ProbabilityDensity(
-			std::vector<Particle>& activeParticles,
-			unsigned int pTypeId,
-			std::vector<double>& range,
-			unsigned int coord,
-			std::string inFilename);
-		~ProbabilityDensity();
+	ProbabilityDensity(
+		unsigned long inRecPeriod,
+		unsigned long inClearPeriod,
+		std::string inFilename,
+		unsigned particleTypeId,
+		std::vector<double>& range,
+		unsigned coord,
+		World * world);
+	~ProbabilityDensity();
 };
 
 #endif // __PROBABILITYDENSITY_H_INCLUDED__

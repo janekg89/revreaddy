@@ -167,19 +167,20 @@ void Config::new_MeanSquaredDisplacement(
 }
 
 void Config::new_ProbabilityDensity(
-	unsigned long int recPeriod,
+	unsigned long recPeriod,
 	std::string filename,
-	unsigned int pTypeId,
+	unsigned particleTypeId,
 	std::vector<double> range,
-	unsigned int coord)
+	unsigned coord)
 {
 	ProbabilityDensity * prob = new ProbabilityDensity(
-		world->activeParticles,
-		pTypeId,
+		recPeriod,
+		0,
+		filename,
+		particleTypeId,
 		range,
 		coord,
-		filename);
-	prob->recPeriod = recPeriod;
+		this->world);
 	this->observables.push_back(prob);
 }
 
@@ -199,6 +200,19 @@ void Config::new_Acceptance(unsigned long int recPeriod, std::string filename)
 		0,
 		filename);
 	this->observables.push_back(acc);
+}
+
+void Config::new_ParticleNumbers(
+	unsigned long recPeriod,
+	std::string filename,
+	unsigned particleTypeId)
+{
+	ParticleNumbers * par = new ParticleNumbers(
+		recPeriod,
+		0,
+		filename,
+		particleTypeId);
+	this->observables.push_back(par);
 }
 
 void Config::deleteAllGeometries()

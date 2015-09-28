@@ -1,6 +1,6 @@
 /* Simulation.cpp
- * author: Christoph Froehner
- */
+ * author: Christoph Froehner */
+#define print(a) std::cout << a << std::endl;
 
 #include "Simulation.h"
 
@@ -368,6 +368,7 @@ void Simulation::calculateInteractionForcesEnergiesWithLattice(
 		delZ = world->activeParticles[j].position[2] + 0.5*config->boxsize;
 		zIndex = (unsigned int) floor(delZ / boxLength);
 		// add the particles index to the list of the corresponding box
+		print("push_back " << xIndex << yIndex << zIndex)
 		neighborList[xIndex][yIndex][zIndex].push_back(j);
 	}
 	// neighborList created

@@ -17,6 +17,7 @@
 #include "ProbabilityDensity.h"
 #include "Energy.h"
 #include "Acceptance.h"
+#include "ParticleNumbers.h"
 #include "Geometry.h"
 #include "Wall.h"
 #include "DoubleWellZ.h"
@@ -30,8 +31,7 @@
 class Config
 {
 	public:
-		/* world belongs to config, so config is allowed to destroy it.
-		 * random belongs to Simulation, it is only borrowed and must not
+		/* random belongs to Simulation, it is only borrowed and must not
 		 * be destroyed. This is because Reactions need random numbers
 		 * to calculate probabilites. TODO resolve this */
 		Config(World * inWorld, Random * inRandom);
@@ -98,6 +98,10 @@ class Config
 			unsigned int coord);
 		void new_Energy(unsigned long int recPeriod, std::string filename);
 		void new_Acceptance(unsigned long int recPeriod,std::string filename);
+		void new_ParticleNumbers(
+			unsigned long recPeriod,
+			std::string filename,
+			unsigned particleTypeId);
 		void deleteAllGeometries();
 		void new_Wall(
 			std::vector<double> normal,

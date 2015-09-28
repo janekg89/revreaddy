@@ -1,13 +1,7 @@
 /* RadialDistribution.h
- * 
  * This class is a child of Observable.
  * Calculate the Radial Distribution Function cumulative over many timesteps.
- * Make use of the GSL libraries to calculate the RDF as a histogram.
- *
- * Histogram is written to file in the following format
- *  binEdge0	binEdge1	binEdge2 ... binEdgeN
- *  binContent0	binContent1	binContent2 ... binContentN-1
- */
+ * Make use of the GSL libraries to calculate the RDF as a histogram. */
 
 #ifndef __RADIALDISTRIBUTION_H_INCLUDED__
 #define __RADIALDISTRIBUTION_H_INCLUDED__

@@ -44,6 +44,21 @@ void BinaryFile::addDatasetUnsignedInt(
 		name.c_str(),
 		1,
 		dims,
-		H5T_STD_U32LE,
+		H5T_NATIVE_UINT,
+		data);
+}
+
+void BinaryFile::addDatasetUnsignedLong(
+	std::string name,
+	std::vector<unsigned long>& vec)
+{
+	hsize_t dims[1] = { vec.size() };
+	unsigned long * data = vec.data();
+	this->status = H5LTmake_dataset(
+		this->fileId,
+		name.c_str(),
+		1,
+		dims,
+		H5T_NATIVE_ULONG,
 		data);
 }

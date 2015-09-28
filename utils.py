@@ -231,6 +231,7 @@ def fillCuboidWithParticles(simulation, r1, r2, numberOfParticles, particleType)
 			for z in zRange:
 				if (counter < numberOfParticles):
 					simulation.addParticle([x,y,z], particleType)
+					counter += 1
 	return
 
 def showSnapshotMatPlotlib(simulation):

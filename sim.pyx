@@ -68,6 +68,7 @@ cdef extern from "Simulation.h":
 			unsigned int)
 		void new_Energy(unsigned long int, string)
 		void new_Acceptance(unsigned long int, string)
+		void new_ParticleNumbers(unsigned long, string, unsigned)
 		void deleteAllGeometries()
 		void new_Wall(
 			vector[double], vector[double],
@@ -157,8 +158,12 @@ cdef class pySimulation:
 		def __set__(self, reactionPropagation):
 			self.config.reactionPropagation = reactionPropagation
 
-	def run(self):
+	def run(self, maxTime=None, timestep=None):
 		"""Run the simulation."""
+		if (maxTime != None): self.maxTime = maxTime
+		if (timestep != None): self.timestep = timestep
+		logging.info("Run() with timestep: " + str(self.timestep) + \
+			" and maxTime: " + str(self.maxTime))
 		logging.info("Started at " + \
 			str(self.world.cumulativeRuntime) + " cumulative runtime.")
 		timer = time.clock()
@@ -247,6 +252,8 @@ cdef class pySimulation:
 		self.config.new_Energy(recPeriod, filename)
 	def new_Acceptance(self, recPeriod, filename):
 		self.config.new_Acceptance(recPeriod, filename)
+	def new_ParticleNumbers(self, recPeriod, filename, particleTypeId):
+		self.config.new_ParticleNumbers(recPeriod, filename, particleTypeId)
 	def deleteAllGeometries(self):
 		self.config.deleteAllGeometries()
 	# TODO: check sorting of particleTypeIds, before calling wall constructor

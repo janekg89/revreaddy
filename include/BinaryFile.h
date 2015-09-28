@@ -25,6 +25,9 @@ class BinaryFile
 		void addDatasetUnsignedInt(
 			std::string name,
 			std::vector<unsigned int>& vec);
+		void addDatasetUnsignedLong(
+			std::string name,
+			std::vector<unsigned long>& vec);
 };
 
 #endif // __BINARYFILE_H_INCLUDED__

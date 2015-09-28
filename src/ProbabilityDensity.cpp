@@ -3,14 +3,16 @@
 #include "ProbabilityDensity.h"
 
 ProbabilityDensity::ProbabilityDensity(
-	std::vector<Particle>& activeParticles,
-	unsigned int pTypeId,
+	unsigned long inRecPeriod,
+	unsigned long inClearPeriod,
+	std::string inFilename,
+	unsigned particleTypeId,
 	std::vector<double>& range,
-	unsigned int coord,
-	std::string inFilename)
+	unsigned coord,
+	World * world)
 {
-	this->recPeriod = 1;
-	this->clearPeriod = 0;
+	this->recPeriod = inRecPeriod;
+	this->clearPeriod = inClearPeriod;
 	this->filename = inFilename;
 	if (coord < 3) {this->coordinate = coord;}
 	else {coord = 0;}
@@ -26,12 +28,12 @@ ProbabilityDensity::ProbabilityDensity(
 		this->binCenters.push_back(center);
 		this->bins.push_back(0.);
 	}
-	this->particleTypeId = pTypeId;
+	this->particleTypeId = particleTypeId;
 	/* add uniqueIds of all particles of type 
 	 * "particleTypeId" to observedParticleIds */
-	for (unsigned i=0; i<activeParticles.size(); i++) {
-		if (activeParticles[i].typeId == this->particleTypeId) {
-			this->observedParticleIds.push_back( activeParticles[i].uniqueId );
+	for (unsigned i=0; i<world->activeParticles.size(); i++) {
+		if (world->activeParticles[i].typeId == this->particleTypeId) {
+			this->observedParticleIds.push_back( world->activeParticles[i].uniqueId );
 		}
 	}
 }
