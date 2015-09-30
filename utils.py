@@ -270,7 +270,9 @@ def generateSnapshotVmd(filename, simulation):
 	M = simulation.getNumberOfTypes()
 	for i in range(M):
 		tclScript.write(
-			"mol representation VDW " + str(simulation.getDictRadius(i) * 0.7) + " 16.0\n"
+			"mol representation VDW "
+			+ str(simulation.getDictRadius(i) * 0.7)
+			+ " 16.0\n"
 		)
 		tclScript.write("mol selection name T" + str(i) + "\n")
 		tclScript.write("mol addrep top\n")
@@ -293,7 +295,9 @@ def generateVmdScript(trajname, simulation):
 	M = simulation.getNumberOfTypes()
 	for i in range(M):
 		tclScript.write(
-			"mol representation VDW " + str(simulation.getDictRadius(i) * 0.7) + " 16.0\n"
+			"mol representation VDW "
+			+ str(simulation.getDictRadius(i) * 0.7)
+			+ " 16.0\n"
 		)
 		tclScript.write("mol selection name T" + str(i) + "\n")
 		tclScript.write("mol addrep top\n")

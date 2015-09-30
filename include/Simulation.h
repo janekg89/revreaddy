@@ -19,7 +19,7 @@ class Simulation;
 #include <string>
 #include <typeinfo>
 #include <algorithm>
-#include <time.h>
+#include <ctime>
 #include "World.h"
 #include "Config.h"
 #include "Particle.h"
@@ -42,6 +42,7 @@ class Simulation;
 #include "Conversion.h"
 #include "ReactionEvent.h"
 #include "UnimolecularCandidate.h"
+#include "Neighborlist.h"
 #include "utils.h"
 
 class Simulation

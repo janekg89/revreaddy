@@ -4,6 +4,7 @@ from libcpp.vector cimport vector
 from libcpp.string cimport string
 from libcpp cimport bool
 cimport numpy as np
+import numpy as np
 import time
 import logging
 
@@ -132,6 +133,7 @@ cdef class pySimulation:
 		def __set__(self, isPeriodic): self.config.isPeriodic = isPeriodic
 	property boxsize:
 		def __get__(self): return self.config.boxsize
+		# TODO when boxize is varied, check if particles are still inside
 		def __set__(self, boxsize): self.config.boxsize = boxsize
 	property acceptionsDynamics:
 		def __get__(self): return self.world.acceptionsDynamics
@@ -179,6 +181,15 @@ cdef class pySimulation:
 		if (particleTypeId >= self.getNumberOfTypes()):
 			logging.error(
 				"Particle type does not exist. Particle is not created.")
+			return
+		distances = np.array( map(abs, initialPosition) )
+		distances -= self.boxsize/2.
+		outsideBox = map(lambda x: x>0, distances)
+		outsideBox = reduce(lambda x,y: x or y, outsideBox)
+		if ( outsideBox ):
+			logging.error(
+				"Initial position would be outside of box. " + \
+				"Particle is not created.")
 			return
 		self.world.addParticle(
 			initialPosition,

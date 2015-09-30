@@ -339,20 +339,7 @@ void Simulation::calculateInteractionForcesEnergiesWithLattice(
 	double n = (double) numberBoxes;
 	double boxLength = config->boxsize / n;
 
-	std::vector< std::vector< std::vector< std::vector<unsigned long> > > >
-	neighborList(numberBoxes,
-		std::vector< std::vector< std::vector<unsigned long> > >(numberBoxes,
-			std::vector< std::vector<unsigned long> >(numberBoxes,
-				std::vector<unsigned long>(0) ) ) );
-
-	// reserve space for numberBoxes^3 lists containing particle indices
-	neighborList.resize(numberBoxes);
-	for (unsigned int x; x<numberBoxes; x++) {
-		neighborList[x].resize(numberBoxes);
-		for (unsigned int y; y<numberBoxes; y++) {
-			neighborList[x][y].resize(numberBoxes);
-		}
-	}
+	Neighborlist neighborList(numberBoxes);
 	double delX = 0.;
 	double delY = 0.;
 	double delZ = 0.;
@@ -368,14 +355,13 @@ void Simulation::calculateInteractionForcesEnergiesWithLattice(
 		delZ = world->activeParticles[j].position[2] + 0.5*config->boxsize;
 		zIndex = (unsigned int) floor(delZ / boxLength);
 		// add the particles index to the list of the corresponding box
-		print("push_back " << xIndex << yIndex << zIndex)
-		neighborList[xIndex][yIndex][zIndex].push_back(j);
+		neighborList.addIndex(xIndex, yIndex, zIndex, j);
 	}
 	// neighborList created
 	// set up vector NxN filled with bools (false initially)
 	std::vector< std::vector<bool> > alreadyCalculatedPairs;
 	alreadyCalculatedPairs.resize(world->activeParticles.size());
-	for (unsigned int i=0; i<alreadyCalculatedPairs.size(); i++) {
+	for (unsigned long i=0; i<alreadyCalculatedPairs.size(); i++) {
 		alreadyCalculatedPairs[i].resize(world->activeParticles.size());
 		std::fill(
 			alreadyCalculatedPairs[i].begin(),
@@ -392,17 +378,17 @@ void Simulation::calculateInteractionForcesEnergiesWithLattice(
 		for (signed int y_i = -1; y_i < 2; y_i++)
 		for (signed int z_i = -1; z_i < 2; z_i++) {
 			if ( (x_i==0) && (y_i==0) && (z_i==0) ) {
-				for (unsigned int i=0;   i<neighborList[x][y][z].size(); i++)
-				for (unsigned int j=i+1; j<neighborList[x][y][z].size(); j++) {
+				for (unsigned long i=0;   i<neighborList.getSize(x,y,z); i++)
+				for (unsigned long j=i+1; j<neighborList.getSize(x,y,z); j++) {
 					this->calculateSingleForceEnergy(
-						neighborList[x][y][z][i],
-						neighborList[x][y][z][j]);
+						neighborList.getIndex(x,y,z,i),
+						neighborList.getIndex(x,y,z,j));
 					alreadyCalculatedPairs
-						[neighborList[x][y][z][i]]
-						[neighborList[x][y][z][j]] = true;
+						[neighborList.getIndex(x,y,z,i)]
+						[neighborList.getIndex(x,y,z,j)] = true;
 					alreadyCalculatedPairs
-						[neighborList[x][y][z][j]]
-						[neighborList[x][y][z][i]] = true;
+						[neighborList.getIndex(x,y,z,j)]
+						[neighborList.getIndex(x,y,z,i)] = true;
 				}
 			}
 			else {
@@ -416,22 +402,22 @@ void Simulation::calculateInteractionForcesEnergiesWithLattice(
 				otherZ = z + z_i;
 				if (otherZ == -1) {otherZ = numberBoxes - 1;}
 				if (otherZ == numberBoxes) {otherZ = 0;}
-				for (unsigned int i=0; i<neighborList[x][y][z].size(); i++)
-				for (unsigned int j=0; j<neighborList[otherX][otherY][otherZ].size(); j++) {
+				for (unsigned long i=0; i<neighborList.getSize(x,y,z); i++)
+				for (unsigned long j=0; j<neighborList.getSize(otherX,otherY,otherZ); j++) {
 					// if not already calculated
 					if (! alreadyCalculatedPairs
-						[ neighborList[x][y][z][i] ]
-						[ neighborList[otherX][otherY][otherZ][j] ] ) {
+						[ neighborList.getIndex(x,y,z,i) ]
+						[ neighborList.getIndex(otherX,otherY,otherZ,j) ] ) {
 						// calculate interaction
 						this->calculateSingleForceEnergy(
-							neighborList[x][y][z][i],
-							neighborList[otherX][otherY][otherZ][j] );
+							neighborList.getIndex(x,y,z,i),
+							neighborList.getIndex(otherX,otherY,otherZ,j) );
 						alreadyCalculatedPairs
-							[ neighborList[x][y][z][i] ]
-							[ neighborList[otherX][otherY][otherZ][j] ] = true;
+							[ neighborList.getIndex(x,y,z,i) ]
+							[ neighborList.getIndex(otherX,otherY,otherZ,j) ] = true;
 						alreadyCalculatedPairs
-							[ neighborList[otherX][otherY][otherZ][j] ]
-							[ neighborList[x][y][z][i] ] = true;
+							[ neighborList.getIndex(otherX,otherY,otherZ,j) ]
+							[ neighborList.getIndex(x,y,z,i) ] = true;
 					}
 				}
 			}
