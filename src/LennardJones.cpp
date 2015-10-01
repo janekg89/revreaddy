@@ -3,6 +3,7 @@
 #include "LennardJones.h"
 // 2^(-1/3)
 #define TWO_POW_MIN_ONE_THIRD 0.7937005259840998
+#define print(a) std::cout << a << std::endl;
 
 //cutoff is set by Simulation, here it is 2.5*(radius_i+radius_j)
 LennardJones::LennardJones(
@@ -10,6 +11,7 @@ LennardJones::LennardJones(
 	std::vector<unsigned int> inAffectedTuple,
 	double inEpsilon)
 {
+	this->references = 0;
 	this->name = inName;
 	this->type = "LennardJones";
 	this->parameters = { inEpsilon };
@@ -21,7 +23,17 @@ LennardJones::LennardJones(
 	else {
 		this->affectedTuple.push_back(inAffectedTuple[1]);
 		this->affectedTuple.push_back(inAffectedTuple[0]);	
-		std::cout << "Info: LennardJones affectedTuple order was inverted\n";
+		print("Info: LennardJones affectedTuple order was inverted")
+	}
+}
+
+LennardJones::~LennardJones()
+{
+	if (this->references > 0) {
+		print(
+			"Error: LennardJones interaction deleted while still referenced. "
+			<< "Undefined behaviour and segfaults ahead!"
+		)
 	}
 }
 
@@ -32,12 +44,12 @@ void LennardJones::calculateForceEnergy(
 	double& rSquared,
 	double& radiiSquared)
 {
-	double sigmaSquared = TWO_POW_MIN_ONE_THIRD * radiiSquared;
 	if ( rSquared > (6.25*radiiSquared) ) {
 		energy = 0.;
 		forceI = {0.,0.,0.,};
 		return;
 	}
+	double sigmaSquared = TWO_POW_MIN_ONE_THIRD * radiiSquared;
 	double a = pow(sigmaSquared/rSquared, 3.);
 	double b = a * a;
 	energy = 4. * this->parameters[0] * ( b - a );
@@ -45,4 +57,17 @@ void LennardJones::calculateForceEnergy(
 	forceI[0] = a * r_ij[0];
 	forceI[1] = a * r_ij[1];
 	forceI[2] = a * r_ij[2];
+}
+
+double LennardJones::calculateEnergy(
+	double rSquared,
+	double radiiSquared)
+{
+	if ( rSquared > (6.25*radiiSquared) ) {
+		return 0.;
+	} 
+	double sigmaSquared = TWO_POW_MIN_ONE_THIRD * radiiSquared;
+	double a = pow(sigmaSquared/rSquared, 3.);
+	double b = a * a;
+	return 4. * this->parameters[0] * ( b - a );
 }

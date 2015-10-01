@@ -1,6 +1,7 @@
 /* ParticleInteraction.cpp */
 
 #include "ParticleInteraction.h"
+#define print(a) std::cout << a << std::endl;
 
 ParticleInteraction::ParticleInteraction()
 {
@@ -22,6 +23,13 @@ void ParticleInteraction::calculateForceEnergy(
 
 }
 
+double ParticleInteraction::calculateEnergy(
+	double rSquared, // in
+	double radiiSquared) // in
+{
+	return 0.;
+}
+
 /* assuming that affectedTuple is sorted and has length 2*/
 bool ParticleInteraction::isAffected(unsigned int i, unsigned int j)
 {
@@ -31,6 +39,22 @@ bool ParticleInteraction::isAffected(unsigned int i, unsigned int j)
 	else {
 		return ( ( i == affectedTuple[1] ) && ( j == affectedTuple[0] ) );
 	}
-	std::cout << "Error: exceptional state reached in 'isAffected'\n";
+	print("Error: exceptional state reached in 'isAffected'")
 	return false;
+}
+
+void ParticleInteraction::incrementRef()
+{
+	this->references += 1;
+}
+
+void ParticleInteraction::decrementRef()
+{
+	if (this->references == 0) {
+		print("Error: Cannot decrement reference count. Is already 0.")
+		return;
+	}
+	else {
+		this->references -= 1;
+	}
 }

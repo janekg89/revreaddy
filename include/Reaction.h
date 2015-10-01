@@ -19,6 +19,7 @@ class Reaction
 		Reaction();
 		virtual ~Reaction();
 		std::string name;
+		std::string type;
 		std::vector<unsigned int> forwardTypes;
 		std::vector<unsigned int> backwardTypes;
 		double forwardRate;

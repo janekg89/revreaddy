@@ -1,4 +1,4 @@
-/* Conversion.h
+/* Conversion.h  A <-> B
  * An implementation of Reaction, which is unimolecular
  * in both directions. The affected particle is destroyed
  * and at the same position the new particle is created. */

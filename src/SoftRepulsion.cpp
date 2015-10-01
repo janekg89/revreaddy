@@ -1,6 +1,7 @@
 /* SoftRepulsion.cpp */
 
 #include "SoftRepulsion.h"
+#define print(a) std::cout << a << std::endl;
 
 // cutoff is set by Simulation, here it is radius_i + radius_j
 SoftRepulsion::SoftRepulsion(
@@ -8,6 +9,7 @@ SoftRepulsion::SoftRepulsion(
 	std::vector <unsigned int> inAffectedTuple,
 	double inRepulsionStrength)
 {
+	this->references = 0;
 	this->name = inName;
 	this->type = "SoftRepulsion";
 	this->parameters = { inRepulsionStrength };
@@ -19,7 +21,17 @@ SoftRepulsion::SoftRepulsion(
 	else {
 		this->affectedTuple.push_back(inAffectedTuple[1]);
 		this->affectedTuple.push_back(inAffectedTuple[0]);	
-		std::cout << "Info: SoftRepulsion affectedTuple order was inverted\n";
+		print("Info: SoftRepulsion affectedTuple order was inverted")
+	}
+}
+
+SoftRepulsion::~SoftRepulsion()
+{
+	if (this->references > 0) {
+		print(
+			"Error: SoftRepulsion interaction deleted while still referenced. "
+			<< "Undefined behaviour and segfaults ahead!"
+		)
 	}
 }
 
@@ -43,4 +55,17 @@ void SoftRepulsion::calculateForceEnergy(
 	forceI[0] = a * r_ij[0];
 	forceI[1] = a * r_ij[1];
 	forceI[2] = a * r_ij[2];
+}
+
+double SoftRepulsion::calculateEnergy(
+	double rSquared, //in
+	double radiiSquared) //in
+{
+	if ( rSquared > radiiSquared ) {
+		return 0.;
+	}
+	// E = strength * (r - radii)**2
+	double c = sqrt(rSquared);
+	c -= sqrt(radiiSquared);
+	return this->parameters[0] * c * c;
 }

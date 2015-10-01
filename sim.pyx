@@ -85,6 +85,7 @@ cdef extern from "Simulation.h":
 		vector[double] getForceParameters(unsigned int)
 		void deleteAllReactions()
 		void new_Conversion(string, unsigned int, unsigned int, double, double)
+		void new_Fusion(string, unsigned, unsigned, unsigned, double, double)
 
 	cdef cppclass Simulation:
 		Simulation() except +
@@ -302,6 +303,10 @@ cdef class pySimulation:
 			return
 		self.config.new_Conversion(name, forwardType,
 			backwardType, forwardRate, backwardRate)
+	def new_Fusion(self, name, forwardTypeA, forwardTypeB,
+		backwardTypeC, forwardRate, backwardRate):
+		self.config.new_Fusion(name, forwardTypeA, forwardTypeB,
+			backwardTypeC, forwardRate, backwardRate)
 		
 	# DERIVED FUNCTIONS
 	def acceptanceRateDynamics(self):

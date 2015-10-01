@@ -380,3 +380,59 @@ void Config::new_Conversion(
 		this->random);
 	this->possibleReactions.push_back(conv);
 }
+
+void Config::new_Fusion(
+	std::string name,
+	unsigned forwardTypeA,
+	unsigned forwardTypeB,
+	unsigned backwardTypeC,
+	double forwardRate,
+	double backwardRate)
+{
+	/* This will configure the fusion correctly ONLY IF 
+	 * no other particle interactions are added for the
+	 * particle types involved after this point */
+	std::vector<unsigned> forwardTypes;
+	forwardTypes.push_back(forwardTypeA);
+	forwardTypes.push_back(forwardTypeB);
+	std::vector<unsigned> backwardTypes;
+	backwardTypes.push_back(backwardTypeC);
+	Fusion * fus = new Fusion(
+		name,
+		forwardTypes,
+		backwardTypes,
+		forwardRate,
+		backwardRate,
+		this->random);
+	/* Configuration */
+	/* search particle interactions between A and B */
+	std::vector<ParticleInteraction*> interactions;
+	for (unsigned i=0; this->possibleInteractions.size(); i++) {
+		if ( this->possibleInteractions[i]->isAffected(
+			forwardTypeA,
+			forwardTypeB) ) {
+			interactions.push_back(this->possibleInteractions[i]);
+		}
+	}
+	double inversePartition;
+	double maxDistr;
+	double radiiSum 
+		= this->typeDict[forwardTypeA].radius
+		+ this->typeDict[forwardTypeB].radius;
+	double meanDistr;
+	double inverseTemperature = 1. / ( this->kBoltzmann * this->temperature );
+	if ( interactions.size() == 0) {
+		inversePartition = 2.;
+		maxDistr = 2.;
+		meanDistr = 2. / 3.;
+	}
+	// TODO apply configuration -> find partition, maxDistr and meanDistr
+	fus->configure(
+		interactions,
+		inversePartition,
+		maxDistr,
+		radiiSum,
+		meanDistr,
+		inverseTemperature);
+	this->possibleReactions.push_back(fus);
+}

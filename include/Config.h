@@ -27,6 +27,7 @@
 #include "LennardJones.h"
 #include "Reaction.h"
 #include "Conversion.h"
+#include "Fusion.h"
 
 class Config
 {
@@ -133,6 +134,13 @@ class Config
 			unsigned backwardType,
 			double forwardRate,
 			double backwardRate);	
+		void new_Fusion(
+			std::string name,
+			unsigned forwardTypeA,
+			unsigned forwardTypeB,
+			unsigned backwardTypeC,
+			double forwardRate,
+			double backwardRate);
 };
 
 #endif //__CONFIG_H_INCLUDED__

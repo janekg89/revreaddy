@@ -16,6 +16,7 @@ Conversion::Conversion(
 	this->forwardRate = inForwardRate;
 	this->backwardRate = inBackwardRate;
 	this->random = inRandom;
+	this->type = "Conversion";
 }
 
 Conversion::~Conversion()
@@ -30,7 +31,6 @@ double Conversion::performForward(
 {
 	/* approximation to Poisson probability */
 	double forwardProb = this->forwardRate * timestep;
-	double backwardProb = this->backwardRate * timestep;
 	double u = this->random->uniform();
 	if ( u < forwardProb ) {
 		/* reaction occurs */
@@ -43,9 +43,9 @@ double Conversion::performForward(
 		world->addParticle(
 			position,
 			this->backwardTypes[0]);
-		return (backwardProb / forwardProb);
+		return 1.;
 	}
-	else {/* nothing happens*/ return 1.;}
+	else {/* nothing happens */ return 1.;}
 }
 
 double Conversion::performBackward(
@@ -54,7 +54,6 @@ double Conversion::performBackward(
 	double timestep)
 {
 	/* approximation to Poisson probability */
-	double forwardProb = this->forwardRate * timestep;
 	double backwardProb = this->backwardRate * timestep;
 	double u = this->random->uniform();
 	if ( u < backwardProb ) {
@@ -68,7 +67,7 @@ double Conversion::performBackward(
 		world->addParticle(
 			position,
 			this->forwardTypes[0]);
-		return (forwardProb / backwardProb);
+		return 1.;
 	}
-	else {/* nothing happens*/ return 1.;}
+	else {/* nothing happens */ return 1.;}
 }
