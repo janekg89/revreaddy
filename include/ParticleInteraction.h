@@ -23,10 +23,6 @@ class ParticleInteraction
 		std::vector<double> parameters;
 		/* cutoff is important only for neighborlattice construction */
 		double cutoff;
-		/* reference counting for usage with reactions to 
-		 * keep track if the ParticleInteraction is still 
-		 * referenced by some Reaction */
-		unsigned references;
 		
 		bool isAffected(unsigned int i, unsigned int j);
 		virtual void calculateForceEnergy(
@@ -38,8 +34,6 @@ class ParticleInteraction
 		virtual double calculateEnergy(
 			double rSquared, // in
 			double radiiSquared); //in
-		void incrementRef();
-		void decrementRef();
 };
 
 #endif // __PARTICLEINTERACTION_H_INCLUDED__

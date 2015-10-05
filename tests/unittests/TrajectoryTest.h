@@ -14,7 +14,7 @@ class TrajectoryTest : public CxxTest::TestSuite
 		void test_record_usualOperation(void)
 		{
 			World * world = new World();
-			Trajectory traj("test.txt");
+			Trajectory traj(1,1,"test.txt");
 			std::vector<double> x0 = {1.,2.,3.};
 			world->addParticle(x0, 0);
 			world->addParticle(x0, 1);

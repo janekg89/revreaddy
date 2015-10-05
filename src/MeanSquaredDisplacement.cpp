@@ -3,13 +3,15 @@
 #include "MeanSquaredDisplacement.h"
 
 MeanSquaredDisplacement::MeanSquaredDisplacement(
+	unsigned long inRecPeriod,
+	unsigned long inClearPeriod,
 	std::vector<Particle>& activeParticles,
-	unsigned int pTypeId,
+	unsigned pTypeId,
 	double time,
 	double boxsize,
 	std::string inFilename)
 {
-	this->recPeriod = 1;
+	this->recPeriod = inRecPeriod;
 	this->clearPeriod = 0;
 	this->filename = inFilename;
 	this->particleTypeId = pTypeId;

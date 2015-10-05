@@ -9,7 +9,6 @@ SoftRepulsion::SoftRepulsion(
 	std::vector <unsigned int> inAffectedTuple,
 	double inRepulsionStrength)
 {
-	this->references = 0;
 	this->name = inName;
 	this->type = "SoftRepulsion";
 	this->parameters = { inRepulsionStrength };
@@ -22,16 +21,6 @@ SoftRepulsion::SoftRepulsion(
 		this->affectedTuple.push_back(inAffectedTuple[1]);
 		this->affectedTuple.push_back(inAffectedTuple[0]);	
 		print("Info: SoftRepulsion affectedTuple order was inverted")
-	}
-}
-
-SoftRepulsion::~SoftRepulsion()
-{
-	if (this->references > 0) {
-		print(
-			"Error: SoftRepulsion interaction deleted while still referenced. "
-			<< "Undefined behaviour and segfaults ahead!"
-		)
 	}
 }
 

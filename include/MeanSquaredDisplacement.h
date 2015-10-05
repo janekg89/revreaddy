@@ -15,7 +15,7 @@ class MeanSquaredDisplacement : public Observable
 {
 	public:
 		
-		unsigned int particleTypeId;
+		unsigned particleTypeId;
 		// [particle] [x,y,z]
 		struct positionTuple {
 			std::vector<double> position;
@@ -39,6 +39,8 @@ class MeanSquaredDisplacement : public Observable
 		void writeBufferToDat();
 		
 		MeanSquaredDisplacement(
+			unsigned long inRecPeriod,
+			unsigned long inClearPeriod,
 			std::vector<Particle>& activeParticles,
 			unsigned int pTypeId,
 			double time,

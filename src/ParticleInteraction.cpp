@@ -42,19 +42,3 @@ bool ParticleInteraction::isAffected(unsigned int i, unsigned int j)
 	print("Error: exceptional state reached in 'isAffected'")
 	return false;
 }
-
-void ParticleInteraction::incrementRef()
-{
-	this->references += 1;
-}
-
-void ParticleInteraction::decrementRef()
-{
-	if (this->references == 0) {
-		print("Error: Cannot decrement reference count. Is already 0.")
-		return;
-	}
-	else {
-		this->references -= 1;
-	}
-}

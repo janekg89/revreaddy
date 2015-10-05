@@ -2,6 +2,12 @@
 
 #include "Config.h"
 
+template<typename T, typename ...Args>
+std::unique_ptr<T> make_unique( Args&& ...args )
+{
+	return std::unique_ptr<T>( new T( std::forward<Args>(args)... ) );
+}
+
 Config::Config(World * inWorld, Random * inRandom)
 {
 	this->world                 = inWorld;
@@ -21,8 +27,8 @@ Config::~Config()
 {
 	this->deleteAllObservables();
 	this->deleteAllGeometries();
-	this->deleteAllForces();
 	this->deleteAllReactions();
+	this->deleteAllForces();
 }
 
 void Config::new_Type(
@@ -81,8 +87,8 @@ unsigned int Config::getParticleNumber() {
 
 void Config::writeAllObservablesToFile()
 {
-	for (auto* obs : this->observables) {
-		obs->writeBufferToFile();
+	for (unsigned i=0; i<this->observables.size(); ++i) {
+		this->observables[i]->writeBufferToFile();
 	}
 }
 
@@ -100,8 +106,8 @@ std::string Config::showObservables()
 {
 	std::string content = "Observables: ";
 	if (this->observables.size() > 0) {
-		for (auto* obs : this->observables) {
-			content += std::string (typeid(*obs).name()) + " ";
+		for (unsigned i=0; i<this->observables.size(); ++i) {
+			content += std::string (typeid(* this->observables[i]).name()) + " ";
 		}
 	}
 	else {content += "empty";}
@@ -111,59 +117,58 @@ std::string Config::showObservables()
 
 void Config::deleteAllObservables()
 {
-	/* first delete the obs, since they we're allocated with 'new'
-	 * then erase the pointers from the vector */
-	for (auto* obs : this->observables) {
-		delete obs;
-	}
+	/* Erase all the unique pointers, the observables are thus deleted as well */
 	this->observables.clear();
 }
 
 void Config::deleteLastObservable()
 {
-	/* first delete the observable, then its pointer in the vector */
+	/* delete the smart pointer, upon which the observable will be destroyed as well */
 	if (this->observables.size() > 0) {
-		delete this->observables.back();
 		this->observables.pop_back();
 	}
 }
 
-void Config::new_Trajectory(unsigned long int recPeriod, std::string filename)
+void Config::new_Trajectory(unsigned long recPeriod, std::string filename)
 {
-	Trajectory * obs = new Trajectory(filename);
-	obs->recPeriod = recPeriod;
-	this->observables.push_back(obs);
+	std::unique_ptr<Trajectory> obs = make_unique<Trajectory>(
+		recPeriod,
+		0,
+		filename);
+	this->observables.push_back( std::move(obs) );
 }
 
 void Config::new_RadialDistribution(
-	unsigned long int recPeriod,
+	unsigned long recPeriod,
 	std::string filename,
 	std::vector<double> ranges,
-	std::vector< std::vector<unsigned int> > considered)
+	std::vector< std::vector<unsigned> > considered)
 {
-	RadialDistribution * rad = new RadialDistribution(
+	std::unique_ptr<RadialDistribution> rad = make_unique<RadialDistribution>(
+		recPeriod,
+		0,
 		ranges,
 		this->isPeriodic,
 		this->boxsize,
 		considered,
 		filename);
-	rad->recPeriod = recPeriod;
-	this->observables.push_back(rad);
+	this->observables.push_back( std::move(rad) );
 }
 
 void Config::new_MeanSquaredDisplacement(
-	unsigned long int recPeriod,
+	unsigned long recPeriod,
 	std::string filename,
-	unsigned int particleTypeId)
+	unsigned particleTypeId)
 {
-	MeanSquaredDisplacement * msd = new MeanSquaredDisplacement(
+	std::unique_ptr<MeanSquaredDisplacement> msd = make_unique<MeanSquaredDisplacement>(
+		recPeriod,
+		0,
 		world->activeParticles,
 		particleTypeId,
 		world->cumulativeRuntime,
 		this->boxsize,
 		filename);
-	msd->recPeriod = recPeriod;
-	this->observables.push_back(msd);
+	this->observables.push_back( std::move(msd) );
 }
 
 void Config::new_ProbabilityDensity(
@@ -173,7 +178,7 @@ void Config::new_ProbabilityDensity(
 	std::vector<double> range,
 	unsigned coord)
 {
-	ProbabilityDensity * prob = new ProbabilityDensity(
+	std::unique_ptr<ProbabilityDensity> prob = make_unique<ProbabilityDensity>(
 		recPeriod,
 		0,
 		filename,
@@ -181,25 +186,25 @@ void Config::new_ProbabilityDensity(
 		range,
 		coord,
 		this->world);
-	this->observables.push_back(prob);
+	this->observables.push_back( std::move(prob) );
 }
 
 void Config::new_Energy(unsigned long int recPeriod, std::string filename)
 {
-	Energy * ener = new Energy(
+	std::unique_ptr<Energy> ener = make_unique<Energy>(
 		recPeriod,
 		0,
 		filename);
-	this->observables.push_back(ener);
+	this->observables.push_back( std::move(ener) );
 }
 
 void Config::new_Acceptance(unsigned long int recPeriod, std::string filename)
 {
-	Acceptance * acc = new Acceptance(
+	std::unique_ptr<Acceptance> acc = make_unique<Acceptance>(
 		recPeriod,
 		0,
 		filename);
-	this->observables.push_back(acc);
+	this->observables.push_back( std::move(acc) );
 }
 
 void Config::new_ParticleNumbers(
@@ -207,21 +212,17 @@ void Config::new_ParticleNumbers(
 	std::string filename,
 	unsigned particleTypeId)
 {
-	ParticleNumbers * par = new ParticleNumbers(
+	std::unique_ptr<ParticleNumbers> par = make_unique<ParticleNumbers>(
 		recPeriod,
 		0,
 		filename,
 		particleTypeId);
-	this->observables.push_back(par);
+	this->observables.push_back( std::move(par) );
 }
 
 void Config::deleteAllGeometries()
 {
-	/* first delete the geometries, since they we're allocated with 'new'
-	 * then erase the pointers from the vector */
-	for (auto* geo : this->geometries) {
-		delete geo;
-	}
+	/* Erase all the unique pointers, the geometries are thus deleted as well */
 	this->geometries.clear();
 }
 
@@ -231,12 +232,12 @@ void Config::new_Wall(
 	double strength,
 	std::vector<unsigned int> particleTypeIds)
 {
-	Wall * wall = new Wall(
+	std::unique_ptr<Wall> wall = make_unique<Wall>(
 		normal,
 		point,
 		strength,
 		particleTypeIds);
-	this->geometries.push_back(wall);
+	this->geometries.push_back( std::move(wall) );
 }
 
 void Config::new_DoubleWellZ(
@@ -244,26 +245,26 @@ void Config::new_DoubleWellZ(
 	double strength,
 	std::vector<unsigned int> particleTypeIds)
 {
-	DoubleWellZ * well = new DoubleWellZ(
+	std::unique_ptr<DoubleWellZ> well = make_unique<DoubleWellZ>(
 		distanceMinima,
 		strength,
 		particleTypeIds);
-	this->geometries.push_back(well);
+	this->geometries.push_back( std::move(well) );
 }
 
 void Config::deleteAllForces()
 {
-	/* first delete the forces, since they we're allocated with 'new'
-	 * then erase the pointers from the vector */
-	for (auto* f : this->possibleInteractions) {
-		delete f;
-	}
+	/* Erase all the shared pointers, if some interactions are still 
+	 * referenced by Reactions, the interaction is technically valid,
+	 * but it will lead to unwanted behavior. Therefore delete all
+	 * reactions here as well. */
+	this->possibleReactions.clear();
 	this->possibleInteractions.clear();
 }
 
 void Config::new_SoftRepulsion(
 	std::string name,
-	std::vector<unsigned int> affectedTuple,
+	std::vector<unsigned> affectedTuple,
 	double repulsionStrength)
 {
 	if (affectedTuple.size() != 2) {
@@ -281,21 +282,21 @@ void Config::new_SoftRepulsion(
 		          << std::endl;
 		return;
 	}
-	SoftRepulsion * soft = new SoftRepulsion(
+	std::shared_ptr<SoftRepulsion> soft = std::make_shared<SoftRepulsion>(
 		name,
 		affectedTuple,
 		repulsionStrength);
 	// set cutoff correctly
 	soft->cutoff = this->typeDict[affectedTuple[0]].radius 
 	             + this->typeDict[affectedTuple[1]].radius;
-	this->possibleInteractions.push_back(soft);
+	this->possibleInteractions.push_back( std::move(soft) );
 	std::cout << "Info: SoftRepulsion interaction added to possibleInteractions"
 	          << std::endl;
 }
 
 void Config::new_LennardJones(
 	std::string name,
-	std::vector<unsigned int> affectedTuple,
+	std::vector<unsigned> affectedTuple,
 	double epsilon)
 {
 	if (affectedTuple.size() != 2) {
@@ -313,14 +314,14 @@ void Config::new_LennardJones(
 		          << std::endl;
 		return;
 	}
-	LennardJones * lj = new LennardJones(
+	std::shared_ptr<LennardJones> lj = std::make_shared<LennardJones>(
 		name,
 		affectedTuple,
 		epsilon);
 	// set cutoff correctly
 	lj->cutoff = 2.5 * ( this->typeDict[affectedTuple[0]].radius
 	                   + this->typeDict[affectedTuple[1]].radius );
-	this->possibleInteractions.push_back(lj);
+	this->possibleInteractions.push_back( std::move(lj) );
 	std::cout << "Info: LennardJones interaction added to possibleInteractions"
 	          << std::endl;
 }
@@ -330,33 +331,30 @@ unsigned int Config::getNumberForces()
 	return this->possibleInteractions.size();
 }
 
-std::string Config::getForceName(unsigned int i)
+std::string Config::getForceName(unsigned i)
 {
 	return this->possibleInteractions[i]->name;
 }
 
-std::string Config::getForceType(unsigned int i)
+std::string Config::getForceType(unsigned i)
 {
 	return this->possibleInteractions[i]->type;
 }
 
-std::vector<unsigned int> Config::getForceAffectedTuple(unsigned int i)
+std::vector<unsigned int> Config::getForceAffectedTuple(unsigned i)
 {
 	return this->possibleInteractions[i]->affectedTuple;
 }
 
-std::vector<double> Config::getForceParameters(unsigned int i)
+std::vector<double> Config::getForceParameters(unsigned i)
 {
 	return this->possibleInteractions[i]->parameters;
 }
 
 void Config::deleteAllReactions()
 {
-	/* first delete the reactions, since they we're allocated with 'new'
-	 * then erase the pointers from the vector */
-	for (auto* reaction : this->possibleReactions) {
-		delete reaction;
-	}
+	/* Erase all the unique pointers from possibleReactions. Thus all
+	 * reactions will be destroyed accordingly */
 	this->possibleReactions.clear();	
 }
 
@@ -371,14 +369,14 @@ void Config::new_Conversion(
 	forwardTypes.push_back(forwardType);
 	std::vector<unsigned> backwardTypes;
 	backwardTypes.push_back(backwardType);
-	Conversion * conv = new Conversion(
+	std::unique_ptr<Conversion> conv = make_unique<Conversion>(
 		name,
 		forwardTypes,
 		backwardTypes,
 		forwardRate,
 		backwardRate,
 		this->random);
-	this->possibleReactions.push_back(conv);
+	this->possibleReactions.push_back( std::move(conv) );
 }
 
 void Config::new_Fusion(
@@ -389,50 +387,92 @@ void Config::new_Fusion(
 	double forwardRate,
 	double backwardRate)
 {
-	/* This will configure the fusion correctly ONLY IF 
-	 * no other particle interactions are added for the
-	 * particle types involved after this point */
 	std::vector<unsigned> forwardTypes;
 	forwardTypes.push_back(forwardTypeA);
 	forwardTypes.push_back(forwardTypeB);
 	std::vector<unsigned> backwardTypes;
 	backwardTypes.push_back(backwardTypeC);
-	Fusion * fus = new Fusion(
+	std::unique_ptr<Fusion> fus = make_unique<Fusion>(
 		name,
 		forwardTypes,
 		backwardTypes,
 		forwardRate,
 		backwardRate,
 		this->random);
-	/* Configuration */
-	/* search particle interactions between A and B */
-	std::vector<ParticleInteraction*> interactions;
-	for (unsigned i=0; this->possibleInteractions.size(); i++) {
-		if ( this->possibleInteractions[i]->isAffected(
-			forwardTypeA,
-			forwardTypeB) ) {
-			interactions.push_back(this->possibleInteractions[i]);
-		}
+	this->possibleReactions.push_back( std::move(fus) );
+}
+
+/* That reactionIndex is of type Fusion has to be ensured by the caller */
+void Config::configure_Fusion(
+	unsigned reactionIndex,
+	std::vector<unsigned> interactionsIndices,
+	double inversePartition,
+	double maxDistr,
+	double radiiSum,
+	double meanDistr,
+	double inverseTemperature)
+{
+	std::vector< std::shared_ptr<ParticleInteraction> > interactions;
+	for (unsigned i=0; i<interactionsIndices.size(); i++) {
+		/* push_back constructs a new shared ptr to be
+		 * forwarded to the fusion. */
+		interactions.push_back(
+			this->possibleInteractions[ interactionsIndices[i] ]
+		);
 	}
-	double inversePartition;
-	double maxDistr;
-	double radiiSum 
-		= this->typeDict[forwardTypeA].radius
-		+ this->typeDict[forwardTypeB].radius;
-	double meanDistr;
+	/*
 	double inverseTemperature = 1. / ( this->kBoltzmann * this->temperature );
 	if ( interactions.size() == 0) {
 		inversePartition = 2.;
 		maxDistr = 2.;
 		meanDistr = 2. / 3.;
 	}
-	// TODO apply configuration -> find partition, maxDistr and meanDistr
+	*/
+	// TODO this still seems inappropriate
+	Fusion * fus = dynamic_cast<Fusion*>( this->possibleReactions[reactionIndex].get() );
 	fus->configure(
 		interactions,
 		inversePartition,
 		maxDistr,
 		radiiSum,
 		meanDistr,
-		inverseTemperature);
-	this->possibleReactions.push_back(fus);
+		inverseTemperature);	
+	/* Don't delete fus, since it is uniquely owned by Config. 
+	 * The reference was only borrowed to cast it to Fusion 
+	 * and configure it properly */
+}
+
+unsigned Config::getNumberReactions()
+{
+	return this->possibleReactions.size();
+}
+
+std::string Config::getReactionName(unsigned i)
+{
+	return this->possibleReactions[i]->name;
+}
+
+std::string Config::getReactionType(unsigned i)
+{
+	return this->possibleReactions[i]->type;
+}
+
+std::vector<unsigned> Config::getReactionForwardTypes(unsigned i)
+{
+	return this->possibleReactions[i]->forwardTypes;
+}
+
+std::vector<unsigned> Config::getReactionBackwardTypes(unsigned i)
+{
+	return this->possibleReactions[i]->backwardTypes;
+}
+
+double Config::getReactionForwardRate(unsigned i)
+{
+	return this->possibleReactions[i]->forwardRate;
+}
+
+double Config::getReactionBackwardRate(unsigned i)
+{
+	return this->possibleReactions[i]->backwardRate;
 }

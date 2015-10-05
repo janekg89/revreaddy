@@ -6,14 +6,16 @@
 // these tuples have pairs of particleTypeIds which should be considered
 // in rdf calculation.
 RadialDistribution::RadialDistribution(
+	unsigned long inRecPeriod,
+	unsigned long inClearPeriod,
 	std::vector<double>& range,
 	bool isPeriodic,
 	double boxsize,
-	std::vector< std::vector<unsigned int> > considered,
+	std::vector< std::vector<unsigned> > considered,
 	std::string inFilename)
 {
-	this->recPeriod    = 1;
-	this->clearPeriod  = 0;
+	this->recPeriod    = inRecPeriod;
+	this->clearPeriod  = inClearPeriod;
 	this->filename     = inFilename;
 	this->isPeriodic   = isPeriodic;
 	this->boxsize      = boxsize;

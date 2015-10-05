@@ -12,7 +12,8 @@ class ConfigTest : public CxxTest::TestSuite
 	void test_newType(void)
 	{
 		World * world = new World();
-		Config * con = new Config(world);
+		Random * ran = new Random("ranlxs0");
+		Config * con = new Config(world, ran);
 		// name, radius, diffConst, reactionRadius
 		con->new_Type("testtype", 2., 3., 4.);
 		con->new_Type("foo", 4., 5., 6.);
@@ -44,7 +45,8 @@ class ConfigTest : public CxxTest::TestSuite
 	void test_new_SoftRepulsionAndLennardJones(void)
 	{
 		World * world = new World();
-		Config * config = new Config(world);
+		Random * ran = new Random("ranlxs0");
+		Config * config = new Config(world, ran);
 		config->new_Type("A", 2., 1., 1.);
 		config->new_Type("B", 5., 1., 1.);
 		config->new_SoftRepulsion("rep", {0, 1}, 2.);

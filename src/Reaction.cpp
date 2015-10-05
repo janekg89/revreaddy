@@ -77,3 +77,8 @@ double Reaction::performBackward(
 {
 	return 1.;
 }
+
+void Reaction::configure()
+{
+	
+}

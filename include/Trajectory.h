@@ -32,7 +32,10 @@ class Trajectory : public Observable
 			double t);
 		void writeBufferToFile();
 	
-		Trajectory(std::string inFilename);
+		Trajectory(
+			unsigned long inRecPeriod,
+			unsigned long inClearPeriod,
+			std::string inFilename);
 		~Trajectory();
 };
 

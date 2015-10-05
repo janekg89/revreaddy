@@ -11,7 +11,6 @@ LennardJones::LennardJones(
 	std::vector<unsigned int> inAffectedTuple,
 	double inEpsilon)
 {
-	this->references = 0;
 	this->name = inName;
 	this->type = "LennardJones";
 	this->parameters = { inEpsilon };
@@ -24,16 +23,6 @@ LennardJones::LennardJones(
 		this->affectedTuple.push_back(inAffectedTuple[1]);
 		this->affectedTuple.push_back(inAffectedTuple[0]);	
 		print("Info: LennardJones affectedTuple order was inverted")
-	}
-}
-
-LennardJones::~LennardJones()
-{
-	if (this->references > 0) {
-		print(
-			"Error: LennardJones interaction deleted while still referenced. "
-			<< "Undefined behaviour and segfaults ahead!"
-		)
 	}
 }
 

@@ -45,6 +45,8 @@ class RadialDistribution : public Observable
 		void writeBufferToDat();
 
 		RadialDistribution(
+			unsigned long inRecPeriod,
+			unsigned long inClearPeriod,
 			std::vector<double>& range,
 			bool isPeriodic,
 			double boxsize,

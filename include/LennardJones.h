@@ -16,7 +16,6 @@ class LennardJones : public ParticleInteraction
 			std::string inName,
 			std::vector<unsigned int> inAffectedTuple,
 			double inEpsilon);
-		~LennardJones();
 
 		void calculateForceEnergy(
 			std::vector<double>& forceI, //out

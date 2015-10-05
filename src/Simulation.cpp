@@ -272,11 +272,11 @@ double Simulation::propagateReactions()
 	return conditionalProbs;
 }
 
-void Simulation::recordObservables(unsigned long int timeIndex)
+void Simulation::recordObservables(unsigned long timeIndex)
 {
-	for (auto* obs : config->observables) {
-		if (timeIndex % obs->recPeriod == 0) {
-			obs->record(world, world->cumulativeRuntime);
+	for (unsigned i=0; i<config->observables.size(); i++) {
+		if (timeIndex % config->observables[i]->recPeriod == 0) {
+			config->observables[i]->record(world, world->cumulativeRuntime);
 		}
 	}
 }

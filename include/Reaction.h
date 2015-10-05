@@ -20,8 +20,8 @@ class Reaction
 		virtual ~Reaction();
 		std::string name;
 		std::string type;
-		std::vector<unsigned int> forwardTypes;
-		std::vector<unsigned int> backwardTypes;
+		std::vector<unsigned> forwardTypes;
+		std::vector<unsigned> backwardTypes;
 		double forwardRate;
 		double backwardRate;
 		Random * random; // pointer to the random number generator
@@ -53,6 +53,7 @@ class Reaction
 			std::vector<unsigned long int> particleIndices,
 			World * world,
 			double timestep);
+		virtual void configure();
 };
 
 #endif //__REACTION_H_INCLUDED__

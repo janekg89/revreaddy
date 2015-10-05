@@ -6,6 +6,7 @@
 #define __FUSION_H_INCLUDED__
 #include "Reaction.h"
 #include <vector>
+#include <memory>
 #include <string>
 #include "ParticleInteraction.h"
 
@@ -19,10 +20,9 @@ class Fusion : public Reaction
 		double inForwardRate,
 		double inBackwardRate,
 		Random * inRandom);
-	~Fusion();
 
 	/* pointers to the interactions between particles A and B */
-	std::vector<ParticleInteraction*> interactions;
+	std::vector< std::shared_ptr<ParticleInteraction> > interactions;
 	/* inverse partition function value for drawing the distance
 	 * of A and B particle after backward reaction, must be 
 	 * correctly set according to the interaction between A and B */
@@ -45,7 +45,7 @@ class Fusion : public Reaction
 	/* configure() sets the parameters that depend on
 	 * energy functions of particle interactions */
 	void configure(
-		std::vector<ParticleInteraction*> inInteractions,	
+		std::vector< std::shared_ptr<ParticleInteraction> > inInteractions,	
 		double inInversePartition,
 		double inMaxDistr,
 		double inRadiiSum,

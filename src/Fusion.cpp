@@ -20,15 +20,8 @@ Fusion::Fusion(
 	this->isConfigured = false;
 }
 
-Fusion::~Fusion()
-{
-	for (unsigned i=0; this->interactions.size(); i++) {
-		this->interactions[i]->decrementRef();
-	}
-}
-
 void Fusion::configure(
-	std::vector<ParticleInteraction*> inInteractions,
+	std::vector< std::shared_ptr<ParticleInteraction> > inInteractions,
 	double inInversePartition,
 	double inMaxDistr,
 	double inRadiiSum,
@@ -36,9 +29,6 @@ void Fusion::configure(
 	double inInverseTemperature)
 {
 	this->interactions = inInteractions;
-	for (unsigned i=0; i<this->interactions.size(); i++) {
-		this->interactions[i]->incrementRef();
-	}
 	this->inversePartition = inInversePartition;
 	this->maxDistr = inMaxDistr;
 	this->radiiSum = inRadiiSum;
