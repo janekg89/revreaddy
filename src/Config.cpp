@@ -1,6 +1,7 @@
 /* Config.cpp */
 
 #include "Config.h"
+#define print(x) std::cout << x << std::endl;
 
 template<typename T, typename ...Args>
 std::unique_ptr<T> make_unique( Args&& ...args )
@@ -409,6 +410,7 @@ void Config::configure_Fusion(
 	double inversePartition,
 	double maxDistr,
 	double radiiSum,
+	double reactionRadiiSum,
 	double meanDistr,
 	double inverseTemperature)
 {
@@ -435,6 +437,7 @@ void Config::configure_Fusion(
 		inversePartition,
 		maxDistr,
 		radiiSum,
+		reactionRadiiSum,
 		meanDistr,
 		inverseTemperature);	
 	/* Don't delete fus, since it is uniquely owned by Config. 

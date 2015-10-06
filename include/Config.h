@@ -150,6 +150,7 @@ public:
 		double inversePartition,
 		double maxDistr,
 		double radiiSum,
+		double reactionRadiiSum,
 		double meanDistr,
 		double inverseTemperature);
 	unsigned getNumberReactions();

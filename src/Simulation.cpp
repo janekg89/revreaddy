@@ -1,6 +1,12 @@
 /* Simulation.cpp
  * author: Christoph Froehner */
+//#define __DEBUG__
+#ifdef __DEBUG__
 #define print(a) std::cout << a << std::endl;
+#endif
+#ifndef __DEBUG__
+#define print(a)  
+#endif
 
 #include "Simulation.h"
 
@@ -25,6 +31,7 @@ Simulation::~Simulation()
  * be opened again.*/
 void Simulation::run()
 {
+	print("Enter Run")
 	this->resetForces();
 	this->resetActivePairs();
 	world->energy = 0.;
@@ -36,6 +43,7 @@ void Simulation::run()
 	for (unsigned long timeIndex = 1; timeIndex < config->maxTime; timeIndex++)
 	{
 		/* Dynamics */
+		print("Enter Dynamics")
 		this->saveOldState();
 		this->propagateDynamics(); // propose
 		this->resetForces();
@@ -53,13 +61,18 @@ void Simulation::run()
 		else { world->acceptionsDynamics += 1; }
 
 		/* Reactions */
+		print("Enter Reactions")
 		this->saveOldState();
 		acceptance = this->propagateReactions();
+		print("After propagateReactions")
 		this->resetForces();
 		this->resetActivePairs();
 		world->energy = 0.;
+		print("After reset")
 		this->calculateInteractionForcesEnergies();
+		print("After calculate interactions")
 		this->calculateGeometryForcesEnergies();
+		print("After calculate geometries")
 		acceptance *= this->acceptanceReactions();
 		world->acceptProbReactions = acceptance;
 		isStepAccepted = this->acceptOrReject(acceptance);
@@ -70,6 +83,7 @@ void Simulation::run()
 		else { world->acceptionsReactions += 1; }
 
 		/* Advance clock */
+		print("Advance clock")
 		world->cumulativeRuntime += config->timestep;
 		this->recordObservables(timeIndex);
 	}
@@ -117,8 +131,7 @@ void Simulation::propagateDynamics()
 		world->activeParticles[i].move(noiseTerm);
 		world->activeParticles[i].move(forceTerm);
 
-		if (config->isPeriodic)
-		{
+		if (config->isPeriodic) {
 			if (world->activeParticles[i].position[0] < (-0.5 * config->boxsize) ) {
 				world->activeParticles[i].position[0] += config->boxsize;
 				world->activeParticles[i].boxCoordinates[0] -= 1;
@@ -262,11 +275,40 @@ double Simulation::propagateReactions()
 				world,
 				config->timestep);
 		}
-		if (forwardOrBackward == false) {
+		else if (forwardOrBackward == false) {
 			conditionalProbs *= config->possibleReactions[reactionId]->performBackward(
 				particleIndices,
 				world,
 				config->timestep);
+		}
+	}
+	/* Check if newly created particles were put outside the box and correct */
+	for (unsigned long i=0; i<world->activeParticles.size(); i++) {
+		if (config->isPeriodic) {
+			if (world->activeParticles[i].position[0] < (-0.5 * config->boxsize) ) {
+				world->activeParticles[i].position[0] += config->boxsize;
+				world->activeParticles[i].boxCoordinates[0] -= 1;
+			}
+			else if (world->activeParticles[i].position[0] >= (0.5 * config->boxsize) ) {
+				world->activeParticles[i].position[0] -= config->boxsize;
+				world->activeParticles[i].boxCoordinates[0] += 1;
+			}
+			if (world->activeParticles[i].position[1] < (-0.5 * config->boxsize) ) {
+				world->activeParticles[i].position[1] += config->boxsize;
+				world->activeParticles[i].boxCoordinates[1] -= 1;
+			}
+			else if (world->activeParticles[i].position[1] >= (0.5 * config->boxsize) ) {
+				world->activeParticles[i].position[1] -= config->boxsize;
+				world->activeParticles[i].boxCoordinates[1] += 1;
+			}
+			if (world->activeParticles[i].position[2] < (-0.5 * config->boxsize) ) {
+				world->activeParticles[i].position[2] += config->boxsize;
+				world->activeParticles[i].boxCoordinates[2] -= 1;
+			}
+			else if (world->activeParticles[i].position[2] >= (0.5 * config->boxsize) ) {
+				world->activeParticles[i].position[2] -= config->boxsize;
+				world->activeParticles[i].boxCoordinates[2] += 1;
+			}
 		}
 	}
 	return conditionalProbs;

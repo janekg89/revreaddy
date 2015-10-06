@@ -1,6 +1,7 @@
 /* Fusion.cpp */
 #include "Fusion.h"
 #include <math.h>
+#define print(x) std::cout << x << std::endl;
 
 Fusion::Fusion(
 	std::string inName,
@@ -25,6 +26,7 @@ void Fusion::configure(
 	double inInversePartition,
 	double inMaxDistr,
 	double inRadiiSum,
+	double inReactionRadiiSum,
 	double inMeanDistr,
 	double inInverseTemperature)
 {
@@ -32,6 +34,7 @@ void Fusion::configure(
 	this->inversePartition = inInversePartition;
 	this->maxDistr = inMaxDistr;
 	this->radiiSum = inRadiiSum;
+	this->reactionRadiiSum = inReactionRadiiSum;
 	this->meanDistr = inMeanDistr;
 	this->inverseTemperature = inInverseTemperature;
 	this->isConfigured = true;
@@ -89,7 +92,8 @@ double Fusion::performBackward(
 		/* reaction occurs */
 		unsigned long index = particleIndices[0];
 		std::vector<double> positionC = world->activeParticles[index].position;
-		double distance = this->radiiSum * this->uniformFromDistribution();
+		/* distance = [0, reactionRadiiSum] */
+		double distance = this->reactionRadiiSum * this->uniformFromDistribution();
 		// TODO orientation is non-uniform w.r.t. phi and theta.
 		// make it uniform!
 		/* orientation is a random unit vector, i.e. with length = 1 */
@@ -125,9 +129,9 @@ double Fusion::performBackward(
 double Fusion::distribution(double x)
 {
 	double result = 0.;
-	for (unsigned i=0; this->interactions.size(); i++) {
+	for (unsigned i=0; i<this->interactions.size(); i++) {
 		result += this->interactions[i]->calculateEnergy(
-			x * x * this->radiiSum * this->radiiSum, // distance (x * R_AB) squared
+			x * x * this->reactionRadiiSum * this->reactionRadiiSum, // distance (x * R_AB) squared
 			this->radiiSum * this->radiiSum); // sum of radii squared
 	}
 	result = exp(- this->inverseTemperature * result);

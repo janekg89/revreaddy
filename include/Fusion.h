@@ -33,6 +33,8 @@ class Fusion : public Reaction
 	double maxDistr;
 	/* Sum of the radii of particles A and B */
 	double radiiSum;
+	/* Sum of the reactionRadii of particles A and B */
+	double reactionRadiiSum;
 	/* The mean value of the distribution is returned if no
 	 * random value could be successfully drawn */
 	double meanDistr;
@@ -49,6 +51,7 @@ class Fusion : public Reaction
 		double inInversePartition,
 		double inMaxDistr,
 		double inRadiiSum,
+		double inReactionRadiiSum,
 		double inMeanDistr,
 		double inInverseTemperature);
 	double performForward(
