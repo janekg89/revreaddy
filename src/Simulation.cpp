@@ -15,10 +15,21 @@ Simulation::Simulation()
 	this->random = new Random("ranlxs0");
 	this->world  = new World();
 	this->config = new Config(this->world, this->random);
+	this->forceI = {0.,0.,0.};
+	this->forceJ = {0.,0.,0.};
+	this->energyBuffer = 0.;
+	this->r_ij = {0.,0.,0.};
+	this->rSquared = 0.;
+	this->radiusI = 0.;
+	this->radiusJ = 0.;
+	this->radiiSquared = 0.;
+	this->reactionRadiiSquared = 0.;
+	this->sizePossibleInteractions = 0;
 }
 
 Simulation::~Simulation()
 {
+	delete this->neighborlist;
 	delete this->config;
 	delete this->world;
 	delete this->random;
@@ -32,6 +43,9 @@ Simulation::~Simulation()
 void Simulation::run()
 {
 	print("Enter Run")
+	if (config->useNeighborList) {
+		this->neighborlist = new Neighborlist(config->numberBoxes);
+	}
 	this->resetForces();
 	this->resetActivePairs();
 	world->energy = 0.;
@@ -325,40 +339,8 @@ void Simulation::recordObservables(unsigned long timeIndex)
 
 void Simulation::calculateInteractionForcesEnergies()
 {
-	/* We want to find out if neighborlist pays off. 
-	 * First determine the minimal size of subboxes,
-	 * therefore check all interaction distances and
-	 * all reaction radii. */
-	double minimalLength = config->boxsize;
-	/* check interaction distances */
-	for (unsigned int i=0; i<config->possibleInteractions.size(); i++) {
-		if (config->possibleInteractions[i]->cutoff < minimalLength) {
-			minimalLength = config->possibleInteractions[i]->cutoff;
-		}
-	}
-	/* check reaction radii combinations (i,j) with i <= j */
-	for (unsigned int i=0; i<config->typeDict.size(); i++) {
-		for (unsigned int j=i; j<config->typeDict.size(); j++) {
-			double reactionRadii
-				= config->typeDict[i].reactionRadius + config->typeDict[j].reactionRadius;
-			if (reactionRadii < minimalLength) {
-				minimalLength = reactionRadii;
-			}
-		}
-	}
-	double counter = 1.;
-	unsigned int numberBoxes = 0;
-	while ( (config->boxsize / counter) > minimalLength) {
-		numberBoxes += 1;
-		counter += 1.;
-	}
-	/* if n=3 we will have 9 subboxes of length L/n, which
-	 * will result in having to check every box. This is
-	 * as inefficient as double looping. So:
-	 * ONLY construct neighborlist if we have at least 16
-	 * subboxes or n>3 */
-	if ( ( numberBoxes > 3 ) && config->useNeighborList ) {
-		this->calculateInteractionForcesEnergiesWithLattice(numberBoxes);
+	if ( config->useNeighborList ) {
+		this->calculateInteractionForcesEnergiesWithLattice(config->numberBoxes);
 	}
 	else {
 		this->calculateInteractionForcesEnergiesNaive();
@@ -374,6 +356,9 @@ void Simulation::calculateInteractionForcesEnergiesNaive()
 	}
 }
 
+// TODO this is currently wrong! some neighbors are not considered
+// linearize neighborlist, introduce indexing like
+// index(x,y,z) = x+n*y+n*n*z, for x,y,z in [0,n)
 void Simulation::calculateInteractionForcesEnergiesWithLattice(
 	unsigned int numberBoxes)
 {
@@ -381,7 +366,6 @@ void Simulation::calculateInteractionForcesEnergiesWithLattice(
 	double n = (double) numberBoxes;
 	double boxLength = config->boxsize / n;
 
-	Neighborlist neighborList(numberBoxes);
 	double delX = 0.;
 	double delY = 0.;
 	double delZ = 0.;
@@ -397,10 +381,11 @@ void Simulation::calculateInteractionForcesEnergiesWithLattice(
 		delZ = world->activeParticles[j].position[2] + 0.5*config->boxsize;
 		zIndex = (unsigned int) floor(delZ / boxLength);
 		// add the particles index to the list of the corresponding box
-		neighborList.addIndex(xIndex, yIndex, zIndex, j);
+		this->neighborlist->addIndex(xIndex, yIndex, zIndex, j);
 	}
-	// neighborList created
+	// this->neighborlist created
 	// set up vector NxN filled with bools (false initially)
+	/*
 	std::vector< std::vector<bool> > alreadyCalculatedPairs;
 	alreadyCalculatedPairs.resize(world->activeParticles.size());
 	for (unsigned long i=0; i<alreadyCalculatedPairs.size(); i++) {
@@ -410,31 +395,36 @@ void Simulation::calculateInteractionForcesEnergiesWithLattice(
 			alreadyCalculatedPairs[i].end(),
 			false);
 	}
+	*/
 	signed int otherX = 0;
 	signed int otherY = 0;
 	signed int otherZ = 0;
 	for (unsigned int x=0; x<numberBoxes; x++)
 	for (unsigned int y=0; y<numberBoxes; y++)
 	for (unsigned int z=0; z<numberBoxes; z++) {
-		for (signed int x_i = -1; x_i < 2; x_i++)
-		for (signed int y_i = -1; y_i < 2; y_i++)
-		for (signed int z_i = -1; z_i < 2; z_i++) {
+		// usage of half point symmetry,only positive x_i etc
+		for (signed int x_i = 0; x_i < 2; x_i++)
+		for (signed int y_i = 0; y_i < 2; y_i++)
+		for (signed int z_i = 0; z_i < 2; z_i++) {
 			if ( (x_i==0) && (y_i==0) && (z_i==0) ) {
-				for (unsigned long i=0;   i<neighborList.getSize(x,y,z); i++)
-				for (unsigned long j=i+1; j<neighborList.getSize(x,y,z); j++) {
+				for (unsigned long i=0; i<this->neighborlist->getSize(x,y,z); i++)
+				for (unsigned long j=i+1; j<this->neighborlist->getSize(x,y,z); j++) {
 					this->calculateSingleForceEnergy(
-						neighborList.getIndex(x,y,z,i),
-						neighborList.getIndex(x,y,z,j));
+						this->neighborlist->getIndex(x,y,z,i),
+						this->neighborlist->getIndex(x,y,z,j));
+					/*
 					alreadyCalculatedPairs
-						[neighborList.getIndex(x,y,z,i)]
-						[neighborList.getIndex(x,y,z,j)] = true;
+						[this->neighborlist->getIndex(x,y,z,i)]
+						[this->neighborlist->getIndex(x,y,z,j)] = true;
 					alreadyCalculatedPairs
-						[neighborList.getIndex(x,y,z,j)]
-						[neighborList.getIndex(x,y,z,i)] = true;
+						[this->neighborlist->getIndex(x,y,z,j)]
+						[this->neighborlist->getIndex(x,y,z,i)] = true;
+					*/
 				}
 			}
 			else {
 				//determine the "other" subbox. detect "over/underflows"
+				//TODO only detect "over/underflows" when system is periodic
 				otherX = x + x_i;
 				if (otherX == -1) {otherX = numberBoxes - 1;}
 				if (otherX == numberBoxes) {otherX = 0;}
@@ -444,43 +434,50 @@ void Simulation::calculateInteractionForcesEnergiesWithLattice(
 				otherZ = z + z_i;
 				if (otherZ == -1) {otherZ = numberBoxes - 1;}
 				if (otherZ == numberBoxes) {otherZ = 0;}
-				for (unsigned long i=0; i<neighborList.getSize(x,y,z); i++)
-				for (unsigned long j=0; j<neighborList.getSize(otherX,otherY,otherZ); j++) {
+				for (unsigned long i=0; i<this->neighborlist->getSize(x,y,z); i++)
+				for (unsigned long j=0; j<this->neighborlist->getSize(otherX,otherY,otherZ); j++) {
+					/*
 					// if not already calculated
 					if (! alreadyCalculatedPairs
-						[ neighborList.getIndex(x,y,z,i) ]
-						[ neighborList.getIndex(otherX,otherY,otherZ,j) ] ) {
+						[ this->neighborlist->getIndex(x,y,z,i) ]
+						[ this->neighborlist->getIndex(otherX,otherY,otherZ,j) ] ) {
 						// calculate interaction
 						this->calculateSingleForceEnergy(
-							neighborList.getIndex(x,y,z,i),
-							neighborList.getIndex(otherX,otherY,otherZ,j) );
+							this->neighborlist->getIndex(x,y,z,i),
+							this->neighborlist->getIndex(otherX,otherY,otherZ,j) );
 						alreadyCalculatedPairs
-							[ neighborList.getIndex(x,y,z,i) ]
-							[ neighborList.getIndex(otherX,otherY,otherZ,j) ] = true;
+							[ this->neighborlist->getIndex(x,y,z,i) ]
+							[ this->neighborlist->getIndex(otherX,otherY,otherZ,j) ] = true;
 						alreadyCalculatedPairs
-							[ neighborList.getIndex(otherX,otherY,otherZ,j) ]
-							[ neighborList.getIndex(x,y,z,i) ] = true;
+							[ this->neighborlist->getIndex(otherX,otherY,otherZ,j) ]
+							[ this->neighborlist->getIndex(x,y,z,i) ] = true;
 					}
+					*/
+					// TODO verify this method
+					this->calculateSingleForceEnergy(
+						this->neighborlist->getIndex(x,y,z,i),
+						this->neighborlist->getIndex(otherX,otherY,otherZ,j) );
 				}
 			}
 		}
 	}
+	this->neighborlist->clear();
 }
 
 void Simulation::calculateSingleForceEnergy(
 	unsigned int indexI,
 	unsigned int indexJ)
 {
-	std::vector<double> forceI = {0.,0.,0.};
-	std::vector<double> forceJ = {0.,0.,0.};
+	this->forceI[0]=0.; this->forceI[1]=0.; this->forceI[2]=0.;
+	this->forceJ[0]=0.; this->forceJ[1]=0.; this->forceJ[2]=0.;
 	// interaction energy of particle pair (i,j)
-	double energyBuffer = 0.; 
+	this->energyBuffer = 0.; 
 	/* First gather all parameters, distances and reaction
 	 * radii of particles, check if they are within reaction
 	 * distance and then check for forces that apply to the given
 	 * pair of particles. */
 	// connecting vector from particle i to j
-	std::vector<double> r_ij = {0.,0.,0.}; 
+	this->r_ij[0]=0.; this->r_ij[1]=0.; this->r_ij[2]=0.;
 	getMinDistanceVector(
 		r_ij,
 		world->activeParticles[indexI].position, 
@@ -488,16 +485,16 @@ void Simulation::calculateSingleForceEnergy(
 		config->isPeriodic, 
 		config->boxsize);
 	// distance of particle i,j squared
-	double rSquared = r_ij[0]*r_ij[0] + r_ij[1]*r_ij[1] + r_ij[2]*r_ij[2];
+	this->rSquared = r_ij[0]*r_ij[0] + r_ij[1]*r_ij[1] + r_ij[2]*r_ij[2];
 	// radii of particle i and j
-	double radiusI = config->typeDict[
+	this->radiusI = config->typeDict[
 		world->activeParticles[indexI].typeId].radius; 
-	double radiusJ = config->typeDict[
+	this->radiusJ = config->typeDict[
 		world->activeParticles[indexJ].typeId].radius;
 	// squared sum of particles i,j radii
-	double radiiSquared = pow(radiusI + radiusJ, 2.);
+	this->radiiSquared = pow(radiusI + radiusJ, 2.);
 	// squared sum of reactionRadii of particle i and j
-	double reactionRadiiSquared
+	this->reactionRadiiSquared
 		= pow(
 		 config->typeDict[world->activeParticles[indexI].typeId].reactionRadius
 		+config->typeDict[world->activeParticles[indexJ].typeId].reactionRadius
@@ -508,11 +505,12 @@ void Simulation::calculateSingleForceEnergy(
 		std::vector<unsigned long> activePair;
 		activePair.push_back(indexI);
 		activePair.push_back(indexJ);
-		activePair.shrink_to_fit();
+		//activePair.shrink_to_fit();
 		world->activePairs.push_back(activePair);
 	}
 	// look for force that affects the pair (i,j)
-	for (unsigned int k=0; k<config->possibleInteractions.size(); k++) {
+	this->sizePossibleInteractions = config->possibleInteractions.size();
+	for (unsigned int k=0; k<this->sizePossibleInteractions; k++) {
 		if (
 			config->possibleInteractions[k]->isAffected(
 				world->activeParticles[indexI].typeId,
@@ -531,6 +529,69 @@ void Simulation::calculateSingleForceEnergy(
 			world->activeParticles[indexI].addForce(forceI);
 			world->activeParticles[indexJ].addForce(forceJ);
 			world->energy += energyBuffer;
+		}
+	}
+}
+
+/* This calculates only half of the interaction between I and J
+ * so that the forces/energies are not accidently calculated 
+ * and added to the particles twice*/
+void Simulation::calculateSingleForceEnergyOnlyForI(
+	unsigned int indexI,
+	unsigned int indexJ)
+{
+	this->forceI[0]=0.; this->forceI[1]=0.; this->forceI[2]=0.;
+	// interaction energy of particle pair (i,j)
+	this->energyBuffer = 0.; 
+	// connecting vector from particle i to j
+	this->r_ij[0]=0.; this->r_ij[1]=0.; this->r_ij[2]=0.;
+	getMinDistanceVector(
+		r_ij,
+		world->activeParticles[indexI].position, 
+		world->activeParticles[indexJ].position, 
+		config->isPeriodic, 
+		config->boxsize);
+	// distance of particle i,j squared
+	this->rSquared = r_ij[0]*r_ij[0] + r_ij[1]*r_ij[1] + r_ij[2]*r_ij[2];
+	// radii of particle i and j
+	this->radiusI = config->typeDict[
+		world->activeParticles[indexI].typeId].radius; 
+	this->radiusJ = config->typeDict[
+		world->activeParticles[indexJ].typeId].radius;
+	// squared sum of particles i,j radii
+	this->radiiSquared = pow(radiusI + radiusJ, 2.);
+	// squared sum of reactionRadii of particle i and j
+	this->reactionRadiiSquared
+		= pow(
+		 config->typeDict[world->activeParticles[indexI].typeId].reactionRadius
+		+config->typeDict[world->activeParticles[indexJ].typeId].reactionRadius
+		, 2.);
+	// check if particles i, j are within reactive distance
+	// if so, their unique ids will be added to activePairs
+	if ( rSquared <= reactionRadiiSquared ) {
+		std::vector<unsigned long> activePair;
+		activePair.push_back(indexI);
+		activePair.push_back(indexJ);
+		//activePair.shrink_to_fit();
+		world->activePairs.push_back(activePair);
+	}
+	// look for force that affects the pair (i,j)
+	this->sizePossibleInteractions = config->possibleInteractions.size();
+	for (unsigned int k=0; k<this->sizePossibleInteractions; k++) {
+		if (
+			config->possibleInteractions[k]->isAffected(
+				world->activeParticles[indexI].typeId,
+				world->activeParticles[indexJ].typeId)
+		) {
+			// actual force call here
+			config->possibleInteractions[k]->calculateForceEnergy(
+				forceI,//out
+				energyBuffer,
+				r_ij,//in
+				rSquared,
+				radiiSquared);
+			world->activeParticles[indexI].addForce(forceI);
+			world->energy += 0.5*energyBuffer;
 		}
 	}
 }

@@ -63,6 +63,7 @@ public:
 	bool isReversibleDynamics;
 	bool isReversibleReactions;
 	bool useNeighborList;
+	unsigned numberBoxes;
 	/* This variable is used only by the author to test different
 	 * methods of performing reactions. */
 	unsigned int reactionPropagation;
@@ -126,10 +127,11 @@ public:
 		std::vector<unsigned int> affectedTuple,
 		double epsilon);
 	unsigned int getNumberForces();
-	std::string getForceName(unsigned int i);
-	std::string getForceType(unsigned int i);
-	std::vector<unsigned int> getForceAffectedTuple(unsigned int i);
-	std::vector<double> getForceParameters(unsigned int i);
+	std::string getForceName(unsigned i);
+	std::string getForceType(unsigned i);
+	std::vector<unsigned int> getForceAffectedTuple(unsigned i);
+	std::vector<double> getForceParameters(unsigned i);
+	double getForceCutoff(unsigned i);
 	void deleteAllReactions();
 	void new_Conversion(
 		std::string name,

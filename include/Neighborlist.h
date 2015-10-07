@@ -46,6 +46,8 @@ struct Neighborlist
 	void addIndex(unsigned x, unsigned y, unsigned z, unsigned long index);
 	unsigned long getIndex(unsigned x, unsigned y, unsigned z, unsigned long position);	
 	unsigned long getSize(unsigned x, unsigned y, unsigned z);
+	// empty all inner containers, but don't deallocate
+	void clear();
 };
 
 inline void Neighborlist::addIndex(
@@ -72,6 +74,17 @@ inline unsigned long Neighborlist::getSize(
 	unsigned z)
 {
 	return this->neighbors[x][y][z].size();
+}
+
+inline void Neighborlist::clear()
+{
+	for (unsigned long x=0; x<this->numberBoxes; x++) {
+		for (unsigned long y=0; y<this->numberBoxes; y++) {
+			for (unsigned long z=0; z<this->numberBoxes; z++) {
+				this->neighbors[x][y][z].clear();
+			}
+		}
+	}
 }
 
 #endif // __NEIGHBORLIST_H_INCLUDED__

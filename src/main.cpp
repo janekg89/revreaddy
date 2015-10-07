@@ -1,48 +1,46 @@
-/* main.cpp
- *
- * This is a pure C++ test environment for
- * the revreaddy python/cython extension.
- *
- */
-
 #include "Simulation.h"
 #include "Config.h"
+#define print(x) std::cout << x << std::endl;
 
 int main()
 {
 	Simulation * sim = new Simulation();
 
 	sim->config->kBoltzmann = 1.;
-	sim->config->maxTime	= 1000;
-	sim->config->temperature= 1.;
-	sim->config->timestep	= 0.001;
-	sim->config->isPeriodic = true;
-	sim->config->boxsize = 10.;
-	sim->config->isReversibleDynamics = true;
-	sim->config->isReversibleReactions = true;
+	sim->config->temperature= 2.437;
+	sim->config->timestep	= 1e-10;
+	sim->config->isPeriodic = false;
+	sim->config->boxsize = 110.;
+	sim->config->isReversibleDynamics = false;
+	sim->config->isReversibleReactions = false;
+	sim->config->maxTime	= 5;
 
-	sim->config->new_Type("softy", 0.5 , 1., 0.5);
-	std::vector<unsigned int> affected = {0, 0};
-	sim->config->new_SoftRepulsion("softy repulsion", affected, 1.);
+	sim->config->useNeighborList = true;
+	sim->config->numberBoxes = 36;
+
+	sim->config->new_Type("A", 1.5 , 143e6, 1.5);
+	sim->config->new_Type("B", 3. , 71e6, 3.);
+
+	std::vector<unsigned> affected = {0,1,2};
+	double kappa = 5.;
+	sim->config->deleteAllGeometries();
+	sim->config->new_Wall(std::vector<double> {1.,0.,0.}, std::vector<double> {-50.,0.,0.}, kappa, affected);
+	sim->config->new_Wall(std::vector<double> {-1.,0.,0.}, std::vector<double> {50.,0.,0.}, kappa, affected);
+	sim->config->new_Wall(std::vector<double> {0.,1.,0.}, std::vector<double> {0.,-50.,0.}, kappa, affected);
+	sim->config->new_Wall(std::vector<double> {0.,-1.,0.}, std::vector<double> {0.,50.,0.}, kappa, affected);
+	sim->config->new_Wall(std::vector<double> {0.,0.,1.}, std::vector<double> {0.,0.,-50.}, kappa, affected);
+	sim->config->new_Wall(std::vector<double> {0.,0.,-1.}, std::vector<double> {0.,0.,50.}, kappa, affected);	
 	
 	std::vector<double> x0 = {0., 0., 0.};
-	for (double i=0; i<5; i++)
-		for (double j=0; j<5; j++)
-			for (double k=0; k<5; k++) {
-				x0[0] = -0.49 * sim->config->boxsize + i;
-				x0[1] = -0.49 * sim->config->boxsize + j;
-				x0[2] = -0.49 * sim->config->boxsize + k;
+	for (double i=0; i<95; i+=7.063305534550977)
+		for (double j=0; j<95; j+=7.063305534550977)
+			for (double k=0; k<95; k+=7.063305534550977) {
+				x0[0] = -47. + i;
+				x0[1] = -47. + j;
+				x0[2] = -47. + k;
 				sim->world->addParticle(x0, 0);
 			}
-
-	sim->config->new_Trajectory(1, "traj.xyz");
-	sim->config->new_MeanSquaredDisplacement(1, "msd.dat", 0);
+	print(sim->config->getParticleNumber())
 	sim->run();
-	sim->config->writeAllObservablesToFile();
-	sim->config->deleteAllObservables();
-
-	std::cout << "acc dynamics " << sim->world->acceptionsDynamics << std::endl;
-	std::cout << "rej dynamics " << sim->world->rejectionsDynamics << std::endl;
-
 	return 0;
 }

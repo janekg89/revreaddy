@@ -22,6 +22,8 @@ SoftRepulsion::SoftRepulsion(
 		this->affectedTuple.push_back(inAffectedTuple[0]);	
 		print("Info: SoftRepulsion affectedTuple order was inverted")
 	}
+	this->c = 0.;
+	this->a = 0.;
 }
 
 void SoftRepulsion::calculateForceEnergy(
@@ -32,18 +34,18 @@ void SoftRepulsion::calculateForceEnergy(
 	double& radiiSquared)
 {
 	if ( rSquared > radiiSquared ) {
-		forceI = {0.,0.,0.};
+		forceI[0]=0.; forceI[1]=0.; forceI[2]=0.;
 		energy = 0.;
 		return;
 	}
 	// E=strength*(r - radii)**2, F=2.*strength*(r - radii)/r * r_ij(vec)
-	double a = sqrt(rSquared);
-	double c = a - sqrt(radiiSquared);
-	energy = this->parameters[0] * c * c;
-	a = 2. * this->parameters[0] * c / a;
-	forceI[0] = a * r_ij[0];
-	forceI[1] = a * r_ij[1];
-	forceI[2] = a * r_ij[2];
+	this->a = sqrt(rSquared);
+	this->c = this->a - sqrt(radiiSquared);
+	energy = this->parameters[0] * this->c * this->c;
+	this->a = 2. * this->parameters[0] * this->c / this->a;
+	forceI[0] = this->a * r_ij[0];
+	forceI[1] = this->a * r_ij[1];
+	forceI[2] = this->a * r_ij[2];
 }
 
 double SoftRepulsion::calculateEnergy(
@@ -54,7 +56,7 @@ double SoftRepulsion::calculateEnergy(
 		return 0.;
 	}
 	// E = strength * (r - radii)**2
-	double c = sqrt(rSquared);
-	c -= sqrt(radiiSquared);
-	return this->parameters[0] * c * c;
+	this->c = sqrt(rSquared);
+	this->c -= sqrt(radiiSquared);
+	return this->parameters[0] * this->c * this->c;
 }

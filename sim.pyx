@@ -40,6 +40,7 @@ cdef extern from "Simulation.h":
 		bool isReversibleDynamics
 		bool isReversibleReactions
 		bool useNeighborList
+		unsigned numberBoxes
 		unsigned int reactionPropagation
 
 		void new_Type(string, double, double, double)
@@ -84,6 +85,7 @@ cdef extern from "Simulation.h":
 		string getForceType(unsigned int)
 		vector[uint] getForceAffectedTuple(unsigned int)
 		vector[double] getForceParameters(unsigned int)
+		double getForceCutoff(unsigned)
 		void deleteAllReactions()
 		void new_Conversion(string, unsigned int, unsigned int, double, double)
 		void new_Fusion(string, unsigned, unsigned, unsigned, double, double)
@@ -170,6 +172,10 @@ cdef class pySimulation:
 		def __get__(self): return self.config.useNeighborList
 		def __set__(self,useNeighborList): 
 			self.config.useNeighborList=useNeighborList
+	property numberBoxes:
+		def __get__(self): return self.config.numberBoxes
+		def __set__(self, numberBoxes):
+			self.config.numberBoxes = numberBoxes
 	property reactionPropagation:
 		def __get__(self): return self.config.reactionPropagation
 		def __set__(self, reactionPropagation):
@@ -178,6 +184,7 @@ cdef class pySimulation:
 	def run(self, maxTime=None, timestep=None):
 		"""Run the simulation."""
 		self.configureAllReactions()
+		self.checkIfNeighborlist()
 		if (maxTime != None): self.maxTime = maxTime
 		if (timestep != None): self.timestep = timestep
 		logging.info("Run() with timestep: " + str(self.timestep) + \
@@ -304,6 +311,8 @@ cdef class pySimulation:
 		return self.config.getForceAffectedTuple(index)
 	def getForceParameters(self, index):
 		return self.config.getForceParameters(index)
+	def getForceCutoff(self, index):
+		return self.config.getForceCutoff(index)
 	def deleteAllReactions(self):
 		self.config.deleteAllReactions()
 	def new_Conversion(self, name, forwardType,
@@ -445,6 +454,39 @@ cdef class pySimulation:
 		# sigma = 2.**(-1/6) * radiiSum
 		sigma = 0.8908987181403393 * radiiSum
 		return 4.*epsilon*( (sigma/distance)**12 - (sigma/distance)**6 )
+
+	def checkIfNeighborlist(self):
+		# We want to find out if neighborlist pays off. 
+		# First determine the minimal size of subboxes,
+		# therefore check all interaction distances and
+		# all reaction radii.	
+		minimalLength = self.boxsize
+		# check interaction distances
+		for i in range(self.getNumberForces()):
+			if (self.getForceCutoff(i) < minimalLength):
+				minimalLength = self.getForceCutoff(i)
+		# check reaction radii combinations (i,j)
+		for i in range(self.getNumberOfTypes()):
+			for j in range(i, self.getNumberOfTypes()):
+				R=self.getDictReactionRadius(i)+self.getDictReactionRadius(j)
+				if (R < minimalLength):
+					minimalLength = R
+		counter, numberBoxes = 1., 0
+		while ((self.boxsize / counter) > minimalLength):
+			numberBoxes += 1
+			counter += 1.
+		# if n=3 we will have 9 subboxes of length L/n, which
+		# will result in having to check every box. This is
+		# as inefficient as double looping. So:
+		# ONLY construct neighborlist if we have at least 16
+		# subboxes or n>3
+		if ((numberBoxes > 3) and self.useNeighborList):
+			self.useNeighborList = True # obsolete, but who cares
+			self.numberBoxes = numberBoxes
+			logging.info("useNeighborList enabled with " + str(numberBoxes) \
+				+ " number of boxes along each axis.")
+		else:
+			self.useNeighborList = False
 
 	# UTILITY
 	def acceptanceRateDynamics(self):

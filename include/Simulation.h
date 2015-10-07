@@ -55,6 +55,8 @@ class Simulation
 		Config * config;
 		Random * random; // the random number generator
 
+		Neighborlist * neighborlist;
+
 		/*------- core functions/variables not accessible to python -------*/
 
 		/* Store the objects describing the current state:
@@ -89,6 +91,9 @@ class Simulation
 		void calculateSingleForceEnergy(
 			unsigned int indexI,
 			unsigned int indexJ);
+		void calculateSingleForceEnergyOnlyForI(
+			unsigned int indexI,
+			unsigned int indexJ);
 		void calculateGeometryForcesEnergies();
 		void resetForces();
 		void resetActivePairs();
@@ -104,10 +109,21 @@ class Simulation
 		 * the case "no particle found" is expressed by "-1" */
 		long findParticleIndex(unsigned long long id);
 
-		/*------- functions that will be wrapped by python -------*/
-
 		/* Start the simulation. Iterate for maxTime timesteps.*/
 		void run();
+
+		/* members that are once allocated so that less allocation
+		 * appears on the run */
+		std::vector<double> forceI;
+		std::vector<double> forceJ;
+		double energyBuffer;
+		std::vector<double> r_ij;	
+		double rSquared;
+		double radiusI;
+		double radiusJ;
+		double radiiSquared;
+		double reactionRadiiSquared;
+		unsigned sizePossibleInteractions;
 };
 
 #endif // __SIMULATION_H_INCLUDED__

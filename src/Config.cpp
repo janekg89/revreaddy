@@ -20,7 +20,8 @@ Config::Config(World * inWorld, Random * inRandom)
 	this->boxsize               = 10.;
 	this->isReversibleDynamics  = true;
 	this->isReversibleReactions = true;
-	this->useNeighborList       = true;
+	this->useNeighborList       = false;
+	this->numberBoxes           = 1;
 	this->reactionPropagation   = 0;
 }
 
@@ -350,6 +351,11 @@ std::vector<unsigned int> Config::getForceAffectedTuple(unsigned i)
 std::vector<double> Config::getForceParameters(unsigned i)
 {
 	return this->possibleInteractions[i]->parameters;
+}
+
+double Config::getForceCutoff(unsigned i)
+{
+	return this->possibleInteractions[i]->cutoff;
 }
 
 void Config::deleteAllReactions()
