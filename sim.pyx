@@ -70,7 +70,7 @@ cdef extern from "Simulation.h":
 			vector[double],
 			unsigned int)
 		void new_Energy(unsigned long int, string)
-		void new_Acceptance(unsigned long int, string)
+		void new_Acceptance(unsigned long int, string, bool)
 		void new_ParticleNumbers(unsigned long, string, unsigned)
 		void deleteAllGeometries()
 		void new_Wall(
@@ -284,8 +284,8 @@ cdef class pySimulation:
 			pTypeId, ranges, coord)
 	def new_Energy(self, recPeriod, filename):
 		self.config.new_Energy(recPeriod, filename)
-	def new_Acceptance(self, recPeriod, filename):
-		self.config.new_Acceptance(recPeriod, filename)
+	def new_Acceptance(self, recPeriod, filename, reactionsOrDynamics):
+		self.config.new_Acceptance(recPeriod, filename, reactionsOrDynamics)
 	def new_ParticleNumbers(self, recPeriod, filename, particleTypeId):
 		self.config.new_ParticleNumbers(recPeriod, filename, particleTypeId)
 	def deleteAllGeometries(self):

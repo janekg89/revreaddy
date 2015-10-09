@@ -5,18 +5,26 @@
 Acceptance::Acceptance(
 	unsigned int inRecPeriod,
 	unsigned int inClearPeriod,
-	std::string inFilename)
+	std::string inFilename,
+	bool inReactionsOrDynamics)
 {
 	this->recPeriod = inRecPeriod;
 	this->clearPeriod = inClearPeriod;
 	this->filename = inFilename;
+	this->reactionsOrDynamics = inReactionsOrDynamics;
 }
 
 void Acceptance::record(
 	World * world,
 	double t)
 {
-	this->acceptanceProbs.push_back(world->acceptProbDynamics);
+	if (this->reactionsOrDynamics) {
+		this->acceptanceProbs.push_back(world->acceptProbReactions);
+	}
+	else {
+		this->acceptanceProbs.push_back(world->acceptProbDynamics);		
+	}
+
 	this->times.push_back(t);
 }
 

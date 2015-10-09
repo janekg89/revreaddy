@@ -356,9 +356,6 @@ void Simulation::calculateInteractionForcesEnergiesNaive()
 	}
 }
 
-// TODO this is currently wrong! some neighbors are not considered
-// linearize neighborlist, introduce indexing like
-// index(x,y,z) = x+n*y+n*n*z, for x,y,z in [0,n)
 void Simulation::calculateInteractionForcesEnergiesWithLattice(
 	unsigned int numberBoxes)
 {
@@ -419,20 +416,20 @@ void Simulation::calculateInteractionForcesEnergiesWithLattice(
 			 * of boxes that need to be searched
 			 * in the neighborlattice method. */
 			switch (k) {
-				case 0: x_i=0;  y_i=0; z_i=0;break;
-				case 1: x_i=1;  y_i=0; z_i=0;break;
-				case 2: x_i=-1; y_i=1; z_i=0;break;
-				case 3: x_i=0;  y_i=1; z_i=0;break;
-				case 4: x_i=1;  y_i=1; z_i=0;break;
-				case 5: x_i=-1; y_i=-1;z_i=1;break;
-				case 6: x_i=0;  y_i=-1;z_i=1;break;
-				case 7: x_i=1;  y_i=-1;z_i=1;break;
-				case 8: x_i=-1; y_i=0; z_i=1;break;
-				case 9: x_i=0;  y_i=0; z_i=1;break;
-				case 10:x_i=1;  y_i=0; z_i=1;break;
-				case 11:x_i=-1; y_i=1; z_i=1;break;
-				case 12:x_i=0;  y_i=1; z_i=1;break;
-				case 13:x_i=1;  y_i=1; z_i=1;break;
+				case 0: x_i= 0; y_i= 0; z_i=0;break;
+				case 1: x_i= 1; y_i= 0; z_i=0;break;
+				case 2: x_i=-1; y_i= 1; z_i=0;break;
+				case 3: x_i= 0; y_i= 1; z_i=0;break;
+				case 4: x_i= 1; y_i= 1; z_i=0;break;
+				case 5: x_i=-1; y_i=-1; z_i=1;break;
+				case 6: x_i= 0; y_i=-1; z_i=1;break;
+				case 7: x_i= 1; y_i=-1; z_i=1;break;
+				case 8: x_i=-1; y_i= 0; z_i=1;break;
+				case 9: x_i= 0; y_i= 0; z_i=1;break;
+				case 10:x_i= 1; y_i= 0; z_i=1;break;
+				case 11:x_i=-1; y_i= 1; z_i=1;break;
+				case 12:x_i= 0; y_i= 1; z_i=1;break;
+				case 13:x_i= 1; y_i= 1; z_i=1;break;
 			}
 			if ( (x_i==0) && (y_i==0) && (z_i==0) ) {
 				for (unsigned long i=0; i<this->neighborlist->getSize(x,y,z); i++)
@@ -510,7 +507,7 @@ void Simulation::calculateSingleForceEnergy(
 		r_ij,
 		world->activeParticles[indexI].position, 
 		world->activeParticles[indexJ].position, 
-		config->isPeriodic, 
+		config->isPeriodic,
 		config->boxsize);
 	// distance of particle i,j squared
 	this->rSquared = r_ij[0]*r_ij[0] + r_ij[1]*r_ij[1] + r_ij[2]*r_ij[2];

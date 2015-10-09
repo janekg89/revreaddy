@@ -191,7 +191,7 @@ void Config::new_ProbabilityDensity(
 	this->observables.push_back( std::move(prob) );
 }
 
-void Config::new_Energy(unsigned long int recPeriod, std::string filename)
+void Config::new_Energy(unsigned long recPeriod, std::string filename)
 {
 	std::unique_ptr<Energy> ener = make_unique<Energy>(
 		recPeriod,
@@ -200,12 +200,16 @@ void Config::new_Energy(unsigned long int recPeriod, std::string filename)
 	this->observables.push_back( std::move(ener) );
 }
 
-void Config::new_Acceptance(unsigned long int recPeriod, std::string filename)
+void Config::new_Acceptance(
+	unsigned long recPeriod,
+	std::string filename,
+	bool reactionsOrDynamics)
 {
 	std::unique_ptr<Acceptance> acc = make_unique<Acceptance>(
 		recPeriod,
 		0,
-		filename);
+		filename,
+		reactionsOrDynamics);
 	this->observables.push_back( std::move(acc) );
 }
 

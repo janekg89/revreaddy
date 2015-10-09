@@ -75,34 +75,37 @@ public:
 		double diffusionConstant,
 		double reactionRadius);
 	unsigned int getNumberOfTypes();
-	std::string getDictName(unsigned int i);
-	double getDictRadius(unsigned int i);
-	double getDictDiffusionConstant(unsigned int i);
-	double getDictReactionRadius(unsigned int i);
+	std::string getDictName(unsigned i);
+	double getDictRadius(unsigned i);
+	double getDictDiffusionConstant(unsigned i);
+	double getDictReactionRadius(unsigned i);
 	unsigned int  getParticleNumber();
 	void writeAllObservablesToFile();
 	void writeLastObservableToFile();
 	std::string showObservables();
 	void deleteAllObservables();
 	void deleteLastObservable();
-	void new_Trajectory(unsigned long int recPeriod, std::string filename);
+	void new_Trajectory(unsigned long recPeriod, std::string filename);
 	void new_RadialDistribution(
-		unsigned long int recPeriod,
+		unsigned long recPeriod,
 		std::string filename,
 		std::vector<double> ranges,
-		std::vector< std::vector<unsigned int> > considered);
+		std::vector< std::vector<unsigned> > considered);
 	void new_MeanSquaredDisplacement(
-		unsigned long int recPeriod,
+		unsigned long recPeriod,
 		std::string filename,
-		unsigned int particleTypeId);
+		unsigned particleTypeId);
 	void new_ProbabilityDensity(
-		unsigned long int recPeriod,
+		unsigned long recPeriod,
 		std::string filename,
-		unsigned int pTypeId,
+		unsigned pTypeId,
 		std::vector<double> range,
 		unsigned int coord);
-	void new_Energy(unsigned long int recPeriod, std::string filename);
-	void new_Acceptance(unsigned long int recPeriod,std::string filename);
+	void new_Energy(unsigned long recPeriod, std::string filename);
+	void new_Acceptance(
+		unsigned long recPeriod,
+		std::string filename,
+		bool reactionsOrDynamics);
 	void new_ParticleNumbers(
 		unsigned long recPeriod,
 		std::string filename,

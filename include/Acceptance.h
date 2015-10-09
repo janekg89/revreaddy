@@ -1,9 +1,5 @@
 /* Acceptance.h
- *
- * Record the acceptance probability as a function of time.
- * This observable has a special role, because it is granted
- * knowledge of the Simulation object. This is necessay to
- * obtain the currentAcceptance variable from Simulation. */
+ * Record the acceptance probability as a function of time. */
 
 #ifndef __ACCEPTANCE_H_INCLUDED__
 #define __ACCEPTANCE_H_INCLUDED__
@@ -17,11 +13,13 @@ class Acceptance : public Observable
 	public:
 		std::vector<double> acceptanceProbs;
 		std::vector<double> times;
+		bool reactionsOrDynamics;
 		
 		Acceptance(
 			unsigned int inRecPeriod,
 			unsigned int inClearPeriod,
-			std::string inFilename);
+			std::string inFilename,
+			bool inReactionsOrDynamics);
 
 		void record(
 			World * world,
