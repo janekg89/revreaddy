@@ -73,10 +73,12 @@ void RadialDistribution::record(
 	gsl_histogram_reset(this->radialDistribution);
 }
 
-/* Finds out if tuple (a,b) is in consideredPairs*/
+/* Finds out if tuple (a,b) is in consideredPairs, this now only
+ * depends on the order of a and b. So you can only look at the
+ * RDF from particle a to b solely. */
 bool RadialDistribution::isInConsidered(unsigned int a, unsigned int b)
 {
-	if (a <= b) {
+	//if (a <= b) {
 		for (unsigned int k=0; k<this->consideredPairs.size(); k++) {
 			if (this->consideredPairs[k][0] == a) {
 				if (this->consideredPairs[k][1] == b) {
@@ -85,7 +87,8 @@ bool RadialDistribution::isInConsidered(unsigned int a, unsigned int b)
 			}
 		}
 		return false;
-	}
+	//}
+	/*
 	else {
 		for (unsigned int k=0; k<this->consideredPairs.size(); k++) {
 			if (this->consideredPairs[k][0] == b) {
@@ -95,7 +98,7 @@ bool RadialDistribution::isInConsidered(unsigned int a, unsigned int b)
 			}
 		}
 		return false;
-	}
+	}*/
 }
 
 void RadialDistribution::writeBufferToFile()

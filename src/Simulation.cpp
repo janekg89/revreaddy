@@ -396,16 +396,44 @@ void Simulation::calculateInteractionForcesEnergiesWithLattice(
 			false);
 	}
 	*/
+
 	signed int otherX = 0;
 	signed int otherY = 0;
 	signed int otherZ = 0;
+	signed x_i = 0;
+	signed y_i = 0;
+	signed z_i = 0;
 	for (unsigned int x=0; x<numberBoxes; x++)
 	for (unsigned int y=0; y<numberBoxes; y++)
 	for (unsigned int z=0; z<numberBoxes; z++) {
-		// usage of half point symmetry,only positive x_i etc
-		for (signed int x_i = 0; x_i < 2; x_i++)
-		for (signed int y_i = 0; y_i < 2; y_i++)
-		for (signed int z_i = 0; z_i < 2; z_i++) {
+		/* usage of half point symmetry check selfbox (x,y,z) and
+		 * (x+1,y,z) and
+		 * (x-1,y+1,z), (x,y+1,z), (x+1,y+1,z) and
+		 * with z_i = z + 1, all 9 (x,y,z_i) pairs, with x,y in [-1,0,1] */
+
+		//for (signed int x_i = -1; x_i < 2; x_i++)
+		//for (signed int y_i = -1; y_i < 2; y_i++)
+		//for (signed int z_i = -1; z_i < 2; z_i++) {
+		for (unsigned k=0; k<14; k++) {
+			/* these are the relative coordinates 
+			 * of boxes that need to be searched
+			 * in the neighborlattice method. */
+			switch (k) {
+				case 0: x_i=0;  y_i=0; z_i=0;break;
+				case 1: x_i=1;  y_i=0; z_i=0;break;
+				case 2: x_i=-1; y_i=1; z_i=0;break;
+				case 3: x_i=0;  y_i=1; z_i=0;break;
+				case 4: x_i=1;  y_i=1; z_i=0;break;
+				case 5: x_i=-1; y_i=-1;z_i=1;break;
+				case 6: x_i=0;  y_i=-1;z_i=1;break;
+				case 7: x_i=1;  y_i=-1;z_i=1;break;
+				case 8: x_i=-1; y_i=0; z_i=1;break;
+				case 9: x_i=0;  y_i=0; z_i=1;break;
+				case 10:x_i=1;  y_i=0; z_i=1;break;
+				case 11:x_i=-1; y_i=1; z_i=1;break;
+				case 12:x_i=0;  y_i=1; z_i=1;break;
+				case 13:x_i=1;  y_i=1; z_i=1;break;
+			}
 			if ( (x_i==0) && (y_i==0) && (z_i==0) ) {
 				for (unsigned long i=0; i<this->neighborlist->getSize(x,y,z); i++)
 				for (unsigned long j=i+1; j<this->neighborlist->getSize(x,y,z); j++) {

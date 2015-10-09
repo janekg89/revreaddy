@@ -15,6 +15,7 @@ class Simulation;
 #include <math.h>
 #include <cmath>
 #include <vector>
+#include <array>
 #include <iostream>
 #include <string>
 #include <typeinfo>
