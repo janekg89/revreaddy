@@ -57,6 +57,36 @@ import numpy as np
 import sim
 import h5py
 
+def saveWorld(filename, simulation):
+	"Save only the positions of particles and their typeIds."
+	fileHandle = h5py.File(filename, "w")
+	# construct xyz group
+	xyz = fileHandle.create_group("xyz")
+	numberOfParticles = simulation.getParticleNumber()
+	xyz.create_dataset("numberOfParticles", (1,), dtype=np.uint64)
+	xyz["numberOfParticles"][0] = numberOfParticles
+	xyz.create_dataset("typeIds", (numberOfParticles,), dtype=np.uint64)
+	xyz.create_dataset("positions", (numberOfParticles,3), dtype=np.float64)
+	for i in range(numberOfParticles):
+		xyz["typeIds"][i] = simulation.getTypeId(i)
+		particlePosition = simulation.getPosition(i)
+		xyz["positions"][i,0] = particlePosition[0]
+		xyz["positions"][i,1] = particlePosition[1]
+		xyz["positions"][i,2] = particlePosition[2]
+	fileHandle.close()
+
+def loadWorld(filename, simulation):
+	"Load positions of particles and typeIds, add them to simulation"
+	fileHandle = h5py.File(filename, "r")
+	#retrieve positions
+	xyz = fileHandle["xyz"]
+	numberOfParticles = xyz["numberOfParticles"][0]
+	for i in range(numberOfParticles):
+		simulation.addParticle(
+			xyz["positions"][i],
+			xyz["typeIds"][i] )
+	fileHandle.close()
+
 def saveSimulation(filename, simulation):
 	"""
 	Save the state of a simulation to file given
@@ -212,7 +242,7 @@ def loadSimulation(filename):
 			return sim.pySimulation()
 
 	#retrieve reactions ...
-
+	fileHandle.close()
 	return simulation
 
 def fillCuboidWithParticles(simulation, r1, r2, numberOfParticles, particleType):
