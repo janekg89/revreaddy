@@ -55,6 +55,7 @@ class Simulation
 		World * world;
 		Config * config;
 		Random * random; // the random number generator
+		Utils * utils;
 
 		Neighborlist * neighborlist;
 

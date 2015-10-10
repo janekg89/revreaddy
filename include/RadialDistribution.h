@@ -34,6 +34,7 @@ class RadialDistribution : public Observable
 		std::vector< std::vector<unsigned int> > consideredPairs;
 		bool isPeriodic;
 		double boxsize;
+		Utils * utils;
 
 		void record(
 			World * world,

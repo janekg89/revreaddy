@@ -160,6 +160,14 @@ cdef class pySimulation:
 		def __get__(self): return self.world.rejectionsDynamics
 		def __set__(self, rejectionsDynamics):
 			self.world.rejectionsDynamics = rejectionsDynamics
+	property acceptionsReactions:
+		def __get__(self): return self.world.acceptionsReactions
+		def __set__(self, acceptionsReactions):
+			self.world.acceptionsReactions = acceptionsReactions
+	property rejectionsReactions:
+		def __get__(self): return self.world.rejectionsReactions
+		def __set__(self, rejectionsReactions):
+			self.world.rejectionsReactions = rejectionsReactions
 	property isReversibleDynamics:
 		def __get__(self): return self.config.isReversibleDynamics
 		def __set__(self,isReversibleDynamics):
@@ -495,6 +503,14 @@ cdef class pySimulation:
 		else:
 			acc = 1./(1.+ float(self.rejectionsDynamics) \
 				/float(self.acceptionsDynamics) )
+			return round(acc, 5)
+
+	def acceptanceRateReactions(self):
+		if (self.acceptionsReactions == 0):
+			return 0.
+		else:
+			acc = 1./(1.+ float(self.rejectionsReactions) \
+				/float(self.acceptionsReactions) )
 			return round(acc, 5)
 
 	def efficiency(self):

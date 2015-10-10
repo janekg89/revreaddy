@@ -32,11 +32,13 @@ RadialDistribution::RadialDistribution(
 		this->bins.push_back(0.);
 	}
 	this->consideredPairs = considered;
+	this->utils = new Utils();
 }
 
 RadialDistribution::~RadialDistribution()
 {
 	gsl_histogram_free(this->radialDistribution);
+	delete this->utils;
 }
 
 /* Record the radial distribution already normalized 
@@ -53,7 +55,7 @@ void RadialDistribution::record(
 				world->activeParticles[i].typeId,
 				world->activeParticles[j].typeId)) {
 				if (i != j) {
-					getMinDistanceSquared(
+					this->utils->getMinDistanceSquared(
 						radius,
 						world->activeParticles[i].position,
 						world->activeParticles[j].position,

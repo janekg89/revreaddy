@@ -15,6 +15,7 @@ Simulation::Simulation()
 	this->random = new Random("ranlxs0");
 	this->world  = new World();
 	this->config = new Config(this->world, this->random);
+	this->utils = new Utils();
 	this->forceI = {0.,0.,0.};
 	this->forceJ = {0.,0.,0.};
 	this->energyBuffer = 0.;
@@ -32,6 +33,7 @@ Simulation::~Simulation()
 	delete this->neighborlist;
 	delete this->config;
 	delete this->world;
+	delete this->utils;
 	delete this->random;
 }
 
@@ -503,7 +505,7 @@ void Simulation::calculateSingleForceEnergy(
 	 * pair of particles. */
 	// connecting vector from particle i to j
 	this->r_ij[0]=0.; this->r_ij[1]=0.; this->r_ij[2]=0.;
-	getMinDistanceVector(
+	this->utils->getMinDistanceVector(
 		r_ij,
 		world->activeParticles[indexI].position, 
 		world->activeParticles[indexJ].position, 
@@ -570,7 +572,7 @@ void Simulation::calculateSingleForceEnergyOnlyForI(
 	this->energyBuffer = 0.; 
 	// connecting vector from particle i to j
 	this->r_ij[0]=0.; this->r_ij[1]=0.; this->r_ij[2]=0.;
-	getMinDistanceVector(
+	this->utils->getMinDistanceVector(
 		r_ij,
 		world->activeParticles[indexI].position, 
 		world->activeParticles[indexJ].position, 
@@ -661,7 +663,7 @@ double Simulation::acceptanceDynamics()
 	double secondTerm = 0.;
 	std::vector<double> deltaX = {0.,0.,0.};
 	for (unsigned long i=0; i<world->activeParticles.size(); i++) {
-		getMinDistanceVector(
+		this->utils->getMinDistanceVector(
 			deltaX,
 			world->oldActiveParticles[i].position,
 			world->activeParticles[i].position,
@@ -699,10 +701,13 @@ double Simulation::acceptanceDynamics()
 	return acceptance;
 }
 
-//TODO
 double Simulation::acceptanceReactions()
 {
-	return 1.;
+	double unconditional = 1.;
+	unconditional = world->energy - world->oldEnergy;
+	unconditional /= -1. * config->kBoltzmann * config->temperature;
+	unconditional = exp( unconditional );
+	return unconditional;
 }
 
 bool Simulation::acceptOrReject(double acceptance)
