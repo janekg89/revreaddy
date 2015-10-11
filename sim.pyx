@@ -92,6 +92,15 @@ cdef extern from "Simulation.h":
 		void configure_Fusion(
 			unsigned, vector[uint], double, 
 			double, double, double, double, double)
+		void new_Fusion2(string, unsigned, unsigned, unsigned, double, double)
+		void configure_Fusion2(
+			unsigned, vector[uint], double, 
+			double, double, double, double, double)
+		void new_Fusion3(string, unsigned, unsigned, unsigned, double, double)
+		void configure_Fusion3(
+			unsigned, vector[uint], double, 
+			double, double, double, double, double,
+			double, double)
 		unsigned getNumberReactions()
 		string getReactionName(unsigned)
 		string getReactionType(unsigned)
@@ -345,6 +354,26 @@ cdef class pySimulation:
 		self.config.configure_Fusion(reactionIndex, interactionsIndices,
 			inversePartition, maxDistr, radiiSum, reactionRadiiSum,
 			meanDistr, inverseTemperature)
+	def new_Fusion2(self, name, forwardTypeA, forwardTypeB,
+		backwardTypeC, forwardRate, backwardRate):
+		self.config.new_Fusion2(name, forwardTypeA, forwardTypeB,
+			backwardTypeC, forwardRate, backwardRate)
+	def configure_Fusion2(self, reactionIndex, interactionsIndices,
+		inversePartition, maxDistr, radiiSum, reactionRadiiSum,
+		meanDistr, inverseTemperature):
+		self.config.configure_Fusion2(reactionIndex, interactionsIndices,
+			inversePartition, maxDistr, radiiSum, reactionRadiiSum,
+			meanDistr, inverseTemperature)
+	def new_Fusion3(self, name, forwardTypeA, forwardTypeB,
+		backwardTypeC, forwardRate, backwardRate):
+		self.config.new_Fusion3(name, forwardTypeA, forwardTypeB,
+			backwardTypeC, forwardRate, backwardRate)
+	def configure_Fusion3(self, reactionIndex, interactionsIndices,
+		inversePartition, maxDistr, radiiSum, reactionRadiiSum,
+		meanDistr, inverseTemperature, radiusA, radiusB):
+		self.config.configure_Fusion3(reactionIndex, interactionsIndices,
+			inversePartition, maxDistr, radiiSum, reactionRadiiSum,
+			meanDistr, inverseTemperature, radiusA, radiusB)
 	def getNumberReactions(self):
 		return self.config.getNumberReactions()
 	def getReactionName(self, index):
@@ -371,6 +400,10 @@ cdef class pySimulation:
 		for i in range(self.getNumberReactions()):
 			if (self.getReactionType(i) == "Fusion"):
 				self.configureFusion(i) 
+			if (self.getReactionType(i) == "Fusion2"):
+				self.configureFusion2(i) 
+			if (self.getReactionType(i) == "Fusion3"):
+				self.configureFusion3(i) 
 
 	def configureFusion(self, reactionIndex):
 		# Fusion is A + B <-> C, 
@@ -450,6 +483,173 @@ cdef class pySimulation:
 			", reactionRadiiSum " + str(reactionRadiiSum) +\
 			", meanDistr " + str(meanDistr) +\
 			", inverseTemperature " + str(inverseTemperature)
+		)
+
+	def configureFusion2(self, reactionIndex):
+		# Fusion2 has f=e^-beta*U(x)
+		# Fusion is A + B <-> C, 
+		# hence len(forwardTypes) = 2 and len(backwardTypes) = 1
+		# only forwardTypes might have interactions
+		logging.info("Configure Fusion reaction #" + str(reactionIndex))
+		forwardTypes = self.getReactionForwardTypes(reactionIndex)
+		aType = forwardTypes[0]
+		bType = forwardTypes[1]
+		interactions = [] # indices of the interactions
+		for i in range(self.getNumberForces()):
+			affectedTuple = self.getForceAffectedTuple(i)
+			if ( 
+				( (aType == affectedTuple[0])
+				and (bType == affectedTuple[1]) )
+				or 
+				( (aType == affectedTuple[1]) 
+				and (bType == affectedTuple[0]) ) ):
+				interactions += [i]
+		# radii of particles A and B
+		radiusA = self.getDictRadius(aType)
+		radiusB = self.getDictRadius(bType)
+		radiiSum = radiusA + radiusB
+		# define the energy function for these 
+		# interactions as a sum of the single terms
+		def energy(distance):
+			result = 0.
+			for inter in interactions:
+				if ( self.getForceType(inter) == "SoftRepulsion"):
+					strength = self.getForceParameters(inter)[0]
+					result += self.softRepulsionEnergy(distance, radiiSum, strength)
+				elif (self.getForceType(inter) == "LennardJones"):
+					epsilon = self.getForceParameters(inter)[0]
+					result += self.lennardJonesEnergy(distance, radiiSum, epsilon)
+			return result
+
+		# reaction radii of particles A and B
+		reactionRadiusA = self.getDictReactionRadius(aType)
+		reactionRadiusB = self.getDictReactionRadius(bType)
+		reactionRadiiSum = reactionRadiusA + reactionRadiusB
+		inverseTemperature = 1. / (self.temperature * self.kBoltzmann)
+		integrand = lambda x: \
+			np.exp( -inverseTemperature * energy( x*reactionRadiiSum ))
+		unitRange = np.arange(0., 1.001, 0.001)
+		yRange = map(integrand, unitRange)
+		partitionFunction = scipy.integrate.simps(yRange, unitRange)
+		inversePartition = 1. / partitionFunction
+		# define the distribution from which the uniform numbers for
+		# particle distances will be drawn
+		def distribution(x):
+			result = np.exp(-inverseTemperature*energy(x*reactionRadiiSum))
+			#return x * inversePartition * result
+			return inversePartition * result
+
+		# now only missing are the distributions' mean value and its maximum
+		# in the interval [0,1]
+		maxDistr = max( map(distribution, unitRange) )
+		integrand = lambda x: x * distribution(x)
+		yRange = map(integrand, unitRange)
+		meanDistr = scipy.integrate.simps(yRange, unitRange) 
+
+		self.config.configure_Fusion2(
+			reactionIndex,
+			interactions,
+			inversePartition,
+			maxDistr,
+			radiiSum,
+			reactionRadiiSum,
+			meanDistr,
+			inverseTemperature)
+		logging.info(
+			"Configured Fusion reaction with parameters: "+\
+			"reactionIndex " + str(reactionIndex) +\
+			", interactions " + " ".join( map(str,interactions) ) +\
+			", inversePartition " + str(inversePartition) +\
+			", maxDistr " + str(maxDistr) +\
+			", radiiSum " + str(radiiSum) +\
+			", reactionRadiiSum " + str(reactionRadiiSum) +\
+			", meanDistr " + str(meanDistr) +\
+			", inverseTemperature " + str(inverseTemperature)
+		)
+
+	def configureFusion3(self, reactionIndex):
+		# Fusion2 has f=e^-beta*U(x)
+		# Fusion is A + B <-> C, 
+		# hence len(forwardTypes) = 2 and len(backwardTypes) = 1
+		# only forwardTypes might have interactions
+		logging.info("Configure Fusion reaction #" + str(reactionIndex))
+		forwardTypes = self.getReactionForwardTypes(reactionIndex)
+		aType = forwardTypes[0]
+		bType = forwardTypes[1]
+		interactions = [] # indices of the interactions
+		for i in range(self.getNumberForces()):
+			affectedTuple = self.getForceAffectedTuple(i)
+			if ( 
+				( (aType == affectedTuple[0])
+				and (bType == affectedTuple[1]) )
+				or 
+				( (aType == affectedTuple[1]) 
+				and (bType == affectedTuple[0]) ) ):
+				interactions += [i]
+		# radii of particles A and B
+		radiusA = self.getDictRadius(aType)
+		radiusB = self.getDictRadius(bType)
+		radiiSum = radiusA + radiusB
+		# define the energy function for these 
+		# interactions as a sum of the single terms
+		def energy(distance):
+			result = 0.
+			for inter in interactions:
+				if ( self.getForceType(inter) == "SoftRepulsion"):
+					strength = self.getForceParameters(inter)[0]
+					result += self.softRepulsionEnergy(distance, radiiSum, strength)
+				elif (self.getForceType(inter) == "LennardJones"):
+					epsilon = self.getForceParameters(inter)[0]
+					result += self.lennardJonesEnergy(distance, radiiSum, epsilon)
+			return result
+
+		# reaction radii of particles A and B
+		reactionRadiusA = self.getDictReactionRadius(aType)
+		reactionRadiusB = self.getDictReactionRadius(bType)
+		reactionRadiiSum = reactionRadiusA + reactionRadiusB
+		inverseTemperature = 1. / (self.temperature * self.kBoltzmann)
+		integrand = lambda x: \
+			np.exp( -inverseTemperature * energy( x*reactionRadiiSum ))
+		unitRange = np.arange(0., 1.001, 0.001)
+		yRange = map(integrand, unitRange)
+		partitionFunction = scipy.integrate.simps(yRange, unitRange)
+		inversePartition = 1. / partitionFunction
+		# define the distribution from which the uniform numbers for
+		# particle distances will be drawn
+		def distribution(x):
+			result = np.exp(-inverseTemperature*energy(x*reactionRadiiSum))
+			#return x * inversePartition * result
+			return inversePartition * result
+
+		# now only missing are the distributions' mean value and its maximum
+		# in the interval [0,1]
+		maxDistr = max( map(distribution, unitRange) )
+		integrand = lambda x: x * distribution(x)
+		yRange = map(integrand, unitRange)
+		meanDistr = scipy.integrate.simps(yRange, unitRange) 
+
+		self.config.configure_Fusion3(
+			reactionIndex,
+			interactions,
+			inversePartition,
+			maxDistr,
+			radiiSum,
+			reactionRadiiSum,
+			meanDistr,
+			inverseTemperature,
+			radiusA,
+			radiusB)
+		logging.info(
+			"Configured Fusion reaction with parameters: "+\
+			"reactionIndex " + str(reactionIndex) +\
+			", interactions " + " ".join( map(str,interactions) ) +\
+			", inversePartition " + str(inversePartition) +\
+			", maxDistr " + str(maxDistr) +\
+			", radiiSum " + str(radiiSum) +\
+			", reactionRadiiSum " + str(reactionRadiiSum) +\
+			", meanDistr " + str(meanDistr) +\
+			", inverseTemperature " + str(inverseTemperature) +\
+			", radiusA and B " + str(radiusA) + " " + str(radiusB)
 		)
 
 	def softRepulsionEnergy(self, distance, radiiSum, strength):

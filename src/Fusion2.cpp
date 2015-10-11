@@ -1,9 +1,15 @@
-/* Fusion.cpp */
-#include "Fusion.h"
+/* Fusion2.cpp */
+#include "Fusion2.h"
 #include <math.h>
-#define print(x) std::cout << x << std::endl;
 
-Fusion::Fusion(
+#ifdef __DEBUG__
+#define print(a) std::cout << a << std::endl;
+#endif
+#ifndef __DEBUG__
+#define print(a)  
+#endif
+
+Fusion2::Fusion2(
 	std::string inName,
 	std::vector<unsigned> inForwardTypes,
 	std::vector<unsigned> inBackwardTypes,
@@ -17,11 +23,11 @@ Fusion::Fusion(
 	this->forwardRate = inForwardRate;
 	this->backwardRate = inBackwardRate;
 	this->random = inRandom;
-	this->type = "Fusion";
+	this->type = "Fusion2";
 	this->isConfigured = false;
 }
 
-void Fusion::configure(
+void Fusion2::configure(
 	std::vector< std::shared_ptr<ParticleInteraction> > inInteractions,
 	double inInversePartition,
 	double inMaxDistr,
@@ -30,6 +36,7 @@ void Fusion::configure(
 	double inMeanDistr,
 	double inInverseTemperature)
 {
+	print("configure Fusion2")
 	this->interactions = inInteractions;
 	this->inversePartition = inInversePartition;
 	this->maxDistr = inMaxDistr;
@@ -40,11 +47,12 @@ void Fusion::configure(
 	this->isConfigured = true;
 }
 
-double Fusion::performForward(
+double Fusion2::performForward(
 	std::vector<unsigned long> particleIndices,
 	World * world,
 	double timestep)
 {
+	print("performForward Fusion2")
 	double forwardProb = this->forwardRate * timestep;
 	double u = this->random->uniform();
 	if ( u < forwardProb ) {
@@ -81,11 +89,12 @@ double Fusion::performForward(
 	else {/* nothing happens */ return 1.;}
 }
 
-double Fusion::performBackward(
+double Fusion2::performBackward(
 	std::vector<unsigned long> particleIndices,
 	World * world,
 	double timestep)
 {
+	print("performForward Fusion2")
 	double backwardProb = this->backwardRate * timestep;
 	double u = this->random->uniform();
 	if ( u < backwardProb ) {
@@ -121,7 +130,7 @@ double Fusion::performBackward(
 	else {/* nothing happens */ return 1.;}
 }
 
-double Fusion::distribution(double x)
+double Fusion2::distribution(double x)
 {
 	double result = 0.;
 	for (unsigned i=0; i<this->interactions.size(); i++) {
@@ -129,12 +138,14 @@ double Fusion::distribution(double x)
 			x * x * this->reactionRadiiSum * this->reactionRadiiSum, // distance (x * R_AB) squared
 			this->radiiSum * this->radiiSum); // sum of radii squared
 	}
-	result *= x * this->inversePartition;
+	result = exp(- this->inverseTemperature * result);
+	//result *= x * this->inversePartition;
+	// THIS IS DIFFERENT FROM FUSION1
 	result *= this->inversePartition;
 	return result;
 }
 
-double Fusion::uniformFromDistribution()
+double Fusion2::uniformFromDistribution()
 {
 	unsigned it = 0;
 	double x = 0.;
@@ -145,5 +156,6 @@ double Fusion::uniformFromDistribution()
 		if ( y < this->distribution(x) ) { return x; }
 		else { it += 1; }
 	}
+	print("INFO: uniformFromDistribution left with mean")
 	return this->meanDistr;
 }

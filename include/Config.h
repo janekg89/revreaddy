@@ -29,6 +29,8 @@
 #include "Reaction.h"
 #include "Conversion.h"
 #include "Fusion.h"
+#include "Fusion2.h"
+#include "Fusion3.h"
 
 class Config {
 public:
@@ -158,6 +160,40 @@ public:
 		double reactionRadiiSum,
 		double meanDistr,
 		double inverseTemperature);
+	void new_Fusion2(
+		std::string name,
+		unsigned forwardTypeA,
+		unsigned forwardTypeB,
+		unsigned backwardTypeC,
+		double forwardRate,
+		double backwardRate);
+	void configure_Fusion2(
+		unsigned reactionIndex,
+		std::vector<unsigned> interactionsIndices,
+		double inversePartition,
+		double maxDistr,
+		double radiiSum,
+		double reactionRadiiSum,
+		double meanDistr,
+		double inverseTemperature);
+	void new_Fusion3(
+		std::string name,
+		unsigned forwardTypeA,
+		unsigned forwardTypeB,
+		unsigned backwardTypeC,
+		double forwardRate,
+		double backwardRate);
+	void configure_Fusion3(
+		unsigned reactionIndex,
+		std::vector<unsigned> interactionsIndices,
+		double inversePartition,
+		double maxDistr,
+		double radiiSum,
+		double reactionRadiiSum,
+		double meanDistr,
+		double inverseTemperature,
+		double radiusA,
+		double radiusB);
 	unsigned getNumberReactions();
 	std::string getReactionName(unsigned i);
 	std::string getReactionType(unsigned i);

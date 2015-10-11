@@ -432,14 +432,6 @@ void Config::configure_Fusion(
 			this->possibleInteractions[ interactionsIndices[i] ]
 		);
 	}
-	/*
-	double inverseTemperature = 1. / ( this->kBoltzmann * this->temperature );
-	if ( interactions.size() == 0) {
-		inversePartition = 2.;
-		maxDistr = 2.;
-		meanDistr = 2. / 3.;
-	}
-	*/
 	// TODO this still seems inappropriate
 	Fusion * fus = dynamic_cast<Fusion*>( this->possibleReactions[reactionIndex].get() );
 	fus->configure(
@@ -452,6 +444,124 @@ void Config::configure_Fusion(
 		inverseTemperature);	
 	/* Don't delete fus, since it is uniquely owned by Config. 
 	 * The reference was only borrowed to cast it to Fusion 
+	 * and configure it properly */
+}
+
+void Config::new_Fusion2(
+	std::string name,
+	unsigned forwardTypeA,
+	unsigned forwardTypeB,
+	unsigned backwardTypeC,
+	double forwardRate,
+	double backwardRate)
+{
+	std::vector<unsigned> forwardTypes;
+	forwardTypes.push_back(forwardTypeA);
+	forwardTypes.push_back(forwardTypeB);
+	std::vector<unsigned> backwardTypes;
+	backwardTypes.push_back(backwardTypeC);
+	std::unique_ptr<Fusion2> fus = make_unique<Fusion2>(
+		name,
+		forwardTypes,
+		backwardTypes,
+		forwardRate,
+		backwardRate,
+		this->random);
+	this->possibleReactions.push_back( std::move(fus) );
+}
+
+/* That reactionIndex is of type Fusion2 has to be ensured by the caller */
+void Config::configure_Fusion2(
+	unsigned reactionIndex,
+	std::vector<unsigned> interactionsIndices,
+	double inversePartition,
+	double maxDistr,
+	double radiiSum,
+	double reactionRadiiSum,
+	double meanDistr,
+	double inverseTemperature)
+{
+	std::vector< std::shared_ptr<ParticleInteraction> > interactions;
+	for (unsigned i=0; i<interactionsIndices.size(); i++) {
+		/* push_back constructs a new shared ptr to be
+		 * forwarded to the Fusion2. */
+		interactions.push_back(
+			this->possibleInteractions[ interactionsIndices[i] ]
+		);
+	}
+	// TODO this still seems inappropriate
+	Fusion2 * fus = dynamic_cast<Fusion2*>( this->possibleReactions[reactionIndex].get() );
+	fus->configure(
+		interactions,
+		inversePartition,
+		maxDistr,
+		radiiSum,
+		reactionRadiiSum,
+		meanDistr,
+		inverseTemperature);	
+	/* Don't delete fus, since it is uniquely owned by Config. 
+	 * The reference was only borrowed to cast it to Fusion2 
+	 * and configure it properly */
+}
+
+void Config::new_Fusion3(
+	std::string name,
+	unsigned forwardTypeA,
+	unsigned forwardTypeB,
+	unsigned backwardTypeC,
+	double forwardRate,
+	double backwardRate)
+{
+	std::vector<unsigned> forwardTypes;
+	forwardTypes.push_back(forwardTypeA);
+	forwardTypes.push_back(forwardTypeB);
+	std::vector<unsigned> backwardTypes;
+	backwardTypes.push_back(backwardTypeC);
+	std::unique_ptr<Fusion3> fus = make_unique<Fusion3>(
+		name,
+		forwardTypes,
+		backwardTypes,
+		forwardRate,
+		backwardRate,
+		this->random);
+	this->possibleReactions.push_back( std::move(fus) );
+}
+
+/* That reactionIndex is of type Fusion3 has to be ensured by the caller */
+void Config::configure_Fusion3(
+	unsigned reactionIndex,
+	std::vector<unsigned> interactionsIndices,
+	double inversePartition,
+	double maxDistr,
+	double radiiSum,
+	double reactionRadiiSum,
+	double meanDistr,
+	double inverseTemperature,
+	double radiusA,
+	double radiusB)
+{
+	std::vector< std::shared_ptr<ParticleInteraction> > interactions;
+	for (unsigned i=0; i<interactionsIndices.size(); i++) {
+		/* push_back constructs a new shared ptr to be
+		 * forwarded to the Fusion3. */
+		interactions.push_back(
+			this->possibleInteractions[ interactionsIndices[i] ]
+		);
+	}
+	// TODO this still seems inappropriate
+	Fusion3 * fus = dynamic_cast<Fusion3*>( this->possibleReactions[reactionIndex].get() );
+	fus->configure(
+		interactions,
+		inversePartition,
+		maxDistr,
+		radiiSum,
+		reactionRadiiSum,
+		meanDistr,
+		inverseTemperature,
+		radiusA,
+		radiusB);	
+	/* Don't delete fus, since it is uniquely owned by Config. 
+	 * The reference was only borrowed to cast it to Fusion3 
 	 * and configure it properly */
 }
 
