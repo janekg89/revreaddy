@@ -72,10 +72,10 @@ class Fusion3 : public Reaction
 		double timestep);
 
 	private:
-	/* f(x) = Z^-1 * x * exp[ -beta * potential( x * radiiSum ) ] */
+	/* f(x) = Z^-1 * exp[ -beta * potential( x ) ] */
 	double distribution(double x);
-	/* draw a uniform number from the distribution above in the range [0,1] */
-	double uniformFromDistribution();
+	/* draw a number from the distribution above in [0,reactionRadiiSum] */
+	double randomFromDistribution();
 };
 
 #endif // __FUSION3_H_INCLUDED__

@@ -200,7 +200,7 @@ cdef class pySimulation:
 
 	def run(self, maxTime=None, timestep=None):
 		"""Run the simulation."""
-		self.configureAllReactions()
+		#self.configureAllReactions()
 		self.checkIfNeighborlist()
 		if (maxTime != None): self.maxTime = maxTime
 		if (timestep != None): self.timestep = timestep

@@ -65,9 +65,17 @@ double Fusion3::performForward(
 		/* reaction occurs */
 		unsigned long indexI = particleIndices[0];
 		unsigned long indexJ = particleIndices[1];
-		/* position is the point in between particles i and j,
-		 * weighted according to their masses */
-		std::vector<double> position = {0.,0.,0.};
+		/* r_ij is the vector from particle i to j */
+		std::vector<double> r_ij = {0.,0.,0.};
+		r_ij[0]
+			= world->activeParticles[indexJ].position[0]
+			- world->activeParticles[indexI].position[0];
+		r_ij[1]
+			= world->activeParticles[indexJ].position[1]
+			- world->activeParticles[indexI].position[1];
+		r_ij[2]
+			= world->activeParticles[indexJ].position[2]
+			- world->activeParticles[indexI].position[2];
 		double weight;
 		if (world->activeParticles[indexI].typeId == forwardTypes[0]) {
 			weight = this->weightB;
@@ -75,22 +83,13 @@ double Fusion3::performForward(
 		else {
 			weight = this->weightA;
 		}
-		/* pos = r_A + (r_B - r_A) * weightB */
-		position[0] = 
-			world->activeParticles[indexI].position[0]
-			+ weight
-			* (world->activeParticles[indexJ].position[0]
-			-  world->activeParticles[indexI].position[0]);
-		position[1] = 
-			world->activeParticles[indexI].position[1]
-			+ weight
-			* (world->activeParticles[indexJ].position[1]
-			-  world->activeParticles[indexI].position[1]);
-		position[2] = 
-			world->activeParticles[indexI].position[2]
-			+ weight
-			* (world->activeParticles[indexJ].position[2]
-			-  world->activeParticles[indexI].position[2]);
+		/* position is the point in between particles i and j,
+		 * weighted according to their masses
+		 * pos = r_A + (r_B - r_A) * weightB, with r_ij = r_B - r_A */
+		std::vector<double> position = {0.,0.,0.};
+		position[0] = world->activeParticles[indexI].position[0] + weight * r_ij[0];
+		position[1] = world->activeParticles[indexI].position[1] + weight * r_ij[1]; 
+		position[2] = world->activeParticles[indexI].position[2] + weight * r_ij[2]; 
 
 		/* SUPER IMPORTANT: delete the particle with the 
 		 * higher index first or the indexing in activeParticles
@@ -106,7 +105,9 @@ double Fusion3::performForward(
 		world->addParticle(
 			position,
 			this->backwardTypes[0]);
-		return 1.;
+		double distance = sqrt(r_ij[0]*r_ij[0]+r_ij[1]*r_ij[1]+r_ij[2]*r_ij[2]);
+		/* f(d) is part of the forward proposal probability */
+		return distribution( distance );
 	}
 	else {/* nothing happens */ return 1.;}
 }
@@ -124,8 +125,7 @@ double Fusion3::performBackward(
 		unsigned long index = particleIndices[0];
 		std::vector<double> positionC = world->activeParticles[index].position;
 		/* distance = [0, reactionRadiiSum] */
-		double distance = this->reactionRadiiSum * this->uniformFromDistribution();
-		//double distance = this->reactionRadiiSum * 1.;
+		double distance = this->randomFromDistribution();
 		/* orientation is a random unit vector, i.e. with length = 1 */
 		std::vector<double> orientation = this->random->normal3D();
 		double norm = sqrt(
@@ -150,7 +150,8 @@ double Fusion3::performBackward(
 		world->removeParticle(index);
 		world->addParticle(positionA, this->forwardTypes[0]);
 		world->addParticle(positionB, this->forwardTypes[1]);
-		return 1.;
+		/* 1./f(d) is part of the backward proposal probability */
+		return 1./distribution(distance);
 	}
 	else {/* nothing happens */ return 1.;}
 }
@@ -160,7 +161,7 @@ double Fusion3::distribution(double x)
 	double result = 0.;
 	for (unsigned i=0; i<this->interactions.size(); i++) {
 		result += this->interactions[i]->calculateEnergy(
-			x * x * this->reactionRadiiSum * this->reactionRadiiSum, // distance (x * R_AB) squared
+			x * x,// * this->reactionRadiiSum * this->reactionRadiiSum, // distance (x * R_AB) squared
 			this->radiiSum * this->radiiSum); // sum of radii squared
 	}
 	result = exp(- this->inverseTemperature * result);
@@ -170,13 +171,13 @@ double Fusion3::distribution(double x)
 	return result;
 }
 
-double Fusion3::uniformFromDistribution()
+double Fusion3::randomFromDistribution()
 {
 	unsigned it = 0;
 	double x = 0.;
 	double y = 0.;
 	while ( it < 100 ) {
-		x = this->random->uniform();
+		x = this->random->uniform() * this->reactionRadiiSum;
 		y = this->maxDistr * this->random->uniform();
 		if ( y < this->distribution(x) ) { return x; }
 		else { it += 1; }
