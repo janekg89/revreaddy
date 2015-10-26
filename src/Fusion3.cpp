@@ -24,7 +24,12 @@ Fusion3::Fusion3(
 	this->backwardRate = inBackwardRate;
 	this->random = inRandom;
 	this->type = "Fusion3";
-	this->isConfigured = false;
+	this->utils = new Utils();
+}
+
+Fusion3::~Fusion3()
+{
+	delete this->utils;
 }
 
 void Fusion3::configure(
@@ -36,7 +41,9 @@ void Fusion3::configure(
 	double inMeanDistr,
 	double inInverseTemperature,
 	double inRadiusA,
-	double inRadiusB)
+	double inRadiusB,
+	bool inIsPeriodic,
+	double inBoxsize)
 {
 	print("configure Fusion3")
 	this->interactions = inInteractions;
@@ -50,7 +57,8 @@ void Fusion3::configure(
 	this->radiusB = inRadiusB;
 	this->weightA = pow(radiusA, 3.) / (pow(radiusA, 3.)+pow(radiusB, 3.));
 	this->weightB = pow(radiusB, 3.) / (pow(radiusA, 3.)+pow(radiusB, 3.)); 
-	this->isConfigured = true;
+	this->isPeriodic = inIsPeriodic;
+	this->boxsize = inBoxsize;
 }
 
 double Fusion3::performForward(
@@ -67,6 +75,13 @@ double Fusion3::performForward(
 		unsigned long indexJ = particleIndices[1];
 		/* r_ij is the vector from particle i to j */
 		std::vector<double> r_ij = {0.,0.,0.};
+		this->utils->getMinDistanceVector(
+			r_ij,
+			world->activeParticles[indexI].position,
+			world->activeParticles[indexJ].position,
+			this->isPeriodic,
+			this->boxsize);
+		/* TODO better use getMinDistanceVector here
 		r_ij[0]
 			= world->activeParticles[indexJ].position[0]
 			- world->activeParticles[indexI].position[0];
@@ -76,6 +91,7 @@ double Fusion3::performForward(
 		r_ij[2]
 			= world->activeParticles[indexJ].position[2]
 			- world->activeParticles[indexI].position[2];
+		*/
 		double weight;
 		if (world->activeParticles[indexI].typeId == forwardTypes[0]) {
 			weight = this->weightB;

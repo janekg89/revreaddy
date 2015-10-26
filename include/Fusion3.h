@@ -9,6 +9,7 @@
 #include <memory>
 #include <string>
 #include "ParticleInteraction.h"
+#include "utils.h"
 
 class Fusion3 : public Reaction
 {
@@ -20,9 +21,12 @@ class Fusion3 : public Reaction
 		double inForwardRate,
 		double inBackwardRate,
 		Random * inRandom);
+	~Fusion3();
 
 	/* pointers to the interactions between particles A and B */
 	std::vector< std::shared_ptr<ParticleInteraction> > interactions;
+	/* pointer to utilities needed for minimum distance */
+	Utils * utils;
 	/* inverse partition function value for drawing the distance
 	 * of A and B particle after backward reaction, must be 
 	 * correctly set according to the interaction between A and B */
@@ -40,16 +44,14 @@ class Fusion3 : public Reaction
 	double meanDistr;
 	/* 1 / k_BT */
 	double inverseTemperature;
-	/* if true, an interaction has been assigned (not 
-	 * guaranteeing if it's the only one possible) and 
-	 * the other parameters have been set */
-	bool isConfigured;
 	/* The particles radii to place new particles at center of mass.
 	 * The weights correspond to the particles masses */
 	double radiusA;
 	double radiusB;
 	double weightA;
 	double weightB;
+	bool isPeriodic;
+	double boxsize;
 	/* configure() sets the parameters that depend on
 	 * energy functions of particle interactions */
 	void configure(
@@ -61,7 +63,9 @@ class Fusion3 : public Reaction
 		double inMeanDistr,
 		double inInverseTemperature,
 		double inRadiusA,
-		double inRadiusB);
+		double inRadiusB,
+		bool inIsPeriodic,
+		double inBoxsize);
 	double performForward(
 		std::vector<unsigned long> particleIndices,
 		World * world,

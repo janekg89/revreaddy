@@ -559,7 +559,9 @@ void Config::configure_Fusion3(
 		meanDistr,
 		inverseTemperature,
 		radiusA,
-		radiusB);	
+		radiusB,
+		this->isPeriodic,
+		this->boxsize);	
 	/* Don't delete fus, since it is uniquely owned by Config. 
 	 * The reference was only borrowed to cast it to Fusion3 
 	 * and configure it properly */
