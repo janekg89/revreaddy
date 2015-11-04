@@ -2,6 +2,15 @@
 
 #include "Conversion.h"
 
+//#define __DEBUG__
+#ifndef __DEBUG__
+#define print(a)  
+#endif
+#ifdef __DEBUG__
+#define print(a) std::cout << a << std::endl;
+#undef __DEBUG__
+#endif
+
 Conversion::Conversion(
 	std::string inName,
 	std::vector<unsigned int> inForwardTypes,
@@ -29,6 +38,7 @@ double Conversion::performForward(
 	World * world,
 	double timestep)
 {
+	print("Enter Conversion performForward")
 	/* approximation to Poisson probability */
 	double forwardProb = this->forwardRate * timestep;
 	double u = this->random->uniform();
@@ -53,6 +63,7 @@ double Conversion::performBackward(
 	World * world,
 	double timestep)
 {
+	print("Enter Conversion performBackward")
 	/* approximation to Poisson probability */
 	double backwardProb = this->backwardRate * timestep;
 	double u = this->random->uniform();

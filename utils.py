@@ -264,7 +264,7 @@ def fillCuboidWithParticles(simulation, r1, r2, numberOfParticles, particleType)
 					counter += 1
 	return
 
-def showSnapshotMatPlotlib(simulation):
+def showSnapshotMatplotlib(simulation):
 	import matplotlib.pyplot as plt
 	from mpl_toolkits.mplot3d import Axes3D
 	fig = plt.figure()

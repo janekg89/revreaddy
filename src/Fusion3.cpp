@@ -2,11 +2,13 @@
 #include "Fusion3.h"
 #include <math.h>
 
-#ifdef __DEBUG__
-#define print(a) std::cout << a << std::endl;
-#endif
+//#define __DEBUG__
 #ifndef __DEBUG__
 #define print(a)  
+#endif
+#ifdef __DEBUG__
+#define print(a) std::cout << a << std::endl;
+#undef __DEBUG__
 #endif
 
 Fusion3::Fusion3(
@@ -66,7 +68,7 @@ double Fusion3::performForward(
 	World * world,
 	double timestep)
 {
-	print("performForward Fusion3")
+	print("Enter Fusion3 performForward")
 	double forwardProb = this->forwardRate * timestep;
 	double u = this->random->uniform();
 	if ( u < forwardProb ) {
@@ -133,7 +135,7 @@ double Fusion3::performBackward(
 	World * world,
 	double timestep)
 {
-	print("performForward Fusion3")
+	print("Enter Fusion3 performBackward")
 	double backwardProb = this->backwardRate * timestep;
 	double u = this->random->uniform();
 	if ( u < backwardProb ) {

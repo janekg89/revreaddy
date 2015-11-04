@@ -1,11 +1,13 @@
 /* Simulation.cpp
  * author: Christoph Froehner */
+
 //#define __DEBUG__
-#ifdef __DEBUG__
-#define print(a) std::cout << a << std::endl;
-#endif
 #ifndef __DEBUG__
 #define print(a)  
+#endif
+#ifdef __DEBUG__
+#define print(a) std::cout << a << std::endl;
+#undef __DEBUG__
 #endif
 
 #include "Simulation.h"
@@ -176,8 +178,18 @@ void Simulation::propagateDynamics()
 	}
 }
 
+//#define __DEBUG__
+#ifndef __DEBUG__
+#define print(a)  
+#endif
+#ifdef __DEBUG__
+#define print(a) std::cout << a << std::endl;
+#undef __DEBUG__
+#endif
+
 double Simulation::propagateReactions()
 {
+	print("Enter propagateReactions")
 	/* First construct the queue reactionCandidates, then shuffle it
 	 * and perform the reactions subsequently. If one particle
 	 * cannot be found via its uniqueId, because it was destroyed in
@@ -223,6 +235,7 @@ double Simulation::propagateReactions()
 			}
 		}
 	}
+	print("Bimolecular candidates found")
 	/* Find unimolecular candidates */
 	/* unimolecularParticleTypes is a list of typeIds that can undergo a
 	 * unimolecular reaction like a -> b or a -> b+c, it also contains
@@ -245,6 +258,7 @@ double Simulation::propagateReactions()
 			unimolecularParticleTypes.push_back(uni);
 		}
 	}
+	print("Unimolecular types determined")
 	/* From the above, now actually find the particular 
 	 * unimolecular reaction candidates. */
 	for (unsigned long i=0; i<world->activeParticles.size(); i++) {
@@ -264,6 +278,7 @@ double Simulation::propagateReactions()
 			}
 		}
 	}
+	print("Unimolecular candidates found")
 	// TODO check seeding
 	std::random_shuffle(reactionCandidates.begin(), reactionCandidates.end());
 	/* Perform reactions subsequently */
@@ -275,7 +290,9 @@ double Simulation::propagateReactions()
 		std::vector<unsigned long long> participants 
 			= reactionCandidates[i].participants;
 		for (unsigned j=0; j<participants.size(); j++) {
+			print("before find")
 			signed long index = this->findParticleIndex(participants[j]);
+			print("after find")
 			if (index == -1) {participantsAlive = false;}
 			else {particleIndices.push_back(index);}
 		}
@@ -298,6 +315,7 @@ double Simulation::propagateReactions()
 				config->timestep);
 		}
 	}
+	print("Reactions performed")
 	/* Check if newly created particles were put outside the box and correct */
 	for (unsigned long i=0; i<world->activeParticles.size(); i++) {
 		if (config->isPeriodic) {
@@ -327,6 +345,7 @@ double Simulation::propagateReactions()
 			}
 		}
 	}
+	print("Checked for box-overflows")
 	return conditionalProbs;
 }
 
@@ -729,14 +748,27 @@ bool Simulation::acceptOrReject(double acceptance)
 	}
 }
 
+//#define __DEBUG__
+#ifndef __DEBUG__
+#define print(a)  
+#endif
+#ifdef __DEBUG__
+#define print(a) std::cout << a << std::endl;
+#undef __DEBUG__
+#endif
+
 long int Simulation::findParticleIndex(unsigned long long id)
 {
-	unsigned long max = world->activeParticles.size() - 1;
-	unsigned long min = 0;
-	unsigned long mid = 0;
+	print("Enter findParticleIndex")
+	signed long max = world->activeParticles.size() - 1;
+	signed long min = 0;
+	signed long mid = 0;
 	while (max >= min) {
 		mid = min + (max - min) / 2;
-		if (world->activeParticles[mid].uniqueId == id) {return mid;}
+		print("mid set. min, mid, max: " << min << ", " << mid << ", " << max)
+		if (world->activeParticles[mid].uniqueId == id) {
+			return mid;
+		}
 		else if (world->activeParticles[mid].uniqueId < id) {min = mid + 1;}
 		else {max = mid - 1;}
 	}
