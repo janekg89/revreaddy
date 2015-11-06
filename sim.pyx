@@ -703,7 +703,7 @@ cdef class pySimulation:
 		else:
 			acc = 1./(1.+ float(self.rejectionsDynamics) \
 				/float(self.acceptionsDynamics) )
-			return round(acc, 5)
+			return acc
 
 	def acceptanceRateReactions(self):
 		if (self.acceptionsReactions == 0):

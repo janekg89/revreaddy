@@ -705,11 +705,11 @@ double Simulation::acceptanceDynamics()
 		              * world->activeParticles[i].cumulativeForce[1]
 		              + world->activeParticles[i].cumulativeForce[2]
 		              * world->activeParticles[i].cumulativeForce[2]
-		              + world->oldActiveParticles[i].cumulativeForce[0]
+		              - world->oldActiveParticles[i].cumulativeForce[0]
 		              * world->oldActiveParticles[i].cumulativeForce[0]
-		              + world->oldActiveParticles[i].cumulativeForce[1]
+		              - world->oldActiveParticles[i].cumulativeForce[1]
 		              * world->oldActiveParticles[i].cumulativeForce[1]
-		              + world->oldActiveParticles[i].cumulativeForce[2]
+		              - world->oldActiveParticles[i].cumulativeForce[2]
 		              * world->oldActiveParticles[i].cumulativeForce[2] );
 	}
 	firstTerm  *= 0.5;
