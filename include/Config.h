@@ -9,6 +9,7 @@
 #include <iostream>
 #include <memory>
 #include <typeinfo>
+#include <boost/log/trivial.hpp>
 #include "World.h"
 #include "Random.h"
 #include "Observable.h"
@@ -28,8 +29,6 @@
 #include "LennardJones.h"
 #include "Reaction.h"
 #include "Conversion.h"
-#include "Fusion.h"
-#include "Fusion2.h"
 #include "Fusion3.h"
 
 class Config {

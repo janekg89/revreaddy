@@ -13,7 +13,7 @@ int main()
 	sim->config->boxsize = 110.;
 	sim->config->isReversibleDynamics = false;
 	sim->config->isReversibleReactions = false;
-	sim->config->maxTime	= 5;
+	sim->config->maxTime	= 500;
 
 	sim->config->useNeighborList = true;
 	sim->config->numberBoxes = 36;
