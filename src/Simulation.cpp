@@ -20,9 +20,9 @@ std::unique_ptr<T> make_unique( Args&& ...args )
 
 Simulation::Simulation()
 {
-	this->random = new Random("ranlxs0");
 	this->world  = new World();
 	this->config = new Config();
+	this->random = new Random("ranlxs0");
 	this->utils = new Utils();
 	this->forceI = {0.,0.,0.};
 	this->forceJ = {0.,0.,0.};
@@ -35,9 +35,9 @@ Simulation::Simulation()
 Simulation::~Simulation()
 {
 	this->deleteAllObservables();
-	delete this->neighborlist;
-	delete this->config;
-	delete this->world;
+	if (this->useNeighborList) {
+		delete this->neighborlist;
+	}
 	delete this->utils;
 	delete this->random;
 }
@@ -181,6 +181,10 @@ void Simulation::run(const unsigned long maxTime)
 	if (this->useNeighborList) {
 		double minimalLength = config->boxsize;
 		// check interaction distances
+		// TODO when no interactions are present this leads to
+		// inefficiency because no neighborlist is used and
+		// distances are checked in every timestep even without
+		// interactions/reactions
 		for (unsigned i=0; i<config->interactions.size(); ++i) {
 			if (config->interactions[i]->cutoff < minimalLength) {
 				minimalLength = config->interactions[i]->cutoff;
@@ -193,14 +197,14 @@ void Simulation::run(const unsigned long maxTime)
 			}
 		}
 		double counter = 1.;
-		double numberBoxes = 0.;
+		unsigned numberBoxes = 0;
 		while ((config->boxsize / counter) > minimalLength) {
-			numberBoxes += 1.;
+			numberBoxes += 1;
 			counter += 1.;
 		}
 		if (numberBoxes > 3) {
 			this->useNeighborList = true; // actually obsolete
-			this->neighborlist = new Neighborlist( unsigned(numberBoxes) );
+			this->neighborlist = new Neighborlist( numberBoxes );
 		}
 		else {
 			this->useNeighborList = false;

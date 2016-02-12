@@ -8,7 +8,7 @@ SOURCES := $(shell find $(SRCDIR) -type f -name "*.$(SRCEXT)")
 OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
 # objects without main.o. needed for unittest
 OBJECTSWM := $(subst build/main.o,,$(OBJECTS))
-CFLAGS := -g -std=c++11 -Wall #-O3
+CFLAGS := -g -std=c++11 -Wall -O3
 LIB := -lgsl -lgslcblas -lm -lhdf5 -lhdf5_hl#-pthread -lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt
 INC := -I include
 UNITTESTDIR := tests/unittests
