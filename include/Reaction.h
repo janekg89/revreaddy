@@ -11,7 +11,7 @@
 #include <vector>
 #include "World.h"
 #include "Particle.h" // positions must be obtained
-#include "Random.h" // probabilities drawn
+#include "Random.h" // draw random numbers
 
 class Reaction
 {
@@ -24,7 +24,7 @@ class Reaction
 		std::vector<unsigned> backwardTypes;
 		double forwardRate;
 		double backwardRate;
-		Random * random; // pointer to the random number generator
+		double reactionDistance;
 		
 		/* Check if the given types or type are/is 
 		 * affected by the reaction in forward direction. */
@@ -35,24 +35,26 @@ class Reaction
 		bool isAffectedBackward(unsigned int type);
 		/* The following perform the reaction in the
 		 * given direction. particleIndices contains the 
-		 * activeParticles index of particles on which the reaction
+		 * particles index of particles on which the reaction
 		 * will be performed. This is either one or 
 		 * two numbers, since reactions are either 
 		 * uni or bimolecular. */
-		/* NOTE: These functions manipulate world->activeParticles
+		/* NOTE: These functions manipulate world->particles
 		 * but should do this only by using the methods provided by
 		 * World, e.g. add/removeParticle(). That is why they receive
-		 * a pointer to the Simulation that called it. */
-		/* NOTE2: particleIndices are the positions in activeParticles 
+		 * a pointer to the World instance.*/
+		/* NOTE2: particleIndices are the positions in particles 
 		 * not the uniqueIds. */
 		virtual double performForward(
 			std::vector<unsigned long int> particleIndices,
+			double timestep,
 			World * world,
-			double timestep);
+			Random * random);
 		virtual double performBackward(
 			std::vector<unsigned long int> particleIndices,
+			double timestep,
 			World * world,
-			double timestep);
+			Random * random);
 		virtual void configure();
 };
 

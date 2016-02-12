@@ -18,7 +18,7 @@ void World::addParticle(
 	std::vector<double> initPos,
 	unsigned int particleTypeId)
 {
-/*	if (particleTypeId >= config->typeDict.size() ) {
+/*	if (particleTypeId >= config->particleTypes.size() ) {
 		std::cout << "Error: The given particle type does not exist!\n"
 		          << "Particle is not created" << std::endl;
 		return;
@@ -33,25 +33,24 @@ void World::addParticle(
 	particle.typeId = particleTypeId;
 	particle.uniqueId = this->uniqueIdCounter;
 	this->uniqueIdCounter += 1;
-	this->activeParticles.push_back(particle);//push_back copies arg into vec
+	this->particles.push_back(particle);//push_back copies arg into vec
 }
 
 void World::removeParticle(unsigned long int index)
 {
-	this->activeParticles.erase(this->activeParticles.begin() + index);
+	this->particles.erase(this->particles.begin() + index);
 }
 
-std::vector<double> World::getPosition(unsigned long int index)
-{
-	return this->activeParticles[index].position;
-}
+unsigned long World::getNumberOfParticles() { return this->particles.size(); }
+
+std::vector<double> World::getPosition(unsigned long index) { return this->particles[index].position; }
 
 void World::setPosition(unsigned long int index, std::vector<double> newPos)
 {
 	if (newPos.size() == 3) {
-		this->activeParticles[index].position[0] = newPos[0];
-		this->activeParticles[index].position[1] = newPos[1];
-		this->activeParticles[index].position[2] = newPos[2];
+		this->particles[index].position[0] = newPos[0];
+		this->particles[index].position[1] = newPos[1];
+		this->particles[index].position[2] = newPos[2];
 	}
 	else {
 		std::cout << "Error: New position has dimension mismatch!\n"
@@ -59,24 +58,24 @@ void World::setPosition(unsigned long int index, std::vector<double> newPos)
 	}
 }
 
-unsigned int World::getTypeId(unsigned long int index) {
-	return this->activeParticles[index].typeId;
+unsigned World::getTypeId(unsigned long index) {
+	return this->particles[index].typeId;
 }
 
-void World::setTypeId(unsigned long int index, unsigned int typeId) 
+void World::setTypeId(unsigned long index, unsigned typeId) 
 {
-/*	if (typeId >= config->typeDict.size() ) {
+/*	if (typeId >= config->particleTypes.size() ) {
 		std::cout << "Error: The given particle type does not exist!\n"
 		          << "Particle is not created" << std::endl;
 		return;
 	}*/
-	this->activeParticles[index].typeId = typeId;
+	this->particles[index].typeId = typeId;
 }
 
 void World::deleteAllParticles()
 {
-	 this->activeParticles.erase(
-		this->activeParticles.begin(),
-		this->activeParticles.begin() + this->activeParticles.size()
+	 this->particles.erase(
+		this->particles.begin(),
+		this->particles.begin() + this->particles.size()
 	);
 }

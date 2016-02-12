@@ -3,15 +3,13 @@
  *
  * This is the main class, which uses all other classes.
  * Simulation performs the time loop which propagates
- * the particles. */
+ * the particles and also holds information that concern
+ * a particular realization, e.g. the list of observables.
+ * The system dependent variables are stored in World and
+ * Config. */
 
 #ifndef __SIMULATION_H_INCLUDED__
 #define __SIMULATION_H_INCLUDED__
-/* This forward declaration is still necessary due 
- * to a non-resolved circular dependence with one or more
- * observables and Reactions, since they manipulate the
- * current state directly. */
-class Simulation;
 #include <math.h>
 #include <cmath>
 #include <vector>
@@ -25,7 +23,6 @@ class Simulation;
 #include "Config.h"
 #include "Particle.h"
 #include "Random.h"
-#include "Observable.h"
 #include "Geometry.h"
 #include "ParticleType.h"
 #include "ParticleInteraction.h"
@@ -35,86 +32,130 @@ class Simulation;
 #include "Neighborlist.h"
 #include "utils.h"
 
+#include "Observable.h"
+#include "Trajectory.h"
+#include "RadialDistribution.h"
+#include "MeanSquaredDisplacement.h"
+#include "ProbabilityDensity.h"
+#include "Energy.h"
+#include "Acceptance.h"
+#include "ParticleNumbers.h"
+
 class Simulation
 {
-	public:
-		Simulation();
-		~Simulation();
+public:
+	Simulation();
+	~Simulation();
+	/* Start the simulation. Iterate for maxTime timesteps.*/
+	void run(const unsigned long maxTime);
 
-		World * world;
-		Config * config;
-		Random * random; // the random number generator
-		Utils * utils;
+	/* World stores positions of particles and other variables
+	 * that change during the simulation. Config stores information
+	 * that does not change during the simulation. Together they
+	 * contain all the system information. */
+	World * world;
+	Config * config;
+	/* Determine if reversibility and/or neighborlist will be used. */
+	bool isReversibleDynamics;
+	bool isReversibleReactions;
+	bool useNeighborList;
 
-		Neighborlist * neighborlist;
+	/* Observable methods */
+	void writeAllObservablesToFile();
+	void writeLastObservableToFile();
+	std::string showObservables();
+	void deleteAllObservables();
+	void deleteLastObservable();
+	void new_Trajectory(unsigned long recPeriod, std::string filename);
+	void new_RadialDistribution(
+		unsigned long recPeriod,
+		std::string filename,
+		std::vector<double> ranges,
+		std::vector< std::vector<unsigned> > considered);
+	void new_MeanSquaredDisplacement(
+		unsigned long recPeriod,
+		std::string filename,
+		unsigned particleTypeId);
+	void new_ProbabilityDensity(
+		unsigned long recPeriod,
+		std::string filename,
+		unsigned pTypeId,
+		std::vector<double> range,
+		unsigned int coord);
+	void new_Energy(unsigned long recPeriod, std::string filename);
+	void new_Acceptance(
+		unsigned long recPeriod,
+		std::string filename,
+		bool reactionsOrDynamics);
+	void new_ParticleNumbers(
+		unsigned long recPeriod,
+		std::string filename,
+		unsigned particleTypeId);
 
-		/*------- core functions/variables not accessible to python -------*/
+private:
+	Random * random; // the random number generator
+	Utils * utils; // functions for calculating distance
+	Neighborlist * neighborlist;
+	std::vector< std::unique_ptr<Observable> > observables;
 
-		/* Store the objects describing the current state:
-		 * energy, activeParticles (positions, forces) and activePairs */
-		void saveOldState();
-		/* Doing the opposite of the above */
-		void restoreOldState();
-		/* Perform Brownian Dynamics step on activeParticles
-		 * according to their accumulated forces */
-		void propagateDynamics();
-		/* Perform reactions. Unimolecular according to their
-		 * reaction rates and bimolecular only when the pair
-		 * is part of activePairs. Already return the ratios
-		 * of forward and backward probabilities. */
-		double propagateReactions();
-		/* Call every observables' record() function, if the timeIndex
-		 * corresponds to the predefined recording interval.*/
-		void recordObservables(unsigned long int timeIndex);
-		/* First determine how to calculate the forces, i.e. if a 
-		 * neighborList approach pays off (have more than 9 boxes). */
-		void calculateInteractionForcesEnergies(); 
-		/* double loop (i,j) over activeParticles and call 
-		 * according Forcetype for particle pair (i,j) --> O(n^2) */
-		void calculateInteractionForcesEnergiesNaive();
-		/* does the same as above, but only considers interactions
-		 * of neighboring boxes, that have the size of the maximum
-		 * cutoff distance --> O(n) */
-		void calculateInteractionForcesEnergiesWithLattice(unsigned int numberBoxes);
-		/* evaluate the force and energy for a given pair of
-		 * particles and store their unique ids in activePairs
-		 * if they are in reactive distance */
-		void calculateSingleForceEnergy(
-			unsigned int indexI,
-			unsigned int indexJ);
-		void calculateSingleForceEnergyOnlyForI(
-			unsigned int indexI,
-			unsigned int indexJ);
-		void calculateGeometryForcesEnergies();
-		void resetForces();
-		void resetActivePairs();
-		double acceptanceDynamics();
-		double acceptanceReactions();
-		bool acceptOrReject(double acceptance);
-		/* Return the position in activeParticles of the 
-		 * particle with the uniqueId id. Particles are added
-		 * to activeParticles only using addParticle(), which
-		 * means that it is sorted w.r.t. uniqueIds. Therefore
-		 * this function performs a binary search with
-		 * complexity O(log n). The return value is signed so
-		 * the case "no particle found" is expressed by "-1" */
-		long findParticleIndex(unsigned long long id);
+	/*------- core functions/variables not accessible to python -------*/
 
-		/* Start the simulation. Iterate for maxTime timesteps.*/
-		void run();
+	/* Configure all observables, e.g. MSD gets all initial coordinates */
+	void configureObservables();
+	/* Store the objects describing the current state:
+	 * energy, particles (positions, forces) and activePairs */
+	void saveOldState();
+	/* Doing the opposite of the above */
+	void restoreOldState();
+	/* Perform Brownian Dynamics step on particles
+	 * according to their accumulated forces */
+	void propagateDynamics();
+	/* Perform reactions. Unimolecular according to their
+	 * reaction rates and bimolecular only when the pair
+	 * is part of activePairs. Already return the ratios
+	 * of forward and backward probabilities. */
+	double propagateReactions();
+	/* Call every observables' record() function, if the timeIndex
+	 * corresponds to the predefined recording interval.*/
+	void recordObservables(unsigned long int timeIndex);
+	/* First determine how to calculate the forces, i.e. if a 
+	 * neighborList approach pays off (have more than 9 boxes). */
+	void calculateInteractionForcesEnergies(); 
+	/* double loop (i,j) over particles and call 
+	 * according Forcetype for particle pair (i,j) --> O(n^2) */
+	void calculateInteractionForcesEnergiesNaive();
+	/* does the same as above, but only considers interactions
+	 * of neighboring boxes, that have the size of the maximum
+	 * cutoff distance --> O(n) */
+	void calculateInteractionForcesEnergiesWithLattice();
+	/* evaluate the force and energy for a given pair of
+	 * particles and store their unique ids in activePairs
+	 * if they are in reactive distance */
+	void calculateSingleForceEnergyCheckReactionCandidate(
+		unsigned int indexI,
+		unsigned int indexJ);
+	void calculateGeometryForcesEnergies();
+	void resetForces();
+	void resetReactionCandidates();
+	double acceptanceDynamics();
+	double acceptanceReactions();
+	bool acceptOrReject(double acceptance);
+	/* Return the position in particles of the 
+	 * particle with the uniqueId id. Particles are added
+	 * to particles only using addParticle(), which
+	 * means that it is sorted w.r.t. uniqueIds. Therefore
+	 * this function performs a binary search with
+	 * complexity O(log n). The return value is signed so
+	 * the case "no particle found" is expressed by "-1" */
+	long findParticleIndex(unsigned long long id);
 
-		/* members that are once allocated so that less allocation
-		 * appears on the run */
-		std::vector<double> forceI;
-		std::vector<double> forceJ;
-		double energyBuffer;
-		std::vector<double> r_ij;	
-		double rSquared;
-		double radiusI;
-		double radiusJ;
-		double radiiSquared;
-		double reactionRadiiSquared;
-		unsigned sizePossibleInteractions;
+
+
+	/* members that are once allocated so that less allocation
+	 * appears on the run */
+	std::vector<double> forceI;
+	std::vector<double> forceJ;
+	std::vector<double> r_ij;	
 };
 
 #endif // __SIMULATION_H_INCLUDED__

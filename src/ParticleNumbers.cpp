@@ -14,14 +14,15 @@ ParticleNumbers::ParticleNumbers(
 	this->particleTypeId = inParticleTypeId;
 }
 
-void ParticleNumbers::record(
-	World * world,
-	double t)
+/* No configuration necessary */
+void ParticleNumbers::configure(World * world, Config * config) {}
+
+void ParticleNumbers::record(World * world,	double t)
 {
 	this->time.push_back(t);
 	unsigned long counter = 0;
-	for (unsigned i=0; i<world->activeParticles.size(); i++) {
-		if (world->activeParticles[i].typeId == this->particleTypeId) {
+	for (unsigned i=0; i<world->particles.size(); i++) {
+		if (world->particles[i].typeId == this->particleTypeId) {
 			counter += 1;
 		}
 	}

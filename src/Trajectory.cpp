@@ -4,28 +4,25 @@
 // it is written to file
 #include "Trajectory.h"
 
-Trajectory::Trajectory(
-	unsigned long inRecPeriod,
-	unsigned long inClearPeriod,
-	std::string inFilename)
+Trajectory::Trajectory(unsigned long inRecPeriod, unsigned long inClearPeriod, std::string inFilename)
 {
 	this->recPeriod = inRecPeriod;
 	this->clearPeriod = inClearPeriod;
 	this->filename = inFilename;
 }
 
-Trajectory::~Trajectory()
+Trajectory::~Trajectory() {}
+
+/* Trajectory does not need configuration */
+void Trajectory::configure(World * world, Config * config)
 {
-	this->recPeriod = 0;
+	return;
 }
 
-void Trajectory::record(
-	World * world,
-	double t)
+void Trajectory::record(World * world, double t)
 {
 	std::vector<particleTuple>	currentCoordinates;
-	for (auto&& particle : world->activeParticles)
-	{
+	for (auto&& particle : world->particles) {
 		particleTuple pt;
 		pt.particleTypeId = particle.typeId;
 		pt.particleCoordinates = particle.position;
@@ -39,12 +36,10 @@ void Trajectory::writeBufferToFile()
 {
 	std::ofstream file;
 	file.open(this->filename, std::ofstream::out | std::ofstream::app);
-	for (auto&& particles : this->trajectory)
-	{
+	for (auto&& particles : this->trajectory) {
 		file << particles.size() << "\n";
 		file << "#timestep " << particles[0].particleTime << "\n"; 
-		for (auto&& particle : particles)
-		{
+		for (auto&& particle : particles) {
 			file << "T" << particle.particleTypeId << "\t";
 			file << particle.particleCoordinates[0] << "\t";
 			file << particle.particleCoordinates[1] << "\t";

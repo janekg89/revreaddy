@@ -8,8 +8,7 @@ ProbabilityDensity::ProbabilityDensity(
 	std::string inFilename,
 	unsigned particleTypeId,
 	std::vector<double>& range,
-	unsigned coord,
-	World * world)
+	unsigned coord)
 {
 	this->recPeriod = inRecPeriod;
 	this->clearPeriod = inClearPeriod;
@@ -29,33 +28,35 @@ ProbabilityDensity::ProbabilityDensity(
 		this->bins.push_back(0.);
 	}
 	this->particleTypeId = particleTypeId;
-	/* add uniqueIds of all particles of type 
-	 * "particleTypeId" to observedParticleIds */
-	for (unsigned i=0; i<world->activeParticles.size(); i++) {
-		if (world->activeParticles[i].typeId == this->particleTypeId) {
-			this->observedParticleIds.push_back( world->activeParticles[i].uniqueId );
-		}
-	}
 }
 
 ProbabilityDensity::~ProbabilityDensity()
 {
 }
 
-void ProbabilityDensity::record(
-	World * world,
-	double t)
+void ProbabilityDensity::configure(World * world, Config * config)
+{
+	/* add uniqueIds of all particles of type 
+	 * "particleTypeId" to observedParticleIds */
+	for (unsigned i=0; i<world->particles.size(); i++) {
+		if (world->particles[i].typeId == this->particleTypeId) {
+			this->observedParticleIds.push_back( world->particles[i].uniqueId );
+		}
+	}
+}
+
+void ProbabilityDensity::record(World * world, double t)
 {
 	int index = 0;
 	for (unsigned i=0; i < this->observedParticleIds.size(); i++) {
 		// check if particle still exists. if not: index = -1
 		index = this->findParticleIndex(
-			world->activeParticles,
+			world->particles,
 			observedParticleIds[i]);
 		if (index != -1) {
 			gsl_histogram_increment(
 				this->probabilityDensity,
-				world->activeParticles[index].position[this->coordinate]);
+				world->particles[index].position[this->coordinate]);
 		}
 	}
 	// copy the hist to "bins" and reset the gsl hist

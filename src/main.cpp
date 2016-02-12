@@ -6,22 +6,18 @@ int main()
 {
 	Simulation * sim = new Simulation();
 
-	sim->config->kBoltzmann = 1.;
-	sim->config->temperature= 2.437;
-	sim->config->timestep	= 1e-10;
+	sim->config->kT= 2.437; // kJ/mol
+	sim->config->timestep = 1e-10; // seconds
 	sim->config->isPeriodic = false;
-	sim->config->boxsize = 110.;
-	sim->config->isReversibleDynamics = false;
-	sim->config->isReversibleReactions = false;
-	sim->config->maxTime	= 500;
+	sim->config->boxsize = 110.; //nanometer
+	sim->isReversibleDynamics = false;
+	sim->isReversibleReactions = false;
+	sim->useNeighborList = true;
 
-	sim->config->useNeighborList = true;
-	sim->config->numberBoxes = 36;
+	sim->config->new_Type("A", 1.5 , 143e6); // diff units are nanometer^2 / second
+	sim->config->new_Type("B", 3. , 71e6);
 
-	sim->config->new_Type("A", 1.5 , 143e6, 1.5);
-	sim->config->new_Type("B", 3. , 71e6, 3.);
-
-	std::vector<unsigned> affected = {0,1,2};
+	std::vector<unsigned> affected = {0,1};
 	double kappa = 5.;
 	sim->config->deleteAllGeometries();
 	sim->config->new_Wall(std::vector<double> {1.,0.,0.}, std::vector<double> {-50.,0.,0.}, kappa, affected);
@@ -40,7 +36,7 @@ int main()
 				x0[2] = -47. + k;
 				sim->world->addParticle(x0, 0);
 			}
-	print(sim->config->getParticleNumber())
-	sim->run();
+	print(sim->world->getNumberOfParticles())
+	sim->run(100);
 	return 0;
 }

@@ -11,9 +11,11 @@
 #include <gsl/gsl_histogram.h>
 #define _USE_MATH_DEFINES
 #include <cmath>
-#include "Observable.h"
+#include "World.h"
+#include "Config.h"
 #include "Particle.h"
 #include "utils.h"
+#include "Observable.h"
 
 class RadialDistribution : public Observable
 {
@@ -36,11 +38,10 @@ class RadialDistribution : public Observable
 		double boxsize;
 		Utils * utils;
 
-		void record(
-			World * world,
-			double t);
+		void configure(World * world, Config * config);
+		void record(World * world, double t);
 		/* Check if (a,b) is in consideredPairs.*/
-		bool isInConsidered(unsigned int a, unsigned int b);
+		bool isInConsidered(unsigned a, unsigned b);
 		void writeBufferToFile();
 		void writeBufferToH5();
 		void writeBufferToDat();
@@ -49,8 +50,6 @@ class RadialDistribution : public Observable
 			unsigned long inRecPeriod,
 			unsigned long inClearPeriod,
 			std::vector<double>& range,
-			bool isPeriodic,
-			double boxsize,
 			std::vector< std::vector<unsigned int> > considered,
 			std::string inFilename);
 		~RadialDistribution();

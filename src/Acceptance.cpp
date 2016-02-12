@@ -14,9 +14,10 @@ Acceptance::Acceptance(
 	this->reactionsOrDynamics = inReactionsOrDynamics;
 }
 
-void Acceptance::record(
-	World * world,
-	double t)
+/* No configuration necessary */
+void Acceptance::configure(World * world, Config * config) {}
+
+void Acceptance::record(World * world, double t)
 {
 	if (this->reactionsOrDynamics) {
 		this->acceptanceProbs.push_back(world->acceptProbReactions);

@@ -1,6 +1,7 @@
 /* Config.h
- * Contains all information that don't change during run.
- * Such as setting new forces, observables, timestep ... */
+ * Contains all information regarding the system 
+ * that don't change during run.
+ * Such as setting new forces, timestep and reactions */
 
 #ifndef __CONFIG_H_INCLUDED__
 #define __CONFIG_H_INCLUDED__
@@ -9,17 +10,7 @@
 #include <iostream>
 #include <memory>
 #include <typeinfo>
-#include <boost/log/trivial.hpp>
-#include "World.h"
-#include "Random.h"
-#include "Observable.h"
-#include "Trajectory.h"
-#include "RadialDistribution.h"
-#include "MeanSquaredDisplacement.h"
-#include "ProbabilityDensity.h"
-#include "Energy.h"
-#include "Acceptance.h"
-#include "ParticleNumbers.h"
+//#include <boost/log/trivial.hpp>
 #include "Geometry.h"
 #include "Wall.h"
 #include "DoubleWellZ.h"
@@ -33,84 +24,36 @@
 
 class Config {
 public:
-	/* random belongs to Simulation, it is only borrowed and must not
-	 * be destroyed. This is because Reactions need random numbers
-	 * to calculate probabilites. TODO resolve this */
-	Config(World * inWorld, Random * inRandom);
+	Config();
 	~Config();
-	World * world;
-	Random * random;
 
-	std::vector<ParticleType> typeDict;
+	std::vector<ParticleType> particleTypes;
 	/* All forces between particles. Since some reactions need to know
 	 * the energies that occur between particles, these are shared
 	 * pointers */
-	std::vector< std::shared_ptr<ParticleInteraction> > possibleInteractions;
+	std::vector< std::shared_ptr<ParticleInteraction> > interactions;
 	/* All first order potentials. Used to build geometries. Config owns these
 	 * so the pointers are unique */ 
 	std::vector< std::unique_ptr<Geometry> > geometries;
 	/* Storage of all active reversible reactions that may happen */
-	std::vector< std::unique_ptr<Reaction> > possibleReactions;
-	/* Stores children of Observable. Those are called in
-	 * predefined intervals during run(). */
-	std::vector< std::unique_ptr<Observable> > observables;
+	std::vector< std::unique_ptr<Reaction> > reactions;
 
-	unsigned long int maxTime; // length of the simulation
-	double timestep;           // the timestep: usually 0.001 or smaller
-	double temperature;
-	double kBoltzmann;
-	bool isPeriodic;           // use periodic boundary conditions or not
-	double boxsize;            // length of the periodic simulationbox
-	bool isReversibleDynamics;
-	bool isReversibleReactions;
-	bool useNeighborList;
-	unsigned numberBoxes;
-	/* This variable is used only by the author to test different
-	 * methods of performing reactions. */
-	unsigned int reactionPropagation;
+	double timestep;
+	/* The temperature. When using energy units of kJ/mol then kT = 2.437 at 293 K*/
+	double kT;
+	bool isPeriodic; // use periodic boundary conditions or not
+	double boxsize; // length of the periodic simulationbox
 
 	/*------------------------------------------------------------------*/
 	void new_Type(
-		std::string name,
-		double radius,
-		double diffusionConstant,
-		double reactionRadius);
-	unsigned int getNumberOfTypes();
+		const std::string name,
+		const double radius,
+		const double diffusionConstant);
+	unsigned getNumberOfTypes();
 	std::string getDictName(unsigned i);
 	double getDictRadius(unsigned i);
 	double getDictDiffusionConstant(unsigned i);
-	double getDictReactionRadius(unsigned i);
-	unsigned int  getParticleNumber();
-	void writeAllObservablesToFile();
-	void writeLastObservableToFile();
-	std::string showObservables();
-	void deleteAllObservables();
-	void deleteLastObservable();
-	void new_Trajectory(unsigned long recPeriod, std::string filename);
-	void new_RadialDistribution(
-		unsigned long recPeriod,
-		std::string filename,
-		std::vector<double> ranges,
-		std::vector< std::vector<unsigned> > considered);
-	void new_MeanSquaredDisplacement(
-		unsigned long recPeriod,
-		std::string filename,
-		unsigned particleTypeId);
-	void new_ProbabilityDensity(
-		unsigned long recPeriod,
-		std::string filename,
-		unsigned pTypeId,
-		std::vector<double> range,
-		unsigned int coord);
-	void new_Energy(unsigned long recPeriod, std::string filename);
-	void new_Acceptance(
-		unsigned long recPeriod,
-		std::string filename,
-		bool reactionsOrDynamics);
-	void new_ParticleNumbers(
-		unsigned long recPeriod,
-		std::string filename,
-		unsigned particleTypeId);
+
 	void deleteAllGeometries();
 	void new_Wall(
 		std::vector<double> normal,
@@ -121,7 +64,8 @@ public:
 		double distanceMinima,
 		double strength,
 		std::vector<unsigned int> particleTypeIds);
-	void deleteAllForces();
+
+	void deleteAllInteractions();
 	void new_SoftRepulsion(
 		std::string name,
 		std::vector<unsigned int> affectedTuple,
@@ -130,12 +74,13 @@ public:
 		std::string name,
 		std::vector<unsigned int> affectedTuple,
 		double epsilon);
-	unsigned int getNumberForces();
-	std::string getForceName(unsigned i);
-	std::string getForceType(unsigned i);
-	std::vector<unsigned int> getForceAffectedTuple(unsigned i);
-	std::vector<double> getForceParameters(unsigned i);
-	double getForceCutoff(unsigned i);
+	unsigned getNumberInteractions();
+	std::string getInteractionName(unsigned i);
+	std::string getInteractionType(unsigned i);
+	std::vector<unsigned int> getInteractionAffectedTuple(unsigned i);
+	std::vector<double> getInteractionParameters(unsigned i);
+	double getInteractionCutoff(unsigned i);
+
 	void deleteAllReactions();
 	void new_Conversion(
 		std::string name,
@@ -143,45 +88,14 @@ public:
 		unsigned backwardType,
 		double forwardRate,
 		double backwardRate);	
-	void new_Fusion(
-		std::string name,
-		unsigned forwardTypeA,
-		unsigned forwardTypeB,
-		unsigned backwardTypeC,
-		double forwardRate,
-		double backwardRate);
-	void configure_Fusion(
-		unsigned reactionIndex,
-		std::vector<unsigned> interactionsIndices,
-		double inversePartition,
-		double maxDistr,
-		double radiiSum,
-		double reactionRadiiSum,
-		double meanDistr,
-		double inverseTemperature);
-	void new_Fusion2(
-		std::string name,
-		unsigned forwardTypeA,
-		unsigned forwardTypeB,
-		unsigned backwardTypeC,
-		double forwardRate,
-		double backwardRate);
-	void configure_Fusion2(
-		unsigned reactionIndex,
-		std::vector<unsigned> interactionsIndices,
-		double inversePartition,
-		double maxDistr,
-		double radiiSum,
-		double reactionRadiiSum,
-		double meanDistr,
-		double inverseTemperature);
 	void new_Fusion3(
 		std::string name,
 		unsigned forwardTypeA,
 		unsigned forwardTypeB,
 		unsigned backwardTypeC,
 		double forwardRate,
-		double backwardRate);
+		double backwardRate,
+		double reactionDistance);
 	void configure_Fusion3(
 		unsigned reactionIndex,
 		std::vector<unsigned> interactionsIndices,

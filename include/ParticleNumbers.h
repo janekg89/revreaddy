@@ -6,28 +6,27 @@
 #include <vector>
 #include <string>
 #include <fstream>
+#include "World.h"
+#include "Config.h"
 #include "Observable.h"
 
 class ParticleNumbers : public Observable
 {
-	public:
-
+public:
 	ParticleNumbers(
 		unsigned long inRecPeriod,
 		unsigned long inClearPeriod,
 		std::string inFilename, 
 		unsigned inParticleTypeId);
-
-	unsigned particleTypeId;
-	std::vector<unsigned long> particleNumbers;
-	std::vector<double> time;
-
-	void record(
-		World * world,
-		double t);
+	void configure(World * world, Config * config);
+	void record(World * world, double t);
 	void writeBufferToFile();
 	void writeBufferToH5();
 	void writeBufferToDat();
+private:
+	unsigned particleTypeId;
+	std::vector<unsigned long> particleNumbers;
+	std::vector<double> time;
 };
 
 #endif //__PARTICLENUMBERS_H_INCLUDED__

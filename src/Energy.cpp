@@ -2,19 +2,17 @@
 
 #include "Energy.h"
 
-Energy::Energy(
-	unsigned int inRecPeriod,
-	unsigned int inClearPeriod,
-	std::string inFilename)
+Energy::Energy(unsigned inRecPeriod, unsigned inClearPeriod, std::string inFilename)
 {
 	this->recPeriod = inRecPeriod;
 	this->clearPeriod = inClearPeriod;
 	this->filename = inFilename;
 }
 
-void Energy::record(
-	World * world,
-	double t)
+/* No configuration necessary */
+void Energy::configure(World * world, Config * config) {}
+
+void Energy::record(World * world, double t)
 {
 	this->energies.push_back(world->energy);
 	this->times.push_back(t);

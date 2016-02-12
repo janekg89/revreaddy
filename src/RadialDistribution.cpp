@@ -9,16 +9,12 @@ RadialDistribution::RadialDistribution(
 	unsigned long inRecPeriod,
 	unsigned long inClearPeriod,
 	std::vector<double>& range,
-	bool isPeriodic,
-	double boxsize,
 	std::vector< std::vector<unsigned> > considered,
 	std::string inFilename)
 {
 	this->recPeriod    = inRecPeriod;
 	this->clearPeriod  = inClearPeriod;
 	this->filename     = inFilename;
-	this->isPeriodic   = isPeriodic;
-	this->boxsize      = boxsize;
 	this->numberOfBins = range.size() - 1;
 	this->radialDistribution = gsl_histogram_alloc(this->numberOfBins);
 	this->rangeOfBins  = range;
@@ -41,24 +37,28 @@ RadialDistribution::~RadialDistribution()
 	delete this->utils;
 }
 
+void RadialDistribution::configure(World * world, Config * config)
+{
+	this->isPeriodic = config->isPeriodic;
+	this->boxsize = config->boxsize;
+}
+
 /* Record the radial distribution already normalized 
  * correctly for the current timestep.
  */
-void RadialDistribution::record(
-	World * world,
-	double t)
+void RadialDistribution::record(World * world, double t)
 {
 	double radius = 0.;
-	for (unsigned long i=0; i<world->activeParticles.size(); i++) {
-		for (unsigned long j=0; j<world->activeParticles.size(); j++) {
+	for (unsigned long i=0; i<world->particles.size(); i++) {
+		for (unsigned long j=0; j<world->particles.size(); j++) {
 			if (this->isInConsidered(
-				world->activeParticles[i].typeId,
-				world->activeParticles[j].typeId)) {
+				world->particles[i].typeId,
+				world->particles[j].typeId)) {
 				if (i != j) {
 					this->utils->getMinDistanceSquared(
 						radius,
-						world->activeParticles[i].position,
-						world->activeParticles[j].position,
+						world->particles[i].position,
+						world->particles[j].position,
 						this->isPeriodic,
 						this->boxsize);
 					radius = sqrt(radius);
@@ -69,38 +69,24 @@ void RadialDistribution::record(
 	}
 	// copy the hist to 'bins' while scaling every value correctly
 	for (unsigned i=0; i<bins.size(); i++) {
-		bins[i] += gsl_histogram_get(this->radialDistribution, i) 
-		           / (binCenters[i] * binCenters[i]);
+		bins[i] += gsl_histogram_get(this->radialDistribution, i) / (binCenters[i] * binCenters[i]);
 	}
 	gsl_histogram_reset(this->radialDistribution);
 }
 
-/* Finds out if tuple (a,b) is in consideredPairs, this now only
+/* Finds out if tuple (a,b) is in consideredPairs, this only
  * depends on the order of a and b. So you can only look at the
  * RDF from particle a to b solely. */
-bool RadialDistribution::isInConsidered(unsigned int a, unsigned int b)
+bool RadialDistribution::isInConsidered(unsigned a, unsigned b)
 {
-	//if (a <= b) {
-		for (unsigned int k=0; k<this->consideredPairs.size(); k++) {
-			if (this->consideredPairs[k][0] == a) {
-				if (this->consideredPairs[k][1] == b) {
-					return true;
-				}
+	for (unsigned int k=0; k<this->consideredPairs.size(); k++) {
+		if (this->consideredPairs[k][0] == a) {
+			if (this->consideredPairs[k][1] == b) {
+				return true;
 			}
 		}
-		return false;
-	//}
-	/*
-	else {
-		for (unsigned int k=0; k<this->consideredPairs.size(); k++) {
-			if (this->consideredPairs[k][0] == b) {
-				if (this->consideredPairs[k][1] == a) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}*/
+	}
+	return false;
 }
 
 void RadialDistribution::writeBufferToFile()

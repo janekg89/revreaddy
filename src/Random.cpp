@@ -7,14 +7,10 @@ Random::Random(std::string type)
 {
 	gsl_rng_env_setup();
 
-	if      (type == "mt19937")	{
-		this->randomGeneratorType = gsl_rng_mt19937;}
-	else if (type == "taus") {
-		this->randomGeneratorType = gsl_rng_taus;}
-	else if (type == "ranlxs0") {
-		this->randomGeneratorType = gsl_rng_ranlxs0;}
-	else {
-		this->randomGeneratorType = gsl_rng_ranlxs0;}
+	if      (type == "mt19937")	{ this->randomGeneratorType = gsl_rng_mt19937; }
+	else if (type == "taus") { this->randomGeneratorType = gsl_rng_taus; }
+	else if (type == "ranlxs0") { this->randomGeneratorType = gsl_rng_ranlxs0; }
+	else { this->randomGeneratorType = gsl_rng_ranlxs0; }
 
 	this->randomGeneratorHandle = gsl_rng_alloc(this->randomGeneratorType);
 	this->toSeed();

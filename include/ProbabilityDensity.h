@@ -9,11 +9,13 @@
 #include <fstream>
 #include <gsl/gsl_histogram.h>
 #include "Observable.h"
+#include "World.h"
+#include "Config.h"
 #include "Particle.h"
 
 class ProbabilityDensity : public Observable
 {
-	public:
+public:
 	gsl_histogram * probabilityDensity;
 	/* The coordinate (x,y,z) = (0,1,2), of which to record
 	 * the probability density. */
@@ -26,9 +28,8 @@ class ProbabilityDensity : public Observable
 	std::vector<double> bins;
 	unsigned int particleTypeId;
 
-	void record(
-		World * world,
-		double t);
+	void configure(World * world, Config * config);
+	void record(World * world, double t);
 	void writeBufferToFile();
 	void writeBufferToH5();
 	void writeBufferToDat();
@@ -39,8 +40,7 @@ class ProbabilityDensity : public Observable
 		std::string inFilename,
 		unsigned particleTypeId,
 		std::vector<double>& range,
-		unsigned coord,
-		World * world);
+		unsigned coord);
 	~ProbabilityDensity();
 };
 

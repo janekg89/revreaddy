@@ -4,23 +4,25 @@
 
 #ifndef __FUSION3_H_INCLUDED__
 #define __FUSION3_H_INCLUDED__
-#include "Reaction.h"
 #include <vector>
 #include <memory>
 #include <string>
+#include "Reaction.h"
+#include "World.h"
+#include "Random.h"
 #include "ParticleInteraction.h"
 #include "utils.h"
 
 class Fusion3 : public Reaction
 {
-	public:
+public:
 	Fusion3(
 		std::string inName,
 		std::vector<unsigned> inForwardTypes,
 		std::vector<unsigned> inBackwardTypes,
 		double inForwardRate,
 		double inBackwardRate,
-		Random * inRandom);
+		double inReactionDistance);
 	~Fusion3();
 
 	/* pointers to the interactions between particles A and B */
@@ -68,18 +70,20 @@ class Fusion3 : public Reaction
 		double inBoxsize);
 	double performForward(
 		std::vector<unsigned long> particleIndices,
+		double timestep,
 		World * world,
-		double timestep);
+		Random * random);
 	double performBackward(
 		std::vector<unsigned long> particleIndices,
+		double timestep,
 		World * world,
-		double timestep);
+		Random * random);
 
-	private:
+private:
 	/* f(x) = Z^-1 * exp[ -beta * potential( x ) ] */
 	double distribution(double x);
 	/* draw a number from the distribution above in [0,reactionRadiiSum] */
-	double randomFromDistribution();
+	double randomFromDistribution(Random * random);
 };
 
 #endif // __FUSION3_H_INCLUDED__

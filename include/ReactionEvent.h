@@ -8,19 +8,18 @@
 
 struct ReactionEvent
 {
-	public:
-		ReactionEvent(
-			unsigned int inReactionId,
-			bool inForwardOrBackward,
-			std::vector<unsigned long long> inParticipants);
+	ReactionEvent(
+		unsigned int inReactionId,
+		bool inForwardOrBackward,
+		std::vector<unsigned long long> inParticipants);
 
-		/* position in possibleReactions vector*/
-		unsigned reactionId;
-		/* true = forward, false = backward */
-		bool forwardOrBackward;
-		/* This vector has either one or two elements.
-		 * Stored here are the uniqueIds of particles. */
-		std::vector<unsigned long long> participants;
+	/* position in reactions vector*/
+	unsigned reactionId;
+	/* true = forward, false = backward */
+	bool forwardOrBackward;
+	/* This vector has either one or two elements.
+	 * Stored here are the uniqueIds of particles. */
+	std::vector<unsigned long long> participants;
 };
 
 #endif //__REACTIONEVENT_H_INCLUDED__

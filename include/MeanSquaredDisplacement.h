@@ -5,11 +5,13 @@
 
 #ifndef __MEANSQUAREDDISPLACEMENT_H_INCLUDED__
 #define __MEANSQUAREDDISPLACEMENT_H_INCLUDED__
-#include "Observable.h"
-#include "Particle.h"
 #include <vector>
 #include <fstream>
 #include <math.h>
+#include "World.h"
+#include "Config.h"
+#include "Particle.h"
+#include "Observable.h"
 
 class MeanSquaredDisplacement : public Observable
 {
@@ -31,9 +33,10 @@ class MeanSquaredDisplacement : public Observable
 		std::vector<unsigned int> numberOfParticles;
 		double boxsize;
 
-		void record(
-			World * world,
-			double t);
+		/* configure() saves the uniqueIds and initial positions of 
+		 * the considered particles and saves the boxsize */
+		void configure(World * world, Config * config);
+		void record(World * world, double t);
 		void writeBufferToFile();
 		void writeBufferToH5();
 		void writeBufferToDat();
@@ -41,10 +44,7 @@ class MeanSquaredDisplacement : public Observable
 		MeanSquaredDisplacement(
 			unsigned long inRecPeriod,
 			unsigned long inClearPeriod,
-			std::vector<Particle>& activeParticles,
 			unsigned int pTypeId,
-			double time,
-			double boxsize,
 			std::string inFilename);
 		~MeanSquaredDisplacement();
 };

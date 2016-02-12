@@ -5,30 +5,33 @@
 
 #ifndef __CONVERSION_H_INCLUDED__
 #define __CONVERSION_H_INCLUDED__
-#include "Reaction.h"
 #include <vector>
 #include <string>
+#include "Reaction.h"
+#include "World.h"
+#include "Random.h"
 
 class Conversion : public Reaction
 {
-	public:
-		Conversion(
-			std::string inName,
-			std::vector<unsigned int> inForwardTypes,
-			std::vector<unsigned int> inBackwardTypes,
-			double inForwardRate,
-			double inBackwardRate,
-			Random * inRandom);
-		~Conversion();
+public:
+	Conversion(
+		std::string inName,
+		std::vector<unsigned int> inForwardTypes,
+		std::vector<unsigned int> inBackwardTypes,
+		double inForwardRate,
+		double inBackwardRate);
+	~Conversion();
 
-		double performForward(
-			std::vector<unsigned long int> particleIndices,
-			World * world,
-			double timestep);
-		double performBackward(
-			std::vector<unsigned long int> particleIndices,
-			World * world,
-			double timestep);
+	double performForward(
+		std::vector<unsigned long int> particleIndices,
+		double timestep,
+		World * world,
+		Random * random);
+	double performBackward(
+		std::vector<unsigned long int> particleIndices,
+		double timestep,
+		World * world,
+		Random * random);
 };
 
 #endif //__CONVERSION_H_INCLUDED__
