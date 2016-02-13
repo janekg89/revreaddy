@@ -9,7 +9,38 @@ find_package(Boost COMPONENTS python)
 
 include_directories(${Boost_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS} include /usr/include/python2.7)
 link_libraries(${Boost_LIBRARIES} ${PYTHON_LIBRARIES} gsl gslcblas m hdf5 hdf5_hl)
-file(GLOB SOURCES "src/*.cpp")
+#include_directories(include)
+#link_libraries(gsl gslcblas m hdf5 hdf5_hl)
+# these are the C++ standalone sources
+set(SOURCES
+    src/Acceptance.cpp
+    src/BinaryFile.cpp
+    src/Config.cpp
+    src/Conversion.cpp
+    src/DoubleWellZ.cpp
+    src/Energy.cpp
+    src/Fusion3.cpp
+    src/Geometry.cpp
+    src/LennardJones.cpp
+    src/MeanSquaredDisplacement.cpp
+    src/Observable.cpp
+    src/Particle.cpp
+    src/ParticleInteraction.cpp
+    src/ParticleNumbers.cpp
+    src/ParticleType.cpp
+    src/ProbabilityDensity.cpp
+    src/RadialDistribution.cpp
+    src/Random.cpp
+    src/Reaction.cpp
+    src/ReactionEvent.cpp
+    src/Simulation.cpp
+    src/SoftRepulsion.cpp
+    src/Trajectory.cpp
+    src/UnimolecularCandidate.cpp
+    src/Wall.cpp
+    src/World.cpp
+)
 
-python_add_module(simPy ${SOURCES} sim.cpp)
-#add_library(simC SHARED ${SOURCES})
+python_add_module(simpy ${SOURCES} src/pybinding.cpp)
+add_library(simcpp SHARED ${SOURCES})
+add_library(simcppstandalone STATIC ${SOURCES})

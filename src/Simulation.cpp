@@ -18,10 +18,10 @@ std::unique_ptr<T> make_unique( Args&& ...args )
 	return std::unique_ptr<T>( new T( std::forward<Args>(args)... ) );
 }
 
-Simulation::Simulation()
+Simulation::Simulation(World * inWorld, Config * inConfig)
 {
-	this->world  = new World();
-	this->config = new Config();
+	this->world  = inWorld;
+	this->config = inConfig;
 	this->random = new Random("ranlxs0");
 	this->utils = new Utils();
 	this->forceI = {0.,0.,0.};

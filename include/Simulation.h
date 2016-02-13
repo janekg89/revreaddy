@@ -41,10 +41,9 @@
 #include "Acceptance.h"
 #include "ParticleNumbers.h"
 
-class Simulation
-{
+class Simulation {
 public:
-	Simulation();
+	Simulation(World * inWorld, Config * inConfig);
 	~Simulation();
 	/* Start the simulation. Iterate for maxTime timesteps.*/
 	void run(const unsigned long maxTime);

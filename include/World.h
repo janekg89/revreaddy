@@ -9,8 +9,7 @@
 #include "Particle.h"
 #include "ReactionEvent.h"
 
-class World
-{
+class World {
 public:
 	World();
 	/* particles has an entry for every particle
