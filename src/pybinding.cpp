@@ -1,3 +1,4 @@
+#include <string>
 #include "World.h"
 #include "Config.h"
 #include "Simulation.h"
@@ -19,8 +20,8 @@ public:
 class SimulationWrap {
 public:
 	Simulation * simulation;
-	SimulationWrap(WorldWrap * worldWrap, ConfigWrap * configWrap) {
-		this->simulation = new Simulation(worldWrap->world, configWrap->config);
+	SimulationWrap(WorldWrap * worldWrap, ConfigWrap * configWrap, std::string whichImpl) {
+		this->simulation = new Simulation(worldWrap->world, configWrap->config, whichImpl);
 	}
 	~SimulationWrap() { delete simulation; }
 };
@@ -28,8 +29,8 @@ public:
 #include <boost/python.hpp>
 using namespace boost::python;
 
-BOOST_PYTHON_MODULE(simPy) {
+BOOST_PYTHON_MODULE(simpy) {
 	class_<WorldWrap>("World", init<>());
 	class_<ConfigWrap>("Config", init<>());
-	class_<SimulationWrap>("Simulation", init<WorldWrap*, ConfigWrap*>());
+	class_<SimulationWrap>("Simulation", init<WorldWrap*, ConfigWrap*, std::string>());
 };

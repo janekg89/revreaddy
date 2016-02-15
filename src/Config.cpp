@@ -4,21 +4,18 @@
 #define print(x) std::cout << x << std::endl;
 
 template<typename T, typename ...Args>
-std::unique_ptr<T> make_unique( Args&& ...args )
-{
+std::unique_ptr<T> make_unique( Args&& ...args ) {
 	return std::unique_ptr<T>( new T( std::forward<Args>(args)... ) );
 }
 
-Config::Config()
-{
+Config::Config() {
 	this->timestep              = 0.001;
 	this->kT                    = 1.;
 	this->isPeriodic            = true;
 	this->boxsize               = 10.;
 }
 
-Config::~Config()
-{
+Config::~Config() {
 	this->deleteAllGeometries();
 	this->deleteAllReactions();
 	this->deleteAllInteractions();
@@ -62,8 +59,7 @@ double Config::getDictDiffusionConstant(unsigned int i) {
 	return this->particleTypes[i].diffusionConstant;
 }
 
-void Config::deleteAllGeometries()
-{
+void Config::deleteAllGeometries() {
 	/* Erase all the unique pointers, the geometries are thus deleted as well */
 	this->geometries.clear();
 }
@@ -82,11 +78,7 @@ void Config::new_Wall(
 	this->geometries.push_back( std::move(wall) );
 }
 
-void Config::new_DoubleWellZ(
-	double distanceMinima,
-	double strength,
-	std::vector<unsigned int> particleTypeIds)
-{
+void Config::new_DoubleWellZ(double distanceMinima,	double strength, std::vector<unsigned int> particleTypeIds) {
 	std::unique_ptr<DoubleWellZ> well = make_unique<DoubleWellZ>(
 		distanceMinima,
 		strength,
@@ -94,8 +86,7 @@ void Config::new_DoubleWellZ(
 	this->geometries.push_back( std::move(well) );
 }
 
-void Config::deleteAllInteractions()
-{
+void Config::deleteAllInteractions() {
 	/* Erase all the shared pointers, if some interactions are still 
 	 * referenced by Reactions, the interaction is technically valid,
 	 * but it will lead to unwanted behavior. Therefore delete all
@@ -104,11 +95,7 @@ void Config::deleteAllInteractions()
 	this->interactions.clear();
 }
 
-void Config::new_SoftRepulsion(
-	std::string name,
-	std::vector<unsigned> affectedTuple,
-	double repulsionStrength)
-{
+void Config::new_SoftRepulsion(std::string name, std::vector<unsigned> affectedTuple, double repulsionStrength) {
 	if (affectedTuple.size() != 2) {
 		std::cout << "Error: The given tuple must be of length 2" << std::endl;
 		return;
@@ -136,11 +123,7 @@ void Config::new_SoftRepulsion(
 	          << std::endl;
 }
 
-void Config::new_LennardJones(
-	std::string name,
-	std::vector<unsigned> affectedTuple,
-	double epsilon)
-{
+void Config::new_LennardJones(std::string name, std::vector<unsigned> affectedTuple, double epsilon) {
 	if (affectedTuple.size() != 2) {
 		std::cout << "Error: The given tuple must be of length 2" << std::endl;
 		return;
@@ -168,38 +151,42 @@ void Config::new_LennardJones(
 	          << std::endl;
 }
 
-unsigned int Config::getNumberInteractions()
-{
+unsigned int Config::getNumberInteractions() {
 	return this->interactions.size();
 }
 
-std::string Config::getInteractionName(unsigned i)
-{
+std::string Config::getInteractionName(unsigned i) {
 	return this->interactions[i]->name;
 }
 
-std::string Config::getInteractionType(unsigned i)
-{
+std::string Config::getInteractionType(unsigned i) {
 	return this->interactions[i]->type;
 }
 
-std::vector<unsigned int> Config::getInteractionAffectedTuple(unsigned i)
-{
+std::vector<unsigned int> Config::getInteractionAffectedTuple(unsigned i) {
 	return this->interactions[i]->affectedTuple;
 }
 
-std::vector<double> Config::getInteractionParameters(unsigned i)
-{
+std::vector<double> Config::getInteractionParameters(unsigned i) {
 	return this->interactions[i]->parameters;
 }
 
-double Config::getInteractionCutoff(unsigned i)
-{
+double Config::getInteractionCutoff(unsigned i) {
 	return this->interactions[i]->cutoff;
 }
 
-void Config::deleteAllReactions()
-{
+void Config::configureReactions() {
+	for (unsigned i=0; i<this->reactions.size(); ++i) {
+		if (this->reactions[i]->type == "Conversion") {
+			/* Conversion needs no configuration */
+		}
+		else if (this->reactions[i]->type == "Fusion") {
+			//this->configureFusion(i); // TODO
+		}
+	}
+}
+
+void Config::deleteAllReactions() {
 	/* Erase all the unique pointers from reactions. Thus all
 	 * reactions will be destroyed accordingly */
 	this->reactions.clear();	
@@ -225,21 +212,21 @@ void Config::new_Conversion(
 	this->reactions.push_back( std::move(conv) );
 }
 
-void Config::new_Fusion3(
+void Config::new_Fusion(
 	std::string name,
 	unsigned forwardTypeA,
 	unsigned forwardTypeB,
 	unsigned backwardTypeC,
 	double forwardRate,
 	double backwardRate,
-	double reactionDistance)
+	double reactionDistance) 
 {
 	std::vector<unsigned> forwardTypes;
 	forwardTypes.push_back(forwardTypeA);
 	forwardTypes.push_back(forwardTypeB);
 	std::vector<unsigned> backwardTypes;
 	backwardTypes.push_back(backwardTypeC);
-	std::unique_ptr<Fusion3> fus = make_unique<Fusion3>(
+	std::unique_ptr<Fusion> fus = make_unique<Fusion>(
 		name,
 		forwardTypes,
 		backwardTypes,
@@ -249,8 +236,8 @@ void Config::new_Fusion3(
 	this->reactions.push_back( std::move(fus) );
 }
 
-/* That reactionIndex is of type Fusion3 has to be ensured by the caller */
-void Config::configure_Fusion3(
+/* That reactionIndex is of type Fusion has to be ensured by the caller */
+void Config::configureFusion(
 	unsigned reactionIndex,
 	std::vector<unsigned> interactionsIndices,
 	double inversePartition,
@@ -265,13 +252,11 @@ void Config::configure_Fusion3(
 	std::vector< std::shared_ptr<ParticleInteraction> > consideredInteractions;
 	for (unsigned i=0; i<interactionsIndices.size(); i++) {
 		/* push_back constructs a new shared ptr to be
-		 * forwarded to the Fusion3. */
-		consideredInteractions.push_back(
-			this->interactions[ interactionsIndices[i] ]
-		);
+		 * forwarded to the Fusion. */
+		consideredInteractions.push_back( this->interactions[ interactionsIndices[i] ]);
 	}
 	// TODO this still seems inappropriate
-	Fusion3 * fus = dynamic_cast<Fusion3*>( this->reactions[reactionIndex].get() );
+	Fusion * fus = dynamic_cast<Fusion*>( this->reactions[reactionIndex].get() );
 	fus->configure(
 		consideredInteractions,
 		inversePartition,
@@ -285,41 +270,34 @@ void Config::configure_Fusion3(
 		this->isPeriodic,
 		this->boxsize);	
 	/* Don't delete fus, since it is uniquely owned by Config. 
-	 * The reference was only borrowed to cast it to Fusion3 
+	 * The reference was only borrowed to cast it to Fusion 
 	 * and configure it properly */
 }
 
-unsigned Config::getNumberReactions()
-{
+unsigned Config::getNumberReactions() {
 	return this->reactions.size();
 }
 
-std::string Config::getReactionName(unsigned i)
-{
+std::string Config::getReactionName(unsigned i) {
 	return this->reactions[i]->name;
 }
 
-std::string Config::getReactionType(unsigned i)
-{
+std::string Config::getReactionType(unsigned i) {
 	return this->reactions[i]->type;
 }
 
-std::vector<unsigned> Config::getReactionForwardTypes(unsigned i)
-{
+std::vector<unsigned> Config::getReactionForwardTypes(unsigned i) {
 	return this->reactions[i]->forwardTypes;
 }
 
-std::vector<unsigned> Config::getReactionBackwardTypes(unsigned i)
-{
+std::vector<unsigned> Config::getReactionBackwardTypes(unsigned i) {
 	return this->reactions[i]->backwardTypes;
 }
 
-double Config::getReactionForwardRate(unsigned i)
-{
+double Config::getReactionForwardRate(unsigned i) {
 	return this->reactions[i]->forwardRate;
 }
 
-double Config::getReactionBackwardRate(unsigned i)
-{
+double Config::getReactionBackwardRate(unsigned i) {
 	return this->reactions[i]->backwardRate;
 }

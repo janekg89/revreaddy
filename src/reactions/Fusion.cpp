@@ -1,5 +1,5 @@
-/* Fusion3.cpp */
-#include "Fusion3.h"
+/* Fusion.cpp */
+#include "Fusion.h"
 #include <math.h>
 
 //#define __DEBUG__
@@ -11,7 +11,7 @@
 #undef __DEBUG__
 #endif
 
-Fusion3::Fusion3(
+Fusion::Fusion(
 	std::string inName,
 	std::vector<unsigned> inForwardTypes,
 	std::vector<unsigned> inBackwardTypes,
@@ -25,16 +25,16 @@ Fusion3::Fusion3(
 	this->forwardRate = inForwardRate;
 	this->backwardRate = inBackwardRate;
 	this->reactionDistance = inReactionDistance;
-	this->type = "Fusion3";
+	this->type = "Fusion";
 	this->utils = new Utils();
 }
 
-Fusion3::~Fusion3()
+Fusion::~Fusion()
 {
 	delete this->utils;
 }
 
-void Fusion3::configure(
+void Fusion::configure(
 	std::vector< std::shared_ptr<ParticleInteraction> > inInteractions,
 	double inInversePartition,
 	double inMaxDistr,
@@ -47,7 +47,7 @@ void Fusion3::configure(
 	bool inIsPeriodic,
 	double inBoxsize)
 {
-	print("configure Fusion3")
+	print("configure Fusion")
 	this->interactions = inInteractions;
 	this->inversePartition = inInversePartition;
 	this->maxDistr = inMaxDistr;
@@ -63,13 +63,13 @@ void Fusion3::configure(
 	this->boxsize = inBoxsize;
 }
 
-double Fusion3::performForward(
+double Fusion::performForward(
 	std::vector<unsigned long> particleIndices,
 	double timestep,
 	World * world,
 	Random * random)
 {
-	print("Enter Fusion3 performForward")
+	print("Enter Fusion performForward")
 	double forwardProb = this->forwardRate * timestep;
 	double u = random->uniform();
 	if ( u < forwardProb ) {
@@ -120,13 +120,13 @@ double Fusion3::performForward(
 	else {/* nothing happens */ return 1.;}
 }
 
-double Fusion3::performBackward(
+double Fusion::performBackward(
 	std::vector<unsigned long> particleIndices,
 	double timestep,
 	World * world,
 	Random * random)
 {
-	print("Enter Fusion3 performBackward")
+	print("Enter Fusion performBackward")
 	double backwardProb = this->backwardRate * timestep;
 	double u = random->uniform();
 	if ( u < backwardProb ) {
@@ -165,7 +165,7 @@ double Fusion3::performBackward(
 	else {/* nothing happens */ return 1.;}
 }
 
-double Fusion3::distribution(double x)
+double Fusion::distribution(double x)
 {
 	double result = 0.;
 	for (unsigned i=0; i<this->interactions.size(); i++) {
@@ -180,7 +180,7 @@ double Fusion3::distribution(double x)
 	return result;
 }
 
-double Fusion3::randomFromDistribution(Random * random)
+double Fusion::randomFromDistribution(Random * random)
 {
 	unsigned it = 0;
 	double x = 0.;

@@ -1,9 +1,9 @@
-/* Fusion3.h  A+B <-> C
+/* Fusion.h  A+B <-> C
  * A reaction that is bimolecular in forward direction
  * and unimolecular in backward direction. */
 
-#ifndef __FUSION3_H_INCLUDED__
-#define __FUSION3_H_INCLUDED__
+#ifndef __FUSION_H_INCLUDED__
+#define __FUSION_H_INCLUDED__
 #include <vector>
 #include <memory>
 #include <string>
@@ -13,17 +13,17 @@
 #include "ParticleInteraction.h"
 #include "utils.h"
 
-class Fusion3 : public Reaction
+class Fusion : public Reaction
 {
 public:
-	Fusion3(
+	Fusion(
 		std::string inName,
 		std::vector<unsigned> inForwardTypes,
 		std::vector<unsigned> inBackwardTypes,
 		double inForwardRate,
 		double inBackwardRate,
 		double inReactionDistance);
-	~Fusion3();
+	~Fusion();
 
 	/* pointers to the interactions between particles A and B */
 	std::vector< std::shared_ptr<ParticleInteraction> > interactions;
@@ -86,4 +86,4 @@ private:
 	double randomFromDistribution(Random * random);
 };
 
-#endif // __FUSION3_H_INCLUDED__
+#endif // __FUSION_H_INCLUDED__

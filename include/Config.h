@@ -20,13 +20,14 @@
 #include "LennardJones.h"
 #include "Reaction.h"
 #include "Conversion.h"
-#include "Fusion3.h"
+#include "Fusion.h"
 
 class Config {
 public:
 	Config();
 	~Config();
-
+	/* The list of particle types, by construction ordered and accessed via
+	 * its id (position in the vector) */
 	std::vector<ParticleType> particleTypes;
 	/* All forces between particles. Since some reactions need to know
 	 * the energies that occur between particles, these are shared
@@ -45,35 +46,19 @@ public:
 	double boxsize; // length of the periodic simulationbox
 
 	/*------------------------------------------------------------------*/
-	void new_Type(
-		const std::string name,
-		const double radius,
-		const double diffusionConstant);
+	void new_Type(const std::string name, const double radius, const double diffusionConstant);
 	unsigned getNumberOfTypes();
 	std::string getDictName(unsigned i);
 	double getDictRadius(unsigned i);
 	double getDictDiffusionConstant(unsigned i);
 
 	void deleteAllGeometries();
-	void new_Wall(
-		std::vector<double> normal,
-		std::vector<double> point,
-		double strength,
-		std::vector<unsigned int> particleTypeIds);
-	void new_DoubleWellZ(
-		double distanceMinima,
-		double strength,
-		std::vector<unsigned int> particleTypeIds);
+	void new_Wall(std::vector<double> normal, std::vector<double> point, double strength, std::vector<unsigned int> particleTypeIds);
+	void new_DoubleWellZ(double distanceMinima,	double strength, std::vector<unsigned int> particleTypeIds);
 
 	void deleteAllInteractions();
-	void new_SoftRepulsion(
-		std::string name,
-		std::vector<unsigned int> affectedTuple,
-		double repulsionStrength);
-	void new_LennardJones(
-		std::string name,
-		std::vector<unsigned int> affectedTuple,
-		double epsilon);
+	void new_SoftRepulsion(std::string name, std::vector<unsigned int> affectedTuple, double repulsionStrength);
+	void new_LennardJones(std::string name,	std::vector<unsigned int> affectedTuple, double epsilon);
 	unsigned getNumberInteractions();
 	std::string getInteractionName(unsigned i);
 	std::string getInteractionType(unsigned i);
@@ -81,14 +66,10 @@ public:
 	std::vector<double> getInteractionParameters(unsigned i);
 	double getInteractionCutoff(unsigned i);
 
+	void configureReactions();
 	void deleteAllReactions();
-	void new_Conversion(
-		std::string name,
-		unsigned forwardType,
-		unsigned backwardType,
-		double forwardRate,
-		double backwardRate);	
-	void new_Fusion3(
+	void new_Conversion(std::string name, unsigned forwardType, unsigned backwardType, double forwardRate, double backwardRate);	
+	void new_Fusion(
 		std::string name,
 		unsigned forwardTypeA,
 		unsigned forwardTypeB,
@@ -96,7 +77,7 @@ public:
 		double forwardRate,
 		double backwardRate,
 		double reactionDistance);
-	void configure_Fusion3(
+	void configureFusion(
 		unsigned reactionIndex,
 		std::vector<unsigned> interactionsIndices,
 		double inversePartition,
