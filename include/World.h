@@ -8,6 +8,8 @@
 #include <vector>
 #include "Particle.h"
 #include "ReactionEvent.h"
+#include "logging.h"
+#include "Exception.h"
 
 class World {
 public:

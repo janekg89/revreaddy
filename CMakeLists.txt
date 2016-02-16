@@ -5,7 +5,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 find_package(PythonInterp)
 find_package(PythonLibs REQUIRED)
-find_package(Boost COMPONENTS python)
+find_package(Boost COMPONENTS python log REQUIRED)
 
 include_directories(
     ${Boost_INCLUDE_DIRS}
@@ -54,6 +54,7 @@ set(SOURCES
     src/World.cpp
 )
 
+add_definitions(-D__INFO__ -DBOOST_LOG_DYN_LINK)
 python_add_module(simpy ${SOURCES} src/pybinding.cpp)
 #add_library(simcpp SHARED ${SOURCES})
 #add_library(simcppstandalone STATIC ${SOURCES})

@@ -15,6 +15,7 @@
 #include "Config.h"
 #include "World.h"
 #include "SimulationImpl.h"
+#include "logging.h"
 
 class Simulation {
 public:

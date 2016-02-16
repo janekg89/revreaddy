@@ -1,15 +1,6 @@
 /* SimulationImpl.cpp
  * author: Christoph Froehner */
 
-//#define __DEBUG__
-#ifndef __DEBUG__
-#define print(a)  
-#endif
-#ifdef __DEBUG__
-#define print(a) std::cout << a << std::endl;
-#undef __DEBUG__
-#endif
-
 #include "SimulationImpl.h"
 
 template<typename T, typename ...Args>
@@ -144,7 +135,6 @@ void SimulationImpl::new_ParticleNumbers(unsigned long recPeriod, std::string fi
 }
 
 void SimulationImpl::run(const unsigned long maxTime) {
-	print("Enter run")
 	config->configureReactions();
 	if (config->interactions.empty() && config->reactions.empty()) {
 		this->skipPairInteractionsReactions = true;
@@ -163,7 +153,6 @@ void SimulationImpl::run(const unsigned long maxTime) {
 	bool isStepAccepted = true;
 	for (unsigned long timeIndex = 1; timeIndex < maxTime; ++timeIndex) {
 		/* Dynamics */
-		print("Enter dynamics")
 		this->saveOldState();
 		this->propagateDynamics(); // propose
 		this->resetForces();
@@ -184,7 +173,6 @@ void SimulationImpl::run(const unsigned long maxTime) {
 		else { world->acceptionsDynamics += 1; }
 
 		/* Reactions */
-		print("Enter reactions")
 		this->saveOldState();
 		acceptance = this->propagateReactions();
 		this->resetForces();
@@ -205,7 +193,6 @@ void SimulationImpl::run(const unsigned long maxTime) {
 		else { world->acceptionsReactions += 1; }
 
 		/* Advance clock */
-		print("Advance clock")
 		world->cumulativeRuntime += config->timestep;
 		this->recordObservables(timeIndex);
 	}
@@ -261,21 +248,18 @@ void SimulationImpl::setupUnimolecularCandidateTypes() {
 }
 
 void SimulationImpl::saveOldState() {
-	print("Enter saveOldState")
 	world->oldEnergy = world->energy;
 	world->oldParticles = world->particles;
 	world->oldReactionCandidates = world->reactionCandidates;
 }
 
 void SimulationImpl::restoreOldState() {
-	print("Enter restoreOldState")
 	world->energy = world->oldEnergy;
 	world->particles = world->oldParticles;
 	world->reactionCandidates = world->oldReactionCandidates;
 }
 
 void SimulationImpl::propagateDynamics() {
-	print("Enter propagateDynamics")
 	std::vector<double> noiseTerm = {0.,0.,0.};
 	std::vector<double> forceTerm = {0.,0.,0.};
 	double noisePrefactor = 1.;
@@ -329,30 +313,15 @@ void SimulationImpl::propagateDynamics() {
 	}
 }
 
-//#define __DEBUG__
-#ifndef __DEBUG__
-#define print(a)  
-#endif
-#ifdef __DEBUG__
-#define print(a) std::cout << a << std::endl;
-#undef __DEBUG__
-#endif
-
 double SimulationImpl::propagateReactions() {
-	print("Enter propagateReactions")
 	/* Find unimolecular candidates because bimolecular were already
 	 * determined when calculating forces. */
-
-	print("Unimolecular types determined")
-	/* From the above, now actually find the particular 
-	 * unimolecular reaction candidates. */
 	for (unsigned long i=0; i<world->particles.size(); i++) {
 		for (unsigned j=0; j<unimolecularCandidateTypes.size(); j++) {
 			/* if the type of the current particle matches a type of the
 			 * prepared unimolecularCandidateTypes then this unimoelcuar reaction
 			 * event is added to the actual reactionCandidates. */
-			if (world->particles[i].typeId 
-				== unimolecularCandidateTypes[j].particleTypeId) {
+			if (world->particles[i].typeId == unimolecularCandidateTypes[j].particleTypeId) {
 				std::vector<unsigned long long> participants;
 				participants.push_back(world->particles[i].uniqueId);
 				ReactionEvent event(
@@ -363,7 +332,6 @@ double SimulationImpl::propagateReactions() {
 			}
 		}
 	}
-	print("Unimolecular candidates found")
 	/* Shuffle the list reactionCandidates and perform reactions.
 	 * If one particle
 	 * cannot be found via its uniqueId, because it was destroyed in
@@ -380,9 +348,7 @@ double SimulationImpl::propagateReactions() {
 		std::vector<unsigned long> particleIndices;
 		std::vector<unsigned long long> participants = world->reactionCandidates[i].participants;
 		for (unsigned j=0; j<participants.size(); j++) {
-			print("before find")
 			signed long index = this->findParticleIndex(participants[j]);
-			print("after find")
 			if (index == -1) {participantsAlive = false;}
 			else {particleIndices.push_back(index);}
 		}
@@ -407,7 +373,6 @@ double SimulationImpl::propagateReactions() {
 				this->random);
 		}
 	}
-	print("Reactions performed")
 	/* Check if newly created particles were put outside the box and correct */
 	for (unsigned long i=0; i<world->particles.size(); i++) {
 		if (config->isPeriodic) {
@@ -437,7 +402,6 @@ double SimulationImpl::propagateReactions() {
 			}
 		}
 	}
-	print("Checked for box-overflows")
 	return conditionalProbs;
 }
 
@@ -450,7 +414,6 @@ void SimulationImpl::recordObservables(unsigned long timeIndex) {
 }
 
 void SimulationImpl::calculateInteractionForcesEnergies() {
-	print("Enter calculateInteractionForcesEnergies")
 	if ( this->useNeighborlist ) {
 		this->calculateInteractionForcesEnergiesWithLattice();
 	}
@@ -460,7 +423,6 @@ void SimulationImpl::calculateInteractionForcesEnergies() {
 }
 
 void SimulationImpl::calculateInteractionForcesEnergiesNaive() {
-	print("Enter calculateInteractionForcesEnergiesNaive")
 	for (unsigned long i=0; i<world->particles.size(); i++) {
 		for (unsigned long j=i+1; j<world->particles.size(); j++) {
 			this->calculateSingleForceEnergyCheckReactionCandidate(i, j);
@@ -469,7 +431,6 @@ void SimulationImpl::calculateInteractionForcesEnergiesNaive() {
 }
 
 void SimulationImpl::calculateInteractionForcesEnergiesWithLattice() {
-	print("Enter calculateInteractionForcesEnergiesWithLattice")
 	unsigned numberBoxes = this->neighborlist->numberBoxes;
 	double n = (double) numberBoxes;
 	double boxLength = config->boxsize / n;
@@ -560,7 +521,6 @@ void SimulationImpl::calculateInteractionForcesEnergiesWithLattice() {
 }
 
 void SimulationImpl::calculateSingleForceEnergyCheckReactionCandidate(unsigned int indexI, unsigned int indexJ) {
-	print("Enter calculateSingleForceEnergyCheckReactionCandidate")
 	this->forceI[0]=0.; this->forceI[1]=0.; this->forceI[2]=0.;
 	this->forceJ[0]=0.; this->forceJ[1]=0.; this->forceJ[2]=0.;
 	// interaction energy of particle pair (i,j)
@@ -637,7 +597,6 @@ void SimulationImpl::calculateSingleForceEnergyCheckReactionCandidate(unsigned i
 }
 
 void SimulationImpl::calculateGeometryForcesEnergies() {
-	print("Enter calculateGeometryForcesEnergies")
 	std::vector<double> forceI = {0.,0.,0.};
 	double energyBuffer = 0.;
 	for (unsigned long i=0; i<world->particles.size(); i++) {
@@ -656,7 +615,6 @@ void SimulationImpl::calculateGeometryForcesEnergies() {
 }
 
 void SimulationImpl::resetForces() {
-	print("Enter resetForces")
 	for (unsigned long i=0; i<world->particles.size(); i++) {
 		world->particles[i].resetForce();
 	}
@@ -669,7 +627,6 @@ void SimulationImpl::resetReactionCandidates() {
 /* For the dynamical acceptance probability both states, old and new
  * have to have the same number of particles.  */
 double SimulationImpl::acceptanceDynamics() {
-	print("Enter acceptanceDynamics")
 	double acceptance = 1.;
 	double firstTerm  = 0.;
 	double secondTerm = 0.;
@@ -714,7 +671,6 @@ double SimulationImpl::acceptanceDynamics() {
 }
 
 double SimulationImpl::acceptanceReactions() {
-	print("Enter acceptanceReactions")
 	double unconditional = 1.;
 	unconditional = world->energy - world->oldEnergy;
 	unconditional /= -1. * config->kT;
@@ -723,7 +679,6 @@ double SimulationImpl::acceptanceReactions() {
 }
 
 bool SimulationImpl::acceptOrReject(double acceptance) {
-	print("Enter acceptOrReject")
 	if ( acceptance > 1. ) {
 		/* accept */
 		return true;
@@ -741,17 +696,7 @@ bool SimulationImpl::acceptOrReject(double acceptance) {
 	}
 }
 
-//#define __DEBUG__
-#ifndef __DEBUG__
-#define print(a)  
-#endif
-#ifdef __DEBUG__
-#define print(a) std::cout << a << std::endl;
-#undef __DEBUG__
-#endif
-
 long int SimulationImpl::findParticleIndex(unsigned long long id) {
-	print("Enter findParticleIndex")
 	signed long max = world->particles.size() - 1;
 	signed long min = 0;
 	signed long mid = 0;
