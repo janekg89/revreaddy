@@ -54,7 +54,15 @@ set(SOURCES
     src/World.cpp
 )
 
-add_definitions(-D__INFO__ -DBOOST_LOG_DYN_LINK)
+if(CMAKE_BUILD_TYPE MATCHES Debug)
+    add_definitions(-D__DEBUG__)
+endif(CMAKE_BUILD_TYPE MATCHES Debug)
+
+if(CMAKE_BUILD_TYPE MATCHES Release)
+    add_definitions(-D__INFO__)
+endif(CMAKE_BUILD_TYPE MATCHES Release)
+
+add_definitions(-DBOOST_LOG_DYN_LINK)
 python_add_module(simpy ${SOURCES} src/pybinding.cpp)
 #add_library(simcpp SHARED ${SOURCES})
 #add_library(simcppstandalone STATIC ${SOURCES})
