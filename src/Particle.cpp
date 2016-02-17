@@ -12,20 +12,9 @@ Particle::Particle()
 	this->boxCoordinates.shrink_to_fit();
 	this->cumulativeForce 	= {0.,0.,0.};
 	this->cumulativeForce.shrink_to_fit();
-	this->oldForce          = {0.,0.,0.};
-	this->oldForce.shrink_to_fit();
-	this->oldPosition       = {0.,0.,0.};
-	this->oldPosition.shrink_to_fit();
-	this->oldBoxCoordinates = {0,0,0};
-	this->oldBoxCoordinates.shrink_to_fit();
 	this->typeId            = 0;
-	this->skip              = 0;
-	this->count	            = 0;
-}
-
-// TODO delete vectors
-Particle::~Particle()
-{
+	//this->skip              = 0;
+	//this->count	            = 0;
 }
 
 void Particle::move(std::vector<double>& deviation)
@@ -45,4 +34,31 @@ void Particle::addForce(std::vector<double>& force)
 void Particle::resetForce()
 {
 	this->cumulativeForce = {0., 0., 0.};
+}
+
+bool Particle::operator==(const Particle& other)
+{
+	if ( this->uniqueId != other.uniqueId ) {return false;}
+	if (
+		   ( this->position[0] != other.position[0] )
+		|| ( this->position[1] != other.position[1] )
+		|| ( this->position[2] != other.position[2] )
+	) {return false;}
+	if (
+		   ( this->boxCoordinates[0] != other.boxCoordinates[0] )
+		|| ( this->boxCoordinates[1] != other.boxCoordinates[1] )
+		|| ( this->boxCoordinates[2] != other.boxCoordinates[2] )
+	) {return false;}
+	if (
+		   ( this->cumulativeForce[0] != other.cumulativeForce[0] )
+		|| ( this->cumulativeForce[1] != other.cumulativeForce[1] )
+		|| ( this->cumulativeForce[2] != other.cumulativeForce[2] )
+	) {return false;}
+	if ( this->typeId != other.typeId ) {return false;}
+	return true;
+}
+
+bool Particle::operator!=(const Particle& other)
+{
+	return !( *this == other);
 }

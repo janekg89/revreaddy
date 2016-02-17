@@ -13,20 +13,14 @@ class TrajectoryTest : public CxxTest::TestSuite
 	public:
 		void test_record_usualOperation(void)
 		{
-			Trajectory traj("test.txt");
-			std::vector<Particle> activeParticles;
+			World * world = new World();
+			Trajectory traj(1,1,"test.txt");
 			std::vector<double> x0 = {1.,2.,3.};
-			Particle p1;
-			Particle p2;
-			p1.position = x0;
-			p2.position = x0;
-			p1.typeId = 0;
-			p2.typeId = 1;
-			activeParticles.push_back(p1);
-			activeParticles.push_back(p2);
-			activeParticles.push_back(p1);
+			world->addParticle(x0, 0);
+			world->addParticle(x0, 1);
+			world->addParticle(x0, 0);
 			double t = 42.;
-			traj.record(activeParticles, t);
+			traj.record(world, t);
 			// check if only one timestep is in the trajectory
 			TS_ASSERT_EQUALS(traj.trajectory.size(), 1);
 			// check if there are 3 particles in the first trajectory entry

@@ -57,6 +57,36 @@ import numpy as np
 import sim
 import h5py
 
+def saveWorld(filename, simulation):
+	"Save only the positions of particles and their typeIds."
+	fileHandle = h5py.File(filename, "w")
+	# construct xyz group
+	xyz = fileHandle.create_group("xyz")
+	numberOfParticles = simulation.getParticleNumber()
+	xyz.create_dataset("numberOfParticles", (1,), dtype=np.uint64)
+	xyz["numberOfParticles"][0] = numberOfParticles
+	xyz.create_dataset("typeIds", (numberOfParticles,), dtype=np.uint64)
+	xyz.create_dataset("positions", (numberOfParticles,3), dtype=np.float64)
+	for i in range(numberOfParticles):
+		xyz["typeIds"][i] = simulation.getTypeId(i)
+		particlePosition = simulation.getPosition(i)
+		xyz["positions"][i,0] = particlePosition[0]
+		xyz["positions"][i,1] = particlePosition[1]
+		xyz["positions"][i,2] = particlePosition[2]
+	fileHandle.close()
+
+def loadWorld(filename, simulation):
+	"Load positions of particles and typeIds, add them to simulation"
+	fileHandle = h5py.File(filename, "r")
+	#retrieve positions
+	xyz = fileHandle["xyz"]
+	numberOfParticles = xyz["numberOfParticles"][0]
+	for i in range(numberOfParticles):
+		simulation.addParticle(
+			xyz["positions"][i],
+			xyz["typeIds"][i] )
+	fileHandle.close()
+
 def saveSimulation(filename, simulation):
 	"""
 	Save the state of a simulation to file given
@@ -71,12 +101,7 @@ def saveSimulation(filename, simulation):
 	fileHandle = h5py.File(filename, "w")
 
 	# retrieve typedict info from simulation
-	names = simulation.getDictNames()
-	radii = simulation.getDictRadii()
-	diffs = simulation.getDictDiffusionConstants()
-	reactionRadii = simulation.getDictReactionRadii()
-	#forceTypes = simulation.getDictForceTypes()
-	numberOfTypes = len(names)
+	numberOfTypes = simulation.getNumberOfTypes()
 	# construct typedict group
 	typedict = fileHandle.create_group("typedict")
 	typedict.create_dataset("numberOfTypes", (1,), dtype=np.uint64)
@@ -91,16 +116,11 @@ def saveSimulation(filename, simulation):
 		"reactionRadii",
 		(numberOfTypes,),
 		dtype=np.float64)
-	#typedict.create_dataset(
-	#	"forceTypes",
-	#	(numberOfTypes,),
-	#	dtype=np.uint64)
 	for i in range(numberOfTypes):
-		typedict["names"][i]              = names[i]
-		typedict["radii"][i]              = radii[i]
-		typedict["diffusionConstants"][i] = diffs[i]
-		typedict["reactionRadii"][i]      = reactionRadii[i]
-		#typedict["forceTypes"][i]         = forceTypes[i]
+		typedict["names"][i]              = simulation.getDictName(i)
+		typedict["radii"][i]              = simulation.getDictRadius(i)
+		typedict["diffusionConstants"][i] = simulation.getDictDiffusionConstant(i)
+		typedict["reactionRadii"][i]      = simulation.getDictReactionRadius(i)
 
 	# construct forcemap group
 	forcemap = fileHandle.create_group("forcemap")
@@ -192,7 +212,6 @@ def loadSimulation(filename):
 			typedict["radii"][i],
 			typedict["diffusionConstants"][i],
 			typedict["reactionRadii"][i])
-			#typedict["forceTypes"][i] )
 
 	#retrieve positions
 	xyz = fileHandle["xyz"]
@@ -223,7 +242,7 @@ def loadSimulation(filename):
 			return sim.pySimulation()
 
 	#retrieve reactions ...
-
+	fileHandle.close()
 	return simulation
 
 def fillCuboidWithParticles(simulation, r1, r2, numberOfParticles, particleType):
@@ -242,9 +261,10 @@ def fillCuboidWithParticles(simulation, r1, r2, numberOfParticles, particleType)
 			for z in zRange:
 				if (counter < numberOfParticles):
 					simulation.addParticle([x,y,z], particleType)
+					counter += 1
 	return
 
-def showSnapshotMatPlotlib(simulation):
+def showSnapshotMatplotlib(simulation):
 	import matplotlib.pyplot as plt
 	from mpl_toolkits.mplot3d import Axes3D
 	fig = plt.figure()
@@ -277,11 +297,37 @@ def generateSnapshotVmd(filename, simulation):
 	tclScript.write("mol load xyz " + filename + "\n")
 	tclScript.write("mol delrep 0 top\n")
 	tclScript.write("display resetview\n")
-	dictRadii = simulation.getDictRadii()
-	M = len( dictRadii )
+	M = simulation.getNumberOfTypes()
 	for i in range(M):
 		tclScript.write(
-			"mol representation VDW " + str(dictRadii[i] * 0.7) + " 16.0\n"
+			"mol representation VDW "
+			+ str(simulation.getDictRadius(i) * 0.7)
+			+ " 16.0\n"
+		)
+		tclScript.write("mol selection name T" + str(i) + "\n")
+		tclScript.write("mol addrep top\n")
+	tclScript.write("animate goto 0\n")
+	tclScript.write("color Display Background white\n")
+	tclScript.write(
+	"molinfo top set {center_matrix} {{{1 0 0 0}{0 1 0 0}{0 0 1 0}{0 0 0 1}}}\n"
+	)
+	tclScript.close()
+
+# assume that xyz trajname already exists
+def generateVmdScript(trajname, simulation):
+	# mostly adapted from Johannes Schoeneberg's ReaDDy software
+	# see github.com/readdy
+	tclScript = open(trajname + ".tcl", "w")
+	tclScript.write("mol delete top\n")
+	tclScript.write("mol load xyz " + trajname + "\n")
+	tclScript.write("mol delrep 0 top\n")
+	tclScript.write("display resetview\n")
+	M = simulation.getNumberOfTypes()
+	for i in range(M):
+		tclScript.write(
+			"mol representation VDW "
+			+ str(simulation.getDictRadius(i) * 0.7)
+			+ " 16.0\n"
 		)
 		tclScript.write("mol selection name T" + str(i) + "\n")
 		tclScript.write("mol addrep top\n")

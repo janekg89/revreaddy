@@ -2,20 +2,18 @@
 
 #include "BinaryFile.h"
 
-BinaryFile::BinaryFile(std::string name)
-{
+BinaryFile::BinaryFile(std::string name) {
 	this->fileId = H5Fcreate(name.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
 	// if this returns a negative value, file could not be created
 	if (this->fileId < 0) {
-		std::cout << "Error: binary file could not be created" << std::endl;
+		throw Exception("Binary file could not be created");
 	}
 }
 
-BinaryFile::~BinaryFile()
-{
+BinaryFile::~BinaryFile() {
 	this->status = H5Fclose(this->fileId);
 	if (this->status < 0) {
-		std::cout << "Error: binary file could not be closed" << std::endl;
+		throw Exception("Binary file could not be closed");
 	}
 }
 
@@ -44,6 +42,21 @@ void BinaryFile::addDatasetUnsignedInt(
 		name.c_str(),
 		1,
 		dims,
-		H5T_STD_U32LE,
+		H5T_NATIVE_UINT,
+		data);
+}
+
+void BinaryFile::addDatasetUnsignedLong(
+	std::string name,
+	std::vector<unsigned long>& vec)
+{
+	hsize_t dims[1] = { vec.size() };
+	unsigned long * data = vec.data();
+	this->status = H5LTmake_dataset(
+		this->fileId,
+		name.c_str(),
+		1,
+		dims,
+		H5T_NATIVE_ULONG,
 		data);
 }

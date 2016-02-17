@@ -1,35 +1,35 @@
-/* utils.h
- * author: Christoph Froehner
- *
- * several functions needed everywhere.
- */
+/* utils.h */
 
 #ifndef __UTILS_H_INCLUDED__
 #define __UTILS_H_INCLUDED__
-#include <array>
 #include <vector>
 #include <iostream>
 #include <cmath>
 
-template<std::size_t SIZE>
-void printArray(std::array<double, SIZE>& arr)
-{
-	std::cout << "[ ";
-	for(auto& entry : arr)
+class Utils {
+public:
+	Utils()
 	{
-		std::cout << entry << " ";
+		dx = 0;
+		dy = 0;
+		dz = 0;
 	}
-	std::cout << "]" << std::endl;
-}
+	double dx, dy, dz;
+	void getMinDistanceVector(
+		std::vector<double>& r_ij,
+		std::vector<double>& r_i,
+		std::vector<double>& r_j,
+		bool& isPeriodic,
+		double& boxsize);
+	void getMinDistanceSquared(
+		double& distance,
+		std::vector<double>& r_i,
+		std::vector<double>& r_j,
+		bool& isPeriodic,
+		double& boxsize);
+};
 
-void printVector(std::vector<double> vec);
-
-double squaredDistance(
-	std::vector<double>& arr1,
-	std::vector<double>& arr2
-);
-
-inline void getMinDistanceVector(
+inline void Utils::getMinDistanceVector(
 	std::vector<double>& r_ij,
 	std::vector<double>& r_i,
 	std::vector<double>& r_j,
@@ -37,7 +37,6 @@ inline void getMinDistanceVector(
 	double& boxsize
 )
 {
-	double dx, dy, dz;
 	dx = r_j[0] - r_i[0];
 	dy = r_j[1] - r_i[1];
 	dz = r_j[2] - r_i[2];
@@ -54,15 +53,13 @@ inline void getMinDistanceVector(
 	r_ij[2] = dz;
 }
 
-inline void getMinDistanceSquared(
+inline void Utils::getMinDistanceSquared(
 	double& distance,
 	std::vector<double>& r_i,
 	std::vector<double>& r_j,
 	bool& isPeriodic,
-	double& boxsize
-)
+	double& boxsize)
 {
-	double dx, dy, dz;
 	dx = r_j[0] - r_i[0];
 	dy = r_j[1] - r_i[1];
 	dz = r_j[2] - r_i[2];
@@ -77,4 +74,4 @@ inline void getMinDistanceSquared(
 	distance = dx*dx + dy*dy + dz*dz;
 }
 
-#endif
+#endif //__UTILS_H_INCLUDED__
