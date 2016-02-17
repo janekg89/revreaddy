@@ -3,6 +3,8 @@ revreaddy
 
 A particle based reaction-diffusion simulation with a
 reversible integrator, which obeys detailed balance.
+Revreaddy is mainly a C++ software which is wrapped to
+be accessible from python.
 
 This version features:
 	* Brownian Dynamics integrator with Metropolis-Hastings
@@ -30,9 +32,6 @@ This version features:
 	* the current state of the simulation can be saved
 	  to a compact binary format with a single line
 	  and also loaded from file with a single line
-
-revreaddy is mainly a C++ software which is wrapped to
-be accessible from python.
 
 Installation
 ============
