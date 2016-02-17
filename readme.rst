@@ -1,19 +1,22 @@
-revreaddy pre v0.2
-******************
+revreaddy
+*********
 
 A particle based reaction-diffusion simulation with a
 reversible integrator, which obeys detailed balance.
 
-This early version features:
+This version features:
 	* Brownian Dynamics integrator with Metropolis-Hastings
 	  correction
-	* NO reactions (not yet!)
+	* Reactions that allow particle creation/destruction
+	  e.g. Fusion reaction A + B <--> C,
+	  with forward and backward rates
 	* customizable particle types with different radii and
 	  diffusion constants
 	* two possible repulsion potentials, harmonic repulsion
 	  and Lennard-Jones interaction
 	* geometric building blocks implemented as single
-	  particle potentials, currently repulsive plane "wall" 
+	  particle potentials, currently repulsive plane "wall"
+	  and a double-well potential in one dimension
 	* cubic periodic boundary conditions, can be switched
 	  off (not recommended) 
 	* observables which are calculated on the fly and saved
@@ -28,70 +31,30 @@ This early version features:
 	  to a compact binary format with a single line
 	  and also loaded from file with a single line
 
-revreaddy is mainly a python module which wraps the
-functionality of an underlying C++ software using
-cython. Large parts are still undocumented. 
-Not many unittests.
+revreaddy is mainly a C++ software which is wrapped to
+be accessible from python.
 
 Installation
 ============
 
-Requirements for compiling the cython extension:
-	* GNU scientific libraries (libgsl)
-	  for random number generation
-	* HDF5 (libhdf5/libhdf5_hl) for saving observables 
+Linked libraries:
+	* GNU scientific libraries (gsl, gslcblas)
+	  for random number generation and histogram
+	* HDF5 (hdf5, hdf5_hl) for saving observables 
 	  to binary file formats
+	* Boost for python wrapping and logging
+	  (Boost.python, Boost.log)
 
 Requirements for usage:
 	* Python 2
 	* h5py python module is required for saving
-	  and loading simulations with the
-	  utils.py module
+	  and loading simulations with the utils.py module
 
-Build the extension in place with
-
-::
-
-	$ python setupCython.py build_ext --inplace
-
-This will generate the sim.so file, which is basically
-the whole simulation code. When building in place it
-is convenient to add the parent directory of revreaddy
-to your PYTHONPATH by typing
-
-::
-
-	$ export PYTHONPATH=/parentPathOfRevreaddy/
-
-in a bash terminal or add this line to your .bashrc file.
-If you already set PYTHONPATH for other projects, simply
-concatenate the path like
-
-::
-
-	$ export PYTHONPATH=$PYHTONPATH:/parentPathOfRevreaddy/
-
-You can now start working by importing revreaddy in a
-python script, e.g.
+Usage
+=====
+Import revreaddy in a python script, e.g.
 
 ::
 
 	>>> import revreaddy.sim as sim
 	>>> import revreaddy.utils as utils
-
-Unittests
-=========
-
-As a unittest framework, cxxtest is used on the c-side.
-These tests are build with
-
-::
-
-	$ make unittest
-
-and run with
-
-::
-
-	$ bin/unittest
-
