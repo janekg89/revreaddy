@@ -55,5 +55,6 @@ Import revreaddy in a python script, e.g.
 
 ::
 
-	>>> import revreaddy.sim as sim
-	>>> import revreaddy.utils as utils
+	>>> import revreaddy 
+	>>> s = revreaddy.Simulation()
+	>>> s.run(steps=10000, timestep=0.1)
