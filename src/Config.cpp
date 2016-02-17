@@ -1,7 +1,6 @@
 /* Config.cpp */
 
 #include "Config.h"
-#define print(x) std::cout << x << std::endl;
 
 template<typename T, typename ...Args>
 std::unique_ptr<T> make_unique( Args&& ...args ) {
@@ -26,16 +25,8 @@ void Config::new_Type(
 	const double radius,
 	const double diffusionConstant)
 {
-	if ( radius < 0. ) {
-		std::cout << "Error: The particle radius must be non-negative!\n"
-		          << "New type is not created" << std::endl;
-		return;
-	}
-	if ( diffusionConstant < 0. ) {
-		std::cout << "Error: The diffusionConstant must be non-negative!\n"
-		          << "New Type is not created" << std::endl;
-		return;
-	}
+	if ( radius < 0. ) { throw Exception("The particle radius must be non-negative."); }
+	if ( diffusionConstant < 0. ) { throw Exception("The diffusionConstant must be non-negative"); }
 	ParticleType pType(
 		name,
 		radius,
@@ -43,21 +34,13 @@ void Config::new_Type(
 	this->particleTypes.push_back(pType);
 }
 
-unsigned int Config::getNumberOfTypes() {
-	return this->particleTypes.size();
-}
+unsigned Config::getNumberOfTypes() { return this->particleTypes.size(); }
 
-std::string Config::getDictName(unsigned int i) {
-	return this->particleTypes[i].name;
-}
+std::string Config::getDictName(unsigned i) { return this->particleTypes[i].name; }
 
-double Config::getDictRadius(unsigned int i) {
-	return this->particleTypes[i].radius;
-}
+double Config::getDictRadius(unsigned i) { return this->particleTypes[i].radius; }
 
-double Config::getDictDiffusionConstant(unsigned int i) {
-	return this->particleTypes[i].diffusionConstant;
-}
+double Config::getDictDiffusionConstant(unsigned i) { return this->particleTypes[i].diffusionConstant; }
 
 void Config::deleteAllGeometries() {
 	/* Erase all the unique pointers, the geometries are thus deleted as well */
@@ -96,59 +79,37 @@ void Config::deleteAllInteractions() {
 }
 
 void Config::new_SoftRepulsion(std::string name, std::vector<unsigned> affectedTuple, double repulsionStrength) {
-	if (affectedTuple.size() != 2) {
-		std::cout << "Error: The given tuple must be of length 2" << std::endl;
-		return;
-	}
+	if (affectedTuple.size() != 2) { throw Exception("The given tuple is not of length 2."); }
 	if ( (affectedTuple[0] > ( this->particleTypes.size() - 1) ) 
 	  || (affectedTuple[1] > ( this->particleTypes.size() - 1) ) ) {
-		std::cout << "Error: The given particle type(s) do not exist.\n"
-		          << "Make sure to add them first" << std::endl;
-		return;
+		throw Exception("The given particle type(s) do not exist.");
 	}
-	if ( repulsionStrength <= 0. ) {
-		std::cout << "Error: The repulsion strength must be larger than zero"
-		          << std::endl;
-		return;
-	}
+	if ( repulsionStrength <= 0. ) { throw Exception("The given repulsion strength is not positive."); }
 	std::shared_ptr<SoftRepulsion> soft = std::make_shared<SoftRepulsion>(
 		name,
 		affectedTuple,
 		repulsionStrength);
 	// set cutoff correctly
-	soft->cutoff = this->particleTypes[affectedTuple[0]].radius 
-	             + this->particleTypes[affectedTuple[1]].radius;
+	soft->cutoff = this->particleTypes[affectedTuple[0]].radius + this->particleTypes[affectedTuple[1]].radius;
 	this->interactions.push_back( std::move(soft) );
-	std::cout << "Info: SoftRepulsion interaction added to interactions"
-	          << std::endl;
+	LOG_INFO("SoftRepulsion interaction added to interactions")
 }
 
 void Config::new_LennardJones(std::string name, std::vector<unsigned> affectedTuple, double epsilon) {
-	if (affectedTuple.size() != 2) {
-		std::cout << "Error: The given tuple must be of length 2" << std::endl;
-		return;
-	}
+	if (affectedTuple.size() != 2) { throw Exception("The given tuple is not of length 2."); }
 	if ( (affectedTuple[0] > ( this->particleTypes.size() - 1) ) 
 	  || (affectedTuple[1] > ( this->particleTypes.size() - 1) ) ) {
-		std::cout << "Error: The given particle type(s) do not exist.\n"
-		          << "Make sure to add them first" << std::endl;
-		return;
+		throw Exception("The given particle type(s) do not exist.");
 	}
-	if ( epsilon <= 0. ) {
-		std::cout << "Error: The given epsilon must be larger than zero"
-		          << std::endl;
-		return;
-	}
+	if ( epsilon <= 0. ) { throw Exception("The given epsilon is not positive."); }
 	std::shared_ptr<LennardJones> lj = std::make_shared<LennardJones>(
 		name,
 		affectedTuple,
 		epsilon);
 	// set cutoff correctly
-	lj->cutoff = 2.5 * ( this->particleTypes[affectedTuple[0]].radius
-	                   + this->particleTypes[affectedTuple[1]].radius );
+	lj->cutoff = 2.5 * ( this->particleTypes[affectedTuple[0]].radius + this->particleTypes[affectedTuple[1]].radius );
 	this->interactions.push_back( std::move(lj) );
-	std::cout << "Info: LennardJones interaction added to interactions"
-	          << std::endl;
+	LOG_INFO("LennardJones interaction added to interactions")
 }
 
 unsigned int Config::getNumberInteractions() {

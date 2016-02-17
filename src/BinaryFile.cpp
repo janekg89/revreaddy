@@ -2,20 +2,18 @@
 
 #include "BinaryFile.h"
 
-BinaryFile::BinaryFile(std::string name)
-{
+BinaryFile::BinaryFile(std::string name) {
 	this->fileId = H5Fcreate(name.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
 	// if this returns a negative value, file could not be created
 	if (this->fileId < 0) {
-		std::cout << "Error: binary file could not be created" << std::endl;
+		throw Exception("Binary file could not be created");
 	}
 }
 
-BinaryFile::~BinaryFile()
-{
+BinaryFile::~BinaryFile() {
 	this->status = H5Fclose(this->fileId);
 	if (this->status < 0) {
-		std::cout << "Error: binary file could not be closed" << std::endl;
+		throw Exception("Binary file could not be closed");
 	}
 }
 

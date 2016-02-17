@@ -12,9 +12,9 @@
 #include "Random.h"
 #include "ParticleInteraction.h"
 #include "utils.h"
+#include "logging.h"
 
-class Fusion : public Reaction
-{
+class Fusion : public Reaction {
 public:
 	Fusion(
 		std::string inName,

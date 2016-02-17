@@ -42,7 +42,7 @@ void SimulationImpl::writeLastObservableToFile() {
 		this->observables.back()->writeBufferToFile();
 	}
 	else {
-		std::cout << "Error: There are no observables to write" << std::endl;
+		throw Exception("There are no observables to write");
 	}
 }
 

@@ -1,14 +1,9 @@
 /* SoftRepulsion.cpp */
 
 #include "SoftRepulsion.h"
-#define print(a) std::cout << a << std::endl;
 
 // cutoff is set by Simulation, here it is radius_i + radius_j
-SoftRepulsion::SoftRepulsion(
-	std::string inName,
-	std::vector <unsigned int> inAffectedTuple,
-	double inRepulsionStrength)
-{
+SoftRepulsion::SoftRepulsion(std::string inName, std::vector <unsigned int> inAffectedTuple, double inRepulsionStrength) {
 	this->name = inName;
 	this->type = "SoftRepulsion";
 	this->parameters = { inRepulsionStrength };
@@ -20,7 +15,7 @@ SoftRepulsion::SoftRepulsion(
 	else {
 		this->affectedTuple.push_back(inAffectedTuple[1]);
 		this->affectedTuple.push_back(inAffectedTuple[0]);	
-		print("Info: SoftRepulsion affectedTuple order was inverted")
+		LOG_INFO("SoftRepulsion affectedTuple order was inverted")
 	}
 	this->c = 0.;
 	this->a = 0.;
@@ -29,9 +24,9 @@ SoftRepulsion::SoftRepulsion(
 void SoftRepulsion::calculateForceEnergy(
 	std::vector<double>& forceI, //out
 	double& energy,
-	std::vector<double>& r_ij, //in
-	double& rSquared,
-	double& radiiSquared)
+	const std::vector<double>& r_ij, //in
+	const double& rSquared,
+	const double& radiiSquared)
 {
 	if ( rSquared > radiiSquared ) {
 		forceI[0]=0.; forceI[1]=0.; forceI[2]=0.;
@@ -49,8 +44,8 @@ void SoftRepulsion::calculateForceEnergy(
 }
 
 double SoftRepulsion::calculateEnergy(
-	double rSquared, //in
-	double radiiSquared) //in
+	const double rSquared, //in
+	const double radiiSquared) //in
 {
 	if ( rSquared > radiiSquared ) {
 		return 0.;

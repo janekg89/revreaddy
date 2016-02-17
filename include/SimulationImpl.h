@@ -20,6 +20,8 @@
 #include "UnimolecularCandidateType.h"
 #include "Neighborlist.h"
 #include "utils.h"
+#include "logging.h"
+#include "Exception.h"
 
 #include "Observable.h"
 #include "Trajectory.h"

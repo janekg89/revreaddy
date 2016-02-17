@@ -11,8 +11,7 @@
 #include "World.h"
 #include "Random.h"
 
-class Conversion : public Reaction
-{
+class Conversion : public Reaction {
 public:
 	Conversion(
 		std::string inName,
@@ -23,12 +22,12 @@ public:
 	~Conversion();
 
 	double performForward(
-		std::vector<unsigned long int> particleIndices,
+		std::vector<unsigned long> particleIndices,
 		double timestep,
 		World * world,
 		Random * random);
 	double performBackward(
-		std::vector<unsigned long int> particleIndices,
+		std::vector<unsigned long> particleIndices,
 		double timestep,
 		World * world,
 		Random * random);

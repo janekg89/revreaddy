@@ -10,7 +10,6 @@
 #include <iostream>
 #include <memory>
 #include <typeinfo>
-//#include <boost/log/trivial.hpp>
 #include "Geometry.h"
 #include "Wall.h"
 #include "DoubleWellZ.h"
@@ -21,6 +20,8 @@
 #include "Reaction.h"
 #include "Conversion.h"
 #include "Fusion.h"
+#include "Exception.h"
+#include "logging.h"
 
 class Config {
 public:

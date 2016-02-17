@@ -2,15 +2,6 @@
 #include "Fusion.h"
 #include <math.h>
 
-//#define __DEBUG__
-#ifndef __DEBUG__
-#define print(a)  
-#endif
-#ifdef __DEBUG__
-#define print(a) std::cout << a << std::endl;
-#undef __DEBUG__
-#endif
-
 Fusion::Fusion(
 	std::string inName,
 	std::vector<unsigned> inForwardTypes,
@@ -47,7 +38,6 @@ void Fusion::configure(
 	bool inIsPeriodic,
 	double inBoxsize)
 {
-	print("configure Fusion")
 	this->interactions = inInteractions;
 	this->inversePartition = inInversePartition;
 	this->maxDistr = inMaxDistr;
@@ -69,7 +59,6 @@ double Fusion::performForward(
 	World * world,
 	Random * random)
 {
-	print("Enter Fusion performForward")
 	double forwardProb = this->forwardRate * timestep;
 	double u = random->uniform();
 	if ( u < forwardProb ) {
@@ -126,7 +115,6 @@ double Fusion::performBackward(
 	World * world,
 	Random * random)
 {
-	print("Enter Fusion performBackward")
 	double backwardProb = this->backwardRate * timestep;
 	double u = random->uniform();
 	if ( u < backwardProb ) {
@@ -191,6 +179,6 @@ double Fusion::randomFromDistribution(Random * random)
 		if ( y < this->distribution(x) ) { return x; }
 		else { it += 1; }
 	}
-	print("INFO: uniformFromDistribution left with mean")
+	LOG_INFO("uniformFromDistribution left with mean value.")
 	return this->meanDistr;
 }

@@ -3,14 +3,9 @@
 #include "LennardJones.h"
 // 2^(-1/3)
 #define TWO_POW_MIN_ONE_THIRD 0.7937005259840998
-#define print(a) std::cout << a << std::endl;
 
 //cutoff is set by Simulation, here it is 2.5*(radius_i+radius_j)
-LennardJones::LennardJones(
-	std::string inName,
-	std::vector<unsigned int> inAffectedTuple,
-	double inEpsilon)
-{
+LennardJones::LennardJones(std::string inName, std::vector<unsigned int> inAffectedTuple, double inEpsilon) {
 	this->name = inName;
 	this->type = "LennardJones";
 	this->parameters = { inEpsilon };
@@ -22,16 +17,16 @@ LennardJones::LennardJones(
 	else {
 		this->affectedTuple.push_back(inAffectedTuple[1]);
 		this->affectedTuple.push_back(inAffectedTuple[0]);	
-		print("Info: LennardJones affectedTuple order was inverted")
+		LOG_INFO("LennardJones affectedTuple order was inverted")
 	}
 }
 
 void LennardJones::calculateForceEnergy(
 	std::vector<double>& forceI, //out
 	double& energy,
-	std::vector<double>& r_ij, //in
-	double& rSquared,
-	double& radiiSquared)
+	const std::vector<double>& r_ij, //in
+	const double& rSquared,
+	const double& radiiSquared)
 {
 	if ( rSquared > (6.25*radiiSquared) ) {
 		energy = 0.;
@@ -49,8 +44,8 @@ void LennardJones::calculateForceEnergy(
 }
 
 double LennardJones::calculateEnergy(
-	double rSquared,
-	double radiiSquared)
+	const double rSquared,
+	const double radiiSquared)
 {
 	if ( rSquared > (6.25*radiiSquared) ) {
 		return 0.;

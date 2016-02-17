@@ -17,7 +17,7 @@ Random::Random(std::string type) {
 
 Random::~Random() {
 	gsl_rng_free(this->randomGeneratorHandle);
-	std::cout << "Info: Random number generator has been released." << std::endl;
+	LOG_INFO("Random number generator has been released.")
 }
 
 void Random::toSeed() {
@@ -25,8 +25,7 @@ void Random::toSeed() {
 	devurandom = fopen("/dev/urandom","r");
 	fread(&this->seed, sizeof(this->seed), 1, devurandom);
 	fclose(devurandom);
-	std::cout << "Info: Got seed " << this->seed 
-	          << " from /dev/urandom." << std::endl;
+	LOG_INFO("Got seed " << this->seed << " from /dev/urandom.")
 }
 
 double Random::normal() {

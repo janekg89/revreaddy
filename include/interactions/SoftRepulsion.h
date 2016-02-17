@@ -8,26 +8,23 @@
 #include <math.h>
 #include <cmath>
 #include "ParticleInteraction.h"
+#include "logging.h"
 
-class SoftRepulsion : public ParticleInteraction
-{
+class SoftRepulsion : public ParticleInteraction {
 public:
-	SoftRepulsion(
-		std::string inName,
-		std::vector<unsigned int> inAffectedTuple,
-		double inRepulsionStrength);
+	SoftRepulsion(std::string inName, std::vector<unsigned int> inAffectedTuple, double inRepulsionStrength);
 	
 	void calculateForceEnergy(
 		std::vector<double>& forceI, //out
 		double& energy,
-		std::vector<double>& r_ij, //in
-		double& rSquared,
-		double& radiiSquared);
+		const std::vector<double>& r_ij, //in
+		const double& rSquared,
+		const double& radiiSquared);
 	double calculateEnergy(
-		double rSquared, // in
-		double radiiSquared); //in
+		const double rSquared, // in
+		const double radiiSquared); //in
 	/* members that are once allocated to avoid
-	 * on the run allocation */
+	 * on-the-run allocation */
 	double c;
 	double a;
 };

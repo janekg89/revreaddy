@@ -14,13 +14,12 @@ World::World()
 	this->uniqueIdCounter       = 0;
 }
 
-void World::addParticle(std::vector<double> initPos, unsigned int particleTypeId) {
+void World::addParticle(std::vector<double> initPos, unsigned particleTypeId) {
 	try {
 		if ( initPos.size() != 3 ) {
 			throw Exception("Particles' initial position has dimension mismatch.");
 		}
-	}
-	catch (Exception& e) {
+	} catch (Exception& e) {
 		LOG_ERROR(e.what())
 		LOG_INFO("Particle is not created.")
 		return;
@@ -42,23 +41,20 @@ unsigned long World::getNumberOfParticles() { return this->particles.size(); }
 std::vector<double> World::getPosition(unsigned long index) { return this->particles[index].position; }
 
 void World::setPosition(unsigned long index, std::vector<double> newPos) {
-	if (newPos.size() == 3) {
+	try {
+		if (newPos.size() != 3) { throw Exception("New position has dimension mismatch."); }
 		this->particles[index].position[0] = newPos[0];
 		this->particles[index].position[1] = newPos[1];
 		this->particles[index].position[2] = newPos[2];
-	}
-	else {
-		throw Exception("New position has dimension mismatch!");
+	} catch (Exception& e) {
+		LOG_ERROR(e.what())
+		LOG_INFO("Particle position is not changed.")
 	}
 }
 
-unsigned World::getTypeId(unsigned long index) {
-	return this->particles[index].typeId;
-}
+unsigned World::getTypeId(unsigned long index) { return this->particles[index].typeId; }
 
-void World::setTypeId(unsigned long index, unsigned typeId) {
-	this->particles[index].typeId = typeId;
-}
+void World::setTypeId(unsigned long index, unsigned typeId) { this->particles[index].typeId = typeId; }
 
 void World::deleteAllParticles() {
 	 this->particles.erase(
