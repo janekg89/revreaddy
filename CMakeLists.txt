@@ -56,10 +56,13 @@ set(SOURCES
 
 if(CMAKE_BUILD_TYPE MATCHES Debug)
     add_definitions(-D__DEBUG__)
-endif(CMAKE_BUILD_TYPE MATCHES Debug)
-
-if(CMAKE_BUILD_TYPE MATCHES Release)
+    message("Buildtype is Debug. Logging severity set to debug.")
+elseif(CMAKE_BUILD_TYPE MATCHES Release)
     add_definitions(-D__INFO__)
+    message("Buildtype is Release. Logging severity set to info.")
+else(CMAKE_BUILD_TYPE MATCHES Debug)
+    add_definitions(-D__INFO__)
+    message("Buildtype not specified. Logging severity set to info.")
 endif(CMAKE_BUILD_TYPE MATCHES Release)
 
 add_definitions(-DBOOST_LOG_DYN_LINK)

@@ -12,7 +12,10 @@ Random::Random(std::string type) {
 	this->randomGeneratorHandle = gsl_rng_alloc(this->randomGeneratorType);
 	this->toSeed();
 	gsl_rng_set(this->randomGeneratorHandle, this->seed);
-	LOG_INFO("Random number generator of type '"<<gsl_rng_name(randomGeneratorHandle)<<"' has been intialized and seeded.")
+	LOG_INFO(
+		"Random number generator of type '" 
+		<< gsl_rng_name(randomGeneratorHandle) << "' has been intialized and seeded."
+	)
 }
 
 Random::~Random() {
