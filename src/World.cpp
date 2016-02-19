@@ -38,7 +38,12 @@ void World::removeParticle(unsigned long index) {
 
 unsigned long World::getNumberOfParticles() { return this->particles.size(); }
 
-std::vector<double> World::getPosition(unsigned long index) { return this->particles[index].position; }
+std::vector<double> World::getPosition(unsigned long index) {
+	if ( this->particles.size() <= index ) {
+		throw Exception("There is no particle of the given index.");
+	}
+	return this->particles[index].position;
+}
 
 void World::setPosition(unsigned long index, std::vector<double> newPos) {
 	try {
