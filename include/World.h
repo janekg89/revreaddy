@@ -44,15 +44,13 @@ public:
 	unsigned long int acceptionsReactions;
 	unsigned long int rejectionsReactions;
 
-	void addParticle(
-		std::vector<double> initPos,
-		unsigned int particleTypeId);
-	void removeParticle(unsigned long int index);
+	void addParticle(std::vector<double> initPos, unsigned particleTypeId);
+	void removeParticle(unsigned long index);
 	unsigned long getNumberOfParticles();
-	std::vector<double> getPosition(unsigned long int index);
-	void setPosition(unsigned long int index, std::vector<double> newPos);
+	std::vector<double> getPosition(unsigned long index);
+	void setPosition(unsigned long index, std::vector<double> newPos);
 	unsigned int getTypeId(unsigned long index);
-	void setTypeId(unsigned long int index, unsigned int typeId);
+	void setTypeId(unsigned long index, unsigned typeId);
 	void deleteAllParticles();	
 };
 

@@ -69,6 +69,9 @@ private:
 	Neighborlist * neighborlist;
 	/* If no interactions or reactions are present, no distances have to be calculated */
 	bool skipPairInteractionsReactions;
+	/* This assures that a Neighborlist class has been allocated. Necessary if the Simulation
+	 * is destroyed before a run() has been executed. */
+	bool neighborlistConfigured;
 	std::vector< std::unique_ptr<Observable> > observables;
 	/* unimolecularCandidateTypes is a list of typeIds that can undergo a
 	 * unimolecular reaction like a -> b or a -> b+c, it also contains

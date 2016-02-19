@@ -2,13 +2,19 @@
 #include "Simulation.h"
 
 Simulation::Simulation(World * inWorld, Config * inConfig, std::string whichImpl) {
+	LOG_TRACE("Enter Simulation Constructor.")
 	if (whichImpl == "revDynamics") { }
 	else if (whichImpl == "revReactions") { }
 	else if (whichImpl == "revDynamicsReactions") { }
 	else { this->impl = new SimulationImpl(inWorld, inConfig); }
+	LOG_TRACE("Leave Simulation Constructor.")
 }
 
-Simulation::~Simulation() { delete this->impl; }
+Simulation::~Simulation() {
+	LOG_TRACE("Enter Simulation Destructor.")
+	delete this->impl;
+	LOG_TRACE("Leave Simulation Destructor.")
+}
 
 void Simulation::run(const unsigned long maxTime) { impl->run(maxTime); }
 bool Simulation::getUseNeighborlist() { return impl->useNeighborlist; }

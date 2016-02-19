@@ -9,6 +9,7 @@ std::unique_ptr<T> make_unique( Args&& ...args ) {
 }
 
 SimulationImpl::SimulationImpl(World * inWorld, Config * inConfig) {
+	LOG_TRACE("Enter SimulationImpl Constructor.")
 	this->world  = inWorld;
 	this->config = inConfig;
 	this->random = new Random("ranlxs0");
@@ -19,16 +20,20 @@ SimulationImpl::SimulationImpl(World * inWorld, Config * inConfig) {
 	//this->isReversibleDynamics = true;
 	//this->isReversibleReactions = true;
 	this->useNeighborlist = true;
+	this->neighborlistConfigured = false;
 	this->skipPairInteractionsReactions = false;
+	LOG_TRACE("Leave SimulationImpl Constructor.")
 }
 
 SimulationImpl::~SimulationImpl() {
+	LOG_TRACE("Enter SimulationImpl Destructor.")
 	this->deleteAllObservables();
-	if (this->useNeighborlist) {
+	if (this->neighborlistConfigured) {
 		delete this->neighborlist;
 	}
 	delete this->utils;
 	delete this->random;
+	LOG_TRACE("Leave SimulationImpl Destructor.")
 }
 
 void SimulationImpl::writeAllObservablesToFile() {
@@ -139,7 +144,7 @@ void SimulationImpl::run(const unsigned long maxTime) {
 	if (config->interactions.empty() && config->reactions.empty()) {
 		this->skipPairInteractionsReactions = true;
 	}
-	if (this->useNeighborlist && ( !this->skipPairInteractionsReactions ) ) {	this->configureNeighborlist(); }
+	if (this->useNeighborlist && ( !this->skipPairInteractionsReactions ) ) { this->configureNeighborlist(); }
 	else { this->useNeighborlist = false; }
 	this->setupUnimolecularCandidateTypes();
 	this->configureObservables();
@@ -221,6 +226,7 @@ void SimulationImpl::configureNeighborlist() {
 	if (numberBoxes > 3) {
 		this->useNeighborlist = true; // actually obsolete
 		this->neighborlist = new Neighborlist( numberBoxes );
+		this->neighborlistConfigured = true;
 	}
 	else {
 		this->useNeighborlist = false;
