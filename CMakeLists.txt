@@ -1,72 +1,31 @@
 cmake_minimum_required(VERSION 2.8.12)
 project(revreaddy)
+set(REVREADDY_C_LIBRARY_NAME "revreaddyC")
+set(REVREADDY_PY_LIBRARY_NAME "revreaddyPy")
 
 find_package(PythonInterp)
 find_package(PythonLibs REQUIRED)
 find_package(Boost COMPONENTS python log REQUIRED)
 
-include_directories(
-    ${Boost_INCLUDE_DIRS}
-    ${PYTHON_INCLUDE_DIRS}
-    /usr/include/python2.7
-    include
-    include/geometries
-    include/interactions
-    include/observables
-    include/reactions
-)
 
-# these are the C++ standalone sources
-set(SOURCES
-    src/geometries/Geometry.cpp
-    src/geometries/DoubleWellZ.cpp
-    src/geometries/Wall.cpp
-
-    src/interactions/ParticleInteraction.cpp
-    src/interactions/LennardJones.cpp
-    src/interactions/SoftRepulsion.cpp
-
-    src/observables/Observable.cpp
-    src/observables/Acceptance.cpp
-    src/observables/Energy.cpp
-    src/observables/MeanSquaredDisplacement.cpp
-    src/observables/ParticleNumbers.cpp
-    src/observables/ProbabilityDensity.cpp
-    src/observables/RadialDistribution.cpp
-    src/observables/Trajectory.cpp
-
-    src/reactions/Reaction.cpp
-    src/reactions/Conversion.cpp
-    src/reactions/Fusion.cpp
-
-    src/BinaryFile.cpp
-    src/Config.cpp
-    src/Particle.cpp
-    src/ParticleType.cpp
-    src/Random.cpp
-    src/ReactionEvent.cpp
-    src/Simulation.cpp
-    src/SimulationImpl.cpp
-    src/World.cpp
-)
-
-# set logging defines
-set(REVREADDY_LOGGING_SEVERITY __INFO__ CACHE STRING "The logging level")
-if (REVREADDY_LOGGING_SEVERITY MATCHES __TRACE__)
-    add_definitions(-D__TRACE__)
-elseif (REVREADDY_LOGGING_SEVERITY MATCHES __DEBUG__)
-    add_definitions(-D__DEBUG__)
-elseif (REVREADDY_LOGGING_SEVERITY MATCHES __INFO__)
-    add_definitions(-D__INFO__)
-elseif (REVREADDY_LOGGING_SEVERITY MATCHES __WARNING__)
-    add_definitions(-D__WARNING__)
-endif (REVREADDY_LOGGING_SEVERITY MATCHES __TRACE__)
 
 # target python extension
-add_definitions(-DBOOST_LOG_DYN_LINK)
-python_add_module(revreaddyPyEx ${SOURCES} src/pybinding.cpp)
-target_link_libraries(revreaddyPyEx ${Boost_LIBRARIES} ${PYTHON_LIBRARIES} gsl gslcblas m hdf5 hdf5_hl)
-set_property (TARGET revreaddyPyEx PROPERTY COMPILE_FLAGS -std=c++11)
+python_add_module(${REVREADDY_PY_LIBRARY_NAME} src/pybinding.cpp)
+target_include_directories(${REVREADDY_PY_LIBRARY_NAME}
+    ${Boost_INCLUDE_DIRS}
+    ${PYTHON_INCLUDE_DIRS}
+    revreaddy/include
+    revreaddy/include/geometries
+    revreaddy/include/interactions
+    revreaddy/include/observables
+    revreaddy/include/reactions
+)
+#target_compile_definitions(${REVREADDY_C_LIBRARY_NAME} -DBOOST_LOG_DYN_LINK)
+#target_link_libraries(${REVREADDY_LIBRARY_C_NAME} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES} gsl gslcblas m hdf5 hdf5_hl)
+set_property (TARGET ${REVREADDY_PY_LIBRARY_NAME} PROPERTY COMPILE_FLAGS -std=c++11)
+
+# this is where the c library is build 
+add_subdirectory(revreaddy)
 
 # tests
 set(REVREADDY_RUN_TESTS ON CACHE BOOL "Build and run tests.")
@@ -89,7 +48,7 @@ if (EXISTS "${CMAKE_SOURCE_DIR}/libraries/googletest/CMakeLists.txt" AND REVREAD
             "-Dgtest_force_shared_crt:bool=ON"
             INSTALL_COMMAND ""
     )
-    add_dependencies(${READDY_LIBRARY_NAME} googletest)
+    add_dependencies(${REVREADDY_C_LIBRARY_NAME} googletest)
     enable_testing()
     include_directories(${GOOGLETEST_INCLUDE})
     add_subdirectory(tests)
