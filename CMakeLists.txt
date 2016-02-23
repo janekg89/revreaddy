@@ -7,27 +7,25 @@ find_package(PythonInterp)
 find_package(PythonLibs REQUIRED)
 find_package(Boost COMPONENTS python log REQUIRED)
 
-
-
 # target python extension
-python_add_module(${REVREADDY_PY_LIBRARY_NAME} src/pybinding.cpp)
-target_include_directories(${REVREADDY_PY_LIBRARY_NAME}
+python_add_module(${REVREADDY_PY_LIBRARY_NAME} pybinding.cpp)
+add_dependencies(${REVREADDY_PY_LIBRARY_NAME} ${REVREADDY_C_LIBRARY_NAME})
+target_include_directories(${REVREADDY_PY_LIBRARY_NAME} PUBLIC
     ${Boost_INCLUDE_DIRS}
     ${PYTHON_INCLUDE_DIRS}
-    revreaddy/include
-    revreaddy/include/geometries
-    revreaddy/include/interactions
-    revreaddy/include/observables
-    revreaddy/include/reactions
+    revreaddyC/include
+    revreaddyC/include/geometries
+    revreaddyC/include/interactions
+    revreaddyC/include/observables
+    revreaddyC/include/reactions
 )
-#target_compile_definitions(${REVREADDY_C_LIBRARY_NAME} -DBOOST_LOG_DYN_LINK)
-#target_link_libraries(${REVREADDY_LIBRARY_C_NAME} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES} gsl gslcblas m hdf5 hdf5_hl)
+target_link_libraries(${REVREADDY_PY_LIBRARY_NAME} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES} ${REVREADDY_C_LIBRARY_NAME})
 set_property (TARGET ${REVREADDY_PY_LIBRARY_NAME} PROPERTY COMPILE_FLAGS -std=c++11)
 
 # this is where the c library is build 
-add_subdirectory(revreaddy)
+add_subdirectory(revreaddyC)
 
-# tests
+# tests for the c library
 set(REVREADDY_RUN_TESTS ON CACHE BOOL "Build and run tests.")
 if (EXISTS "${CMAKE_SOURCE_DIR}/libraries/googletest/CMakeLists.txt" AND REVREADDY_RUN_TESTS)
     message(STATUS "The submodule googletest was initialized, thus enable testing")
@@ -51,7 +49,7 @@ if (EXISTS "${CMAKE_SOURCE_DIR}/libraries/googletest/CMakeLists.txt" AND REVREAD
     add_dependencies(${REVREADDY_C_LIBRARY_NAME} googletest)
     enable_testing()
     include_directories(${GOOGLETEST_INCLUDE})
-    add_subdirectory(tests)
+    add_subdirectory(revreaddyC/tests)
 else ()
     message(STATUS "The submodule googletest was not initialized or REVREADDY_RUN_TESTS was OFF, thus no testing.")
 endif ()

@@ -71,7 +71,7 @@ public:
 
 using namespace boost::python;
 
-BOOST_PYTHON_MODULE(simpy) {
+BOOST_PYTHON_MODULE(revreaddyPy) {
 	numeric::array::set_module_and_type("numpy", "ndarray");
 	class_<WorldWrap>("World", init<>())
 		.def("addParticle", &WorldWrap::addParticle)

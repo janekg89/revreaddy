@@ -1,0 +1,15 @@
+# find pthread lib
+find_package(Threads REQUIRED)
+
+# gather sources
+file(GLOB TEST_SOURCES *.cpp)
+
+link_directories(${GOOGLETEST_LIBRARY})
+
+# set target and link needed libraries
+add_executable(runTests ${TEST_SOURCES} ${GOOGLETEST_INCLUDE})
+add_dependencies(runTests ${REVREADDY_C_LIBRARY_NAME})
+target_link_libraries(runTests gtest gtest_main ${REVREADDY_LIBRARY_NAME} ${CMAKE_THREAD_LIBS_INIT})
+
+# add tests to the building process
+add_test(NAME revreaddy-tests COMMAND runTests)

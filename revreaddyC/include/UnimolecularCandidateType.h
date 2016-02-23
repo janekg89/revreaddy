@@ -6,15 +6,12 @@
  #ifndef __UNIMOLECULARCANDIDATETYPE_H_INCLUDED__
  #define __UNIMOLECULARCANDIDATETYPE_H_INCLUDED__
 
- struct UnimolecularCandidateType
- {
- public:
+ struct UnimolecularCandidateType {
 	UnimolecularCandidateType(unsigned pTypeId,	unsigned reactId, bool forwBackw) 
 		: particleTypeId(pTypeId), reactionId(reactId), forwardOrBackward(forwBackw) { }
-
 	unsigned particleTypeId;
 	unsigned reactionId;
 	bool forwardOrBackward;
  };
 
- #endif // __UNIMOLECULARCANDIDATE_H_INCLUDED__
+ #endif // __UNIMOLECULARCANDIDATETYPE_H_INCLUDED__

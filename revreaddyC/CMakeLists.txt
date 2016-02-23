@@ -1,62 +1,33 @@
-
-
 # these are the C++ standalone sources
-set(SOURCES
-    src/geometries/Geometry.cpp
-    src/geometries/DoubleWellZ.cpp
-    src/geometries/Wall.cpp
-
-    src/interactions/ParticleInteraction.cpp
-    src/interactions/LennardJones.cpp
-    src/interactions/SoftRepulsion.cpp
-
-    src/observables/Observable.cpp
-    src/observables/Acceptance.cpp
-    src/observables/Energy.cpp
-    src/observables/MeanSquaredDisplacement.cpp
-    src/observables/ParticleNumbers.cpp
-    src/observables/ProbabilityDensity.cpp
-    src/observables/RadialDistribution.cpp
-    src/observables/Trajectory.cpp
-
-    src/reactions/Reaction.cpp
-    src/reactions/Conversion.cpp
-    src/reactions/Fusion.cpp
-
-    src/BinaryFile.cpp
-    src/Config.cpp
-    src/Particle.cpp
-    src/ParticleType.cpp
-    src/Random.cpp
-    src/ReactionEvent.cpp
-    src/Simulation.cpp
-    src/SimulationImpl.cpp
-    src/World.cpp
+file(GLOB REVREADDY_C_SOURCES
+    src/*.cpp 
+    src/geometries/*.cpp
+    src/interactions/*.cpp
+    src/observables/*.cpp
+    src/reactions/*.cpp 
 )
 
-add_library(${REVREADDY_LIBRARY_NAME} STATIC SOURCES)
-target_include_directories(${REVREADDY_LIBRARY_NAME}
+add_library(${REVREADDY_C_LIBRARY_NAME} SHARED ${REVREADDY_C_SOURCES})
+target_include_directories(${REVREADDY_C_LIBRARY_NAME} PUBLIC
     ${Boost_INCLUDE_DIRS}
-    ${PYTHON_INCLUDE_DIRS}
-    /usr/include/python2.7
-    include
-    include/geometries
-    include/interactions
-    include/observables
-    include/reactions
+    ${PROJECT_SOURCE_DIR}/revreaddyC/include
+    ${PROJECT_SOURCE_DIR}/revreaddyC/include/geometries
+    ${PROJECT_SOURCE_DIR}/revreaddyC/include/interactions
+    ${PROJECT_SOURCE_DIR}/revreaddyC/include/observables
+    ${PROJECT_SOURCE_DIR}/revreaddyC/include/reactions
 )
-target_compile_definitions(${REVREADDY_LIBRARY_NAME} -DBOOST_LOG_DYN_LINK)
-target_link_libraries(${REVREADDY_LIBRARY_NAME} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES} gsl gslcblas m hdf5 hdf5_hl)
-set_property (TARGET ${REVREADDY_LIBRARY_NAME} PROPERTY COMPILE_FLAGS -std=c++11)
+target_compile_definitions(${REVREADDY_C_LIBRARY_NAME} PUBLIC -DBOOST_LOG_DYN_LINK)
+target_link_libraries(${REVREADDY_C_LIBRARY_NAME} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES} gsl gslcblas m hdf5 hdf5_hl)
+set_property(TARGET ${REVREADDY_C_LIBRARY_NAME} PROPERTY COMPILE_FLAGS -std=c++11)
 
 # set logging defines
 set(REVREADDY_LOGGING_SEVERITY __INFO__ CACHE STRING "The logging level")
 if (REVREADDY_LOGGING_SEVERITY MATCHES __TRACE__)
-    target_compile_definitions(${REVREADDY_LIBRARY_NAME} -D__TRACE__)
+    target_compile_definitions(${REVREADDY_C_LIBRARY_NAME} PUBLIC -D__TRACE__)
 elseif (REVREADDY_LOGGING_SEVERITY MATCHES __DEBUG__)
-    target_compile_definitions(${REVREADDY_LIBRARY_NAME} -D__DEBUG__)
+    target_compile_definitions(${REVREADDY_C_LIBRARY_NAME} PUBLIC -D__DEBUG__)
 elseif (REVREADDY_LOGGING_SEVERITY MATCHES __INFO__)
-    target_compile_definitions(${REVREADDY_LIBRARY_NAME} -D__INFO__)
+    target_compile_definitions(${REVREADDY_C_LIBRARY_NAME} PUBLIC -D__INFO__)
 elseif (REVREADDY_LOGGING_SEVERITY MATCHES __WARNING__)
-    target_compile_definitions(${REVREADDY_LIBRARY_NAME} -D__WARNING__)
+    target_compile_definitions(${REVREADDY_C_LIBRARY_NAME} PUBLIC -D__WARNING__)
 endif (REVREADDY_LOGGING_SEVERITY MATCHES __TRACE__)
