@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 2.8.12)
 project(revreaddy)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-
 find_package(PythonInterp)
 find_package(PythonLibs REQUIRED)
 find_package(Boost COMPONENTS python log REQUIRED)
@@ -17,9 +15,7 @@ include_directories(
     include/observables
     include/reactions
 )
-link_libraries(${Boost_LIBRARIES} ${PYTHON_LIBRARIES} gsl gslcblas m hdf5 hdf5_hl)
-#include_directories(include)
-#link_libraries(gsl gslcblas m hdf5 hdf5_hl)
+
 # these are the C++ standalone sources
 set(SOURCES
     src/geometries/Geometry.cpp
@@ -54,18 +50,49 @@ set(SOURCES
     src/World.cpp
 )
 
+# set logging defines
 set(REVREADDY_LOGGING_SEVERITY __INFO__ CACHE STRING "The logging level")
-if(REVREADDY_LOGGING_SEVERITY MATCHES __TRACE__)
+if (REVREADDY_LOGGING_SEVERITY MATCHES __TRACE__)
     add_definitions(-D__TRACE__)
-elseif(REVREADDY_LOGGING_SEVERITY MATCHES __DEBUG__)
+elseif (REVREADDY_LOGGING_SEVERITY MATCHES __DEBUG__)
     add_definitions(-D__DEBUG__)
-elseif(REVREADDY_LOGGING_SEVERITY MATCHES __INFO__)
+elseif (REVREADDY_LOGGING_SEVERITY MATCHES __INFO__)
     add_definitions(-D__INFO__)
-elseif(REVREADDY_LOGGING_SEVERITY MATCHES __WARNING__)
+elseif (REVREADDY_LOGGING_SEVERITY MATCHES __WARNING__)
     add_definitions(-D__WARNING__)
-endif(REVREADDY_LOGGING_SEVERITY MATCHES __TRACE__)
+endif (REVREADDY_LOGGING_SEVERITY MATCHES __TRACE__)
 
+# target python extension
 add_definitions(-DBOOST_LOG_DYN_LINK)
-python_add_module(simpy ${SOURCES} src/pybinding.cpp)
-#add_library(simcpp SHARED ${SOURCES})
-#add_library(simcppstandalone STATIC ${SOURCES})
+python_add_module(revreaddyPyEx ${SOURCES} src/pybinding.cpp)
+target_link_libraries(revreaddyPyEx ${Boost_LIBRARIES} ${PYTHON_LIBRARIES} gsl gslcblas m hdf5 hdf5_hl)
+set_property (TARGET revreaddyPyEx PROPERTY COMPILE_FLAGS -std=c++11)
+
+# tests
+set(REVREADDY_RUN_TESTS ON CACHE BOOL "Build and run tests.")
+if (EXISTS "${CMAKE_SOURCE_DIR}/libraries/googletest/CMakeLists.txt" AND REVREADDY_RUN_TESTS)
+    message(STATUS "The submodule googletest was initialized, thus enable testing")
+
+    include(ExternalProject)
+
+    set(GOOGLETEST_ROOT ${CMAKE_SOURCE_DIR}/libraries/googletest)
+    set(GOOGLETEST_INCLUDE ${GOOGLETEST_ROOT}/googletest/include)
+    set(GOOGLETEST_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/libraries/googletest)
+    set(GOOGLETEST_LIBRARY ${GOOGLETEST_BINARY_DIR}/googletest)
+
+    ExternalProject_Add(
+            googletest
+            DOWNLOAD_COMMAND ""
+            SOURCE_DIR ${GOOGLETEST_ROOT}
+            BINARY_DIR ${GOOGLETEST_BINARY_DIR}
+            CMAKE_CACHE_ARGS "-DBUILD_GTEST:bool=ON" "-DBUILD_GMOCK:bool=OFF"
+            "-Dgtest_force_shared_crt:bool=ON"
+            INSTALL_COMMAND ""
+    )
+    add_dependencies(${READDY_LIBRARY_NAME} googletest)
+    enable_testing()
+    include_directories(${GOOGLETEST_INCLUDE})
+    add_subdirectory(tests)
+else ()
+    message(STATUS "The submodule googletest was not initialized or REVREADDY_RUN_TESTS was OFF, thus no testing.")
+endif ()

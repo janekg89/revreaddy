@@ -36,3 +36,7 @@ bin/*
 
 # intellij resources
 .idea
+
+# sublime resources
+*.sublime-project
+*.sublime-workspace
