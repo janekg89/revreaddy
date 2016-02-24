@@ -7,18 +7,14 @@ file(GLOB REVREADDY_C_SOURCES
     src/reactions/*.cpp 
 )
 
+# set the target for c library
 add_library(${REVREADDY_C_LIBRARY_NAME} SHARED ${REVREADDY_C_SOURCES})
 target_include_directories(${REVREADDY_C_LIBRARY_NAME} PUBLIC
     ${Boost_INCLUDE_DIRS}
-    ${PROJECT_SOURCE_DIR}/revreaddyC/include
-    ${PROJECT_SOURCE_DIR}/revreaddyC/include/geometries
-    ${PROJECT_SOURCE_DIR}/revreaddyC/include/interactions
-    ${PROJECT_SOURCE_DIR}/revreaddyC/include/observables
-    ${PROJECT_SOURCE_DIR}/revreaddyC/include/reactions
+    ${REVREADDY_C_INCLUDE_DIRS}
 )
 target_compile_definitions(${REVREADDY_C_LIBRARY_NAME} PUBLIC -DBOOST_LOG_DYN_LINK)
-target_link_libraries(${REVREADDY_C_LIBRARY_NAME} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES} gsl gslcblas m hdf5 hdf5_hl)
-set_property(TARGET ${REVREADDY_C_LIBRARY_NAME} PROPERTY COMPILE_FLAGS -std=c++11)
+target_link_libraries(${REVREADDY_C_LIBRARY_NAME} ${Boost_LIBRARIES} gsl gslcblas m hdf5 hdf5_hl)
 
 # set logging defines
 set(REVREADDY_LOGGING_SEVERITY __INFO__ CACHE STRING "The logging level")
