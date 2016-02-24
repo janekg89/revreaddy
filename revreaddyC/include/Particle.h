@@ -1,6 +1,4 @@
 /* Particle.h
- * author: Christoph Froehner
- *
  * This data structure will hold information
  * about a single particle. It will be constructed
  * for every particle in the simulation. */
@@ -9,29 +7,19 @@
 #define __PARTICLE_H_INCLUDED__
 #include <iostream>
 #include <vector>
-class Particle
-{
-	public:
-		unsigned long long uniqueId;
-		unsigned int typeId; // determines potentials, diffConst and radius
-		std::vector<double> position; // current position
-		std::vector<long>   boxCoordinates; // id of box where particle is
-		//unsigned int count; // how many timesteps can still be skipped
-		/* how many timesteps in total were skipped. Determines 
-		 * the distribution from which new position is drawn */
-		//unsigned int skip;
-		std::vector<double> cumulativeForce;
+class Particle {
+public:
+	unsigned long long uniqueId;
+	unsigned int typeId; // determines potentials, diffConst and radius
+	std::vector<double> position; // current position
+	std::vector<long> boxCoordinates; // id of box where particle is
+	std::vector<double> cumulativeForce;
 
-		Particle();
+	Particle();
 
-		void move(std::vector<double>& deviation);
-		void addForce(std::vector<double>& force);
-		void resetForce();
-
-		/* These comparison operators simply check for all variables
-		 * to be equal. */
-		bool operator==(const Particle& other);
-		bool operator!=(const Particle& other);
+	void move(std::vector<double>& deviation);
+	void addForce(std::vector<double>& force);
+	void resetForce();
 };
 
-#endif
+#endif //__PARTICLE_H_INCLUDED__

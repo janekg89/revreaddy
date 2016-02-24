@@ -10,7 +10,7 @@ Random::Random(std::string type) {
 	else { this->randomGeneratorType = gsl_rng_ranlxs0; }
 
 	this->randomGeneratorHandle = gsl_rng_alloc(this->randomGeneratorType);
-	this->toSeed();
+	this->seed = this->getNewSeed();
 	gsl_rng_set(this->randomGeneratorHandle, this->seed);
 	LOG_INFO(
 		"Random number generator of type '" 
@@ -23,17 +23,23 @@ Random::~Random() {
 	LOG_INFO("Random number generator has been released.")
 }
 
-void Random::toSeed() {
+unsigned long int Random::getNewSeed() {
+	// TODO this works on unix systems only. make alternative with defines for windows
 	FILE *devurandom;
 	devurandom = fopen("/dev/urandom","r");
-	fread(&this->seed, sizeof(this->seed), 1, devurandom);
+	unsigned long int newSeed;
+	fread(&newSeed, sizeof(newSeed), 1, devurandom);
 	fclose(devurandom);
-	LOG_INFO("Got seed " << this->seed << " from /dev/urandom.")
+	LOG_INFO("Got seed " << newSeed << " from /dev/urandom.")
+	return newSeed;
 }
 
-double Random::normal() {
-	return gsl_ran_gaussian_ziggurat(this->randomGeneratorHandle, 1.0);
+std::string Random::getType() {
+	std::string str(gsl_rng_name(this->randomGeneratorHandle));
+	return str;
 }
+
+double Random::normal() { return gsl_ran_gaussian_ziggurat(this->randomGeneratorHandle, 1.0); }
 
 std::vector<double> Random::normal3D() {
 	std::vector<double> randomArray = {0.,0.,0.};
@@ -43,6 +49,4 @@ std::vector<double> Random::normal3D() {
 	return randomArray;
 }
 
-double Random::uniform() {
-	return gsl_rng_uniform(this->randomGeneratorHandle);
-}
+double Random::uniform() { return gsl_rng_uniform(this->randomGeneratorHandle); }

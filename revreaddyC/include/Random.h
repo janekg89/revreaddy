@@ -3,7 +3,7 @@
  * from which normal distributed and uniformly distributed
  * random numbers/arrays are drawn.
  * At construction the random generator is seeded by
- * /dev/urandom. */
+ * /dev/urandom on unix systems. */
 
 #ifndef __RANDOM_H_INCLUDED__
 #define __RANDOM_H_INCLUDED__
@@ -21,9 +21,10 @@ private:
 	unsigned long int seed;
 public:
 	// type can be "mt19937", "taus" or "ranlxs0"
-	Random(std::string type);
+	Random(std::string type = "ranlxs0");
 	~Random();
-	void toSeed();
+	std::string getType();
+	unsigned long int getNewSeed();
 	double normal();
 	std::vector<double> normal3D();
 	double uniform();
