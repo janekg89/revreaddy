@@ -48,10 +48,10 @@ public:
 
 	/*------------------------------------------------------------------*/
 	void new_Type(const std::string name, const double radius, const double diffusionConstant);
-	unsigned getNumberOfTypes();
-	std::string getDictName(unsigned i);
-	double getDictRadius(unsigned i);
-	double getDictDiffusionConstant(unsigned i);
+	unsigned getNumberOfParticleTypes();
+	std::string getParticleTypeName(unsigned i);
+	double getParticleTypeRadius(unsigned i);
+	double getParticleTypeDiffusionConstant(unsigned i);
 
 	void deleteAllGeometries();
 	void new_Wall(std::vector<double> normal, std::vector<double> point, double strength, std::vector<unsigned int> particleTypeIds);
@@ -96,6 +96,8 @@ public:
 	std::vector<unsigned> getReactionBackwardTypes(unsigned i);
 	double getReactionForwardRate(unsigned i);
 	double getReactionBackwardRate(unsigned i);
+private:
+	std::vector<unsigned> sort(std::vector<unsigned> x);
 };
 
 #endif //__CONFIG_H_INCLUDED__

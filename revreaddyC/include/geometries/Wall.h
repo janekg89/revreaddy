@@ -6,8 +6,7 @@
 #include <iostream>
 #include "Geometry.h"
 
-class Wall : public Geometry
-{
+class Wall : public Geometry {
 public:
 	std::vector<double> normal;
 	std::vector<double> point;
@@ -26,7 +25,7 @@ public:
 		double& particleRadius); // in
 
 private:
-	double R;
+	double R; // distance from the wall. calculated during runtime
 	double preFactor;
 };
 

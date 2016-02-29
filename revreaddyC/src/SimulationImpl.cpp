@@ -703,6 +703,7 @@ bool SimulationImpl::acceptOrReject(double acceptance) {
 }
 
 long int SimulationImpl::findParticleIndex(unsigned long long id) {
+	// max min mid have to be signed, otherwise max might underflow undetected
 	signed long max = world->particles.size() - 1;
 	signed long min = 0;
 	signed long mid = 0;

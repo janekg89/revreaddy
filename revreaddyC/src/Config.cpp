@@ -1,5 +1,4 @@
 /* Config.cpp */
-
 #include "Config.h"
 
 template<typename T, typename ...Args>
@@ -20,11 +19,7 @@ Config::~Config() {
 	this->deleteAllInteractions();
 }
 
-void Config::new_Type(
-	const std::string name,
-	const double radius,
-	const double diffusionConstant)
-{
+void Config::new_Type(const std::string name, const double radius, const double diffusionConstant) {
 	if ( radius < 0. ) { throw Exception("The particle radius must be non-negative."); }
 	if ( diffusionConstant < 0. ) { throw Exception("The diffusionConstant must be non-negative"); }
 	ParticleType pType(
@@ -34,13 +29,13 @@ void Config::new_Type(
 	this->particleTypes.push_back(pType);
 }
 
-unsigned Config::getNumberOfTypes() { return this->particleTypes.size(); }
+unsigned Config::getNumberOfParticleTypes() { return this->particleTypes.size(); }
 
-std::string Config::getDictName(unsigned i) { return this->particleTypes[i].name; }
+std::string Config::getParticleTypeName(unsigned i) { return this->particleTypes[i].name; }
 
-double Config::getDictRadius(unsigned i) { return this->particleTypes[i].radius; }
+double Config::getParticleTypeRadius(unsigned i) { return this->particleTypes[i].radius; }
 
-double Config::getDictDiffusionConstant(unsigned i) { return this->particleTypes[i].diffusionConstant; }
+double Config::getParticleTypeDiffusionConstant(unsigned i) { return this->particleTypes[i].diffusionConstant; }
 
 void Config::deleteAllGeometries() {
 	/* Erase all the unique pointers, the geometries are thus deleted as well */
@@ -53,20 +48,56 @@ void Config::new_Wall(
 	double strength,
 	std::vector<unsigned int> particleTypeIds)
 {
+	// TODO test exceptions
+	for (unsigned i=0; i<particleTypeIds.size(); ++i) {
+		if (particleTypeIds[i] >= this->particleTypes.size()) {
+			throw Exception("Particle type does not exist.");
+		}
+	}
+	// sort the particle types so that binary search can be used during runtime
+	particleTypeIds = this->sort(particleTypeIds);
+	if (normal.size() != 3) {
+		throw Exception("Dimension mismatch in normal vector.");
+	}
+	// maybe: abs(normal) - 1. < epsilon would be better
+	if (1. != normal[0]*normal[0]+normal[1]*normal[1]+normal[2]*normal[2]) {
+		throw Exception("Normal vector is not normalized.");
+	}
+	if (point.size() != 3) {
+		throw Exception("Dimension mismatch in point vector.");
+	}
+	if (strength < 0.) {
+		throw Exception("Repulsion strength must be non-negative.");
+	}
 	std::unique_ptr<Wall> wall = make_unique<Wall>(
 		normal,
 		point,
 		strength,
 		particleTypeIds);
 	this->geometries.push_back( std::move(wall) );
+	LOG_INFO("Wall geometry added to geometries.")
 }
 
 void Config::new_DoubleWellZ(double distanceMinima,	double strength, std::vector<unsigned int> particleTypeIds) {
+	for (unsigned i=0; i<particleTypeIds.size(); ++i) {
+		if (particleTypeIds[i] >= this->particleTypes.size()) {
+			throw Exception("Particle type does not exist.");
+		}
+	}
+	// sort the particle types so that binary search can be used during runtime
+	particleTypeIds = this->sort(particleTypeIds);
+	if (distanceMinima < 0.) {
+		throw Exception("The distance of minima must be non-negative.");
+	}
+	if (strength < 0.) {
+		throw Exception("The strength of the double well must be non-negative.");
+	}
 	std::unique_ptr<DoubleWellZ> well = make_unique<DoubleWellZ>(
 		distanceMinima,
 		strength,
 		particleTypeIds);
 	this->geometries.push_back( std::move(well) );
+	LOG_INFO("DoubleWellZ geometry added to geometries.")
 }
 
 void Config::deleteAllInteractions() {
@@ -79,12 +110,16 @@ void Config::deleteAllInteractions() {
 }
 
 void Config::new_SoftRepulsion(std::string name, std::vector<unsigned> affectedTuple, double repulsionStrength) {
-	if (affectedTuple.size() != 2) { throw Exception("The given tuple is not of length 2."); }
+	if (affectedTuple.size() != 2) { 
+		throw Exception("The given tuple is not of length 2.");
+	}
 	if ( (affectedTuple[0] > ( this->particleTypes.size() - 1) ) 
 	  || (affectedTuple[1] > ( this->particleTypes.size() - 1) ) ) {
 		throw Exception("The given particle type(s) do not exist.");
 	}
-	if ( repulsionStrength <= 0. ) { throw Exception("The given repulsion strength is not positive."); }
+	if ( repulsionStrength <= 0. ) {
+		throw Exception("The given repulsion strength is not positive.");
+	}
 	std::shared_ptr<SoftRepulsion> soft = std::make_shared<SoftRepulsion>(
 		name,
 		affectedTuple,
@@ -96,7 +131,9 @@ void Config::new_SoftRepulsion(std::string name, std::vector<unsigned> affectedT
 }
 
 void Config::new_LennardJones(std::string name, std::vector<unsigned> affectedTuple, double epsilon) {
-	if (affectedTuple.size() != 2) { throw Exception("The given tuple is not of length 2."); }
+	if (affectedTuple.size() != 2) { 
+		throw Exception("The given tuple is not of length 2."); 
+	}
 	if ( (affectedTuple[0] >= this->particleTypes.size() ) 
 	  || (affectedTuple[1] >= this->particleTypes.size() ) ) {
 		throw Exception("The given particle type(s) do not exist.");
@@ -291,4 +328,9 @@ double Config::getReactionForwardRate(unsigned i) {
 
 double Config::getReactionBackwardRate(unsigned i) {
 	return this->reactions[i]->backwardRate;
+}
+
+// TODO
+std::vector<unsigned> Config::sort(std::vector<unsigned> x) {
+	return x;
 }
