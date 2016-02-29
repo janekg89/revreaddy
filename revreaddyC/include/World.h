@@ -33,7 +33,7 @@ public:
 	 * order potential energies */
 	double energy;
 	double oldEnergy;
-	double cumulativeRuntime;  // keeps track of the advanced time
+	double cumulativeRuntime; // keeps track of the advanced time
 	/* The last calculated acceptance probability for dynamical step */
 	double acceptProbDynamics;
 	/* The last calculated acceptance probability for reaction step */

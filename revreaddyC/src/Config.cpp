@@ -97,8 +97,8 @@ void Config::new_SoftRepulsion(std::string name, std::vector<unsigned> affectedT
 
 void Config::new_LennardJones(std::string name, std::vector<unsigned> affectedTuple, double epsilon) {
 	if (affectedTuple.size() != 2) { throw Exception("The given tuple is not of length 2."); }
-	if ( (affectedTuple[0] > ( this->particleTypes.size() - 1) ) 
-	  || (affectedTuple[1] > ( this->particleTypes.size() - 1) ) ) {
+	if ( (affectedTuple[0] >= this->particleTypes.size() ) 
+	  || (affectedTuple[1] >= this->particleTypes.size() ) ) {
 		throw Exception("The given particle type(s) do not exist.");
 	}
 	if ( epsilon <= 0. ) { throw Exception("The given epsilon is not positive."); }
@@ -160,6 +160,18 @@ void Config::new_Conversion(
 	double forwardRate,
 	double backwardRate)
 {
+	if (forwardType >= this->particleTypes.size()) {
+		throw Exception("The forward particle type does not exist.");
+	}
+	if (backwardType >= this->particleTypes.size()) {
+		throw Exception("The backward particle type does not exist.");
+	}
+	if (forwardRate < 0.) {
+		throw Exception("The forwardRate must be non-negative.");
+	}
+	if (backwardRate < 0.) {
+		throw Exception("The backwardRate must be non-negative.");
+	}
 	std::vector<unsigned> forwardTypes;
 	forwardTypes.push_back(forwardType);
 	std::vector<unsigned> backwardTypes;
@@ -182,6 +194,24 @@ void Config::new_Fusion(
 	double backwardRate,
 	double reactionDistance) 
 {
+	if (forwardTypeA >= this->particleTypes.size()) {
+		throw Exception("The forward particle type A does not exist.");
+	}
+	if (forwardTypeB >= this->particleTypes.size()) {
+		throw Exception("The forward particle type B does not exist.");
+	}
+	if (backwardTypeC >= this->particleTypes.size()) {
+		throw Exception("The backward particle type C does not exist.");
+	}
+	if (forwardRate < 0.) {
+		throw Exception("The forwardRate must be non-negative.");
+	}
+	if (backwardRate < 0.) {
+		throw Exception("The backwardRate must be non-negative.");
+	}
+	if (reactionDistance < 0.) {
+		throw Exception("The reaction distance must be non-negative.");
+	}
 	std::vector<unsigned> forwardTypes;
 	forwardTypes.push_back(forwardTypeA);
 	forwardTypes.push_back(forwardTypeB);

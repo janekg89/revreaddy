@@ -4,14 +4,16 @@
 
 World::World()
 {
-	this->cumulativeRuntime     = 0.;
-	this->energy                = 0.;
-	this->oldEnergy             = 0.;	
-	this->acceptProbDynamics    = 1.;
-	this->acceptProbReactions   = 1.;
-	this->acceptionsDynamics    = 0;
-	this->rejectionsDynamics    = 0;
-	this->uniqueIdCounter       = 0;
+	this->cumulativeRuntime = 0.;
+	this->energy = 0.;
+	this->oldEnergy = 0.;	
+	this->acceptProbDynamics = 1.;
+	this->acceptProbReactions = 1.;
+	this->acceptionsDynamics = 0;
+	this->rejectionsDynamics = 0;
+	this->acceptionsReactions = 0;
+	this->rejectionsReactions = 0;
+	this->uniqueIdCounter = 0;
 }
 
 void World::addParticle(std::vector<double> initPos, unsigned particleTypeId) {
@@ -33,6 +35,9 @@ void World::addParticle(std::vector<double> initPos, unsigned particleTypeId) {
 }
 
 void World::removeParticle(unsigned long index) {
+	if (index >= this->particles.size()) {
+		throw Exception("There is no particle of the given index.");
+	}
 	this->particles.erase(this->particles.begin() + index);
 }
 
