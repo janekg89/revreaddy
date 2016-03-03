@@ -1,6 +1,5 @@
 #include "RevReactions.h"
 
-
 RevReactions::RevReactions(World * inWorld, Config * inConfig) {
 	LOG_TRACE("Enter RevReactions constructor")
 	this->world  = inWorld;
@@ -14,17 +13,6 @@ RevReactions::RevReactions(World * inWorld, Config * inConfig) {
 	this->neighborlistConfigured = false;
 	this->skipPairInteractionsReactions = false;
 	LOG_TRACE("Leave RevReactions constructor")
-}
-
-RevReactions::~RevReactions() {
-	LOG_TRACE("Enter RevReactions Destructor.")
-	this->deleteAllObservables();
-	if (this->neighborlistConfigured) {
-		delete this->neighborlist;
-	}
-	delete this->utils;
-	delete this->random;
-	LOG_TRACE("Leave RevReactions Destructor.")	
 }
 
 void RevReactions::run(const unsigned long maxTime) {

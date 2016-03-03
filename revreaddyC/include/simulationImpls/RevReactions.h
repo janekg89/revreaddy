@@ -8,8 +8,11 @@
 
 class RevReactions : public SimulationImpl {
 public:
+ 	/* Only the RevReactions constructor is needed.
+ 	 * For destruction only the SimulationImpl destructor is called
+ 	 * because it would do the same as the individual destructors
+ 	 * anyway. */
 	RevReactions(World * inWorld, Config * inConfig);
-	~RevReactions();
 	void run(const unsigned long maxTime);
 };
 #endif //__REVREACTIONS_H_INCLUDED__

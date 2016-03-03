@@ -25,7 +25,7 @@ SimulationImpl::SimulationImpl(World * inWorld, Config * inConfig) {
 
 // default constructor if child is created
 SimulationImpl::SimulationImpl() {
-	LOG_TRACE("Enter and leave SimulationImpl default constructor");
+	LOG_TRACE("Enter and leave SimulationImpl default constructor")
 }
 
 SimulationImpl::~SimulationImpl() {

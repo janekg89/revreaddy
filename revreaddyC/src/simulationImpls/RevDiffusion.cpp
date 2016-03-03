@@ -15,17 +15,6 @@ RevDiffusion::RevDiffusion(World * inWorld, Config * inConfig) {
 	LOG_TRACE("Leave RevDiffusion constructor")
 }
 
-RevDiffusion::~RevDiffusion() {
-	LOG_TRACE("Enter RevDiffusion Destructor.")
-	this->deleteAllObservables();
-	if (this->neighborlistConfigured) {
-		delete this->neighborlist;
-	}
-	delete this->utils;
-	delete this->random;
-	LOG_TRACE("Leave RevDiffusion Destructor.")	
-}
-
 void RevDiffusion::run(const unsigned long maxTime) {
 	LOG_INFO("Start run() of RevDiffusion implementation.");
 	config->configureReactions();

@@ -7,8 +7,11 @@
 
  class RevDiffusion : public SimulationImpl {
  public:
+ 	/* Only the RevDiffusion constructor is needed.
+ 	 * For destruction only the SimulationImpl destructor is called
+ 	 * because it would do the same as the individual destructors
+ 	 * anyway. */
  	RevDiffusion(World * inWorld, Config * inConfig);
- 	~RevDiffusion();
  	void run(const unsigned long maxTime);
  };
  #endif //__REVDIFFUSION_H_INCLUDED__
