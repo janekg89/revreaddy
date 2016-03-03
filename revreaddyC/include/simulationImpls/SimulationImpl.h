@@ -1,4 +1,6 @@
 /* SimulationImpl.h */
+#ifndef __SIMULATIONIMPL_H_INCLUDED__
+#define __SIMULATIONIMPL_H_INCLUDED__
 #include <math.h>
 #include <cmath>
 #include <vector>
@@ -35,6 +37,7 @@
 class SimulationImpl {
 public:
 	SimulationImpl(World * inWorld, Config * inConfig);
+	SimulationImpl(); // default constructor if child is created
 	~SimulationImpl();
 	/* Start the simulation. Iterate for maxTime timesteps.*/
 	void run(const unsigned long maxTime);
@@ -62,7 +65,9 @@ public:
 	void new_Acceptance(unsigned long recPeriod, std::string filename, bool reactionsOrDynamics);
 	void new_ParticleNumbers(unsigned long recPeriod, std::string filename,	unsigned particleTypeId);
 
-private:
+/* children of SimulationImpl need access to these. How to do that 
+ * with private members?*/
+//private: 
 	/*------- core functions/variables -------*/
 	Random * random; // the random number generator
 	Utils * utils; // functions for calculating distance
@@ -133,3 +138,4 @@ private:
 	std::vector<double> forceJ;
 	std::vector<double> r_ij;
 };
+#endif//__SIMULATIONIMPL_H_INCLUDED__

@@ -3,9 +3,13 @@
 
 Simulation::Simulation(World * inWorld, Config * inConfig, std::string whichImpl) {
 	LOG_TRACE("Enter Simulation Constructor.")
-	if (whichImpl == "revDynamics") { }
-	else if (whichImpl == "revReactions") { }
-	else if (whichImpl == "revDynamicsReactions") { }
+	if (whichImpl == "RevDiffusion") { 
+		this->impl = new RevDiffusion(inWorld, inConfig); 
+	}
+	else if (whichImpl == "RevReactions") {
+		this->impl = new RevReactions(inWorld, inConfig);
+	}
+	else if (whichImpl == "RevDiffusionReactions") { }
 	else { this->impl = new SimulationImpl(inWorld, inConfig); }
 	LOG_TRACE("Leave Simulation Constructor.")
 }
@@ -22,7 +26,7 @@ void Simulation::setUseNeighborlist(const bool inUseNeighborlist) {impl->useNeig
 
 void Simulation::writeAllObservablesToFile() { impl->writeAllObservablesToFile(); }
 void Simulation::writeLastObservableToFile() { impl->writeLastObservableToFile(); }
-std::string Simulation::showObservables() { return impl-> showObservables(); }
+std::string Simulation::showObservables() { return impl->showObservables(); }
 void Simulation::deleteAllObservables() { impl->deleteAllObservables(); }
 void Simulation::deleteLastObservable() { impl->deleteLastObservable(); }
 void Simulation::new_Trajectory(unsigned long recPeriod, std::string filename) { impl->new_Trajectory(recPeriod, filename); }

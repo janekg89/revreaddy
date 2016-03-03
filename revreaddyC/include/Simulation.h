@@ -15,6 +15,8 @@
 #include "Config.h"
 #include "World.h"
 #include "SimulationImpl.h"
+#include "RevReactions.h"
+#include "RevDiffusion.h"
 #include "logging.h"
 
 class Simulation {

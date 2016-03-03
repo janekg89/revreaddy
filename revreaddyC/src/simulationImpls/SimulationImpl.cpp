@@ -17,12 +17,15 @@ SimulationImpl::SimulationImpl(World * inWorld, Config * inConfig) {
 	this->forceI = {0.,0.,0.};
 	this->forceJ = {0.,0.,0.};
 	this->r_ij = {0.,0.,0.};
-	//this->isReversibleDynamics = true;
-	//this->isReversibleReactions = true;
 	this->useNeighborlist = true;
 	this->neighborlistConfigured = false;
 	this->skipPairInteractionsReactions = false;
 	LOG_TRACE("Leave SimulationImpl Constructor.")
+}
+
+// default constructor if child is created
+SimulationImpl::SimulationImpl() {
+	LOG_TRACE("Enter and leave SimulationImpl default constructor");
 }
 
 SimulationImpl::~SimulationImpl() {

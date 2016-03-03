@@ -23,6 +23,7 @@ set(REVREADDY_C_INCLUDE_DIRS
     ${PROJECT_SOURCE_DIR}/revreaddyC/include/interactions
     ${PROJECT_SOURCE_DIR}/revreaddyC/include/observables
     ${PROJECT_SOURCE_DIR}/revreaddyC/include/reactions
+    ${PROJECT_SOURCE_DIR}/revreaddyC/include/simulationImpls
 )
 target_include_directories(${REVREADDY_PY_LIBRARY_NAME} PUBLIC
     ${Boost_INCLUDE_DIRS}

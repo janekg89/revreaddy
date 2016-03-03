@@ -5,6 +5,7 @@ file(GLOB REVREADDY_C_SOURCES
     src/interactions/*.cpp
     src/observables/*.cpp
     src/reactions/*.cpp 
+    src/simulationImpls/*.cpp
 )
 
 # set the target for c library
