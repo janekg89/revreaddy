@@ -11,6 +11,8 @@ void Geometry::forceEnergy(
 {}
 
 bool Geometry::doesInteract(unsigned int& particleTypeId) {
+	//auto result = std::find(particleTypeIds.begin(), particleTypeIds.end(), particleTypeId);
+	//return result != particleTypeIds.end();
 	// max min mid have to be signed, otherwise max might underflow undetected
 	signed int max = this->particleTypeIds.size() - 1;
 	signed int min = 0;

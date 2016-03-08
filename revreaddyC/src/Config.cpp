@@ -31,11 +31,26 @@ void Config::new_Type(const std::string name, const double radius, const double 
 
 unsigned Config::getNumberOfParticleTypes() { return this->particleTypes.size(); }
 
-std::string Config::getParticleTypeName(unsigned i) { return this->particleTypes[i].name; }
+std::string Config::getParticleTypeName(unsigned i) {
+	if (i >= this->particleTypes.size()) {
+		throw Exception("Particle type does not exist.");
+	}
+	return this->particleTypes[i].name;
+}
 
-double Config::getParticleTypeRadius(unsigned i) { return this->particleTypes[i].radius; }
+double Config::getParticleTypeRadius(unsigned i) {
+	if (i >= this->particleTypes.size()) {
+		throw Exception("Particle type does not exist.");
+	}
+	return this->particleTypes[i].radius;
+}
 
-double Config::getParticleTypeDiffusionConstant(unsigned i) { return this->particleTypes[i].diffusionConstant; }
+double Config::getParticleTypeDiffusionConstant(unsigned i) {
+	if (i >= this->particleTypes.size()) {
+		throw Exception("Particle type does not exist.");
+	}
+	return this->particleTypes[i].diffusionConstant;
+}
 
 void Config::deleteAllGeometries() {
 	/* Erase all the unique pointers, the geometries are thus deleted as well */
@@ -154,22 +169,37 @@ unsigned int Config::getNumberInteractions() {
 }
 
 std::string Config::getInteractionName(unsigned i) {
+	if (i >= this->interactions.size()) {
+		throw Exception("Interaction does not exist.");
+	}
 	return this->interactions[i]->name;
 }
 
 std::string Config::getInteractionType(unsigned i) {
+	if (i >= this->interactions.size()) {
+		throw Exception("Interaction does not exist.");
+	}
 	return this->interactions[i]->type;
 }
 
 std::vector<unsigned int> Config::getInteractionAffectedTuple(unsigned i) {
+	if (i >= this->interactions.size()) {
+		throw Exception("Interaction does not exist.");
+	}
 	return this->interactions[i]->affectedTuple;
 }
 
 std::vector<double> Config::getInteractionParameters(unsigned i) {
+	if (i >= this->interactions.size()) {
+		throw Exception("Interaction does not exist.");
+	}
 	return this->interactions[i]->parameters;
 }
 
 double Config::getInteractionCutoff(unsigned i) {
+	if (i >= this->interactions.size()) {
+		throw Exception("Interaction does not exist.");
+	}
 	return this->interactions[i]->cutoff;
 }
 
@@ -307,26 +337,44 @@ unsigned Config::getNumberReactions() {
 }
 
 std::string Config::getReactionName(unsigned i) {
+	if (i >= this->reactions.size()) {
+		throw Exception("Reaction does not exist.");
+	}
 	return this->reactions[i]->name;
 }
 
 std::string Config::getReactionType(unsigned i) {
+	if (i >= this->reactions.size()) {
+		throw Exception("Reaction does not exist.");
+	}
 	return this->reactions[i]->type;
 }
 
 std::vector<unsigned> Config::getReactionForwardTypes(unsigned i) {
+	if (i >= this->reactions.size()) {
+		throw Exception("Reaction does not exist.");
+	}
 	return this->reactions[i]->forwardTypes;
 }
 
 std::vector<unsigned> Config::getReactionBackwardTypes(unsigned i) {
+	if (i >= this->reactions.size()) {
+		throw Exception("Reaction does not exist.");
+	}
 	return this->reactions[i]->backwardTypes;
 }
 
 double Config::getReactionForwardRate(unsigned i) {
+	if (i >= this->reactions.size()) {
+		throw Exception("Reaction does not exist.");
+	}
 	return this->reactions[i]->forwardRate;
 }
 
 double Config::getReactionBackwardRate(unsigned i) {
+	if (i >= this->reactions.size()) {
+		throw Exception("Reaction does not exist.");
+	}
 	return this->reactions[i]->backwardRate;
 }
 

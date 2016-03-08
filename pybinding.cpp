@@ -119,9 +119,19 @@ public:
 		);
 		return affectedTuple;
 	}
-	// TODO how to construct numeric array of dynamic length
-	std::vector<double> getInteractionParameters(unsigned i);
-	double getInteractionCutoff(unsigned i);
+	boost::python::numeric::array getInteractionParameters(unsigned i) {
+		std::vector<double> interactionParameters = this->config->getInteractionParameters(i);
+		// create list and append the doubles to it, then convert the list to numeric array and return it
+		boost::python::list tempList = boost::python::list();
+		for (unsigned j=0; j<interactionParameters.size(); ++j) {
+			tempList.append<double>(interactionParameters[j]);
+		}
+		boost::python::numeric::array interactionParams = boost::python::numeric::array(tempList); 
+		return interactionParams;
+	}
+	double getInteractionCutoff(unsigned i) {
+		return this->config->getInteractionCutoff(i);
+	}
 
 	void configureReactions();
 	void deleteAllReactions();
@@ -214,6 +224,13 @@ BOOST_PYTHON_MODULE(revreaddyPy) {
 		.def("deleteAllGeometries", &ConfigWrap::deleteAllGeometries)
 		.def("new_Wall", &ConfigWrap::new_Wall)
 		.def("new_DoubleWellZ", &ConfigWrap::new_DoubleWellZ)
-		.def("new_SoftRepulsion", &ConfigWrap::new_SoftRepulsion);
+		.def("new_SoftRepulsion", &ConfigWrap::new_SoftRepulsion)
+		.def("new_LennardJones", &ConfigWrap::new_LennardJones)
+		.def("getNumberInteractions", &ConfigWrap::getNumberInteractions)
+		.def("getInteractionName", &ConfigWrap::getInteractionName)
+		.def("getInteractionType", &ConfigWrap::getInteractionType)
+		.def("getInteractionAffectedTuple",&ConfigWrap::getInteractionAffectedTuple)
+		.def("getInteractionParameters", &ConfigWrap::getInteractionParameters)
+		.def("getInteractionCutoff", &ConfigWrap::getInteractionCutoff);
 	class_<SimulationWrap>("Simulation", init<WorldWrap*, ConfigWrap*, std::string>());
 };
