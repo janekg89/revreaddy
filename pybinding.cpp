@@ -22,6 +22,10 @@ public:
 	void setIsPeriodic(bool isPeriodic) { this->config->isPeriodic = isPeriodic; }
 	double getBoxsize() {return this->config->boxsize; }
 	void setBoxsize(double boxsize) { this->config->boxsize = boxsize; }
+
+	void deleteAllParticleTypes() {
+		this->config->deleteAllParticleTypes();
+	}
 	void new_Type(const std::string name, const double radius, const double diffusionConstant) {
 		this->config->new_Type(name, radius, diffusionConstant);
 	}
@@ -133,18 +137,62 @@ public:
 		return this->config->getInteractionCutoff(i);
 	}
 
-	void configureReactions();
-	void deleteAllReactions();
-	void new_Conversion(std::string name, unsigned forwardType, unsigned backwardType, double forwardRate, double backwardRate);	
-	void new_Fusion(std::string name, unsigned forwardTypeA, unsigned forwardTypeB,	unsigned backwardTypeC,	double forwardRate,	double backwardRate, double reactionDistance);
-	void configureFusion(unsigned reactionIndex, std::vector<unsigned> interactionsIndices,	double inversePartition, double maxDistr, double radiiSum, double reactionRadiiSum,	double meanDistr, double inverseTemperature, double radiusA, double radiusB);
-	unsigned getNumberReactions();
-	std::string getReactionName(unsigned i);
-	std::string getReactionType(unsigned i);
-	std::vector<unsigned> getReactionForwardTypes(unsigned i);
-	std::vector<unsigned> getReactionBackwardTypes(unsigned i);
-	double getReactionForwardRate(unsigned i);
-	double getReactionBackwardRate(unsigned i);
+	void deleteAllReactions() {
+		this->config->deleteAllReactions();
+	}
+	void new_Conversion(std::string name, unsigned forwardType, unsigned backwardType, double forwardRate, double backwardRate) {
+		this->config->new_Conversion(name, forwardType, backwardType, forwardRate, backwardRate);
+	}
+	void new_Fusion(std::string name, unsigned forwardTypeA, unsigned forwardTypeB,	unsigned backwardTypeC,	double forwardRate,	double backwardRate, double reactionDistance) {
+		this->config->new_Fusion(name, forwardTypeA, forwardTypeB, backwardTypeC, forwardRate, backwardRate, reactionDistance);
+	}
+	// TODO this is WIP as long as Fusion is configured manually
+	void configureFusion(unsigned reactionIndex, boost::python::numeric::array interactionsIndices,	double inversePartition, double maxDistr, double radiiSum, double reactionRadiiSum,	double meanDistr, double inverseTemperature, double radiusA, double radiusB) {
+		std::vector<unsigned> interactionsIndicesConverted;
+		try {
+			for (unsigned i=0; i<interactionsIndices.nelements(); ++i) {
+				interactionsIndicesConverted.push_back(	boost::python::extract<unsigned>(interactionsIndices[i]) );
+			}
+		} catch (...) {
+			LOG_ERROR("Exception in accessing boost::python::numeric::array.")
+			LOG_INFO("Fusion is not configured.")
+			return;			
+		}
+		this->config->configureFusion(reactionIndex, interactionsIndicesConverted, inversePartition, maxDistr, radiiSum, reactionRadiiSum, meanDistr, inverseTemperature, radiusA, radiusB);
+	}
+	unsigned getNumberReactions() {
+		return this->config->getNumberReactions();
+	}
+	std::string getReactionName(unsigned i) {
+		return this->config->getReactionName(i);
+	}
+	std::string getReactionType(unsigned i) {
+		return this->config->getReactionType(i);
+	}
+	boost::python::numeric::array getReactionForwardTypes(unsigned i) {
+		std::vector<unsigned> forwardTypes = this->config->getReactionForwardTypes(i);
+		boost::python::list tempList = boost::python::list();
+		for (unsigned j=0; j<forwardTypes.size(); ++j) {
+			tempList.append<unsigned>(forwardTypes[j]);
+		}
+		boost::python::numeric::array forwTypes = boost::python::numeric::array(tempList);
+		return forwTypes;
+	}
+	boost::python::numeric::array getReactionBackwardTypes(unsigned i) {
+		std::vector<unsigned> backwardTypes = this->config->getReactionBackwardTypes(i);
+		boost::python::list tempList = boost::python::list();
+		for (unsigned j=0; j<backwardTypes.size(); ++j) {
+			tempList.append<unsigned>(backwardTypes[j]);
+		}
+		boost::python::numeric::array backwTypes = boost::python::numeric::array(tempList);
+		return backwTypes;
+	}
+	double getReactionForwardRate(unsigned i) {
+		return this->config->getReactionForwardRate(i);
+	}
+	double getReactionBackwardRate(unsigned i) {
+		return this->config->getReactionBackwardRate(i);
+	}
 };
 
 class WorldWrap {
@@ -216,6 +264,7 @@ BOOST_PYTHON_MODULE(revreaddyPy) {
 		.def("setIsPeriodic", &ConfigWrap::setIsPeriodic)
 		.def("getBoxsize", &ConfigWrap::getBoxsize)
 		.def("setBoxsize", &ConfigWrap::setBoxsize)
+		.def("deleteAllParticleTypes", &ConfigWrap::deleteAllParticleTypes)
 		.def("new_Type", &ConfigWrap::new_Type)
 		.def("getNumberOfParticleTypes", &ConfigWrap::getNumberOfParticleTypes)
 		.def("getParticleTypeName", &ConfigWrap::getParticleTypeName)
@@ -231,6 +280,17 @@ BOOST_PYTHON_MODULE(revreaddyPy) {
 		.def("getInteractionType", &ConfigWrap::getInteractionType)
 		.def("getInteractionAffectedTuple",&ConfigWrap::getInteractionAffectedTuple)
 		.def("getInteractionParameters", &ConfigWrap::getInteractionParameters)
-		.def("getInteractionCutoff", &ConfigWrap::getInteractionCutoff);
+		.def("getInteractionCutoff", &ConfigWrap::getInteractionCutoff)
+		.def("deleteAllReactions", &ConfigWrap::deleteAllReactions)
+		.def("new_Conversion", &ConfigWrap::new_Conversion)
+		.def("new_Fusion", &ConfigWrap::new_Fusion)
+		.def("configureFusion", &ConfigWrap::configureFusion)
+		.def("getNumberReactions", &ConfigWrap::getNumberReactions)
+		.def("getReactionName", &ConfigWrap::getReactionName)
+		.def("getReactionType", &ConfigWrap::getReactionType)
+		.def("getReactionForwardTypes", &ConfigWrap::getReactionForwardTypes)
+		.def("getReactionBackwardTypes", &ConfigWrap::getReactionBackwardTypes)
+		.def("getReactionForwardRate", &ConfigWrap::getReactionForwardRate)
+		.def("getReactionBackwardRate", &ConfigWrap::getReactionBackwardRate);
 	class_<SimulationWrap>("Simulation", init<WorldWrap*, ConfigWrap*, std::string>());
 };

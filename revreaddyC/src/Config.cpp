@@ -14,9 +14,18 @@ Config::Config() {
 }
 
 Config::~Config() {
+	this->deleteAllParticleTypes();
+}
+
+void Config::deleteAllParticleTypes() {
+	// since interactions, reactions and geometries rely on certain particle types
+	// it is safer to remove them here as well
+	// otherwise we will have segfaults
+	LOG_INFO("Deleting all particle types. This means deleting all geometries, reactions and interactions as well.")
 	this->deleteAllGeometries();
 	this->deleteAllReactions();
 	this->deleteAllInteractions();
+	this->particleTypes.clear();
 }
 
 void Config::new_Type(const std::string name, const double radius, const double diffusionConstant) {
@@ -54,6 +63,7 @@ double Config::getParticleTypeDiffusionConstant(unsigned i) {
 
 void Config::deleteAllGeometries() {
 	/* Erase all the unique pointers, the geometries are thus deleted as well */
+	LOG_INFO("Deleting all geometries.")
 	this->geometries.clear();
 }
 
@@ -120,6 +130,7 @@ void Config::deleteAllInteractions() {
 	 * referenced by Reactions, the interaction is technically valid,
 	 * but it will lead to unwanted behavior. Therefore delete all
 	 * reactions here as well. */
+	LOG_INFO("Deleting all interactions and reactions.")
 	this->reactions.clear();
 	this->interactions.clear();
 }
@@ -217,6 +228,7 @@ void Config::configureReactions() {
 void Config::deleteAllReactions() {
 	/* Erase all the unique pointers from reactions. Thus all
 	 * reactions will be destroyed accordingly */
+	LOG_INFO("Deleting all reactions.")
 	this->reactions.clear();	
 }
 

@@ -2,6 +2,7 @@
 
 #ifndef __GEOMETRY_H_INCLUDED__
 #define __GEOMETRY_H_INCLUDED__
+#include <algorithm>
 #include <vector>
 #include "Particle.h"
 

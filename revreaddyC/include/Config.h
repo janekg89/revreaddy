@@ -47,6 +47,7 @@ public:
 	double boxsize; // length of the periodic simulationbox
 
 	/*------------------------------------------------------------------*/
+	void deleteAllParticleTypes();
 	void new_Type(const std::string name, const double radius, const double diffusionConstant);
 	unsigned getNumberOfParticleTypes();
 	std::string getParticleTypeName(unsigned i);
@@ -97,6 +98,7 @@ public:
 	double getReactionForwardRate(unsigned i);
 	double getReactionBackwardRate(unsigned i);
 private:
+	// TODO
 	std::vector<unsigned> sort(std::vector<unsigned> x);
 };
 
