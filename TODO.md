@@ -1,4 +1,5 @@
 ### TODO
+* implement clear-period of observables so that they are flushed in predefined intervals and don't fill up memory
 
 #### integration tests:
 * periodic boundaries correctly propagated

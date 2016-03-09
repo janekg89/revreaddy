@@ -171,14 +171,14 @@ void SimulationImpl::run(const unsigned long maxTime) {
 		}
 		this->calculateGeometryForcesEnergies();
 		acceptance = this->acceptanceDynamics();
-		world->acceptProbDynamics = acceptance;
+		world->acceptProbDiffusion = acceptance;
 		isStepAccepted = this->acceptOrReject(acceptance);
 		// TODO revDynamics
 		if (true && ( ! isStepAccepted ) ) {
 			this->restoreOldState();
-			world->rejectionsDynamics += 1;
+			world->rejectionsDiffusion += 1;
 		}
-		else { world->acceptionsDynamics += 1; }
+		else { world->acceptionsDiffusion += 1; }
 
 		/* Reactions */
 		this->saveOldState();

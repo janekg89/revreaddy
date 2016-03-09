@@ -1,7 +1,7 @@
-#include "RevDiffusion.h"
+#include "RevDiffusionRevReactions.h"
 
-RevDiffusion::RevDiffusion(World * inWorld, Config * inConfig) {
-	LOG_TRACE("Enter RevDiffusion constructor")
+RevDiffusionRevReactions::RevDiffusionRevReactions(World * inWorld, Config * inConfig) {
+	LOG_TRACE("Enter RevDiffusionRevReactions constructor")
 	this->world  = inWorld;
 	this->config = inConfig;
 	this->random = new Random("ranlxs0");
@@ -12,11 +12,10 @@ RevDiffusion::RevDiffusion(World * inWorld, Config * inConfig) {
 	this->useNeighborlist = true;
 	this->neighborlistConfigured = false;
 	this->skipPairInteractionsReactions = false;
-	LOG_TRACE("Leave RevDiffusion constructor")
+	LOG_TRACE("Leave RevDiffusionRevReactions constructor")
 }
 
-void RevDiffusion::run(const unsigned long maxTime) {
-	LOG_INFO("Start run() of RevDiffusion implementation.");
+void RevDiffusionRevReactions::run(const unsigned long maxTime) {
 	config->configureReactions();
 	if (config->interactions.empty() && config->reactions.empty()) {
 		this->skipPairInteractionsReactions = true;
@@ -63,7 +62,14 @@ void RevDiffusion::run(const unsigned long maxTime) {
 			this->calculateInteractionForcesEnergies();
 		}
 		this->calculateGeometryForcesEnergies();
-		// no acceptance step for reactions here
+		acceptance *= this->acceptanceReactions();
+		world->acceptProbReactions = acceptance;
+		isStepAccepted = this->acceptOrReject(acceptance);
+		if ( ! isStepAccepted ) {
+			this->restoreOldState();
+			world->rejectionsReactions += 1;
+		}
+		else { world->acceptionsReactions += 1; }
 
 		/* Advance clock */
 		world->cumulativeRuntime += config->timestep;

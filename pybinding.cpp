@@ -8,6 +8,7 @@
 #include "Simulation.h"
 #include "logging.h"
 
+namespace bp = boost::python;
 
 class ConfigWrap {
 public:
@@ -45,35 +46,35 @@ public:
 	void deleteAllGeometries() {
 		this->config->deleteAllGeometries();
 	}
-	void new_Wall(boost::python::numeric::array normal, boost::python::numeric::array point, double strength, boost::python::numeric::array particleTypeIds) {
+	void new_Wall(bp::numeric::array normal, bp::numeric::array point, double strength, bp::numeric::array particleTypeIds) {
 		std::vector<double> norm = {0.,0.,0.};
 		std::vector<double> pnt = {0.,0.,0.};
 		std::vector<unsigned> pTypeIds;
 		try {
-			norm[0] = boost::python::extract<double>(normal[0]);
-			norm[1] = boost::python::extract<double>(normal[1]);
-			norm[2] = boost::python::extract<double>(normal[2]);
-			pnt[0] = boost::python::extract<double>(point[0]);
-			pnt[1] = boost::python::extract<double>(point[1]);
-			pnt[2] = boost::python::extract<double>(point[2]);
+			norm[0] = bp::extract<double>(normal[0]);
+			norm[1] = bp::extract<double>(normal[1]);
+			norm[2] = bp::extract<double>(normal[2]);
+			pnt[0] = bp::extract<double>(point[0]);
+			pnt[1] = bp::extract<double>(point[1]);
+			pnt[2] = bp::extract<double>(point[2]);
 			for (unsigned i=0; i<particleTypeIds.nelements(); ++i) {
-				pTypeIds.push_back(boost::python::extract<unsigned>(particleTypeIds[i]));
+				pTypeIds.push_back(bp::extract<unsigned>(particleTypeIds[i]));
 			}
 		} catch (...) {
-			LOG_ERROR("Exception in accessing boost::python::numeric::array.")
+			LOG_ERROR("Exception in accessing bp::numeric::array in new_Wall.")
 			LOG_INFO("Wall geometry is not added.")
 			return;
 		}
 		this->config->new_Wall(norm, pnt, strength, pTypeIds);
 	}
-	void new_DoubleWellZ(double distanceMinima,	double strength, boost::python::numeric::array particleTypeIds) {
+	void new_DoubleWellZ(double distanceMinima,	double strength, bp::numeric::array particleTypeIds) {
 		std::vector<unsigned> pTypeIds;
 		try {
 			for (unsigned i=0; i<particleTypeIds.nelements(); ++i) {
-				pTypeIds.push_back(boost::python::extract<unsigned>(particleTypeIds[i]));
+				pTypeIds.push_back(bp::extract<unsigned>(particleTypeIds[i]));
 			}		
 		} catch (...) {
-			LOG_ERROR("Exception in accessing boost::python::numeric::array.")
+			LOG_ERROR("Exception in accessing bp::numeric::array in new_DoubleWellZ.")
 			LOG_INFO("DoubleWellZ geometry is not added.")
 			return;
 		}
@@ -83,25 +84,25 @@ public:
 	void deleteAllInteractions() {
 		this->config->deleteAllInteractions();
 	}
-	void new_SoftRepulsion(std::string name, boost::python::numeric::array affectedTuple, double repulsionStrength) {
+	void new_SoftRepulsion(std::string name, bp::numeric::array affectedTuple, double repulsionStrength) {
 		std::vector<unsigned> affTuple = {0,0};
 		try {
-			affTuple[0] = boost::python::extract<unsigned>(affectedTuple[0]);
-			affTuple[1] = boost::python::extract<unsigned>(affectedTuple[1]);
+			affTuple[0] = bp::extract<unsigned>(affectedTuple[0]);
+			affTuple[1] = bp::extract<unsigned>(affectedTuple[1]);
 		} catch (...) {
-			LOG_ERROR("Exception in accessing boost::python::numeric::array.")
+			LOG_ERROR("Exception in accessing bp::numeric::array in new_SoftRepulsion.")
 			LOG_INFO("SoftRepulsion interaction is not added.")
 			return;
 		}
 		this->config->new_SoftRepulsion(name, affTuple, repulsionStrength);
 	}
-	void new_LennardJones(std::string name,	boost::python::numeric::array affectedTuple, double epsilon) {
+	void new_LennardJones(std::string name,	bp::numeric::array affectedTuple, double epsilon) {
 		std::vector<unsigned> affTuple = {0,0};
 		try {
-			affTuple[0] = boost::python::extract<unsigned>(affectedTuple[0]);
-			affTuple[1] = boost::python::extract<unsigned>(affectedTuple[1]);
+			affTuple[0] = bp::extract<unsigned>(affectedTuple[0]);
+			affTuple[1] = bp::extract<unsigned>(affectedTuple[1]);
 		} catch (...) {
-			LOG_ERROR("Exception in accessing boost::python::numeric::array.")
+			LOG_ERROR("Exception in accessing bp::numeric::array in new_LennardJones.")
 			LOG_INFO("LennardJones interaction is not added.")
 			return;
 		}
@@ -116,21 +117,21 @@ public:
 	std::string getInteractionType(unsigned i) {
 		return this->config->getInteractionType(i);
 	}
-	boost::python::numeric::array getInteractionAffectedTuple(unsigned i) {
+	bp::numeric::array getInteractionAffectedTuple(unsigned i) {
 		std::vector<unsigned> affTuple = this->config->getInteractionAffectedTuple(i);
-		boost::python::numeric::array affectedTuple = boost::python::numeric::array(
-			boost::python::make_tuple(affTuple[0], affTuple[1])
+		bp::numeric::array affectedTuple = bp::numeric::array(
+			bp::make_tuple(affTuple[0], affTuple[1])
 		);
 		return affectedTuple;
 	}
-	boost::python::numeric::array getInteractionParameters(unsigned i) {
+	bp::numeric::array getInteractionParameters(unsigned i) {
 		std::vector<double> interactionParameters = this->config->getInteractionParameters(i);
 		// create list and append the doubles to it, then convert the list to numeric array and return it
-		boost::python::list tempList = boost::python::list();
+		bp::list tempList = bp::list();
 		for (unsigned j=0; j<interactionParameters.size(); ++j) {
 			tempList.append<double>(interactionParameters[j]);
 		}
-		boost::python::numeric::array interactionParams = boost::python::numeric::array(tempList); 
+		bp::numeric::array interactionParams = bp::numeric::array(tempList); 
 		return interactionParams;
 	}
 	double getInteractionCutoff(unsigned i) {
@@ -147,14 +148,14 @@ public:
 		this->config->new_Fusion(name, forwardTypeA, forwardTypeB, backwardTypeC, forwardRate, backwardRate, reactionDistance);
 	}
 	// TODO this is WIP as long as Fusion is configured manually
-	void configureFusion(unsigned reactionIndex, boost::python::numeric::array interactionsIndices,	double inversePartition, double maxDistr, double radiiSum, double reactionRadiiSum,	double meanDistr, double inverseTemperature, double radiusA, double radiusB) {
+	void configureFusion(unsigned reactionIndex, bp::numeric::array interactionsIndices,	double inversePartition, double maxDistr, double radiiSum, double reactionRadiiSum,	double meanDistr, double inverseTemperature, double radiusA, double radiusB) {
 		std::vector<unsigned> interactionsIndicesConverted;
 		try {
 			for (unsigned i=0; i<interactionsIndices.nelements(); ++i) {
-				interactionsIndicesConverted.push_back(	boost::python::extract<unsigned>(interactionsIndices[i]) );
+				interactionsIndicesConverted.push_back(	bp::extract<unsigned>(interactionsIndices[i]) );
 			}
 		} catch (...) {
-			LOG_ERROR("Exception in accessing boost::python::numeric::array.")
+			LOG_ERROR("Exception in accessing bp::numeric::array in configureFusion.")
 			LOG_INFO("Fusion is not configured.")
 			return;			
 		}
@@ -169,22 +170,22 @@ public:
 	std::string getReactionType(unsigned i) {
 		return this->config->getReactionType(i);
 	}
-	boost::python::numeric::array getReactionForwardTypes(unsigned i) {
+	bp::numeric::array getReactionForwardTypes(unsigned i) {
 		std::vector<unsigned> forwardTypes = this->config->getReactionForwardTypes(i);
-		boost::python::list tempList = boost::python::list();
+		bp::list tempList = bp::list();
 		for (unsigned j=0; j<forwardTypes.size(); ++j) {
 			tempList.append<unsigned>(forwardTypes[j]);
 		}
-		boost::python::numeric::array forwTypes = boost::python::numeric::array(tempList);
+		bp::numeric::array forwTypes = bp::numeric::array(tempList);
 		return forwTypes;
 	}
-	boost::python::numeric::array getReactionBackwardTypes(unsigned i) {
+	bp::numeric::array getReactionBackwardTypes(unsigned i) {
 		std::vector<unsigned> backwardTypes = this->config->getReactionBackwardTypes(i);
-		boost::python::list tempList = boost::python::list();
+		bp::list tempList = bp::list();
 		for (unsigned j=0; j<backwardTypes.size(); ++j) {
 			tempList.append<unsigned>(backwardTypes[j]);
 		}
-		boost::python::numeric::array backwTypes = boost::python::numeric::array(tempList);
+		bp::numeric::array backwTypes = bp::numeric::array(tempList);
 		return backwTypes;
 	}
 	double getReactionForwardRate(unsigned i) {
@@ -210,24 +211,24 @@ public:
 		LOG_TRACE("Leave WorldWrap Destructor.")
 	}
 
-	void addParticle(boost::python::numeric::array initPos, unsigned particleTypeId) {
+	void addParticle(bp::numeric::array initPos, unsigned particleTypeId) {
 		std::vector<double> pos = {0., 0., 0.};
 		try {
-			pos[0] = boost::python::extract<double>(initPos[0]);
-			pos[1] = boost::python::extract<double>(initPos[1]);
-			pos[2] = boost::python::extract<double>(initPos[2]);
+			pos[0] = bp::extract<double>(initPos[0]);
+			pos[1] = bp::extract<double>(initPos[1]);
+			pos[2] = bp::extract<double>(initPos[2]);
 		} catch (...) {
-			LOG_ERROR("Exception in accessing boost::python::numeric::array.")
+			LOG_ERROR("Exception in accessing bp::numeric::array in addParticle.")
 			LOG_INFO("Particle is not added.")
 			return;
 		}
 		world->addParticle(pos, particleTypeId);
 	}
 
-	boost::python::numeric::array getPosition(unsigned long index) {
+	bp::numeric::array getPosition(unsigned long index) {
 		std::vector<double> pos = world->getPosition(index);
-		boost::python::numeric::array arr = boost::python::numeric::array(
-			boost::python::make_tuple(pos[0], pos[1], pos[2])
+		bp::numeric::array arr = bp::numeric::array(
+			bp::make_tuple(pos[0], pos[1], pos[2])
 		);
 		return arr;
 	}
@@ -245,6 +246,73 @@ public:
 		LOG_TRACE("Enter SimulationWrap Destructor.")
 		delete simulation;
 		LOG_TRACE("Leave SimulationWrap Destructor.")
+	}
+	void run(const unsigned long maxTime) {
+		this->simulation->run(maxTime);
+	}
+	bool getUseNeighborlist() {
+		return this->simulation->getUseNeighborlist();
+	}
+	void setUseNeighborlist(const bool inUseNeighborlist) {
+		this->simulation->setUseNeighborlist(inUseNeighborlist);
+	}
+
+	void writeAllObservablesToFile() {
+		this->simulation->writeAllObservablesToFile();
+	}
+	std::string showObservables() {
+		return this->simulation->showObservables();
+	}
+	void deleteAllObservables() {
+		this->simulation->deleteAllObservables();
+	}
+	void new_Trajectory(unsigned long recPeriod, std::string filename) {
+		this->simulation->new_Trajectory(recPeriod, filename);
+	}
+	void new_RadialDistribution(unsigned long recPeriod, std::string filename, bp::numeric::array ranges, bp::numeric::array considered) {
+		std::vector<double> rangesConverted;
+		std::vector< std::vector<unsigned> > consideredConverted;
+		try {
+			for (unsigned i=0; i<ranges.nelements(); ++i) {
+				rangesConverted.push_back( bp::extract<double>(ranges[i]) );
+			}			
+			// we expect considered to be 2-dimensional with x elements in 
+			// first dimension and two elements in second dimension
+			for (unsigned i=0; i<considered.nelements(); ++i) {
+				std::vector<unsigned> consideredTuple;
+				consideredTuple.push_back( bp::extract<unsigned>(considered[i][0]) );
+				consideredTuple.push_back( bp::extract<unsigned>(considered[i][1]) );
+				consideredConverted.push_back(consideredTuple);
+			}
+		} catch (...) {
+			LOG_ERROR("Exception in accessing bp::numeric::array new_RadialDistribution.")
+			LOG_INFO("RadialDistribution geometry is not added.")
+		}
+		this->simulation->new_RadialDistribution(recPeriod, filename, rangesConverted, consideredConverted);
+	}
+	void new_MeanSquaredDisplacement(unsigned long recPeriod, std::string filename,	unsigned particleTypeId) {
+		this->simulation->new_MeanSquaredDisplacement(recPeriod, filename, particleTypeId);
+	}
+	void new_ProbabilityDensity(unsigned long recPeriod, std::string filename, unsigned pTypeId, bp::numeric::array range, unsigned int coord) {
+		std::vector<double> rangeConverted;
+		try {
+			for (unsigned i=0; i<range.nelements(); ++i) {
+				rangeConverted.push_back( bp::extract<double>(range[i]) );
+			}
+		} catch (...) {
+			LOG_ERROR("Exception in accessing bp::numeric::array new_ProbabilityDensity.")
+			LOG_INFO("RadialDistribution geometry is not added.")
+		}
+		this->simulation->new_ProbabilityDensity(recPeriod, filename, pTypeId, rangeConverted, coord);
+	}
+	void new_Energy(unsigned long recPeriod, std::string filename) {
+		this->simulation->new_Energy(recPeriod, filename);
+	}
+	void new_Acceptance(unsigned long recPeriod, std::string filename, bool reactionsOrDynamics) {
+		this->simulation->new_Acceptance(recPeriod, filename, reactionsOrDynamics);
+	}
+	void new_ParticleNumbers(unsigned long recPeriod, std::string filename,	unsigned particleTypeId) {
+		this->simulation->new_ParticleNumbers(recPeriod, filename, particleTypeId);
 	}
 };
 
@@ -292,5 +360,18 @@ BOOST_PYTHON_MODULE(revreaddyPy) {
 		.def("getReactionBackwardTypes", &ConfigWrap::getReactionBackwardTypes)
 		.def("getReactionForwardRate", &ConfigWrap::getReactionForwardRate)
 		.def("getReactionBackwardRate", &ConfigWrap::getReactionBackwardRate);
-	class_<SimulationWrap>("Simulation", init<WorldWrap*, ConfigWrap*, std::string>());
+	class_<SimulationWrap>("Simulation", init<WorldWrap*, ConfigWrap*, std::string>())
+		.def("run", &SimulationWrap::run)
+		.def("getUseNeighborlist", &SimulationWrap::getUseNeighborlist)
+		.def("setUseNeighborlist", &SimulationWrap::setUseNeighborlist)
+		.def("writeAllObservablesToFile", &SimulationWrap::writeAllObservablesToFile)
+		.def("showObservables", &SimulationWrap::showObservables)
+		.def("deleteAllObservables", &SimulationWrap::deleteAllObservables)
+		.def("new_Trajectory", &SimulationWrap::new_Trajectory)
+		.def("new_RadialDistribution", &SimulationWrap::new_RadialDistribution)
+		.def("new_MeanSquaredDisplacement", &SimulationWrap::new_MeanSquaredDisplacement)
+		.def("new_ProbabilityDensity", &SimulationWrap::new_ProbabilityDensity)
+		.def("new_Energy", &SimulationWrap::new_Energy)
+		.def("new_Acceptance", &SimulationWrap::new_Acceptance)
+		.def("new_ParticleNumbers", &SimulationWrap::new_ParticleNumbers);
 };

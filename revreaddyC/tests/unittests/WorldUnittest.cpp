@@ -12,10 +12,10 @@ TEST_F(WorldUnittest, ctor) {
 	EXPECT_EQ(w.cumulativeRuntime, 0.);
 	EXPECT_EQ(w.energy, 0.);
 	EXPECT_EQ(w.oldEnergy, 0.);
-	EXPECT_EQ(w.acceptProbDynamics, 1.);
+	EXPECT_EQ(w.acceptProbDiffusion, 1.);
 	EXPECT_EQ(w.acceptProbReactions, 1.);
-	EXPECT_EQ(w.acceptionsDynamics, 0);
-	EXPECT_EQ(w.rejectionsDynamics, 0);
+	EXPECT_EQ(w.acceptionsDiffusion, 0);
+	EXPECT_EQ(w.rejectionsDiffusion, 0);
 	EXPECT_EQ(w.acceptionsReactions, 0);
 	EXPECT_EQ(w.rejectionsReactions, 0);
 	EXPECT_EQ(w.uniqueIdCounter, 0);

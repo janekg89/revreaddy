@@ -23,7 +23,7 @@ void Acceptance::record(World * world, double t)
 		this->acceptanceProbs.push_back(world->acceptProbReactions);
 	}
 	else {
-		this->acceptanceProbs.push_back(world->acceptProbDynamics);		
+		this->acceptanceProbs.push_back(world->acceptProbDiffusion);		
 	}
 
 	this->times.push_back(t);

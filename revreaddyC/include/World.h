@@ -35,12 +35,12 @@ public:
 	double oldEnergy;
 	double cumulativeRuntime; // keeps track of the advanced time
 	/* The last calculated acceptance probability for dynamical step */
-	double acceptProbDynamics;
+	double acceptProbDiffusion;
 	/* The last calculated acceptance probability for reaction step */
 	double acceptProbReactions;
 	unsigned long long uniqueIdCounter;
-	unsigned long int acceptionsDynamics;
-	unsigned long int rejectionsDynamics;
+	unsigned long int acceptionsDiffusion;
+	unsigned long int rejectionsDiffusion;
 	unsigned long int acceptionsReactions;
 	unsigned long int rejectionsReactions;
 
