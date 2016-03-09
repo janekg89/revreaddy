@@ -43,9 +43,8 @@ Linked libraries:
   (Boost.python, Boost.log)
 
 Requirements for usage:
-* Python 2
-* h5py python module is required for saving
-  and loading simulations with the utils.py module
+* Python
+* (h5py)
 
 ### Building
 
