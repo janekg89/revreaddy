@@ -62,7 +62,7 @@ public:
 	void new_MeanSquaredDisplacement(unsigned long recPeriod, std::string filename,	unsigned particleTypeId);
 	void new_ProbabilityDensity(unsigned long recPeriod, std::string filename, unsigned pTypeId, std::vector<double> range, unsigned int coord);
 	void new_Energy(unsigned long recPeriod, std::string filename);
-	void new_Acceptance(unsigned long recPeriod, std::string filename, bool reactionsOrDynamics);
+	void new_Acceptance(unsigned long recPeriod, std::string filename, bool reactionsOrDiffusion);
 	void new_ParticleNumbers(unsigned long recPeriod, std::string filename,	unsigned particleTypeId);
 
 /* children of SimulationImpl need access to these. How to do that 
@@ -94,7 +94,7 @@ public:
 	void restoreOldState();
 	/* Perform Brownian Dynamics step on particles
 	 * according to their accumulated forces */
-	void propagateDynamics();
+	void propagateDiffusion();
 	/* Perform reactions. Unimolecular according to their
 	 * reaction rates and bimolecular only when the pair
 	 * is part of activePairs. Already return the ratios
@@ -120,7 +120,7 @@ public:
 	void calculateGeometryForcesEnergies();
 	void resetForces();
 	void resetReactionCandidates();
-	double acceptanceDynamics();
+	double acceptanceDiffusion();
 	double acceptanceReactions();
 	bool acceptOrReject(double acceptance);
 	/* Return the position in particles of the 

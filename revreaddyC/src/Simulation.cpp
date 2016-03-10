@@ -40,8 +40,8 @@ void Simulation::new_ProbabilityDensity(unsigned long recPeriod, std::string fil
 	impl->new_ProbabilityDensity(recPeriod, filename, pTypeId, range, coord);
 }
 void Simulation::new_Energy(unsigned long recPeriod, std::string filename) { impl->new_Energy(recPeriod, filename); }
-void Simulation::new_Acceptance(unsigned long recPeriod, std::string filename, bool reactionsOrDynamics) {
-	impl->new_Acceptance(recPeriod, filename, reactionsOrDynamics);
+void Simulation::new_Acceptance(unsigned long recPeriod, std::string filename, bool reactionsOrDiffusion) {
+	impl->new_Acceptance(recPeriod, filename, reactionsOrDiffusion);
 }
 void Simulation::new_ParticleNumbers(unsigned long recPeriod, std::string filename,	unsigned particleTypeId) {
 	impl->new_ParticleNumbers(recPeriod, filename, particleTypeId);

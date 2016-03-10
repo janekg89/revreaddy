@@ -6,12 +6,12 @@ Acceptance::Acceptance(
 	unsigned int inRecPeriod,
 	unsigned int inClearPeriod,
 	std::string inFilename,
-	bool inReactionsOrDynamics)
+	bool inReactionsOrDiffusion)
 {
 	this->recPeriod = inRecPeriod;
 	this->clearPeriod = inClearPeriod;
 	this->filename = inFilename;
-	this->reactionsOrDynamics = inReactionsOrDynamics;
+	this->reactionsOrDiffusion = inReactionsOrDiffusion;
 }
 
 /* No configuration necessary */
@@ -19,7 +19,7 @@ void Acceptance::configure(World * world, Config * config) {}
 
 void Acceptance::record(World * world, double t)
 {
-	if (this->reactionsOrDynamics) {
+	if (this->reactionsOrDiffusion) {
 		this->acceptanceProbs.push_back(world->acceptProbReactions);
 	}
 	else {

@@ -39,7 +39,7 @@ public:
 	void new_MeanSquaredDisplacement(unsigned long recPeriod, std::string filename,	unsigned particleTypeId);
 	void new_ProbabilityDensity(unsigned long recPeriod, std::string filename, unsigned pTypeId, std::vector<double> range, unsigned int coord);
 	void new_Energy(unsigned long recPeriod, std::string filename);
-	void new_Acceptance(unsigned long recPeriod, std::string filename, bool reactionsOrDynamics);
+	void new_Acceptance(unsigned long recPeriod, std::string filename, bool reactionsOrDiffusion);
 	void new_ParticleNumbers(unsigned long recPeriod, std::string filename,	unsigned particleTypeId);
 
 private:

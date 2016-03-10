@@ -17,7 +17,7 @@ public:
 		unsigned int inRecPeriod,
 		unsigned int inClearPeriod,
 		std::string inFilename,
-		bool inReactionsOrDynamics);
+		bool inReactionsOrDiffusion);
 	void configure(World * world, Config * config);
 	void record(World * world, double t);
 	void writeBufferToFile();
@@ -26,7 +26,7 @@ public:
 private:
 	std::vector<double> acceptanceProbs;
 	std::vector<double> times;
-	bool reactionsOrDynamics;
+	bool reactionsOrDiffusion;
 };
 
 #endif // __ACCEPTANCE_H_INCLUDED__

@@ -34,9 +34,9 @@ void RevDiffusion::run(const unsigned long maxTime) {
 	double acceptance = 1.;
 	bool isStepAccepted = true;
 	for (unsigned long timeIndex = 1; timeIndex < maxTime; ++timeIndex) {
-		/* Dynamics */
+		/* Diffusion */
 		this->saveOldState();
-		this->propagateDynamics(); // propose
+		this->propagateDiffusion(); // propose
 		this->resetForces();
 		this->resetReactionCandidates();
 		world->energy = 0.;
@@ -44,7 +44,7 @@ void RevDiffusion::run(const unsigned long maxTime) {
 			this->calculateInteractionForcesEnergies(); // calculate energy and force
 		}
 		this->calculateGeometryForcesEnergies();
-		acceptance = this->acceptanceDynamics();
+		acceptance = this->acceptanceDiffusion();
 		world->acceptProbDiffusion = acceptance;
 		isStepAccepted = this->acceptOrReject(acceptance);
 		if ( ! isStepAccepted ) {

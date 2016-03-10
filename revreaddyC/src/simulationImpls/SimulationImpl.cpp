@@ -124,12 +124,12 @@ void SimulationImpl::new_Energy(unsigned long recPeriod, std::string filename) {
 	this->observables.push_back( std::move(ener) );
 }
 
-void SimulationImpl::new_Acceptance(unsigned long recPeriod, std::string filename, bool reactionsOrDynamics) {
+void SimulationImpl::new_Acceptance(unsigned long recPeriod, std::string filename, bool reactionsOrDiffusion) {
 	std::unique_ptr<Acceptance> acc = make_unique<Acceptance>(
 		recPeriod,
 		0,
 		filename,
-		reactionsOrDynamics);
+		reactionsOrDiffusion);
 	this->observables.push_back( std::move(acc) );
 }
 
@@ -160,9 +160,9 @@ void SimulationImpl::run(const unsigned long maxTime) {
 	double acceptance = 1.;
 	bool isStepAccepted = true;
 	for (unsigned long timeIndex = 1; timeIndex < maxTime; ++timeIndex) {
-		/* Dynamics */
+		/* Diffusion */
 		this->saveOldState();
-		this->propagateDynamics(); // propose
+		this->propagateDiffusion(); // propose
 		this->resetForces();
 		this->resetReactionCandidates();
 		world->energy = 0.;
@@ -170,10 +170,10 @@ void SimulationImpl::run(const unsigned long maxTime) {
 			this->calculateInteractionForcesEnergies(); // calculate energy and force
 		}
 		this->calculateGeometryForcesEnergies();
-		acceptance = this->acceptanceDynamics();
+		acceptance = this->acceptanceDiffusion();
 		world->acceptProbDiffusion = acceptance;
 		isStepAccepted = this->acceptOrReject(acceptance);
-		// TODO revDynamics
+		// TODO revDiffusion
 		if (true && ( ! isStepAccepted ) ) {
 			this->restoreOldState();
 			world->rejectionsDiffusion += 1;
@@ -268,7 +268,7 @@ void SimulationImpl::restoreOldState() {
 	world->reactionCandidates = world->oldReactionCandidates;
 }
 
-void SimulationImpl::propagateDynamics() {
+void SimulationImpl::propagateDiffusion() {
 	std::vector<double> noiseTerm = {0.,0.,0.};
 	std::vector<double> forceTerm = {0.,0.,0.};
 	double noisePrefactor = 1.;
@@ -635,7 +635,7 @@ void SimulationImpl::resetReactionCandidates() {
 
 /* For the dynamical acceptance probability both states, old and new
  * have to have the same number of particles.  */
-double SimulationImpl::acceptanceDynamics() {
+double SimulationImpl::acceptanceDiffusion() {
 	double acceptance = 1.;
 	double firstTerm  = 0.;
 	double secondTerm = 0.;
