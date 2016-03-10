@@ -14,8 +14,16 @@ namespace bp = boost::python;
 class ConfigWrap {
 public:
 	Config * config;
-	ConfigWrap() { this->config = new Config();	}
-	~ConfigWrap() { delete this->config; }
+	ConfigWrap() {
+		LOG_TRACE("Enter ConfigWrap constructor.")
+		this->config = new Config();
+		LOG_TRACE("Leave ConfigWrap constructor.")
+	}
+	~ConfigWrap() {
+		LOG_TRACE("Enter ConfigWrap destructor.")
+		delete this->config;
+		LOG_TRACE("Leave ConfigWrap destructor.")
+	}
 	double getTimestep() { return this->config->timestep; }
 	void setTimestep(double timestep) { this->config->timestep = timestep; }
 	double getKT() { return this->config->kT; }

@@ -73,3 +73,6 @@ if (EXISTS "${CMAKE_SOURCE_DIR}/libraries/googletest/CMakeLists.txt" AND REVREAD
 else ()
     message(STATUS "The submodule googletest was not initialized or REVREADDY_RUN_TESTS was OFF, thus no testing.")
 endif ()
+
+# when everything is built move the convenience layer script to the build directory
+file(COPY revreaddy.py DESTINATION .)
