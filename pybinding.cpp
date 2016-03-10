@@ -7,6 +7,7 @@
 #include "Config.h"
 #include "Simulation.h"
 #include "logging.h"
+#include "Exception.h"
 
 namespace bp = boost::python;
 
@@ -225,12 +226,45 @@ public:
 		world->addParticle(pos, particleTypeId);
 	}
 
+	void removeParticle(unsigned long index) {
+		this->world->removeParticle(index);
+	}
+
+	unsigned long getNumberOfParticles() {
+		return this->world->getNumberOfParticles();
+	}
+
 	bp::numeric::array getPosition(unsigned long index) {
 		std::vector<double> pos = world->getPosition(index);
 		bp::numeric::array arr = bp::numeric::array(
 			bp::make_tuple(pos[0], pos[1], pos[2])
 		);
 		return arr;
+	}
+
+	void setPosition(unsigned long index, bp::numeric::array newPos) {
+		std::vector<double> newPosConverted = {0.,0.,0.};
+		try {
+			newPosConverted[0] = bp::extract<double>(newPos[0]);
+			newPosConverted[1] = bp::extract<double>(newPos[1]);
+			newPosConverted[2] = bp::extract<double>(newPos[2]);
+		} catch (...) {
+			LOG_ERROR("Exception in accessing bp::numeric::array in setPosition.")
+			LOG_INFO("Particle position is not changed.")
+		}
+		this->world->setPosition(index, newPosConverted);
+	}
+
+	unsigned int getTypeId(unsigned long index) {
+		return this->world->getTypeId(index);
+	}
+
+	void setTypeId(unsigned long index, unsigned typeId) {
+		this->world->setTypeId(index, typeId);
+	}
+
+	void deleteAllParticles() {
+		this->world->deleteAllParticles();
 	}
 };
 
@@ -242,17 +276,21 @@ public:
 		this->simulation = new Simulation(worldWrap->world, configWrap->config, whichImpl);
 		LOG_TRACE("Leave SimulationWrap Constructor.")
 	}
+
 	~SimulationWrap() {
 		LOG_TRACE("Enter SimulationWrap Destructor.")
 		delete simulation;
 		LOG_TRACE("Leave SimulationWrap Destructor.")
 	}
+
 	void run(const unsigned long maxTime) {
 		this->simulation->run(maxTime);
 	}
+
 	bool getUseNeighborlist() {
 		return this->simulation->getUseNeighborlist();
 	}
+
 	void setUseNeighborlist(const bool inUseNeighborlist) {
 		this->simulation->setUseNeighborlist(inUseNeighborlist);
 	}
@@ -260,15 +298,19 @@ public:
 	void writeAllObservablesToFile() {
 		this->simulation->writeAllObservablesToFile();
 	}
+
 	std::string showObservables() {
 		return this->simulation->showObservables();
 	}
+
 	void deleteAllObservables() {
 		this->simulation->deleteAllObservables();
 	}
+
 	void new_Trajectory(unsigned long recPeriod, std::string filename) {
 		this->simulation->new_Trajectory(recPeriod, filename);
 	}
+
 	void new_RadialDistribution(unsigned long recPeriod, std::string filename, bp::numeric::array ranges, bp::numeric::array considered) {
 		std::vector<double> rangesConverted;
 		std::vector< std::vector<unsigned> > consideredConverted;
@@ -290,9 +332,11 @@ public:
 		}
 		this->simulation->new_RadialDistribution(recPeriod, filename, rangesConverted, consideredConverted);
 	}
+
 	void new_MeanSquaredDisplacement(unsigned long recPeriod, std::string filename,	unsigned particleTypeId) {
 		this->simulation->new_MeanSquaredDisplacement(recPeriod, filename, particleTypeId);
 	}
+
 	void new_ProbabilityDensity(unsigned long recPeriod, std::string filename, unsigned pTypeId, bp::numeric::array range, unsigned int coord) {
 		std::vector<double> rangeConverted;
 		try {
@@ -305,12 +349,15 @@ public:
 		}
 		this->simulation->new_ProbabilityDensity(recPeriod, filename, pTypeId, rangeConverted, coord);
 	}
+
 	void new_Energy(unsigned long recPeriod, std::string filename) {
 		this->simulation->new_Energy(recPeriod, filename);
 	}
+
 	void new_Acceptance(unsigned long recPeriod, std::string filename, bool reactionsOrDynamics) {
 		this->simulation->new_Acceptance(recPeriod, filename, reactionsOrDynamics);
 	}
+
 	void new_ParticleNumbers(unsigned long recPeriod, std::string filename,	unsigned particleTypeId) {
 		this->simulation->new_ParticleNumbers(recPeriod, filename, particleTypeId);
 	}
@@ -322,7 +369,13 @@ BOOST_PYTHON_MODULE(revreaddyPy) {
 	numeric::array::set_module_and_type("numpy", "ndarray");
 	class_<WorldWrap>("World", init<>())
 		.def("addParticle", &WorldWrap::addParticle)
-		.def("getPosition", &WorldWrap::getPosition);
+		.def("removeParticle", &WorldWrap::removeParticle)
+		.def("getNumberOfParticles", &WorldWrap::getNumberOfParticles)
+		.def("getPosition", &WorldWrap::getPosition)
+		.def("setPosition", &WorldWrap::setPosition)
+		.def("getTypeId", &WorldWrap::getTypeId)
+		.def("setTypeId", &WorldWrap::setTypeId)
+		.def("deleteAllParticles", &WorldWrap::deleteAllParticles);
 	class_<ConfigWrap>("Config", init<>())
 		.def("getTimestep", &ConfigWrap::getTimestep)
 		.def("setTimestep", &ConfigWrap::setTimestep)
