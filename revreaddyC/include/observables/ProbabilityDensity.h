@@ -12,6 +12,7 @@
 #include "World.h"
 #include "Config.h"
 #include "Particle.h"
+#include "Exception.h"
 
 class ProbabilityDensity : public Observable
 {

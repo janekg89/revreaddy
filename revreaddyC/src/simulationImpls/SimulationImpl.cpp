@@ -106,13 +106,20 @@ void SimulationImpl::new_MeanSquaredDisplacement(unsigned long recPeriod, std::s
 }
 
 void SimulationImpl::new_ProbabilityDensity(unsigned long recPeriod, std::string filename, unsigned particleTypeId, std::vector<double> range, unsigned coord) {
-	std::unique_ptr<ProbabilityDensity> prob = make_unique<ProbabilityDensity>(
-		recPeriod,
-		0,
-		filename,
-		particleTypeId,
-		range,
-		coord);
+	std::unique_ptr<ProbabilityDensity> prob;
+	try {
+		prob = make_unique<ProbabilityDensity>(
+			recPeriod,
+			0,
+			filename,
+			particleTypeId,
+			range,
+			coord);		
+	} catch (Exception& e) {
+		LOG_ERROR(e.what())
+		LOG_INFO("ProbabilityDensity is not added to observables.")
+		return;
+	}
 	this->observables.push_back( std::move(prob) );
 }
 

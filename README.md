@@ -44,7 +44,7 @@ Linked libraries:
 
 Requirements for usage:
 * Python
-* (h5py)
+* h5py
 
 ### Building
 
@@ -52,5 +52,5 @@ Requirements for usage:
 Import revreaddy in a python script, e.g.
 
 	>>> import revreaddy 
-	>>> s = revreaddy.Simulation()
+	>>> s = revreaddy.Sim()
 	>>> s.run(steps=10000, timestep=0.1)

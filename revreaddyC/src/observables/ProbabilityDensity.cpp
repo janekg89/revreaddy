@@ -13,8 +13,10 @@ ProbabilityDensity::ProbabilityDensity(
 	this->recPeriod = inRecPeriod;
 	this->clearPeriod = inClearPeriod;
 	this->filename = inFilename;
-	if (coord < 3) {this->coordinate = coord;}
-	else {coord = 0;}
+	if (coord >= 3) {
+		throw Exception("The given coordinate can only be 0, 1 or 2");
+	}
+	this->coordinate = coord;
 	this->rangeOfBins = range;
 	this->numberOfBins = range.size() - 1;
 	this-> probabilityDensity = gsl_histogram_alloc(this->numberOfBins);

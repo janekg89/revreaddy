@@ -136,11 +136,11 @@ void Config::deleteAllInteractions() {
 }
 
 void Config::new_SoftRepulsion(std::string name, std::vector<unsigned> affectedTuple, double repulsionStrength) {
+	LOG_TRACE("Enter Config new_SoftRepulsion")
 	if (affectedTuple.size() != 2) { 
 		throw Exception("The given tuple is not of length 2.");
 	}
-	if ( (affectedTuple[0] > ( this->particleTypes.size() - 1) ) 
-	  || (affectedTuple[1] > ( this->particleTypes.size() - 1) ) ) {
+	if ( ( affectedTuple[0] >= this->particleTypes.size() ) || (affectedTuple[1] >= this->particleTypes.size() ) ) {
 		throw Exception("The given particle type(s) do not exist.");
 	}
 	if ( repulsionStrength <= 0. ) {
@@ -160,8 +160,7 @@ void Config::new_LennardJones(std::string name, std::vector<unsigned> affectedTu
 	if (affectedTuple.size() != 2) { 
 		throw Exception("The given tuple is not of length 2."); 
 	}
-	if ( (affectedTuple[0] >= this->particleTypes.size() ) 
-	  || (affectedTuple[1] >= this->particleTypes.size() ) ) {
+	if ( (affectedTuple[0] >= this->particleTypes.size() ) || (affectedTuple[1] >= this->particleTypes.size() ) ) {
 		throw Exception("The given particle type(s) do not exist.");
 	}
 	if ( epsilon <= 0. ) { throw Exception("The given epsilon is not positive."); }

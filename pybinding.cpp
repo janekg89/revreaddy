@@ -94,6 +94,7 @@ public:
 		this->config->deleteAllInteractions();
 	}
 	void new_SoftRepulsion(std::string name, bp::numeric::array affectedTuple, double repulsionStrength) {
+		LOG_TRACE("Enter pybinding new_SoftRepulsion")
 		std::vector<unsigned> affTuple = {0,0};
 		try {
 			affTuple[0] = bp::extract<unsigned>(affectedTuple[0]);
@@ -157,7 +158,7 @@ public:
 		this->config->new_Fusion(name, forwardTypeA, forwardTypeB, backwardTypeC, forwardRate, backwardRate, reactionDistance);
 	}
 	// TODO this is WIP as long as Fusion is configured manually
-	void configureFusion(unsigned reactionIndex, bp::numeric::array interactionsIndices,	double inversePartition, double maxDistr, double radiiSum, double reactionRadiiSum,	double meanDistr, double inverseTemperature, double radiusA, double radiusB) {
+	void configureFusion(unsigned reactionIndex, bp::numeric::array interactionsIndices, double inversePartition, double maxDistr, double radiiSum, double reactionRadiiSum, double meanDistr, double inverseTemperature, double radiusA, double radiusB) {
 		std::vector<unsigned> interactionsIndicesConverted;
 		try {
 			for (unsigned i=0; i<interactionsIndices.nelements(); ++i) {
@@ -362,8 +363,8 @@ public:
 		this->simulation->new_Energy(recPeriod, filename);
 	}
 
-	void new_Acceptance(unsigned long recPeriod, std::string filename, bool reactionsOrDynamics) {
-		this->simulation->new_Acceptance(recPeriod, filename, reactionsOrDynamics);
+	void new_Acceptance(unsigned long recPeriod, std::string filename, bool reactionsOrDiffusion) {
+		this->simulation->new_Acceptance(recPeriod, filename, reactionsOrDiffusion);
 	}
 
 	void new_ParticleNumbers(unsigned long recPeriod, std::string filename,	unsigned particleTypeId) {
