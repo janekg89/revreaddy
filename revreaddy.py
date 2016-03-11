@@ -168,15 +168,15 @@ class Sim(object):
 		self.world.addParticle(init_pos, particle_type_id)
 
 	# wrapped simulation methods
-	def run(self, number_timesteps, timestep_=None):
+	def run(self, steps, timestep=None):
 		"""Start the simulation."""
-		if (timestep_ is not None):
-			self.timestep = timestep_
-		if (number_timesteps <= 0):
+		if (timestep is not None):
+			self.timestep = timestep
+		if (steps <= 0):
 			raise Exception("Number of timesteps must be positive.")
-		logging.info("Run with timestep "+str(self.timestep)+" and "+str(number_timesteps)+" timesteps")
+		logging.info("Run with timestep "+str(self.timestep)+" and "+str(steps)+" timesteps")
 		t1 = time.clock()
-		self.simulation.run(number_timesteps)
+		self.simulation.run(steps)
 		t2 = time.clock()
 		logging.info("Finished after "+str(t2-t1)+" seconds.")
 
