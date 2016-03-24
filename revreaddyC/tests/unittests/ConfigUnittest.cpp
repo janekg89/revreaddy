@@ -83,7 +83,7 @@ TEST_F(ConfigUnittest, deleteAllGeometries) {
 
 TEST_F(ConfigUnittest, new_SoftRepulsion) {
 	Config c;
-	std::vector<unsigned> affectedTuple = {0,0};
+	std::array<unsigned,2> affectedTuple = {0,0};
 	double repulsionStrength = 2.;
 	c.new_Type("testparticle", 2., 4.);
 	c.new_SoftRepulsion("softrep", affectedTuple, repulsionStrength);
@@ -97,7 +97,7 @@ TEST_F(ConfigUnittest, new_SoftRepulsion) {
 
 TEST_F(ConfigUnittest, new_LennardJones) {
 	Config c;
-	std::vector<unsigned> affectedTuple = {0,0};
+	std::array<unsigned,2> affectedTuple = {0,0};
 	double epsilon = 420.;
 	c.new_Type("testparticle", 3., 4.);
 	c.new_LennardJones("LJay", affectedTuple, epsilon);
@@ -111,7 +111,7 @@ TEST_F(ConfigUnittest, new_LennardJones) {
 
 TEST_F(ConfigUnittest, deleteAllInteractions) {
 	Config c;
-	std::vector<unsigned> affectedTuple = {0,0};
+	std::array<unsigned,2> affectedTuple = {0,0};
 	double epsilon = 420.;
 	c.new_Type("testparticle", 3., 4.);
 	c.new_LennardJones("LJay", affectedTuple, epsilon);

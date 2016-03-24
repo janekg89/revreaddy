@@ -7,12 +7,13 @@
 #define __SOFTREPULSION_H_INCLUDED__
 #include <math.h>
 #include <cmath>
+#include <algorithm>
 #include "ParticleInteraction.h"
 #include "logging.h"
 
 class SoftRepulsion : public ParticleInteraction {
 public:
-	SoftRepulsion(std::string inName, std::vector<unsigned int> inAffectedTuple, double inRepulsionStrength);
+	SoftRepulsion(std::string inName, std::array<unsigned,2> inAffectedTuple, double inRepulsionStrength);
 	
 	void calculateForceEnergy(
 		std::vector<double>& forceI, //out

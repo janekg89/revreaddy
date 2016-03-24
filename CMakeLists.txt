@@ -74,5 +74,12 @@ else ()
     message(STATUS "The submodule googletest was not initialized or REVREADDY_RUN_TESTS was OFF, thus no testing.")
 endif ()
 
+# tests for the python wrapping
+if(REVREADDY_RUN_TESTS)
+    add_test(NAME python-wrapping COMMAND python test_revreaddy.py)
+endif(REVREADDY_RUN_TESTS)
+
 # when everything is built move the convenience layer script to the build directory
 file(COPY revreaddy.py DESTINATION .)
+# same for tests
+file(COPY test_revreaddy.py DESTINATION .)

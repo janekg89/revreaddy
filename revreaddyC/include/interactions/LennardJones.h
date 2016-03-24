@@ -4,12 +4,13 @@
 #define __LENNARDJONES_H_INCLUDED__
 #include <math.h>
 #include <cmath>
+#include <algorithm>
 #include "ParticleInteraction.h"
 #include "logging.h"
 
 class LennardJones : public ParticleInteraction {
 public:
-	LennardJones(std::string inName, std::vector<unsigned int> inAffectedTuple,	double inEpsilon);
+	LennardJones(std::string inName, std::array<unsigned,2> inAffectedTuple, double inEpsilon);
 
 	void calculateForceEnergy(
 		std::vector<double>& forceI, //out

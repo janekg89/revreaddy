@@ -1,7 +1,5 @@
+/* TODO googletest */
 /* SimulationTest.h */
-
-#include <cxxtest/TestSuite.h>
-// Simulation.h basically includes every other class used.
 #include "Simulation.h"
 #include "utils.h"
 

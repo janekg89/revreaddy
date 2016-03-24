@@ -80,7 +80,7 @@ void Config::new_Wall(
 		}
 	}
 	// sort the particle types so that binary search can be used during runtime
-	particleTypeIds = this->sort(particleTypeIds);
+	std::sort(particleTypeIds.begin(), particleTypeIds.end());
 	if (normal.size() != 3) {
 		throw Exception("Dimension mismatch in normal vector.");
 	}
@@ -110,7 +110,7 @@ void Config::new_DoubleWellZ(double distanceMinima,	double strength, std::vector
 		}
 	}
 	// sort the particle types so that binary search can be used during runtime
-	particleTypeIds = this->sort(particleTypeIds);
+	std::sort(particleTypeIds.begin(), particleTypeIds.end());
 	if (distanceMinima < 0.) {
 		throw Exception("The distance of minima must be non-negative.");
 	}
@@ -135,11 +135,8 @@ void Config::deleteAllInteractions() {
 	this->interactions.clear();
 }
 
-void Config::new_SoftRepulsion(std::string name, std::vector<unsigned> affectedTuple, double repulsionStrength) {
+void Config::new_SoftRepulsion(std::string name, std::array<unsigned,2> affectedTuple, double repulsionStrength) {
 	LOG_TRACE("Enter Config new_SoftRepulsion")
-	if (affectedTuple.size() != 2) { 
-		throw Exception("The given tuple is not of length 2.");
-	}
 	if ( ( affectedTuple[0] >= this->particleTypes.size() ) || (affectedTuple[1] >= this->particleTypes.size() ) ) {
 		throw Exception("The given particle type(s) do not exist.");
 	}
@@ -150,16 +147,13 @@ void Config::new_SoftRepulsion(std::string name, std::vector<unsigned> affectedT
 		name,
 		affectedTuple,
 		repulsionStrength);
-	// set cutoff correctly
+	// set cutoff
 	soft->cutoff = this->particleTypes[affectedTuple[0]].radius + this->particleTypes[affectedTuple[1]].radius;
 	this->interactions.push_back( std::move(soft) );
 	LOG_INFO("SoftRepulsion interaction added to interactions")
 }
 
-void Config::new_LennardJones(std::string name, std::vector<unsigned> affectedTuple, double epsilon) {
-	if (affectedTuple.size() != 2) { 
-		throw Exception("The given tuple is not of length 2."); 
-	}
+void Config::new_LennardJones(std::string name, std::array<unsigned,2> affectedTuple, double epsilon) {
 	if ( (affectedTuple[0] >= this->particleTypes.size() ) || (affectedTuple[1] >= this->particleTypes.size() ) ) {
 		throw Exception("The given particle type(s) do not exist.");
 	}
@@ -168,7 +162,7 @@ void Config::new_LennardJones(std::string name, std::vector<unsigned> affectedTu
 		name,
 		affectedTuple,
 		epsilon);
-	// set cutoff correctly
+	// Set cutoff. This is hardcoded and is applied in implementation of LennardJones.
 	lj->cutoff = 2.5 * ( this->particleTypes[affectedTuple[0]].radius + this->particleTypes[affectedTuple[1]].radius );
 	this->interactions.push_back( std::move(lj) );
 	LOG_INFO("LennardJones interaction added to interactions")
@@ -192,7 +186,7 @@ std::string Config::getInteractionType(unsigned i) {
 	return this->interactions[i]->type;
 }
 
-std::vector<unsigned int> Config::getInteractionAffectedTuple(unsigned i) {
+std::array<unsigned,2> Config::getInteractionAffectedTuple(unsigned i) {
 	if (i >= this->interactions.size()) {
 		throw Exception("Interaction does not exist.");
 	}
@@ -387,9 +381,4 @@ double Config::getReactionBackwardRate(unsigned i) {
 		throw Exception("Reaction does not exist.");
 	}
 	return this->reactions[i]->backwardRate;
-}
-
-// TODO
-std::vector<unsigned> Config::sort(std::vector<unsigned> x) {
-	return x;
 }

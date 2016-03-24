@@ -6,6 +6,7 @@
 #ifndef __CONFIG_H_INCLUDED__
 #define __CONFIG_H_INCLUDED__
 #include <vector>
+#include <array>
 #include <string>
 #include <iostream>
 #include <memory>
@@ -59,12 +60,12 @@ public:
 	void new_DoubleWellZ(double distanceMinima,	double strength, std::vector<unsigned int> particleTypeIds);
 
 	void deleteAllInteractions();
-	void new_SoftRepulsion(std::string name, std::vector<unsigned int> affectedTuple, double repulsionStrength);
-	void new_LennardJones(std::string name,	std::vector<unsigned int> affectedTuple, double epsilon);
+	void new_SoftRepulsion(std::string name, std::array<unsigned,2> affectedTuple, double repulsionStrength);
+	void new_LennardJones(std::string name,	std::array<unsigned,2> affectedTuple, double epsilon);
 	unsigned getNumberInteractions();
 	std::string getInteractionName(unsigned i);
 	std::string getInteractionType(unsigned i);
-	std::vector<unsigned int> getInteractionAffectedTuple(unsigned i);
+	std::array<unsigned,2> getInteractionAffectedTuple(unsigned i);
 	std::vector<double> getInteractionParameters(unsigned i);
 	double getInteractionCutoff(unsigned i);
 
@@ -97,9 +98,6 @@ public:
 	std::vector<unsigned> getReactionBackwardTypes(unsigned i);
 	double getReactionForwardRate(unsigned i);
 	double getReactionBackwardRate(unsigned i);
-private:
-	// TODO
-	std::vector<unsigned> sort(std::vector<unsigned> x);
 };
 
 #endif //__CONFIG_H_INCLUDED__

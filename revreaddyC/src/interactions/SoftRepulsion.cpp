@@ -3,20 +3,13 @@
 #include "SoftRepulsion.h"
 
 // cutoff is set by Simulation, here it is radius_i + radius_j
-SoftRepulsion::SoftRepulsion(std::string inName, std::vector <unsigned int> inAffectedTuple, double inRepulsionStrength) {
+SoftRepulsion::SoftRepulsion(std::string inName, std::array<unsigned,2> inAffectedTuple, double inRepulsionStrength) {
 	this->name = inName;
 	this->type = "SoftRepulsion";
 	this->parameters = { inRepulsionStrength };
+	this->affectedTuple = inAffectedTuple;
 	// apply the convention that the tuple must be sorted
-	if ( inAffectedTuple[0] <= inAffectedTuple[1] ) {
-		this->affectedTuple.push_back(inAffectedTuple[0]);
-		this->affectedTuple.push_back(inAffectedTuple[1]);
-	}
-	else {
-		this->affectedTuple.push_back(inAffectedTuple[1]);
-		this->affectedTuple.push_back(inAffectedTuple[0]);	
-		LOG_INFO("SoftRepulsion affectedTuple order was inverted")
-	}
+	std::sort( affectedTuple.begin(), affectedTuple.end() );
 	this->c = 0.;
 	this->a = 0.;
 }

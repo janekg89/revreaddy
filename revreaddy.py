@@ -97,15 +97,19 @@ class Sim(object):
 
 	# wrapped config methods
 	def delete_all_particle_types(self):
+		"""Remove all entries of particlesTypes in Config."""
 		self.config.deleteAllParticleTypes()
 
 	def new_type(self, name, radius, diffusion_constant):
+		"""Register a new particle type."""
 		self.config.new_Type(name, radius, diffusion_constant)
 
 	def delete_all_geometries(self):
+		"""Clean up all first order potentials."""
 		self.config.deleteAllGeometries()
 
 	def new_wall(self, normal, point, strength, particle_type_ids):
+		"""Register a first order potential, that repulses particles from a plain."""
 		normal = np.array(normal)
 		if (normal.shape != (3,)):
 			raise Exception("Normal vector has wrong shape.")
@@ -119,6 +123,7 @@ class Sim(object):
 		self.config.new_Wall(normal, point, strength, particle_type_ids)
 
 	def new_double_well_z(self, distance_minima, strength, particle_type_ids):
+		"""Register a first order potential, that is a double well in z direction."""
 		particle_type_ids = np.array(particle_type_ids, dtype=int)
 		if ( len(particle_type_ids.shape) != 1):
 			raise Exception("Particle types must be a one-dimensional container.")
@@ -159,6 +164,7 @@ class Sim(object):
 
 	# wrapped world methods
 	def delete_all_particles(self):
+		"""Remove particles from World object."""
 		self.world.deleteAllParticles()
 
 	def add_particle(self,init_pos, particle_type_id):
@@ -181,6 +187,7 @@ class Sim(object):
 		logging.info("Finished after "+str(t2-t1)+" seconds.")
 
 	def delete_all_observables(self):
+		"""Clean up the observables from Simulation object."""
 		self.simulation.deleteAllObservables()
 
 	# TODO WIP this will become obsolete when write-periods are implemented
@@ -188,6 +195,7 @@ class Sim(object):
 		self.simulation.writeAllObservablesToFile()
 
 	def new_trajectory(self, rec_period, filename):
+		"""Register an observable that records the positions and types of particles."""
 		self.simulation.new_Trajectory(rec_period, filename)
 
 	def new_radial_distribution(self, rec_period, filename, ranges, considered):

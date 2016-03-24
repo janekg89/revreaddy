@@ -8,6 +8,7 @@
 #define __PARTICLEINTERACTION_H_INCLUDED__
 #include <string>
 #include <vector>
+#include <array>
 #include <iostream>
 #include "Exception.h"
 
@@ -19,7 +20,7 @@ public:
 	std::string name;
 	std::string type; //"softRepulsion", "softAttraction", "LennardJones"
 	/* affectedTuple is always of length 2 and always sorted */
-	std::vector<unsigned int> affectedTuple; 
+	std::array<unsigned,2> affectedTuple; 
 	std::vector<double> parameters;
 	/* cutoff is important only for neighborlattice construction */
 	double cutoff;

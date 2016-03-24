@@ -7,9 +7,7 @@
 #include <array>
 #include <iostream>
 #include <string>
-#include <typeinfo>
 #include <algorithm>
-#include <ctime>
 #include "World.h"
 #include "Config.h"
 #include "Particle.h"
@@ -58,7 +56,7 @@ public:
 	void deleteAllObservables();
 	void deleteLastObservable();
 	void new_Trajectory(unsigned long recPeriod, std::string filename);
-	void new_RadialDistribution(unsigned long recPeriod, std::string filename, std::vector<double> ranges, std::vector< std::vector<unsigned> > considered);
+	void new_RadialDistribution(unsigned long recPeriod, std::string filename, std::vector<double> ranges, std::vector< std::array<unsigned,2> > considered);
 	void new_MeanSquaredDisplacement(unsigned long recPeriod, std::string filename,	unsigned particleTypeId);
 	void new_ProbabilityDensity(unsigned long recPeriod, std::string filename, unsigned pTypeId, std::vector<double> range, unsigned int coord);
 	void new_Energy(unsigned long recPeriod, std::string filename);

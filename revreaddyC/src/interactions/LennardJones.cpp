@@ -5,20 +5,13 @@
 #define TWO_POW_MIN_ONE_THIRD 0.7937005259840998
 
 //cutoff is set by Simulation, here it is 2.5*(radius_i+radius_j)
-LennardJones::LennardJones(std::string inName, std::vector<unsigned int> inAffectedTuple, double inEpsilon) {
+LennardJones::LennardJones(std::string inName, std::array<unsigned,2> inAffectedTuple, double inEpsilon) {
 	this->name = inName;
 	this->type = "LennardJones";
 	this->parameters = { inEpsilon };
+	this->affectedTuple = inAffectedTuple;
 	// apply the convention that the tuple must be sorted
-	if ( inAffectedTuple[0] <= inAffectedTuple[1] ) {
-		this->affectedTuple.push_back(inAffectedTuple[0]);
-		this->affectedTuple.push_back(inAffectedTuple[1]);
-	}
-	else {
-		this->affectedTuple.push_back(inAffectedTuple[1]);
-		this->affectedTuple.push_back(inAffectedTuple[0]);	
-		LOG_INFO("LennardJones affectedTuple order was inverted")
-	}
+	std::sort( affectedTuple.begin(), affectedTuple.end() );
 }
 
 void LennardJones::calculateForceEnergy(
@@ -28,6 +21,8 @@ void LennardJones::calculateForceEnergy(
 	const double& rSquared,
 	const double& radiiSquared)
 {
+	// radiiSquared = (R_i + R_j)^2, R_i - particle radius of i
+	// rSquared = r_ij^2
 	if ( rSquared > (6.25*radiiSquared) ) {
 		energy = 0.;
 		forceI = {0.,0.,0.,};

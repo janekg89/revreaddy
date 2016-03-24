@@ -9,7 +9,7 @@ RadialDistribution::RadialDistribution(
 	unsigned long inRecPeriod,
 	unsigned long inClearPeriod,
 	std::vector<double>& range,
-	std::vector< std::vector<unsigned> > considered,
+	std::vector< std::array<unsigned, 2> > considered,
 	std::string inFilename)
 {
 	this->recPeriod    = inRecPeriod;

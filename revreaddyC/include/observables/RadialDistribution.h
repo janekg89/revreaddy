@@ -6,6 +6,7 @@
 #ifndef __RADIALDISTRIBUTION_H_INCLUDED__
 #define __RADIALDISTRIBUTION_H_INCLUDED__
 #include <vector>
+#include <array>
 #include <fstream>
 #include <string>
 #include <gsl/gsl_histogram.h>
@@ -33,7 +34,7 @@ class RadialDistribution : public Observable
 		 * Not correct: (1,0), (4,1)
 		 * This is because isInConsidered() searches for tuples (a,b)
 		 * where a<=b.*/
-		std::vector< std::vector<unsigned int> > consideredPairs;
+		std::vector< std::array<unsigned, 2> > consideredPairs;
 		bool isPeriodic;
 		double boxsize;
 		Utils * utils;
@@ -50,7 +51,7 @@ class RadialDistribution : public Observable
 			unsigned long inRecPeriod,
 			unsigned long inClearPeriod,
 			std::vector<double>& range,
-			std::vector< std::vector<unsigned int> > considered,
+			std::vector< std::array<unsigned, 2> > considered,
 			std::string inFilename);
 		~RadialDistribution();
 };

@@ -95,7 +95,7 @@ public:
 	}
 	void new_SoftRepulsion(std::string name, bp::numeric::array affectedTuple, double repulsionStrength) {
 		LOG_TRACE("Enter pybinding new_SoftRepulsion")
-		std::vector<unsigned> affTuple = {0,0};
+		std::array<unsigned,2> affTuple = {0,0};
 		try {
 			affTuple[0] = bp::extract<unsigned>(affectedTuple[0]);
 			affTuple[1] = bp::extract<unsigned>(affectedTuple[1]);
@@ -107,7 +107,7 @@ public:
 		this->config->new_SoftRepulsion(name, affTuple, repulsionStrength);
 	}
 	void new_LennardJones(std::string name,	bp::numeric::array affectedTuple, double epsilon) {
-		std::vector<unsigned> affTuple = {0,0};
+		std::array<unsigned,2> affTuple = {0,0};
 		try {
 			affTuple[0] = bp::extract<unsigned>(affectedTuple[0]);
 			affTuple[1] = bp::extract<unsigned>(affectedTuple[1]);
@@ -128,7 +128,7 @@ public:
 		return this->config->getInteractionType(i);
 	}
 	bp::numeric::array getInteractionAffectedTuple(unsigned i) {
-		std::vector<unsigned> affTuple = this->config->getInteractionAffectedTuple(i);
+		std::array<unsigned,2> affTuple = this->config->getInteractionAffectedTuple(i);
 		bp::numeric::array affectedTuple = bp::numeric::array(
 			bp::make_tuple(affTuple[0], affTuple[1])
 		);
@@ -322,7 +322,7 @@ public:
 
 	void new_RadialDistribution(unsigned long recPeriod, std::string filename, bp::numeric::array ranges, bp::numeric::array considered) {
 		std::vector<double> rangesConverted;
-		std::vector< std::vector<unsigned> > consideredConverted;
+		std::vector< std::array<unsigned,2> > consideredConverted;
 		try {
 			for (unsigned i=0; i<ranges.nelements(); ++i) {
 				rangesConverted.push_back( bp::extract<double>(ranges[i]) );
@@ -330,9 +330,9 @@ public:
 			// we expect considered to be 2-dimensional with x elements in 
 			// first dimension and two elements in second dimension
 			for (unsigned i=0; i<considered.nelements(); ++i) {
-				std::vector<unsigned> consideredTuple;
-				consideredTuple.push_back( bp::extract<unsigned>(considered[i][0]) );
-				consideredTuple.push_back( bp::extract<unsigned>(considered[i][1]) );
+				std::array<unsigned,2> consideredTuple;
+				consideredTuple[0] = bp::extract<unsigned>(considered[i][0]);
+				consideredTuple[1] = bp::extract<unsigned>(considered[i][1]);
 				consideredConverted.push_back(consideredTuple);
 			}
 		} catch (...) {

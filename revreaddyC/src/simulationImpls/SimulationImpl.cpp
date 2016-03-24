@@ -86,7 +86,7 @@ void SimulationImpl::new_Trajectory(unsigned long recPeriod, std::string filenam
 	this->observables.push_back( std::move(obs) );
 }
 
-void SimulationImpl::new_RadialDistribution(unsigned long recPeriod, std::string filename, std::vector<double> ranges, std::vector< std::vector<unsigned> > considered) {
+void SimulationImpl::new_RadialDistribution(unsigned long recPeriod, std::string filename, std::vector<double> ranges, std::vector< std::array<unsigned,2> > considered) {
 	std::unique_ptr<RadialDistribution> rad = make_unique<RadialDistribution>(
 		recPeriod,
 		0,
