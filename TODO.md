@@ -1,4 +1,6 @@
 ### TODO
+* trajectory with force recording
+* SimulationImpl child that propagates single moves with a=1
 * implement clear-period of observables so that they are flushed in predefined intervals and don't fill up memory
 
 #### integration tests:
