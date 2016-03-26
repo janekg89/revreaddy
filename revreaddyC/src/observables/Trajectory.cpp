@@ -32,7 +32,11 @@ void Trajectory::record(World * world, double t)
 	this->trajectory.push_back(currentCoordinates);
 }
 
-void Trajectory::writeBufferToFile()
+void Trajectory::writeBufferToH5() {
+	BinaryFile file(this->filename);
+}
+
+void Trajectory::writeBufferToDat()
 {
 	std::ofstream file;
 	file.open(this->filename, std::ofstream::out | std::ofstream::app);

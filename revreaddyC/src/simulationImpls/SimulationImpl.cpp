@@ -41,13 +41,13 @@ SimulationImpl::~SimulationImpl() {
 
 void SimulationImpl::writeAllObservablesToFile() {
 	for (unsigned i=0; i<this->observables.size(); ++i) {
-		this->observables[i]->writeBufferToFile();
+		this->observables[i]->writeToFile();
 	}
 }
 
 void SimulationImpl::writeLastObservableToFile() {
 	if (this->observables.size() > 0) {
-		this->observables.back()->writeBufferToFile();
+		this->observables.back()->writeToFile();
 	}
 	else {
 		throw Exception("There are no observables to write");

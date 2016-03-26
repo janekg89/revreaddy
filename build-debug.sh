@@ -1,13 +1,18 @@
+echo $PATH
 mkdir -p build/Debug
 cd build/Debug
-#PYTHON_EXECUTABLE=/usr/bin/python2.7 \
-#PYTHON_LIBRARY=/usr/lib/python2.7/config-x86_64-linux-gnu/libpython2.7.so \
-#PYTHON_INCLUDE=/usr/include/python2.7 \
-cmake ../.. \
-	-G "Unix Makefiles" \
-	-DCMAKE_BUILD_TYPE=Debug \
-	-DREVREADDY_LOGGING_SEVERITY:STRING=__TRACE__ \
-	-DREVREADDY_RUN_TESTS:BOOL=ON
+
+CMAKE_FLAGS=""
+CMAKE_FLAGS+=" -DCMAKE_BUILD_TYPE=Debug"
+CMAKE_FLAGS+=" -DREVREADDY_LOGGING_SEVERITY:STRING=__TRACE__"
+CMAKE_FLAGS+=" -DREVREADDY_RUN_TESTS:BOOL=ON"
+CMAKE_FLAGS+=" -DBOOST_ROOT=/home/chris/miniconda2"
+CMAKE_FLAGS+=" -DPYTHON_LIBRARY=/home/chris/miniconda2/lib/libpython2.7.so"
+CMAKE_FLAGS+=" -DPYTHON_INCLUDE_DIR=/home/chris/miniconda2/include/python2.7"
+CMAKE_FLAGS+=" -DPYTHON_EXECUTABLE=/home/chris/miniconda2/bin/python2.7"
+
+cmake ../.. $CMAKE_FLAGS
 make -j
-make test -j
+make test -j VERBOSE=1
+#ctest -VV
 cd ../..

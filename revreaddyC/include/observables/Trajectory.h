@@ -17,6 +17,8 @@ public:
 	void configure(World * world, Config * config);
 	void record(World * world, double t);
 	void writeBufferToFile();
+	void writeBufferToH5();
+	void writeBufferToDat();
 
 	Trajectory(unsigned long inRecPeriod, unsigned long inClearPeriod, std::string inFilename);
 	~Trajectory();

@@ -33,12 +33,10 @@ public:
 	// bugs occuring when writing data, that has already
 	// been written.
 	/* write to file but keep the buffer in memory */
-	virtual void writeBufferToFile();
-	/* write to file and clear the buffer in memory */
-	//virtual void flushBufferToFile();
-	int findParticleIndex(
-		std::vector<Particle>& particles,
-		unsigned long long id);
+	void writeToFile();
+	virtual void writeToH5();
+	virtual void writeToDat();
+	int findParticleIndex(std::vector<Particle>& particles, unsigned long long id);
 
 	Observable();
 	virtual ~Observable();		

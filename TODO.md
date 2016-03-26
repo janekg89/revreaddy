@@ -1,6 +1,8 @@
 ### TODO
+* include BinaryFile methods into Observable so that they also have access to HDF5 object to do more complicated operations (groups, attributes) if needed, but also have simple methods (addDataset*).
 * trajectory with force recording
 * SimulationImpl child that propagates single moves with a=1
+* sample reaction distance from discrete probability distribution. -> new Fusion variant.
 * implement clear-period of observables so that they are flushed in predefined intervals and don't fill up memory
 
 #### integration tests:
