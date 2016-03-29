@@ -1,4 +1,5 @@
 ## revreaddy
+[![Build Status](https://travis-ci.org/chrisfroe/revreaddy.svg?branch=develop)](https://travis-ci.org/chrisfroe/revreaddy)
 [![Coverage Status](https://coveralls.io/repos/github/chrisfroe/revreaddy/badge.svg?branch=develop)](https://coveralls.io/github/chrisfroe/revreaddy?branch=develop)
 
 A particle based reaction-diffusion simulation with a
