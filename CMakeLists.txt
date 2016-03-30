@@ -25,10 +25,13 @@ set(REVREADDY_C_INCLUDE_DIRS
     ${PROJECT_SOURCE_DIR}/revreaddyC/include/reactions
     ${PROJECT_SOURCE_DIR}/revreaddyC/include/simulationImpls
 )
+set(H5XX_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/libraries/h5xx)
+
 target_include_directories(${REVREADDY_PY_LIBRARY_NAME} PUBLIC
     ${Boost_INCLUDE_DIRS}
     ${PYTHON_INCLUDE_DIRS}
     ${REVREADDY_C_INCLUDE_DIRS}
+    ${H5XX_INCLUDE_DIR}
 )
 target_link_libraries(${REVREADDY_PY_LIBRARY_NAME} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES} ${REVREADDY_C_LIBRARY_NAME})
 

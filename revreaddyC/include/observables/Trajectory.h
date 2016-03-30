@@ -16,7 +16,6 @@ class Trajectory : public Observable
 public:
 	void configure(World * world, Config * config);
 	void record(World * world, double t);
-	void writeBufferToFile();
 	void writeBufferToH5();
 	void writeBufferToDat();
 
