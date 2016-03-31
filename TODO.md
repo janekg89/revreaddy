@@ -1,5 +1,6 @@
 ### TODO
-* include BinaryFile methods into Observable so that they also have access to HDF5 object to do more complicated operations (groups, attributes) if needed, but also have simple methods (addDataset*).
+* Fusion reaction that conserves positions of particles that have 0 diffusivity
+* include BinaryFile methods into Observable so that they also have access to HDF5 object to do more complicated operations (groups, attributes) if needed, but also have simple methods (addDataset*). Prefer h5xx over an own implementation, if possible.
 * trajectory with force recording
 * SimulationImpl child that propagates single moves with a=1
 * sample reaction distance from discrete probability distribution. -> new Fusion variant.
