@@ -16,8 +16,10 @@ class Trajectory : public Observable
 public:
 	void configure(World * world, Config * config);
 	void record(World * world, double t);
+	/* Write trajectory to file in append-like fashion. Trajectory buffer is cleared
+	 * afterwards. */
 	void writeBufferToH5();
-	void writeBufferToDat();
+	void writeBufferToDat(); // xyz format
 
 	Trajectory(unsigned long inRecPeriod, unsigned long inClearPeriod, std::string inFilename);
 	~Trajectory();
@@ -27,12 +29,16 @@ private:
 	 * and its coordinates */
 	struct particleTuple {
 		unsigned int particleTypeId;
-		std::vector<double> particleCoordinates;
+		unsigned long long particleUniqueId;
+		std::vector<double> particlePosition;
+		std::vector<double> particleForce;
 		double particleTime;
 	};
 	/* trajectory has the following shape:
 	 * [relativeTime] [particles] [tuple[type][coordinates][absTime]] */
 	std::vector< std::vector< particleTuple > > trajectory;
+	/* tells which group (time index) has to be added next */
+	unsigned long nextWrittenTimeIncrement;
 };
 
 #endif // __TRAJECTORY_H_INCLUDED__

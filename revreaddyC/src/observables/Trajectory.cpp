@@ -6,9 +6,13 @@
 
 Trajectory::Trajectory(unsigned long inRecPeriod, unsigned long inClearPeriod, std::string inFilename)
 {
+	if (inClearPeriod < inRecPeriod) {
+		throw Exception("The clearing-period of Trajectory must be larger or equal to the recording-period.");
+	}
 	this->recPeriod = inRecPeriod;
 	this->clearPeriod = inClearPeriod;
 	this->filename = inFilename;
+	this->nextWrittenTimeIncrement = 0;
 }
 
 Trajectory::~Trajectory() {}
@@ -25,7 +29,9 @@ void Trajectory::record(World * world, double t)
 	for (auto&& particle : world->particles) {
 		particleTuple pt;
 		pt.particleTypeId = particle.typeId;
-		pt.particleCoordinates = particle.position;
+		pt.particleUniqueId = particle.uniqueId;
+		pt.particlePosition = particle.position;
+		pt.particleForce = particle.cumulativeForce;
 		pt.particleTime = t;
 		currentCoordinates.push_back(pt);
 	}	
@@ -33,7 +39,9 @@ void Trajectory::record(World * world, double t)
 }
 
 void Trajectory::writeBufferToH5() {
-	BinaryFile file(this->filename);
+	// construct file and open it with "out" mode ("open for read and write")
+	h5xx::file file(this->filename, h5xx::file::out);
+	// TODO
 }
 
 void Trajectory::writeBufferToDat()
@@ -45,10 +53,11 @@ void Trajectory::writeBufferToDat()
 		file << "#timestep " << particles[0].particleTime << "\n"; 
 		for (auto&& particle : particles) {
 			file << "T" << particle.particleTypeId << "\t";
-			file << particle.particleCoordinates[0] << "\t";
-			file << particle.particleCoordinates[1] << "\t";
-			file << particle.particleCoordinates[2] << "\n";
+			file << particle.particlePosition[0] << "\t";
+			file << particle.particlePosition[1] << "\t";
+			file << particle.particlePosition[2] << "\n";
 		}
 	}
 	file.close();
+	// TODO clean trajectory
 }

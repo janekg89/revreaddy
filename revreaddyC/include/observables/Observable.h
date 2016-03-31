@@ -13,6 +13,7 @@
 #include "Config.h"
 #include "Particle.h"
 #include "BinaryFile.h"
+#include <h5xx/h5xx.hpp>
 
 class Observable
 {
