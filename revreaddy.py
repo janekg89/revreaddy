@@ -275,4 +275,12 @@ class Sim(object):
 
 	# derived methods
 	def show_config(self):
+		"""List particle species, interactions, geometries and reactions."""
+		pass
+
+	def show_world(self):
+		"""List particle positions and their typeIds, uniqueIds."""
+		pass
+
+	def show_simulation(self):
 		pass

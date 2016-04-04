@@ -14,27 +14,30 @@ void Observable::writeToFile() {
 	unsigned int lastDot = this->filename.find_last_of(".");
 	std::string extension = this->filename.substr(lastDot);
 	if ( (extension == ".h5") || (extension == ".hdf5") ) {
-		this->writeToH5();
+		writeToH5();
 	}
 	else if ( (extension == ".dat") || (extension == ".txt") ) {
-		this->writeToDat();
+		writeToDat();
 	}
 	else {
-		this->writeToH5();
+		// write to hdf5 format per default
+		writeToH5();
 	}
 }
 
-void Observable::writeToH5() {}
-void Observable::writeToDat() {}
+void Observable::writeToH5() {
+	LOG_TRACE("Enter Observable::writeToH5")
+}
+
+void Observable::writeToDat() {
+	LOG_TRACE("Enter Observable::writeToDat")
+}
 
 // return the particle index within particles of particle with id id
-int Observable::findParticleIndex(
-	std::vector<Particle>& particles,
-	unsigned long long id) 
-{ 
-	unsigned int max = particles.size() - 1;
-	unsigned int min = 0;
-	unsigned int mid = 0;
+long int Observable::findParticleIndex(std::vector<Particle>& particles, unsigned long long id) { 
+	signed long max = particles.size() - 1;
+	signed long min = 0;
+	signed long mid = 0;
 	while (max >= min) {
 		mid = min + (max - min) / 2;
 		if (particles[mid].uniqueId == id) {return mid;}

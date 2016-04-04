@@ -81,7 +81,7 @@ void SimulationImpl::deleteLastObservable() {
 void SimulationImpl::new_Trajectory(unsigned long recPeriod, std::string filename) {
 	std::unique_ptr<Trajectory> obs = make_unique<Trajectory>(
 		recPeriod,
-		0,
+		recPeriod,//clear period
 		filename);
 	this->observables.push_back( std::move(obs) );
 }
@@ -422,9 +422,16 @@ double SimulationImpl::propagateReactions() {
 }
 
 void SimulationImpl::recordObservables(unsigned long timeIndex) {
-	for (unsigned i=0; i<this->observables.size(); i++) {
+	// record the observables if the current timeIndex matches the recording interval
+	for (auto i=0; i<this->observables.size(); ++i) {
 		if (timeIndex % this->observables[i]->recPeriod == 0) {
 			this->observables[i]->record(world, world->cumulativeRuntime);
+		}
+	}
+	// flush the buffers if the current timeIndex matches the clearing interval
+	for (auto i=0; i<this->observables.size(); ++i) {
+		if (timeIndex % this->observables[i]->clearPeriod == 0) {
+			this->observables[i]->writeToFile();
 		}
 	}
 }

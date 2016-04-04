@@ -66,6 +66,8 @@ unsigned World::getTypeId(unsigned long index) { return this->particles[index].t
 
 void World::setTypeId(unsigned long index, unsigned typeId) { this->particles[index].typeId = typeId; }
 
+unsigned long long World::getUniqueId(unsigned long index) { return this->particles[index].uniqueId; }
+
 void World::deleteAllParticles() {
 	 this->particles.erase(
 		this->particles.begin(),

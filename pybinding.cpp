@@ -264,12 +264,16 @@ public:
 		this->world->setPosition(index, newPosConverted);
 	}
 
-	unsigned int getTypeId(unsigned long index) {
+	unsigned int getTypeId(unsigned long const index) {
 		return this->world->getTypeId(index);
 	}
 
-	void setTypeId(unsigned long index, unsigned typeId) {
+	void setTypeId(unsigned long const index, unsigned typeId) {
 		this->world->setTypeId(index, typeId);
+	}
+
+	unsigned long long getUniqueId(unsigned long const index) {
+		return this->world->getUniqueId(index);
 	}
 
 	void deleteAllParticles() {
@@ -384,6 +388,7 @@ BOOST_PYTHON_MODULE(revreaddyPy) {
 		.def("setPosition", &WorldWrap::setPosition)
 		.def("getTypeId", &WorldWrap::getTypeId)
 		.def("setTypeId", &WorldWrap::setTypeId)
+		.def("getUniqueId", &WorldWrap::getUniqueId)
 		.def("deleteAllParticles", &WorldWrap::deleteAllParticles);
 	class_<ConfigWrap>("Config", init<>())
 		.def("getTimestep", &ConfigWrap::getTimestep)

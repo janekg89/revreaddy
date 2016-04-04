@@ -51,6 +51,7 @@ public:
 	void setPosition(unsigned long index, std::vector<double> newPos);
 	unsigned int getTypeId(unsigned long index);
 	void setTypeId(unsigned long index, unsigned typeId);
+	unsigned long long getUniqueId(unsigned long index);
 	void deleteAllParticles();	
 };
 
