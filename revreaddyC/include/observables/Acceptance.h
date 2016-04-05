@@ -9,7 +9,7 @@
 #include "Config.h"
 #include "Observable.h"
 
-// TODO make two Acceptances one for Reactions, one for Dynamics
+// TODO make two Acceptances one for Reactions, one for Diffusion
 class Acceptance : public Observable
 {
 public:
@@ -20,9 +20,8 @@ public:
 		bool inReactionsOrDiffusion);
 	void configure(World * world, Config * config);
 	void record(World * world, double t);
-	void writeBufferToFile();
-	void writeBufferToH5();
-	void writeBufferToDat();
+	void writeToH5();
+	void writeToDat();
 private:
 	std::vector<double> acceptanceProbs;
 	std::vector<double> times;

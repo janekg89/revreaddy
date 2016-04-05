@@ -9,22 +9,27 @@ MeanSquaredDisplacement::MeanSquaredDisplacement(
 	std::string inFilename)
 {
 	this->recPeriod = inRecPeriod;
-	this->clearPeriod = 0;
+	this->clearedAutomatically = false;
+	this->clearPeriod = inClearPeriod;
 	this->filename = inFilename;
+	observableTypeName = "MeanSquaredDisplacement";
 	this->particleTypeId = pTypeId;
+	isSetup = false;
 }
 
 MeanSquaredDisplacement::~MeanSquaredDisplacement()
 {
 }
 
-void MeanSquaredDisplacement::configure(World * world, Config * config)
-{
+void MeanSquaredDisplacement::configure(World * world, Config * config) {
+	/* keep track of system parameters that might have changed */
 	this->boxsize = config->boxsize;
 	this->startTime = world->cumulativeRuntime;
-	/* add uniqueIds of all particles of type 
-	 * "particleTypeId" to observedParticleIds */
-	for (unsigned int i=0; i<world->particles.size(); i++) {
+}
+
+void MeanSquaredDisplacement::setup(World * world, Config * config) {
+	/* add uniqueIds of all particles of type "particleTypeId" to observedParticleIds */
+	for (auto i=0; i<world->particles.size(); ++i) {
 		if (world->particles[i].typeId == this->particleTypeId) {
 			this->observedParticleIds.push_back( world->particles[i].uniqueId );
 			positionTuple pt;
@@ -35,18 +40,15 @@ void MeanSquaredDisplacement::configure(World * world, Config * config)
 	}
 }
 
-void MeanSquaredDisplacement::record(
-	World * world,
-	double t)
-{
+void MeanSquaredDisplacement::record(World * world, double t) {
 	std::vector<double> displacement = {0.,0.,0.};
-	std::vector<long>   relativeBoxCoordinates = {0,0,0};
+	std::vector<long> relativeBoxCoordinates = {0,0,0};
 	std::vector<double> squaredDisplacements;
 	double squaredDisplacement = 0.;
 	double mean = 0.;
 	int index = 0;
 	unsigned int stillExisting = 0;
-	for (unsigned i=0; i < this->observedParticleIds.size(); i++) {
+	for (auto i=0; i < this->observedParticleIds.size(); i++) {
 		// check if particle still exists. if not: index = -1
 		index = this->findParticleIndex(
 			world->particles,
@@ -84,7 +86,7 @@ void MeanSquaredDisplacement::record(
 	mean /= (double) stillExisting;
 	this->meanSquaredDisplacements.push_back(mean);
 	double standardDeviation = 0.;
-	for (unsigned j=0; j<squaredDisplacements.size(); j++) {
+	for (auto j=0; j<squaredDisplacements.size(); j++) {
 		standardDeviation += (squaredDisplacements[j] - mean)
 		                   * (squaredDisplacements[j] - mean);
 	}
@@ -98,23 +100,7 @@ void MeanSquaredDisplacement::record(
 	this->time.push_back(t - this->startTime);
 }
 
-void MeanSquaredDisplacement::writeBufferToFile()
-{
-	// first determine the file extension
-	unsigned int lastDot = this->filename.find_last_of(".");
-	std::string extension = this->filename.substr(lastDot);
-	if ( (extension == ".h5") || (extension == ".hdf5") ) {
-		this->writeBufferToH5();
-	}
-	else if ( (extension == ".dat") || (extension == ".txt") ) {
-		this->writeBufferToDat();
-	}
-	else {
-		this->writeBufferToDat();
-	}
-}
-
-void MeanSquaredDisplacement::writeBufferToH5()
+void MeanSquaredDisplacement::writeToH5()
 {
 	BinaryFile file(this->filename);
 	file.addDatasetDouble(
@@ -134,7 +120,7 @@ void MeanSquaredDisplacement::writeBufferToH5()
 		this->numberOfParticles);
 }
 
-void MeanSquaredDisplacement::writeBufferToDat()
+void MeanSquaredDisplacement::writeToDat()
 {
 	std::ofstream file;
 	file.open(this->filename);

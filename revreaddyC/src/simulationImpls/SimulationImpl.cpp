@@ -40,17 +40,11 @@ SimulationImpl::~SimulationImpl() {
 }
 
 void SimulationImpl::writeAllObservablesToFile() {
+	if (observables.size() == 0) {
+		throw Exception("There are no observables.");
+	}
 	for (unsigned i=0; i<this->observables.size(); ++i) {
 		this->observables[i]->writeToFile();
-	}
-}
-
-void SimulationImpl::writeLastObservableToFile() {
-	if (this->observables.size() > 0) {
-		this->observables.back()->writeToFile();
-	}
-	else {
-		throw Exception("There are no observables to write");
 	}
 }
 
@@ -69,13 +63,6 @@ std::string SimulationImpl::showObservables() {
 void SimulationImpl::deleteAllObservables() {
 	/* Erase all the unique pointers, the observables are thus deleted as well */
 	this->observables.clear();
-}
-
-void SimulationImpl::deleteLastObservable() {
-	/* delete the smart pointer, upon which the observable will be destroyed as well */
-	if (this->observables.size() > 0) {
-		this->observables.pop_back();
-	}
 }
 
 void SimulationImpl::new_Trajectory(unsigned long recPeriod, std::string filename) {
@@ -157,7 +144,7 @@ void SimulationImpl::run(const unsigned long maxTime) {
 	if (this->useNeighborlist && ( !this->skipPairInteractionsReactions ) ) { this->configureNeighborlist(); }
 	else { this->useNeighborlist = false; }
 	this->setupUnimolecularCandidateTypes();
-	this->configureObservables();
+	this->configureAndSetupObservables();
 	this->resetForces();
 	this->resetReactionCandidates();
 	world->energy = 0.;
@@ -423,15 +410,16 @@ double SimulationImpl::propagateReactions() {
 
 void SimulationImpl::recordObservables(unsigned long timeIndex) {
 	// record the observables if the current timeIndex matches the recording interval
-	for (auto i=0; i<this->observables.size(); ++i) {
-		if (timeIndex % this->observables[i]->recPeriod == 0) {
-			this->observables[i]->record(world, world->cumulativeRuntime);
+	for (auto i=0; i<observables.size(); ++i) {
+		if (timeIndex % observables[i]->recPeriod == 0) {
+			observables[i]->record(world, world->cumulativeRuntime);
 		}
 	}
-	// flush the buffers if the current timeIndex matches the clearing interval
-	for (auto i=0; i<this->observables.size(); ++i) {
-		if (timeIndex % this->observables[i]->clearPeriod == 0) {
-			this->observables[i]->writeToFile();
+	/* flush the buffers if the observable shall be cleared automatically and
+	 * the current timeIndex matches the clearing interval */
+	for (auto i=0; i<observables.size(); ++i) {
+		if (observables[i]->clearedAutomatically && timeIndex % observables[i]->clearPeriod == 0) {
+			observables[i]->writeToFile();
 		}
 	}
 }
@@ -647,7 +635,7 @@ void SimulationImpl::resetReactionCandidates() {
 	world->reactionCandidates.clear();
 }
 
-/* For the dynamical acceptance probability both states, old and new
+/* For the diffusion acceptance probability both states, old and new
  * have to have the same number of particles.  */
 double SimulationImpl::acceptanceDiffusion() {
 	double acceptance = 1.;
@@ -736,8 +724,14 @@ long int SimulationImpl::findParticleIndex(unsigned long long id) {
 	return -1;
 }
 
-void SimulationImpl::configureObservables() {
-	for (unsigned i=0; i<this->observables.size(); ++i) {
+void SimulationImpl::configureAndSetupObservables() {
+	for (auto i=0; i<this->observables.size(); ++i) {
 		this->observables[i]->configure(world, config);
+	}
+	for (auto i=0; i<observables.size(); ++i) {
+		if ( ! observables[i]->isSetup ) {
+			observables[i]->setup(world, config);
+			observables[i]->isSetup = true;
+		}
 	}
 }

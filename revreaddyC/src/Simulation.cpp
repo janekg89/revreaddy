@@ -25,10 +25,8 @@ bool Simulation::getUseNeighborlist() { return impl->useNeighborlist; }
 void Simulation::setUseNeighborlist(const bool inUseNeighborlist) {impl->useNeighborlist = inUseNeighborlist; }
 
 void Simulation::writeAllObservablesToFile() { impl->writeAllObservablesToFile(); }
-void Simulation::writeLastObservableToFile() { impl->writeLastObservableToFile(); }
 std::string Simulation::showObservables() { return impl->showObservables(); }
 void Simulation::deleteAllObservables() { impl->deleteAllObservables(); }
-void Simulation::deleteLastObservable() { impl->deleteLastObservable(); }
 void Simulation::new_Trajectory(unsigned long recPeriod, std::string filename) { impl->new_Trajectory(recPeriod, filename); }
 void Simulation::new_RadialDistribution(unsigned long recPeriod, std::string filename, std::vector<double> ranges, std::vector< std::array<unsigned,2> > considered) {
 	impl->new_RadialDistribution(recPeriod, filename, ranges, considered);

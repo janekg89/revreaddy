@@ -31,10 +31,8 @@ public:
 
 	/* Observable methods */
 	void writeAllObservablesToFile();
-	void writeLastObservableToFile();
 	std::string showObservables();
 	void deleteAllObservables();
-	void deleteLastObservable();
 	void new_Trajectory(unsigned long recPeriod, std::string filename);
 	void new_RadialDistribution(unsigned long recPeriod, std::string filename, std::vector<double> ranges, std::vector< std::array<unsigned,2> > considered);
 	void new_MeanSquaredDisplacement(unsigned long recPeriod, std::string filename,	unsigned particleTypeId);

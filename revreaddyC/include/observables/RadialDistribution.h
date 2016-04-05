@@ -12,6 +12,7 @@
 #include <gsl/gsl_histogram.h>
 #define _USE_MATH_DEFINES
 #include <cmath>
+#include <algorithm>
 #include "World.h"
 #include "Config.h"
 #include "Particle.h"
@@ -20,6 +21,22 @@
 
 class RadialDistribution : public Observable {
 public:
+	void configure(World * world, Config * config);
+	void record(World * world, double t);
+	/* Check if (a,b) is in consideredPairs.*/
+	bool isInConsidered(unsigned a, unsigned b);
+	void writeToH5();
+	void writeToDat();
+
+	RadialDistribution(
+		unsigned long inRecPeriod,
+		unsigned long inClearPeriod,
+		std::vector<double>& range,
+		std::vector< std::array<unsigned, 2> > considered,
+		std::string inFilename);
+	~RadialDistribution();
+
+private:
 	gsl_histogram * radialDistribution;
 	size_t numberOfBins;
 	std::vector<double> rangeOfBins;
@@ -37,22 +54,6 @@ public:
 	bool isPeriodic;
 	double boxsize;
 	Utils * utils;
-
-	void configure(World * world, Config * config);
-	void record(World * world, double t);
-	/* Check if (a,b) is in consideredPairs.*/
-	bool isInConsidered(unsigned a, unsigned b);
-	void writeBufferToFile();
-	void writeBufferToH5();
-	void writeBufferToDat();
-
-	RadialDistribution(
-		unsigned long inRecPeriod,
-		unsigned long inClearPeriod,
-		std::vector<double>& range,
-		std::vector< std::array<unsigned, 2> > considered,
-		std::string inFilename);
-	~RadialDistribution();
 };
 
 #endif // __RADIALDISTRIBUTION_H_INCLUDED__

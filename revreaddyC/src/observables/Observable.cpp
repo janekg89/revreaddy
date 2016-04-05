@@ -8,6 +8,7 @@ Observable::~Observable() {}
 
 void Observable::configure(World * world, Config * config) {}
 void Observable::record(World * world, double t) {}
+void Observable::setup(World * world, Config * config) {}
 
 void Observable::writeToFile() {
 	// first determine the file extension

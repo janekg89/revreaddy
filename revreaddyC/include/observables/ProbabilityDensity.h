@@ -1,5 +1,4 @@
 /* ProbabilityDensity.h 
- * 
  * Record a histogram of positions in x or y or z. Can observe one or several
  * particles. Vanished particles are not considered anymore. */
 
@@ -14,9 +13,16 @@
 #include "Particle.h"
 #include "Exception.h"
 
-class ProbabilityDensity : public Observable
-{
+class ProbabilityDensity : public Observable {
 public:
+	/* setup saves the uniqueIds f considered particles. */
+	void setup(World * world, Config * config);
+	void record(World * world, double t);
+	void writeToH5();
+	void writeToDat();
+
+	ProbabilityDensity(unsigned long inRecPeriod, unsigned long inClearPeriod, std::string inFilename, unsigned particleTypeId,	std::vector<double>& range,	unsigned coord);
+private:
 	gsl_histogram * probabilityDensity;
 	/* The coordinate (x,y,z) = (0,1,2), of which to record
 	 * the probability density. */
@@ -28,21 +34,6 @@ public:
 	 * bin individually. */
 	std::vector<double> bins;
 	unsigned int particleTypeId;
-
-	void configure(World * world, Config * config);
-	void record(World * world, double t);
-	void writeBufferToFile();
-	void writeBufferToH5();
-	void writeBufferToDat();
-
-	ProbabilityDensity(
-		unsigned long inRecPeriod,
-		unsigned long inClearPeriod,
-		std::string inFilename,
-		unsigned particleTypeId,
-		std::vector<double>& range,
-		unsigned coord);
-	~ProbabilityDensity();
 };
 
 #endif // __PROBABILITYDENSITY_H_INCLUDED__

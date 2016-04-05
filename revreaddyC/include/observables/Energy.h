@@ -16,11 +16,9 @@ class Energy : public Observable
 {
 public:
 	Energy(unsigned inRecPeriod, unsigned inClearPeriod, std::string inFilename);
-	void configure(World * world, Config * config);
 	void record(World * world, double t);
-	void writeBufferToFile();
-	void writeBufferToH5();
-	void writeBufferToDat();
+	void writeToH5();
+	void writeToDat();
 private:
 	std::vector<double> energies;
 	std::vector<double> times;

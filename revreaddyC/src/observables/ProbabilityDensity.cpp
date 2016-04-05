@@ -11,8 +11,11 @@ ProbabilityDensity::ProbabilityDensity(
 	unsigned coord)
 {
 	this->recPeriod = inRecPeriod;
+	this->clearedAutomatically = false;
 	this->clearPeriod = inClearPeriod;
 	this->filename = inFilename;
+	observableTypeName = "ProbabilityDensity";
+	isSetup = false;
 	if (coord >= 3) {
 		throw Exception("The given coordinate can only be 0, 1 or 2");
 	}
@@ -32,23 +35,17 @@ ProbabilityDensity::ProbabilityDensity(
 	this->particleTypeId = particleTypeId;
 }
 
-ProbabilityDensity::~ProbabilityDensity()
-{
-}
-
-void ProbabilityDensity::configure(World * world, Config * config)
-{
+void ProbabilityDensity::setup(World * world, Config * config) {
 	/* add uniqueIds of all particles of type 
 	 * "particleTypeId" to observedParticleIds */
-	for (unsigned i=0; i<world->particles.size(); i++) {
+	for (auto i=0; i<world->particles.size(); i++) {
 		if (world->particles[i].typeId == this->particleTypeId) {
 			this->observedParticleIds.push_back( world->particles[i].uniqueId );
 		}
 	}
 }
 
-void ProbabilityDensity::record(World * world, double t)
-{
+void ProbabilityDensity::record(World * world, double t) {
 	int index = 0;
 	for (unsigned i=0; i < this->observedParticleIds.size(); i++) {
 		// check if particle still exists. if not: index = -1
@@ -68,24 +65,7 @@ void ProbabilityDensity::record(World * world, double t)
 	gsl_histogram_reset(this->probabilityDensity);
 }
 
-void ProbabilityDensity::writeBufferToFile()
-{
-	// first determine the file extension
-	unsigned int lastDot = this->filename.find_last_of(".");
-	std::string extension = this->filename.substr(lastDot);
-	if ( (extension == ".h5") || (extension == ".hdf5") ) {
-		this->writeBufferToH5();
-	}
-	else if ( (extension == ".dat") || (extension == ".txt") ) {
-		this->writeBufferToDat();
-	}
-	else {
-		this->writeBufferToDat();
-	}
-}
-
-void ProbabilityDensity::writeBufferToH5()
-{
+void ProbabilityDensity::writeToH5() {
 	BinaryFile file(this->filename);
 	file.addDatasetDouble(
 		"binCenters",
@@ -95,8 +75,7 @@ void ProbabilityDensity::writeBufferToH5()
 		this->bins);
 }
 
-void ProbabilityDensity::writeBufferToDat()
-{
+void ProbabilityDensity::writeToDat() {
 	std::ofstream file;
 	file.open(this->filename, std::ofstream::out);
 	for (auto&& center : this->binCenters) {

@@ -9,16 +9,15 @@ ParticleNumbers::ParticleNumbers(
 	unsigned inParticleTypeId)
 {
 	this->recPeriod = inRecPeriod;
+	this->clearedAutomatically = false;
 	this->clearPeriod = inClearPeriod;
 	this->filename = inFilename;
+	observableTypeName = "ParticleNumbers";
 	this->particleTypeId = inParticleTypeId;
+	isSetup = false;
 }
 
-/* No configuration necessary */
-void ParticleNumbers::configure(World * world, Config * config) {}
-
-void ParticleNumbers::record(World * world,	double t)
-{
+void ParticleNumbers::record(World * world,	double t) {
 	this->time.push_back(t);
 	unsigned long counter = 0;
 	for (unsigned i=0; i<world->particles.size(); i++) {
@@ -29,31 +28,13 @@ void ParticleNumbers::record(World * world,	double t)
 	this->particleNumbers.push_back(counter);
 }
 
-void ParticleNumbers::writeBufferToFile()
-{
-	// first determine the file extension
-	unsigned int lastDot = this->filename.find_last_of(".");
-	std::string extension = this->filename.substr(lastDot);
-	if ( (extension == ".h5") || (extension == ".hdf5") ) {
-		this->writeBufferToH5();
-	}
-	else if ( (extension == ".dat") || (extension == ".txt") ) {
-		this->writeBufferToDat();
-	}
-	else {
-		this->writeBufferToDat();
-	}
-}
-
-void ParticleNumbers::writeBufferToH5()
-{
+void ParticleNumbers::writeToH5() {
 	BinaryFile file(this->filename);
 	file.addDatasetDouble("time", this->time);
 	file.addDatasetUnsignedLong("particleNumbers", this->particleNumbers);
 }
 
-void ParticleNumbers::writeBufferToDat()
-{
+void ParticleNumbers::writeToDat() {
 	std::ofstream file;
 	file.open(this->filename);
 	file << "Time\tParticleNumbers\n";

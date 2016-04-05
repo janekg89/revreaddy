@@ -24,7 +24,7 @@ void RevReactions::run(const unsigned long maxTime) {
 	if (this->useNeighborlist && ( !this->skipPairInteractionsReactions ) ) { this->configureNeighborlist(); }
 	else { this->useNeighborlist = false; }
 	this->setupUnimolecularCandidateTypes();
-	this->configureObservables();
+	this->configureAndSetupObservables();
 	this->resetForces();
 	this->resetReactionCandidates();
 	world->energy = 0.;

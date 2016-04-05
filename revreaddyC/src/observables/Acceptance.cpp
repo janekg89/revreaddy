@@ -9,9 +9,12 @@ Acceptance::Acceptance(
 	bool inReactionsOrDiffusion)
 {
 	this->recPeriod = inRecPeriod;
+	this->clearedAutomatically = false;
 	this->clearPeriod = inClearPeriod;
 	this->filename = inFilename;
+	observableTypeName = "Acceptance";
 	this->reactionsOrDiffusion = inReactionsOrDiffusion;
+	isSetup = false;
 }
 
 /* No configuration necessary */
@@ -29,22 +32,7 @@ void Acceptance::record(World * world, double t)
 	this->times.push_back(t);
 }
 
-void Acceptance::writeBufferToFile()
-{
-	unsigned int lastDot = this->filename.find_last_of(".");
-	std::string extension = this->filename.substr(lastDot);
-	if ( (extension == ".h5") || (extension == ".hdf5") ) {
-		this->writeBufferToH5();
-	}
-	else if ( (extension == ".dat") || (extension == ".txt") ) {
-		this->writeBufferToDat();
-	}
-	else {
-		this->writeBufferToDat();
-	}
-}
-
-void Acceptance::writeBufferToH5()
+void Acceptance::writeToH5()
 {
 	BinaryFile file(this->filename);
 	file.addDatasetDouble(
@@ -55,7 +43,7 @@ void Acceptance::writeBufferToH5()
 		this->acceptanceProbs);
 }
 
-void Acceptance::writeBufferToDat()
+void Acceptance::writeToDat()
 {
 	std::ofstream file;
 	file.open(this->filename, std::ofstream::out);

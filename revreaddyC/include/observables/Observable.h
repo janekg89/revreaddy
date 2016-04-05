@@ -13,31 +13,36 @@
 #include "Config.h"
 #include "Particle.h"
 #include "BinaryFile.h"
-#include <h5xx/h5xx.hpp>
 
-class Observable
-{
+class Observable {
 public:
+	// decide if the observable should be written during runtime or manually
+	bool clearedAutomatically;
+	// some observables require setup that may only happen once in contrast to configure
+	bool isSetup;
 	// number of timesteps between two recordings
 	unsigned long int recPeriod; 
 	// number of recordings between two writeBufferToFile
 	// not yet used
 	unsigned long int clearPeriod; 
 	std::string filename;
+	std::string observableTypeName;
 	std::vector<unsigned long long> observedParticleIds;
 	/* configure sets up the observables' parameters that could have
 	 * changed between construction of the observable and the start
 	 * of the simulation */
 	virtual void configure(World * world, Config * config);
-	virtual void record(World * world, double t); // write data to buffer
-	// TODO in the future only use flushing to avoid
-	// bugs occuring when writing data, that has already
-	// been written.
-	/* write to file but keep the buffer in memory */
+	/* setup cares about the initialization direclty befire the run. In
+	 * contrast to configure, this must only happen once, e.g. saving
+	 * uniqueIds of considered particles. */
+	virtual void setup(World * world, Config * config);
+	/* record data from World and write to the buffer */
+	virtual void record(World * world, double t);
+	/* write to file and clear the buffer */
 	void writeToFile();
 	virtual void writeToH5();
 	virtual void writeToDat();
-	int findParticleIndex(std::vector<Particle>& particles, unsigned long long id);
+	long int findParticleIndex(std::vector<Particle>& particles, unsigned long long id);
 
 	Observable();
 	virtual ~Observable();		

@@ -2,7 +2,7 @@
 
 #include "RadialDistribution.h"
 
-// receive vector<vector<unsigned int>> representing a list of tuples
+// receive vector<array<unsigned int>> representing a list of tuples
 // these tuples have pairs of particleTypeIds which should be considered
 // in rdf calculation.
 RadialDistribution::RadialDistribution(
@@ -14,7 +14,10 @@ RadialDistribution::RadialDistribution(
 {
 	this->recPeriod    = inRecPeriod;
 	this->clearPeriod  = inClearPeriod;
+	this->clearedAutomatically = false;
+	isSetup = false;
 	this->filename     = inFilename;
+	observableTypeName = "RadialDistribution";
 	this->numberOfBins = range.size() - 1;
 	this->radialDistribution = gsl_histogram_alloc(this->numberOfBins);
 	this->rangeOfBins  = range;
@@ -28,24 +31,25 @@ RadialDistribution::RadialDistribution(
 		this->bins.push_back(0.);
 	}
 	this->consideredPairs = considered;
+	// apply sorted convention
+	for (auto&& pair : consideredPairs) {
+		std::sort(pair.begin(), pair.end());
+	}
 	this->utils = new Utils();
 }
 
-RadialDistribution::~RadialDistribution()
-{
+RadialDistribution::~RadialDistribution() {
 	gsl_histogram_free(this->radialDistribution);
 	delete this->utils;
 }
 
-void RadialDistribution::configure(World * world, Config * config)
-{
+void RadialDistribution::configure(World * world, Config * config) {
 	this->isPeriodic = config->isPeriodic;
 	this->boxsize = config->boxsize;
 }
 
 /* Record the radial distribution already normalized 
- * correctly for the current timestep.
- */
+ * correctly for the current timestep. */
 void RadialDistribution::record(World * world, double t)
 {
 	double radius = 0.;
@@ -77,8 +81,7 @@ void RadialDistribution::record(World * world, double t)
 /* Finds out if tuple (a,b) is in consideredPairs, this only
  * depends on the order of a and b. So you can only look at the
  * RDF from particle a to b solely. */
-bool RadialDistribution::isInConsidered(unsigned a, unsigned b)
-{
+bool RadialDistribution::isInConsidered(unsigned a, unsigned b) {
 	for (unsigned int k=0; k<this->consideredPairs.size(); k++) {
 		if (this->consideredPairs[k][0] == a) {
 			if (this->consideredPairs[k][1] == b) {
@@ -89,24 +92,7 @@ bool RadialDistribution::isInConsidered(unsigned a, unsigned b)
 	return false;
 }
 
-void RadialDistribution::writeBufferToFile()
-{
-	// first determine the file extension
-	unsigned int lastDot = this->filename.find_last_of(".");
-	std::string extension = this->filename.substr(lastDot);
-	if ( (extension == ".h5") || (extension == ".hdf5") ) {
-		this->writeBufferToH5();
-	}
-	else if ( (extension == ".dat") || (extension == ".txt") ) {
-		this->writeBufferToDat();
-	}
-	else {
-		this->writeBufferToDat();
-	}
-}
-
-void RadialDistribution::writeBufferToH5()
-{
+void RadialDistribution::writeToH5() {
 	BinaryFile file(this->filename);
 	file.addDatasetDouble(
 		"binCenters",
@@ -116,8 +102,7 @@ void RadialDistribution::writeBufferToH5()
 		this->bins);
 }
 
-void RadialDistribution::writeBufferToDat()
-{
+void RadialDistribution::writeToDat() {
 	std::ofstream file;
 	file.open(this->filename, std::ofstream::out);
 	for (auto&& center : this->binCenters) {

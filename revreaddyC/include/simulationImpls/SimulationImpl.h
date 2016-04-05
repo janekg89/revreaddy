@@ -25,6 +25,7 @@
 
 #include "Observable.h"
 #include "Trajectory.h"
+#include "TrajectoryUnique.h"
 #include "RadialDistribution.h"
 #include "MeanSquaredDisplacement.h"
 #include "ProbabilityDensity.h"
@@ -51,10 +52,8 @@ public:
 
 	/* Observable methods */
 	void writeAllObservablesToFile();
-	void writeLastObservableToFile();
 	std::string showObservables();
 	void deleteAllObservables();
-	void deleteLastObservable();
 	void new_Trajectory(unsigned long recPeriod, std::string filename);
 	void new_RadialDistribution(unsigned long recPeriod, std::string filename, std::vector<double> ranges, std::vector< std::array<unsigned,2> > considered);
 	void new_MeanSquaredDisplacement(unsigned long recPeriod, std::string filename,	unsigned particleTypeId);
@@ -83,8 +82,10 @@ public:
 	void configureNeighborlist();
 	/* Construct the vector unimolecularCandidateTypes */
 	void setupUnimolecularCandidateTypes();
-	/* Configure all observables, e.g. MSD gets all initial coordinates */
-	void configureObservables();
+	/* Configure and setup all observables, e.g. MSD gets all initial coordinates.
+	 * Here configuration happens at every call on run(), whereas setup()
+	 * only occurs once at the first call to run(). */
+	void configureAndSetupObservables();
 	/* Store the objects describing the current state:
 	 * energy, particles (positions, forces) and activePairs */
 	void saveOldState();
