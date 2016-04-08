@@ -9,6 +9,10 @@
 #include <vector>
 #include <string>
 #include <fstream>
+#include <hdf5.h> // hdf5 c api
+#include <H5Cpp.h> // hdf5 c++ api
+#include <boost/filesystem.hpp>
+#include <boost/multi_array.hpp>
 #include "World.h"
 #include "Config.h"
 #include "Particle.h"
@@ -43,9 +47,78 @@ public:
 	virtual void writeToH5();
 	virtual void writeToDat();
 	long int findParticleIndex(std::vector<Particle>& particles, unsigned long long id);
+	/* The following templates create and extend datasets which are extendible in the first dimension */
+	template<typename T, unsigned int rank>
+	void createExtendibleDatasetFromBoostArray(H5::H5File& file, const std::string& name, const boost::multi_array<T, rank>& arr);
+	template<typename T, unsigned int rank>
+	void extendDatasetFromBoostArray(H5::H5File& file, const std::string& name, const boost::multi_array<T, rank>& arr);
 
 	Observable();
 	virtual ~Observable();		
 };
+
+template<typename T, unsigned int rank>
+void createExtendibleDatasetFromBoostArray(H5::H5File& file, const std::string& name, const boost::multi_array<T, rank>& arr) {
+	hsize_t dims[rank], maxdims[rank], chunkdims[rank];
+	for (auto i=0; i<rank; ++i) {
+		dims[i] = arr.shape()[i];
+		maxdims[i] = arr.shape()[i];
+		chunkdims[i] = arr.shape()[i];
+	}
+	maxdims[0] = H5S_UNLIMITED; // extendible in first dimension
+	chunkdims[0] = 100; // chunkdims are 100 x dims[1] x dims[2] x ...
+	H5::DataSpace dspace(rank, dims, maxdims);
+	H5::DSetCreatPropList plist;
+	plist.setChunk(rank, chunkdims);
+	createAndWrite(file, name, arr, dspace, plist);
+}
+
+/* Create and write an array of doubles. */
+template<unsigned int rank> void createAndWrite(
+	H5::H5File& file,
+	const std::string& name,
+	const boost::multi_array<double, rank>& arr,
+	const H5::DataSpace& dspace,
+	const H5::DSetCreatPropList& create_plist = H5::DSetCreatPropList::DEFAULT
+) {
+	H5::DataSet dset = file.createDataSet(name.c_str(), H5::PredType::NATIVE_DOUBLE, dspace, create_plist);
+	dset.write(arr.data(), H5::PredType::NATIVE_DOUBLE);
+} 
+
+/* Create and write an array of bools. */
+template<unsigned int rank> void createAndWrite(
+	H5::H5File& file,
+	const std::string& name,
+	const boost::multi_array<bool, rank>& arr,
+	const H5::DataSpace& dspace,
+	const H5::DSetCreatPropList& create_plist = H5::DSetCreatPropList::DEFAULT
+) {
+	H5::DataSet dset = file.createDataSet(name.c_str(), H5::PredType::NATIVE_HBOOL, dspace, create_plist);
+	dset.write(arr.data(), H5::PredType::NATIVE_HBOOL);
+}
+
+/* Create and write an array of unsigned ints. */
+template<unsigned int rank> void createAndWrite(
+	H5::H5File& file,
+	const std::string& name,
+	const boost::multi_array<unsigned int, rank>& arr,
+	const H5::DataSpace& dspace,
+	const H5::DSetCreatPropList& create_plist = H5::DSetCreatPropList::DEFAULT
+) {
+	H5::DataSet dset = file.createDataSet(name.c_str(), H5::PredType::NATIVE_UINT, dspace, create_plist);
+	dset.write(arr.data(), H5::PredType::NATIVE_UINT);
+}
+
+/* Create and write an array of unsigned long longs. */
+template<unsigned int rank> void createAndWrite(
+	H5::H5File& file,
+	const std::string& name,
+	const boost::multi_array<unsigned long long, rank>& arr,
+	const H5::DataSpace& dspace,
+	const H5::DSetCreatPropList& create_plist = H5::DSetCreatPropList::DEFAULT
+) {
+	H5::DataSet dset = file.createDataSet(name.c_str(), H5::PredType::NATIVE_ULLONG, dspace, create_plist);
+	dset.write(arr.data(), H5::PredType::NATIVE_ULLONG);
+}
 
 #endif // __OBSERVABLE_H_INCLUDED__

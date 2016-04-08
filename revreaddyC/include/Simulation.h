@@ -6,7 +6,7 @@
  * the particles and also holds information that concern
  * a particular realization, e.g. the list of observables.
  * The system dependent variables are stored in World and
- * Config. The implmentation is found in SimulationImpl. */
+ * Config. The implementation is found in SimulationImpl. */
 
 #ifndef __SIMULATION_H_INCLUDED__
 #define __SIMULATION_H_INCLUDED__
@@ -34,6 +34,7 @@ public:
 	std::string showObservables();
 	void deleteAllObservables();
 	void new_Trajectory(unsigned long recPeriod, std::string filename);
+	void new_TrajectoryUnique(unsigned long recPeriod, unsigned long clearPeriod, std::string filename);
 	void new_RadialDistribution(unsigned long recPeriod, std::string filename, std::vector<double> ranges, std::vector< std::array<unsigned,2> > considered);
 	void new_MeanSquaredDisplacement(unsigned long recPeriod, std::string filename,	unsigned particleTypeId);
 	void new_ProbabilityDensity(unsigned long recPeriod, std::string filename, unsigned pTypeId, std::vector<double> range, unsigned int coord);

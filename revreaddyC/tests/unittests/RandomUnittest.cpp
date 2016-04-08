@@ -1,6 +1,6 @@
-#include "gtest/gtest.h"
-#include "gmock/gmock.h"
-#include <Random.h>
+#include <gtest/gtest.h>
+#include <gmock/gmock.h>
+#include "Random.h"
 
 namespace {
 class RandomUnittest : public ::testing::Test {};

@@ -1,6 +1,6 @@
-#include "gtest/gtest.h"
-#include "gmock/gmock.h"
-#include <Particle.h>
+#include <gtest/gtest.h>
+#include <gmock/gmock.h>
+#include "Particle.h"
 #include <vector>
 
 namespace {

@@ -5,6 +5,7 @@
 #ifndef __TRAJECTORYUNIQUE_H_INCLUDED__
 #define __TRAJECTORYUNIQUE_H_INCLUDED__
 #include <vector>
+#include <map>
 #include <string>
 #include <boost/multi_array.hpp>
 #include "Observable.h" 
@@ -37,6 +38,15 @@ private:
 	/* This is to check during record() if the particle with uniqueIds[i]
 	 * does still exist. This value then is stillExists[i]. */
 	std::map<unsigned long, bool> stillExists;
+
+	// This is called when the given file already exists
+	// ATTENTION: this will even append to existing trajectories that might have
+	// been created with another system setup. This will lead to undetermined behavior.
+	void appendToH5();
+	// This is called when the given file does not exist
+	void writeToNewH5();
+	// copy data chunk from trajectory to 'real' arrays
+	void bufferTimeDependentData(boost::multi_array<double,3>& positions, boost::multi_array<double,3>& forces, boost::multi_array<bool,2>& exists, std::vector<double>& times);
 };
 
 #endif //__TRAJECTORYUNIQUE_H_INCLUDED__

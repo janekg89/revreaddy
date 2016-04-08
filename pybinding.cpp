@@ -324,6 +324,10 @@ public:
 		this->simulation->new_Trajectory(recPeriod, filename);
 	}
 
+	void new_TrajectoryUnique(unsigned long recPeriod, unsigned long clearPeriod, std::string filename) {
+		this->simulation->new_TrajectoryUnique(recPeriod, clearPeriod, filename);
+	}
+
 	void new_RadialDistribution(unsigned long recPeriod, std::string filename, bp::numeric::array ranges, bp::numeric::array considered) {
 		std::vector<double> rangesConverted;
 		std::vector< std::array<unsigned,2> > consideredConverted;
@@ -435,6 +439,7 @@ BOOST_PYTHON_MODULE(revreaddyPy) {
 		.def("showObservables", &SimulationWrap::showObservables)
 		.def("deleteAllObservables", &SimulationWrap::deleteAllObservables)
 		.def("new_Trajectory", &SimulationWrap::new_Trajectory)
+		.def("new_TrajectoryUnique", &SimulationWrap::new_TrajectoryUnique)
 		.def("new_RadialDistribution", &SimulationWrap::new_RadialDistribution)
 		.def("new_MeanSquaredDisplacement", &SimulationWrap::new_MeanSquaredDisplacement)
 		.def("new_ProbabilityDensity", &SimulationWrap::new_ProbabilityDensity)

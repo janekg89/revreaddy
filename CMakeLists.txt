@@ -11,7 +11,7 @@ set(REVREADDY_PY_LIBRARY_NAME "revreaddyPy")
 # py extension is build here, so find required packages
 find_package(PythonInterp REQUIRED)
 find_package(PythonLibs REQUIRED)
-find_package(Boost COMPONENTS python log REQUIRED)
+find_package(Boost COMPONENTS python log filesystem system REQUIRED)
 
 # target python extension
 python_add_module(${REVREADDY_PY_LIBRARY_NAME} pybinding.cpp)
@@ -25,13 +25,11 @@ set(REVREADDY_C_INCLUDE_DIRS
     ${PROJECT_SOURCE_DIR}/revreaddyC/include/reactions
     ${PROJECT_SOURCE_DIR}/revreaddyC/include/simulationImpls
 )
-set(H5XX_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/libraries/h5xx)
 
 target_include_directories(${REVREADDY_PY_LIBRARY_NAME} PUBLIC
     ${Boost_INCLUDE_DIRS}
     ${PYTHON_INCLUDE_DIRS}
     ${REVREADDY_C_INCLUDE_DIRS}
-    ${H5XX_INCLUDE_DIR}
 )
 target_link_libraries(${REVREADDY_PY_LIBRARY_NAME} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES} ${REVREADDY_C_LIBRARY_NAME})
 

@@ -1,6 +1,6 @@
-#include "gtest/gtest.h"
-#include "gmock/gmock.h"
-#include <Config.h>
+#include <gtest/gtest.h>
+#include <gmock/gmock.h>
+#include "Config.h"
 
 namespace {
 class ConfigUnittest : public ::testing::Test {};

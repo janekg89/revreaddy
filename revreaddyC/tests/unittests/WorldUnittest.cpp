@@ -1,7 +1,7 @@
-#include "gtest/gtest.h"
-#include "gmock/gmock.h"
-#include <World.h>
-#include <Particle.h>
+#include <gtest/gtest.h>
+#include <gmock/gmock.h>
+#include "World.h"
+#include "Particle.h"
 
 namespace {
 class WorldUnittest : public ::testing::Test {};

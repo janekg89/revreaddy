@@ -198,6 +198,10 @@ class Sim(object):
 		"""Register an observable that records the positions and types of particles."""
 		self.simulation.new_Trajectory(rec_period, filename)
 
+	def new_trajectory_unique(self, rec_period, clear_period, filename):
+		"""Register an observable that records trajectory of particles via uniqueIds."""
+		self.simulation.new_TrajectoryUnique(rec_period, clear_period, filename)
+
 	def new_radial_distribution(self, rec_period, filename, ranges, considered):
 		"""
 		Register an observable that calculates the radial distribution function.
