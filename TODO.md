@@ -1,10 +1,8 @@
 ### TODO
 * Fusion reaction that conserves positions of particles that have 0 diffusivity
-* trajectory only as .dat so far, make trajectory_unique with .h5,
-  therefore extend with hdf5 c-API (only 1 command) and write to extended hyperslab. enable chunking policy
+* rethink how to write to files (h5/dat) Observable <--> BinaryFile. So far it is mixed -> resolve this
 * SimulationImpl child that propagates single moves with a=1
 * sample reaction distance from discrete probability distribution. -> new Fusion variant.
-* implement clear-period of observables (only timedependant observables) so that they are flushed in predefined intervals and don't fill up memory. Test that buffer is cleared.
 
 #### integration tests:
 * periodic boundaries correctly propagated
