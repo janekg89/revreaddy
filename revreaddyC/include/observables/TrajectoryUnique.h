@@ -46,7 +46,7 @@ private:
 	// This is called when the given file does not exist
 	void writeToNewH5();
 	// copy data chunk from trajectory to 'real' arrays
-	void bufferTimeDependentData(boost::multi_array<double,3>& positions, boost::multi_array<double,3>& forces, boost::multi_array<bool,2>& exists, std::vector<double>& times);
+	void bufferTimeDependentData(boost::multi_array<double,3>& positions, boost::multi_array<double,3>& forces, boost::multi_array<int,2>& exists, std::vector<double>& times);
 };
 
 #endif //__TRAJECTORYUNIQUE_H_INCLUDED__
