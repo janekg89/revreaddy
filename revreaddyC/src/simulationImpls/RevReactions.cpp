@@ -33,7 +33,7 @@ void RevReactions::run(const unsigned long maxTime) {
 	this->recordObservables(0);
 	double acceptance = 1.;
 	bool isStepAccepted = true;
-	for (unsigned long timeIndex = 1; timeIndex < maxTime; ++timeIndex) {
+	for (unsigned long timeIndex = 0; timeIndex < maxTime; ++timeIndex) {
 		/* Diffusion */
 		this->saveOldState();
 		this->propagateDiffusion(); // propose
@@ -67,6 +67,6 @@ void RevReactions::run(const unsigned long maxTime) {
 
 		/* Advance clock */
 		world->cumulativeRuntime += config->timestep;
-		this->recordObservables(timeIndex);
+		this->recordObservables(timeIndex + 1);
 	}
 }

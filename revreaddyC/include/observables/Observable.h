@@ -51,7 +51,8 @@ public:
 	long int findParticleIndex(std::vector<Particle>& particles, unsigned long long id);
 
 	// HDF5 stuff
-	/* The following templates create and extend datasets which are extendible in the first dimension */
+	/* The following templates create and extend datasets which are extendible in the first dimension.
+	 * The non-template functions are placed as usual in the cpp file. */
 	template<typename T, unsigned long rank>
 	void createExtendibleDataset(H5::H5File& file,  std::string name,  boost::multi_array<T, rank>& arr);
 	template<typename T>
@@ -141,30 +142,6 @@ void Observable::createExtendibleDataset(H5::H5File& file,  std::string name, st
 	createAndWrite(file, name, arr, dspace, plist);
 }
 
-/* Create and write a std vector of doubles */
-void inline Observable::createAndWrite(H5::H5File& file,  std::string name, std::vector<double>& arr,  H5::DataSpace& dspace, const H5::DSetCreatPropList& create_plist) {
-	H5::DataSet dset = file.createDataSet(name.c_str(), H5::PredType::NATIVE_DOUBLE, dspace, create_plist);
-	dset.write(arr.data(), H5::PredType::NATIVE_DOUBLE);
-}
-
-/* Create and write a std vector of bools */
-void inline Observable::createAndWrite(H5::H5File& file,  std::string name, std::vector<int>& arr,  H5::DataSpace& dspace, const H5::DSetCreatPropList& create_plist) {
-	H5::DataSet dset = file.createDataSet(name.c_str(), H5::PredType::NATIVE_INT, dspace, create_plist);
-	dset.write(arr.data(), H5::PredType::NATIVE_INT);
-}
-
-/* Create and write a std vector of unsigned ints */
-void inline Observable::createAndWrite(H5::H5File& file,  std::string name, std::vector<unsigned int>& arr,  H5::DataSpace& dspace, const H5::DSetCreatPropList& create_plist) {
-	H5::DataSet dset = file.createDataSet(name.c_str(), H5::PredType::NATIVE_UINT, dspace, create_plist);
-	dset.write(arr.data(), H5::PredType::NATIVE_UINT);
-}
-
-/* Create and write a std vector of unsigned long longs */
-void inline Observable::createAndWrite(H5::H5File& file,  std::string name, std::vector<unsigned long long>& arr,  H5::DataSpace& dspace, const H5::DSetCreatPropList& create_plist) {
-	H5::DataSet dset = file.createDataSet(name.c_str(), H5::PredType::NATIVE_ULLONG, dspace, create_plist);
-	dset.write(arr.data(), H5::PredType::NATIVE_ULLONG);
-}
-
 /* Extend boost array */
 template<typename T, unsigned long rank>
 void Observable::extendDataset(H5::H5File& file,  std::string name,  boost::multi_array<T, rank>& arr) {
@@ -248,22 +225,6 @@ void Observable::extendDataset(H5::H5File& file,  std::string name,  std::vector
 	// define memspaces from which data is read
 	H5::DataSpace mspace(1, extDims);
 	writeToExtended(arr, dset, mspace, fspace);
-}
-
-void inline Observable::writeToExtended(std::vector<double>& arr, H5::DataSet& dset, H5::DataSpace& mspace, H5::DataSpace& fspace) {
-	dset.write(arr.data(), H5::PredType::NATIVE_DOUBLE, mspace, fspace);
-}
-
-void inline Observable::writeToExtended(std::vector<int>& arr, H5::DataSet& dset, H5::DataSpace& mspace, H5::DataSpace& fspace) {
-	dset.write(arr.data(), H5::PredType::NATIVE_INT, mspace, fspace);
-}
-
-void inline Observable::writeToExtended(std::vector<unsigned int>& arr, H5::DataSet& dset, H5::DataSpace& mspace, H5::DataSpace& fspace) {
-	dset.write(arr.data(), H5::PredType::NATIVE_UINT, mspace, fspace);
-}
-
-void inline Observable::writeToExtended(std::vector<unsigned long long>& arr, H5::DataSet& dset, H5::DataSpace& mspace, H5::DataSpace& fspace) {
-	dset.write(arr.data(), H5::PredType::NATIVE_ULLONG, mspace, fspace);
 }
 
 #endif // __OBSERVABLE_H_INCLUDED__

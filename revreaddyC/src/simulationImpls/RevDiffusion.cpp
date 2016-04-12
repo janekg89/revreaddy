@@ -67,6 +67,6 @@ void RevDiffusion::run(const unsigned long maxTime) {
 
 		/* Advance clock */
 		world->cumulativeRuntime += config->timestep;
-		this->recordObservables(timeIndex);
+		this->recordObservables(timeIndex + 1);
 	}
 }

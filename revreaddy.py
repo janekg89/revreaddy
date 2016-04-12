@@ -190,7 +190,6 @@ class Sim(object):
 		"""Clean up the observables from Simulation object."""
 		self.simulation.deleteAllObservables()
 
-	# TODO WIP this will become obsolete when write-periods are implemented
 	def write_observables_to_file(self):
 		self.simulation.writeAllObservablesToFile()
 

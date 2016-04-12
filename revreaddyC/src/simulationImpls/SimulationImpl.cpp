@@ -159,11 +159,11 @@ void SimulationImpl::run(const unsigned long maxTime) {
 	this->calculateInteractionForcesEnergies();
 	this->calculateGeometryForcesEnergies();
 	this->recordObservables(0);
-	double acceptance = 1.;
+//	double acceptance = 1.;
 	bool isStepAccepted = true;
-	for (unsigned long timeIndex = 1; timeIndex < maxTime; ++timeIndex) {
+	for (unsigned long timeIndex = 0; timeIndex < maxTime; ++timeIndex) {
 		/* Diffusion */
-		this->saveOldState();
+//		this->saveOldState();
 		this->propagateDiffusion(); // propose
 		this->resetForces();
 		this->resetReactionCandidates();
@@ -172,19 +172,18 @@ void SimulationImpl::run(const unsigned long maxTime) {
 			this->calculateInteractionForcesEnergies(); // calculate energy and force
 		}
 		this->calculateGeometryForcesEnergies();
-		acceptance = this->acceptanceDiffusion();
+/*		acceptance = this->acceptanceDiffusion();
 		world->acceptProbDiffusion = acceptance;
 		isStepAccepted = this->acceptOrReject(acceptance);
-		// TODO revDiffusion
 		if (true && ( ! isStepAccepted ) ) {
 			this->restoreOldState();
 			world->rejectionsDiffusion += 1;
 		}
 		else { world->acceptionsDiffusion += 1; }
-
+*/
 		/* Reactions */
-		this->saveOldState();
-		acceptance = this->propagateReactions();
+//		this->saveOldState();
+		/*acceptance = */this->propagateReactions();
 		this->resetForces();
 		this->resetReactionCandidates();
 		world->energy = 0.;
@@ -192,19 +191,22 @@ void SimulationImpl::run(const unsigned long maxTime) {
 			this->calculateInteractionForcesEnergies();
 		}
 		this->calculateGeometryForcesEnergies();
-		acceptance *= this->acceptanceReactions();
+/*		acceptance *= this->acceptanceReactions();
 		world->acceptProbReactions = acceptance;
 		isStepAccepted = this->acceptOrReject(acceptance);
-		// TODO revReactions
 		if (true && ( ! isStepAccepted ) ) {
 			this->restoreOldState();
 			world->rejectionsReactions += 1;
 		}
 		else { world->acceptionsReactions += 1; }
-
+*/
 		/* Advance clock */
 		world->cumulativeRuntime += config->timestep;
-		this->recordObservables(timeIndex);
+		/* +1 because recordObservables(0) was called already before the run.
+		 * This means, if you call run(2): the observables will have 3 entries
+		 * one for the initial state and two for the states after executing two
+		 * timesteps */
+		this->recordObservables(timeIndex + 1);
 	}
 }
 

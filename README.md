@@ -44,7 +44,8 @@ Linked libraries:
 * HDF5 (hdf5, hdf5_hl, H5Cpp) for saving observables 
   to binary file formats
 * Boost for python wrapping, logging and stuff
-  (Boost.python, Boost.log, Boost.system, Boost.filesystem)
+  (Boost.python, Boost.log, Boost.system, Boost.filesystem,
+  Boost.multi_array)
 
 Requirements for usage:
 * Python
