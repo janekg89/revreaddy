@@ -3,6 +3,7 @@
 * rethink how to write to files (h5/dat) Observable <--> BinaryFile. So far it is mixed -> resolve this
 * SimulationImpl child that propagates single moves with a=1
 * sample reaction distance from discrete probability distribution. -> new Fusion variant.
+* revreaddy.py -> show_config(), show_world(), show_simulation().
 
 #### integration tests:
 * periodic boundaries correctly propagated

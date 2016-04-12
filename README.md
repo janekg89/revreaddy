@@ -5,7 +5,9 @@
 A particle based reaction-diffusion simulation with a
 reversible integrator, which obeys detailed balance.
 Revreaddy is mainly a C++ software which is wrapped to
-be accessible from python.
+be accessible from python. Main purpose of this
+software is to try out different reaction-diffusion
+schemes.
 
 This version features:
 * Brownian Dynamics integrator with Metropolis-Hastings
@@ -39,20 +41,30 @@ This version features:
 Linked libraries:
 * GNU scientific libraries (gsl, gslcblas)
   for random number generation and histogram
-* HDF5 (hdf5, hdf5_hl) for saving observables 
+* HDF5 (hdf5, hdf5_hl, H5Cpp) for saving observables 
   to binary file formats
-* Boost for python wrapping and logging
-  (Boost.python, Boost.log)
+* Boost for python wrapping, logging and stuff
+  (Boost.python, Boost.log, Boost.system, Boost.filesystem)
 
 Requirements for usage:
 * Python
 * h5py
 
 ### Building
+The way to build this using cmake goes like
+
+    $ mkdir build
+    $ cd build
+    $ cmake .. $CMAKE_FLAGS
+    $ make -j
+    $ cd ..
+
+Any user specific configuration goes into the `$CMAKE_FLAGS` 
+and should be defined beforehand.
 
 ### Usage
 Import revreaddy in a python script, e.g.
 
-	>>> import revreaddy 
-	>>> s = revreaddy.Sim()
-	>>> s.run(steps=10000, timestep=0.1)
+    >>> import revreaddy 
+    >>> s = revreaddy.Sim()
+    >>> s.run(steps=10000, timestep=0.1)
