@@ -11,18 +11,14 @@
 
 class ParticleNumbers : public Observable {
 public:
-	ParticleNumbers(
-		unsigned long inRecPeriod,
-		unsigned long inClearPeriod,
-		std::string inFilename, 
-		unsigned inParticleTypeId);
+	ParticleNumbers(unsigned long inRecPeriod, unsigned long inClearPeriod, std::string inFilename, unsigned inParticleTypeId);
 	void record(World * world, double t);
 	void writeToH5();
 	void writeToDat();
 private:
 	unsigned particleTypeId;
 	std::vector<unsigned long> particleNumbers;
-	std::vector<double> time;
+	std::vector<double> times;
 };
 
 #endif //__PARTICLENUMBERS_H_INCLUDED__

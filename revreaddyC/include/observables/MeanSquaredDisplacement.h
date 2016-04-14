@@ -1,5 +1,4 @@
 /* MeanSquaredDisplacement.h
- *
  * Child class of Observable. Records the MeanSquaredDisplacement of a
  * specific particle type */
 
@@ -23,12 +22,7 @@ public:
 	void writeToH5();
 	void writeToDat();
 	
-	MeanSquaredDisplacement(
-		unsigned long inRecPeriod,
-		unsigned long inClearPeriod,
-		unsigned int pTypeId,
-		std::string inFilename);
-	~MeanSquaredDisplacement();	
+	MeanSquaredDisplacement(unsigned long inRecPeriod, unsigned long inClearPeriod, unsigned int pTypeId, std::string inFilename);
 
 private:
 	unsigned particleTypeId;
@@ -39,15 +33,12 @@ private:
 	};
 	std::vector< positionTuple > startPoints;
 	double startTime;
-	// [timeIndex]
-	std::vector<double> time;
+	std::vector<double> times;
 	std::vector<double> meanSquaredDisplacements;
 	std::vector<double> standardDeviations;
 	std::vector<double> standardErrors;
 	std::vector<unsigned int> numberOfParticles;
 	double boxsize;
-
-
 };
 
 #endif // __MEANSQUAREDDISPLACEMENT_H_INCLUDED__

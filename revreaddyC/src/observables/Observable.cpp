@@ -68,6 +68,12 @@ void  Observable::createAndWrite(H5::H5File& file,  std::string name, std::vecto
 	dset.write(arr.data(), H5::PredType::NATIVE_UINT);
 }
 
+/* Create and write a std vector of unsigned longs */
+void  Observable::createAndWrite(H5::H5File& file,  std::string name, std::vector<unsigned long>& arr,  H5::DataSpace& dspace, const H5::DSetCreatPropList& create_plist) {
+	H5::DataSet dset = file.createDataSet(name.c_str(), H5::PredType::NATIVE_UINT, dspace, create_plist);
+	dset.write(arr.data(), H5::PredType::NATIVE_ULONG);
+}
+
 /* Create and write a std vector of unsigned long longs */
 void  Observable::createAndWrite(H5::H5File& file,  std::string name, std::vector<unsigned long long>& arr,  H5::DataSpace& dspace, const H5::DSetCreatPropList& create_plist) {
 	H5::DataSet dset = file.createDataSet(name.c_str(), H5::PredType::NATIVE_ULLONG, dspace, create_plist);
@@ -87,6 +93,11 @@ void  Observable::writeToExtended(std::vector<int>& arr, H5::DataSet& dset, H5::
 /* Write a std vector of uints to an extended dset*/
 void  Observable::writeToExtended(std::vector<unsigned int>& arr, H5::DataSet& dset, H5::DataSpace& mspace, H5::DataSpace& fspace) {
 	dset.write(arr.data(), H5::PredType::NATIVE_UINT, mspace, fspace);
+}
+
+/* Write a std vector of ulongs to an extended dset*/
+void  Observable::writeToExtended(std::vector<unsigned long>& arr, H5::DataSet& dset, H5::DataSpace& mspace, H5::DataSpace& fspace) {
+	dset.write(arr.data(), H5::PredType::NATIVE_ULONG, mspace, fspace);
 }
 
 /* Write a std vector of unsigned long longs to an extended dset*/

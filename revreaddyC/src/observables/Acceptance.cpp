@@ -2,7 +2,6 @@
 
 #include "Acceptance.h"
 
-// TODO make this cleared automatically as well
 Acceptance::Acceptance(unsigned int inRecPeriod, unsigned int inClearPeriod, std::string inFilename, bool inReactionsOrDiffusion) {
 	this->recPeriod = inRecPeriod;
 	this->clearedAutomatically = false;

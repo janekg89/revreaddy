@@ -2,12 +2,7 @@
 
 #include "MeanSquaredDisplacement.h"
 
-MeanSquaredDisplacement::MeanSquaredDisplacement(
-	unsigned long inRecPeriod,
-	unsigned long inClearPeriod,
-	unsigned pTypeId,
-	std::string inFilename)
-{
+MeanSquaredDisplacement::MeanSquaredDisplacement(unsigned long inRecPeriod, unsigned long inClearPeriod, unsigned pTypeId, std::string inFilename) {
 	this->recPeriod = inRecPeriod;
 	this->clearedAutomatically = false;
 	this->clearPeriod = inClearPeriod;
@@ -15,10 +10,6 @@ MeanSquaredDisplacement::MeanSquaredDisplacement(
 	observableTypeName = "MeanSquaredDisplacement";
 	this->particleTypeId = pTypeId;
 	isSetup = false;
-}
-
-MeanSquaredDisplacement::~MeanSquaredDisplacement()
-{
 }
 
 void MeanSquaredDisplacement::configure(World * world, Config * config) {
@@ -97,41 +88,39 @@ void MeanSquaredDisplacement::record(World * world, double t) {
 	standardError     = sqrt(standardError);
 	this->standardDeviations.push_back(standardDeviation);
 	this->standardErrors.push_back(standardError);
-	this->time.push_back(t - this->startTime);
+	this->times.push_back(t - this->startTime);
 }
 
-void MeanSquaredDisplacement::writeToH5()
-{
-	BinaryFile file(this->filename);
-	file.addDatasetDouble(
-		"time",
-		this->time);
-	file.addDatasetDouble(
-		"meanSquaredDisplacement",
-		this->meanSquaredDisplacements);
-	file.addDatasetDouble(
-		"standardDeviation",
-		this->standardDeviations);
-	file.addDatasetDouble(
-		"standardError",
-		this->standardErrors);
-	file.addDatasetUnsignedInt(
-		"numberOfParticles",
-		this->numberOfParticles);
+void MeanSquaredDisplacement::writeToH5() {
+	H5::H5File file(this->filename.c_str(), H5F_ACC_TRUNC);
+	createExtendibleDataset(file, "times", this->times);
+	createExtendibleDataset(file, "meanSquaredDisplacements", this->meanSquaredDisplacements);
+	createExtendibleDataset(file, "standardDeviations", this->standardDeviations);
+	createExtendibleDataset(file, "standardErrors", this->standardErrors);
+	createExtendibleDataset(file, "numberOfParticles", this->numberOfParticles);
+	this->times.clear();
+	this->meanSquaredDisplacements.clear();
+	this->standardDeviations.clear();
+	this->standardErrors.clear();
+	this->numberOfParticles.clear();
 }
 
-void MeanSquaredDisplacement::writeToDat()
-{
+void MeanSquaredDisplacement::writeToDat() {
 	std::ofstream file;
 	file.open(this->filename);
-	file << "Time\tMeanSquaredDisplacement\tStandardDeviation\t"
-			"StandardError\tNumberOfParticles\n";
+	file << "times\tmeanSquaredDisplacement\tstandardDeviation\t"
+			"standardError\tnumberOfParticles\n";
 	for (unsigned i=0; i<meanSquaredDisplacements.size(); i++) {
-		file << time[i] << "\t";
+		file << times[i] << "\t";
 		file << meanSquaredDisplacements[i] << "\t";
 		file << standardDeviations[i] << "\t";
 		file << standardErrors[i] << "\t";
 		file << numberOfParticles[i] << "\n";
 	}
 	file.close();
+	this->times.clear();
+	this->meanSquaredDisplacements.clear();
+	this->standardDeviations.clear();
+	this->standardErrors.clear();
+	this->numberOfParticles.clear();
 }

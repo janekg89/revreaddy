@@ -64,10 +64,13 @@ public:
 	template<unsigned long rank>
 	void createAndWrite(H5::H5File& file,  std::string name,  boost::multi_array<unsigned int, rank>& arr,  H5::DataSpace& dspace, const H5::DSetCreatPropList& create_plist = H5::DSetCreatPropList::DEFAULT);
 	template<unsigned long rank>
+	void createAndWrite(H5::H5File& file,  std::string name,  boost::multi_array<unsigned long, rank>& arr,  H5::DataSpace& dspace, const H5::DSetCreatPropList& create_plist = H5::DSetCreatPropList::DEFAULT);
+	template<unsigned long rank>
 	void createAndWrite(H5::H5File& file,  std::string name,  boost::multi_array<unsigned long long, rank>& arr,  H5::DataSpace& dspace, const H5::DSetCreatPropList& create_plist = H5::DSetCreatPropList::DEFAULT);
 	void createAndWrite(H5::H5File& file,  std::string name, std::vector<double>& arr,  H5::DataSpace& dspace, const H5::DSetCreatPropList& create_plist = H5::DSetCreatPropList::DEFAULT);
 	void createAndWrite(H5::H5File& file,  std::string name, std::vector<int>& arr,  H5::DataSpace& dspace, const H5::DSetCreatPropList& create_plist = H5::DSetCreatPropList::DEFAULT);
 	void createAndWrite(H5::H5File& file,  std::string name, std::vector<unsigned int>& arr,  H5::DataSpace& dspace, const H5::DSetCreatPropList& create_plist = H5::DSetCreatPropList::DEFAULT);
+	void createAndWrite(H5::H5File& file,  std::string name, std::vector<unsigned long>& arr,  H5::DataSpace& dspace, const H5::DSetCreatPropList& create_plist = H5::DSetCreatPropList::DEFAULT);
 	void createAndWrite(H5::H5File& file,  std::string name, std::vector<unsigned long long>& arr,  H5::DataSpace& dspace, const H5::DSetCreatPropList& create_plist = H5::DSetCreatPropList::DEFAULT);
 	template<typename T, unsigned long rank>
 	void extendDataset(H5::H5File& file,  std::string name,  boost::multi_array<T, rank>& arr);
@@ -80,10 +83,13 @@ public:
 	template<unsigned long rank>
 	void writeToExtended(boost::multi_array<unsigned int, rank>& arr, H5::DataSet& dset, H5::DataSpace& mspace, H5::DataSpace& fspace);
 	template<unsigned long rank>
+	void writeToExtended(boost::multi_array<unsigned long, rank>& arr, H5::DataSet& dset, H5::DataSpace& mspace, H5::DataSpace& fspace);
+	template<unsigned long rank>
 	void writeToExtended(boost::multi_array<unsigned long long, rank>& arr, H5::DataSet& dset, H5::DataSpace& mspace, H5::DataSpace& fspace);
 	void writeToExtended(std::vector<double>& arr, H5::DataSet& dset, H5::DataSpace& mspace, H5::DataSpace& fspace);
 	void writeToExtended(std::vector<int>& arr, H5::DataSet& dset, H5::DataSpace& mspace, H5::DataSpace& fspace);
 	void writeToExtended(std::vector<unsigned int>& arr, H5::DataSet& dset, H5::DataSpace& mspace, H5::DataSpace& fspace);
+	void writeToExtended(std::vector<unsigned long>& arr, H5::DataSet& dset, H5::DataSpace& mspace, H5::DataSpace& fspace);
 	void writeToExtended(std::vector<unsigned long long>& arr, H5::DataSet& dset, H5::DataSpace& mspace, H5::DataSpace& fspace);
 
 };
@@ -121,6 +127,12 @@ template<unsigned long rank> void Observable::createAndWrite(H5::H5File& file,  
 template<unsigned long rank> void Observable::createAndWrite(H5::H5File& file,  std::string name,  boost::multi_array<unsigned int, rank>& arr, H5::DataSpace& dspace, const H5::DSetCreatPropList& create_plist) {
 	H5::DataSet dset = file.createDataSet(name.c_str(), H5::PredType::NATIVE_UINT, dspace, create_plist);
 	dset.write(arr.data(), H5::PredType::NATIVE_UINT);
+}
+
+/* Create and write a boost array of unsigned longs. */
+template<unsigned long rank> void Observable::createAndWrite(H5::H5File& file,  std::string name,  boost::multi_array<unsigned long, rank>& arr, H5::DataSpace& dspace, const H5::DSetCreatPropList& create_plist) {
+	H5::DataSet dset = file.createDataSet(name.c_str(), H5::PredType::NATIVE_UINT, dspace, create_plist);
+	dset.write(arr.data(), H5::PredType::NATIVE_ULONG);
 }
 
 /* Create and write a boost array of unsigned long longs. */
@@ -195,6 +207,11 @@ void Observable::writeToExtended(boost::multi_array<int, rank>& arr, H5::DataSet
 template<unsigned long rank>
 void Observable::writeToExtended(boost::multi_array<unsigned int, rank>& arr, H5::DataSet& dset, H5::DataSpace& mspace, H5::DataSpace& fspace) {
 	dset.write(arr.data(), H5::PredType::NATIVE_UINT, mspace, fspace);
+}
+
+template<unsigned long rank>
+void Observable::writeToExtended(boost::multi_array<unsigned long, rank>& arr, H5::DataSet& dset, H5::DataSpace& mspace, H5::DataSpace& fspace) {
+	dset.write(arr.data(), H5::PredType::NATIVE_ULONG, mspace, fspace);
 }
 
 template<unsigned long rank>
