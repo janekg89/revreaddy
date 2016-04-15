@@ -1,5 +1,4 @@
 /* Observable.h
- * 
  * Implement different observables objects, which will be 
  * recorded during simulation. 
  */
@@ -44,7 +43,7 @@ public:
 	virtual void setup(World * world, Config * config);
 	/* record data from World and write to the buffer */
 	virtual void record(World * world, double t);
-	/* write to file and clear the buffer */
+	/* write to file. If cleared automatically, then also the buffer is cleared here. */
 	void writeToFile();
 	virtual void writeToH5();
 	virtual void writeToDat();

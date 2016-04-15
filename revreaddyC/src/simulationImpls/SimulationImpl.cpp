@@ -572,8 +572,8 @@ void SimulationImpl::calculateSingleForceEnergyCheckReactionCandidate(unsigned i
 	// if so, a ReactionEvent will be added to reactionCandidates
 	// Therefore check for reaction that affects the pair (i,j)
 	std::vector<unsigned int> types = {typeI, typeJ};
-	for (unsigned k=0; k<config->reactions.size(); ++k) {
-		if ( config->reactions[k]->isAffectedForward(types) ) {
+	for (auto k=0; k<config->reactions.size(); ++k) {
+		if ( config->reactions[k]->isAffectedForward(types) && (rSquared <= pow(config->reactions[k]->reactionDistance,2.)) ) {
 			std::vector<unsigned long long> participants;
 			participants.push_back(world->particles[indexI].uniqueId);
 			participants.push_back(world->particles[indexJ].uniqueId);
@@ -583,7 +583,7 @@ void SimulationImpl::calculateSingleForceEnergyCheckReactionCandidate(unsigned i
 				participants); // uniqueIds of reaction participants
 			world->reactionCandidates.push_back(event);
 		}
-		else if ( config->reactions[k]->isAffectedBackward(types) ) {
+		else if ( config->reactions[k]->isAffectedBackward(types) && (rSquared <= pow(config->reactions[k]->reactionDistance,2.)) ) {
 			std::vector<unsigned long long> participants;
 			participants.push_back(world->particles[indexI].uniqueId);
 			participants.push_back(world->particles[indexJ].uniqueId);
@@ -595,7 +595,7 @@ void SimulationImpl::calculateSingleForceEnergyCheckReactionCandidate(unsigned i
 		}
 	}
 	// look for force that affects the pair (i,j)
-	for (unsigned int k=0; k<config->interactions.size(); ++k) {
+	for (auto k=0; k<config->interactions.size(); ++k) {
 		if (config->interactions[k]->isAffected(
 			world->particles[indexI].typeId,
 			world->particles[indexJ].typeId) 

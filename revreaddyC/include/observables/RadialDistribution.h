@@ -28,12 +28,8 @@ public:
 	void writeToH5();
 	void writeToDat();
 
-	RadialDistribution(
-		unsigned long inRecPeriod,
-		unsigned long inClearPeriod,
-		std::vector<double>& range,
-		std::vector< std::array<unsigned, 2> > considered,
-		std::string inFilename);
+	// TODO check if sorted is sensible if isInConsidered() does care about explicit order
+	RadialDistribution(unsigned long inRecPeriod, unsigned long inClearPeriod, std::vector<double>& range, std::vector< std::array<unsigned, 2> > considered, std::string inFilename);
 	~RadialDistribution();
 
 private:
@@ -45,11 +41,12 @@ private:
 	 * bin individually. */
 	std::vector<double> bins;
 	/* consideredPairs is a list of tuples of particleTypeIds
-	 * CONVENTION: the tuples MUST be ordered.
+	 * CONVENTION: the tuples MUST be ordered. ???? RESOLVE
 	 * Correct: (0,1) , (3,5), (2,2) 
 	 * Not correct: (1,0), (4,1)
 	 * This is because isInConsidered() searches for tuples (a,b)
-	 * where a<=b.*/
+	 * where a<=b.
+	 * NOTE: This is enforced in the constructor. */
 	std::vector< std::array<unsigned, 2> > consideredPairs;
 	bool isPeriodic;
 	double boxsize;

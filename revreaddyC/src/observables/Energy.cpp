@@ -20,9 +20,6 @@ void Energy::writeToH5() {
 	H5::H5File file(this->filename.c_str(), H5F_ACC_TRUNC);
 	createExtendibleDataset(file, "energies", this->energies);
 	createExtendibleDataset(file, "times", this->times);
-	// upon writing clear the data buffer
-	this->energies.clear();
-	this->times.clear();
 }
 
 void Energy::writeToDat() {
@@ -33,7 +30,4 @@ void Energy::writeToDat() {
 		file << this->times[i] << "\t" << this->energies[i] << "\n";
 	}
 	file.close();
-	// upon writing clear the data buffer
-	this->energies.clear();
-	this->times.clear();
 }

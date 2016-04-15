@@ -158,3 +158,79 @@ TEST_F(ObservableTest, ParticleNumbersRunAndSaveToFile) {
 	EXPECT_THAT(pNumbers, ::testing::ElementsAre(2,2,2,2,2)) << "number of 0-particles should be 2 for all times";
 	H5Fclose(fileId);
 }
+
+
+TEST_F(ObservableTest, ProbDensRunAndSaveToFile) {
+	boost::filesystem::path pathH5("probdens_test.h5");
+	boost::filesystem::path pathDat("probdens_test.dat");
+	boost::filesystem::remove(pathH5);
+	boost::filesystem::remove(pathDat);
+	// actual test
+	World w; Config c; Simulation s(&w, &c, "");
+	c.new_Type("testparticle0", 1., 1.);
+	std::vector<double> pos = {0.,0.,0.};
+	w.addParticle(pos, 0);
+	w.addParticle(pos, 0);
+	// prob density in z direction with 3 bins [-5,-3), [-3,3), [3,5)
+	std::vector<double> ranges = {-5, -3, +3, +5};
+	unsigned coord = 2, pTypeId = 0;
+	s.new_ProbabilityDensity(1, "probdens_test.h5", pTypeId, ranges, coord);
+	s.new_ProbabilityDensity(1, "probdens_test.dat", pTypeId, ranges, coord);
+	// run for 2 timesteps
+	s.run(2);
+	s.writeAllObservablesToFile();
+	// check h5 file
+	hid_t fileId = H5Fopen("probdens_test.h5", H5F_ACC_RDONLY, H5P_DEFAULT);
+	// check binCenters
+	hsize_t dims[1];
+	H5LTget_dataset_info(fileId, "/binCenters", dims, NULL, NULL);
+	EXPECT_EQ(dims[0], 3) << "expecting 3 bins";
+	double binCenters[3];
+	H5LTread_dataset(fileId, "/binCenters", H5T_NATIVE_DOUBLE, binCenters);
+	EXPECT_THAT(binCenters, ::testing::ElementsAre(-4, 0, 4)) << "binCenters according to ranges [-5,-3,3,5]";
+	// check bins (content)
+	H5LTget_dataset_info(fileId, "/bins", dims, NULL, NULL);
+	EXPECT_EQ(dims[0], 3) << "expecting 3 bins";
+	double bins[3];
+	H5LTread_dataset(fileId, "/bins", H5T_NATIVE_DOUBLE, bins);
+	EXPECT_THAT(bins, ::testing::ElementsAre(0, 6, 0)) << "bin contents after 2 timesteps of two particles.";
+	H5Fclose(fileId);	
+}
+
+TEST_F(ObservableTest, RadialDistrRunAndSaveToFile) {
+	boost::filesystem::path pathH5("radial_test.h5");
+	boost::filesystem::path pathDat("radial_test.dat");
+	boost::filesystem::remove(pathH5);
+	boost::filesystem::remove(pathDat);
+	// actual test
+	World w; Config c; Simulation s(&w, &c, "");
+	c.new_Type("testparticle0", 1., 1.);
+	std::vector<double> pos = {0.,0.,0.};
+	w.addParticle(pos, 0);
+	w.addParticle(pos, 0);
+	// radial distribution with two bins [0,3), [3,5)
+	std::vector<double> ranges = {0,3,5};
+	std::array<unsigned,2> consideredElem = {0,0};
+	std::vector<std::array<unsigned,2>> considered = {consideredElem};
+	s.new_RadialDistribution(1, "radial_test.h5", ranges, considered);
+	s.new_RadialDistribution(1, "radial_test.dat", ranges, considered);
+	// run for 2 timesteps
+	s.run(2);
+	s.writeAllObservablesToFile();
+	// check h5 files
+	hid_t fileId = H5Fopen("radial_test.h5", H5F_ACC_RDONLY, H5P_DEFAULT);
+	// check binCenters
+	hsize_t dims[1];
+	H5LTget_dataset_info(fileId, "/binCenters", dims, NULL, NULL);
+	EXPECT_EQ(dims[0], 2) << "expecting 2 bins";
+	double binCenters[2];
+	H5LTread_dataset(fileId, "/binCenters", H5T_NATIVE_DOUBLE, binCenters);
+	EXPECT_THAT(binCenters, ::testing::ElementsAre(1.5, 4)) << "binCenters according to ranges [0,3,5]";
+	// check bins (content)
+	H5LTget_dataset_info(fileId, "/bins", dims, NULL, NULL);
+	EXPECT_EQ(dims[0], 2) << "expecting 2 bins";
+	double bins[2];
+	H5LTread_dataset(fileId, "/bins", H5T_NATIVE_DOUBLE, bins);
+	EXPECT_EQ(bins[1], 0) << "expecting 0 counts in outer bin, since particles start at 0 distance.";
+	H5Fclose(fileId);
+}

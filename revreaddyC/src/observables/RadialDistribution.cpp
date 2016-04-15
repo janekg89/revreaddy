@@ -5,13 +5,7 @@
 // receive vector<array<unsigned int>> representing a list of tuples
 // these tuples have pairs of particleTypeIds which should be considered
 // in rdf calculation.
-RadialDistribution::RadialDistribution(
-	unsigned long inRecPeriod,
-	unsigned long inClearPeriod,
-	std::vector<double>& range,
-	std::vector< std::array<unsigned, 2> > considered,
-	std::string inFilename)
-{
+RadialDistribution::RadialDistribution(unsigned long inRecPeriod, unsigned long inClearPeriod, std::vector<double>& range, std::vector< std::array<unsigned, 2> > considered, std::string inFilename) {
 	this->recPeriod    = inRecPeriod;
 	this->clearPeriod  = inClearPeriod;
 	this->clearedAutomatically = false;
@@ -50,8 +44,7 @@ void RadialDistribution::configure(World * world, Config * config) {
 
 /* Record the radial distribution already normalized 
  * correctly for the current timestep. */
-void RadialDistribution::record(World * world, double t)
-{
+void RadialDistribution::record(World * world, double t) {
 	double radius = 0.;
 	for (unsigned long i=0; i<world->particles.size(); i++) {
 		for (unsigned long j=0; j<world->particles.size(); j++) {
@@ -93,13 +86,9 @@ bool RadialDistribution::isInConsidered(unsigned a, unsigned b) {
 }
 
 void RadialDistribution::writeToH5() {
-	BinaryFile file(this->filename);
-	file.addDatasetDouble(
-		"binCenters",
-		this->binCenters);
-	file.addDatasetDouble(
-		"bins",
-		this->bins);
+	H5::H5File file(this->filename.c_str(), H5F_ACC_TRUNC);
+	createExtendibleDataset(file, "binCenters", this->binCenters);
+	createExtendibleDataset(file, "bins", this->bins);
 }
 
 void RadialDistribution::writeToDat() {

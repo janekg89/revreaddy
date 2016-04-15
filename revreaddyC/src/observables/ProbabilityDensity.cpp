@@ -2,14 +2,7 @@
 
 #include "ProbabilityDensity.h"
 
-ProbabilityDensity::ProbabilityDensity(
-	unsigned long inRecPeriod,
-	unsigned long inClearPeriod,
-	std::string inFilename,
-	unsigned particleTypeId,
-	std::vector<double>& range,
-	unsigned coord)
-{
+ProbabilityDensity::ProbabilityDensity(unsigned long inRecPeriod, unsigned long inClearPeriod, std::string inFilename, unsigned particleTypeId, std::vector<double>& range, unsigned coord) {
 	this->recPeriod = inRecPeriod;
 	this->clearedAutomatically = false;
 	this->clearPeriod = inClearPeriod;
@@ -66,13 +59,9 @@ void ProbabilityDensity::record(World * world, double t) {
 }
 
 void ProbabilityDensity::writeToH5() {
-	BinaryFile file(this->filename);
-	file.addDatasetDouble(
-		"binCenters",
-		this->binCenters);
-	file.addDatasetDouble(
-		"bins",
-		this->bins);
+	H5::H5File file(this->filename.c_str(), H5F_ACC_TRUNC);
+	createExtendibleDataset(file, "binCenters", this->binCenters);
+	createExtendibleDataset(file, "bins", this->bins);
 }
 
 void ProbabilityDensity::writeToDat() {

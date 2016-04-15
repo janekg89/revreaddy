@@ -27,8 +27,6 @@ void ParticleNumbers::writeToH5() {
 	H5::H5File file(this->filename.c_str(), H5F_ACC_TRUNC);
 	createExtendibleDataset(file, "times", this->times);
 	createExtendibleDataset(file, "particleNumbers", this->particleNumbers);
-	this->times.clear();
-	this->particleNumbers.clear();
 }
 
 void ParticleNumbers::writeToDat() {
@@ -40,6 +38,4 @@ void ParticleNumbers::writeToDat() {
 		file << this->particleNumbers[i] << "\n";
 	}
 	file.close();
-	this->times.clear();
-	this->particleNumbers.clear();
 }

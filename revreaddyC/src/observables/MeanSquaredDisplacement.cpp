@@ -98,11 +98,6 @@ void MeanSquaredDisplacement::writeToH5() {
 	createExtendibleDataset(file, "standardDeviations", this->standardDeviations);
 	createExtendibleDataset(file, "standardErrors", this->standardErrors);
 	createExtendibleDataset(file, "numberOfParticles", this->numberOfParticles);
-	this->times.clear();
-	this->meanSquaredDisplacements.clear();
-	this->standardDeviations.clear();
-	this->standardErrors.clear();
-	this->numberOfParticles.clear();
 }
 
 void MeanSquaredDisplacement::writeToDat() {
@@ -118,9 +113,4 @@ void MeanSquaredDisplacement::writeToDat() {
 		file << numberOfParticles[i] << "\n";
 	}
 	file.close();
-	this->times.clear();
-	this->meanSquaredDisplacements.clear();
-	this->standardDeviations.clear();
-	this->standardErrors.clear();
-	this->numberOfParticles.clear();
 }
