@@ -50,14 +50,18 @@ public:
 	/*------------------------------------------------------------------*/
 	void deleteAllParticleTypes();
 	void new_Type(const std::string name, const double radius, const double diffusionConstant);
-	unsigned getNumberOfParticleTypes();
+	unsigned getNumberParticleTypes();
 	std::string getParticleTypeName(unsigned i);
 	double getParticleTypeRadius(unsigned i);
 	double getParticleTypeDiffusionConstant(unsigned i);
 
 	void deleteAllGeometries();
-	void new_Wall(std::vector<double> normal, std::vector<double> point, double strength, std::vector<unsigned int> particleTypeIds);
-	void new_DoubleWellZ(double distanceMinima,	double strength, std::vector<unsigned int> particleTypeIds);
+	void new_Wall(std::string name, std::vector<double> normal, std::vector<double> point, double strength, std::vector<unsigned int> particleTypeIds);
+	void new_DoubleWellZ(std::string name, double distanceMinima, double strength, std::vector<unsigned int> particleTypeIds);
+	unsigned getNumberGeometries();
+	std::string getGeometryName(unsigned i);
+	std::string getGeometryType(unsigned i);
+	std::vector<unsigned int> getGeometryAffected(unsigned i);
 
 	void deleteAllInteractions();
 	void new_SoftRepulsion(std::string name, std::array<unsigned,2> affectedTuple, double repulsionStrength);

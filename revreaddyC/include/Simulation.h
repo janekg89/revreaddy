@@ -18,6 +18,7 @@
 #include "SimulationImpl.h"
 #include "RevReactions.h"
 #include "RevDiffusion.h"
+#include "RevDiffusionRevReactions.h"
 #include "logging.h"
 
 class Simulation {

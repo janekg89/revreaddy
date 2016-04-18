@@ -23,11 +23,11 @@ TEST_F(ConfigUnittest, new_Type) {
 	EXPECT_EQ(c.particleTypes[0].diffusionConstant, 3.);
 }
 
-TEST_F(ConfigUnittest, getNumberOfParticleTypes) {
+TEST_F(ConfigUnittest, getNumberParticleTypes) {
 	Config c;
 	c.new_Type("testparticle", 12., 100.);
 	c.new_Type("testparticle2", 12., 100.);
-	EXPECT_EQ(c.getNumberOfParticleTypes(), 2);
+	EXPECT_EQ(c.getNumberParticleTypes(), 2);
 }
 
 TEST_F(ConfigUnittest, getParticleTypeStuff) {
@@ -47,7 +47,7 @@ TEST_F(ConfigUnittest, new_Wall) {
 	c.new_Type("testparticle0", 0., 0.);
 	c.new_Type("testparticle1", 0., 0.);
 	c.new_Type("testparticle2", 0., 0.);
-	c.new_Wall(normal, point, strength, particleTypeIds);
+	c.new_Wall("testwand",normal, point, strength, particleTypeIds);
 	EXPECT_EQ(c.geometries.size(), 1);
 	EXPECT_THAT(c.geometries[0]->particleTypeIds, ::testing::ElementsAre(0,2));
 	// cannot test for normal, point or strength since they are
@@ -62,7 +62,7 @@ TEST_F(ConfigUnittest, new_DoubleWellZ) {
 	c.new_Type("testparticle0", 0., 0.);
 	c.new_Type("testparticle1", 0., 0.);
 	c.new_Type("testparticle2", 0., 0.);
-	c.new_DoubleWellZ(distanceMinima, strength, particleTypeIds);
+	c.new_DoubleWellZ("doppelbrunnen", distanceMinima, strength, particleTypeIds);
 	EXPECT_EQ(c.geometries.size(), 1);
 	EXPECT_THAT(c.geometries[0]->particleTypeIds, ::testing::ElementsAre(0,2));
 	// cannot test for distanceMinima or strength since they are
@@ -74,8 +74,8 @@ TEST_F(ConfigUnittest, deleteAllGeometries) {
 	std::vector<unsigned> particleTypeIds = {0};
 	std::vector<double> x = {1.,0.,0.};
 	c.new_Type("testparticle", 1.,4.);
-	c.new_DoubleWellZ(2., 4., particleTypeIds);
-	c.new_Wall(x, x, 3., particleTypeIds);
+	c.new_DoubleWellZ("doppelbrunnen", 2., 4., particleTypeIds);
+	c.new_Wall("der wand", x, x, 3., particleTypeIds);
 	EXPECT_EQ(c.geometries.size(), 2);
 	c.deleteAllGeometries();
 	EXPECT_EQ(c.geometries.size(), 0);

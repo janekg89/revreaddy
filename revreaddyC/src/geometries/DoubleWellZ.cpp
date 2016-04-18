@@ -4,15 +4,13 @@
 #define SHIFT 0.1125 // the term 3a/8 if a = 0.3
 #define SCALEFACTOR 1.472667648
 
-DoubleWellZ::DoubleWellZ(
-	double& inDistanceMinima,
-	double& inStrength,
-	std::vector<unsigned int>& inParticleTypeIds)
-{
+DoubleWellZ::DoubleWellZ(std::string inName, double inDistanceMinima, double inStrength, std::vector<unsigned int>& inParticleTypeIds) {
 	this->distanceMinima = inDistanceMinima;
 	this->strength = inStrength;
 	this->scale = this->distanceMinima / SCALEFACTOR;
 	this->particleTypeIds = inParticleTypeIds;
+	this->name = inName;
+	this->type = "DoubleWellZ";
 }
 
 void DoubleWellZ::forceEnergy(

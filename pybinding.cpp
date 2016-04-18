@@ -39,8 +39,8 @@ public:
 	void new_Type(const std::string name, const double radius, const double diffusionConstant) {
 		this->config->new_Type(name, radius, diffusionConstant);
 	}
-	unsigned getNumberOfParticleTypes() {
-		return this->config->getNumberOfParticleTypes();
+	unsigned getNumberParticleTypes() {
+		return this->config->getNumberParticleTypes();
 	}
 	std::string getParticleTypeName(unsigned i) {
 		return this->config->getParticleTypeName(i);
@@ -55,7 +55,7 @@ public:
 	void deleteAllGeometries() {
 		this->config->deleteAllGeometries();
 	}
-	void new_Wall(bp::numeric::array normal, bp::numeric::array point, double strength, bp::numeric::array particleTypeIds) {
+	void new_Wall(std::string name, bp::numeric::array normal, bp::numeric::array point, double strength, bp::numeric::array particleTypeIds) {
 		std::vector<double> norm = {0.,0.,0.};
 		std::vector<double> pnt = {0.,0.,0.};
 		std::vector<unsigned> pTypeIds;
@@ -66,7 +66,7 @@ public:
 			pnt[0] = bp::extract<double>(point[0]);
 			pnt[1] = bp::extract<double>(point[1]);
 			pnt[2] = bp::extract<double>(point[2]);
-			for (unsigned i=0; i<particleTypeIds.nelements(); ++i) {
+			for (unsigned i=0; i<bp::len(particleTypeIds); ++i) {
 				pTypeIds.push_back(bp::extract<unsigned>(particleTypeIds[i]));
 			}
 		} catch (...) {
@@ -74,12 +74,12 @@ public:
 			LOG_INFO("Wall geometry is not added.")
 			return;
 		}
-		this->config->new_Wall(norm, pnt, strength, pTypeIds);
+		this->config->new_Wall(name, norm, pnt, strength, pTypeIds);
 	}
-	void new_DoubleWellZ(double distanceMinima,	double strength, bp::numeric::array particleTypeIds) {
+	void new_DoubleWellZ(std::string name, double distanceMinima, double strength, bp::numeric::array particleTypeIds) {
 		std::vector<unsigned> pTypeIds;
 		try {
-			for (unsigned i=0; i<particleTypeIds.nelements(); ++i) {
+			for (unsigned i=0; i<bp::len(particleTypeIds); ++i) {
 				pTypeIds.push_back(bp::extract<unsigned>(particleTypeIds[i]));
 			}		
 		} catch (...) {
@@ -87,7 +87,29 @@ public:
 			LOG_INFO("DoubleWellZ geometry is not added.")
 			return;
 		}
-		this->config->new_DoubleWellZ(distanceMinima, strength, pTypeIds);
+		this->config->new_DoubleWellZ(name, distanceMinima, strength, pTypeIds);
+	}
+
+	unsigned getNumberGeometries() {
+		return this->config->getNumberGeometries();
+	}
+
+	std::string getGeometryName(unsigned i) {
+		return this->config->getGeometryName(i);
+	}
+
+	std::string getGeometryType(unsigned i) {
+		return this->config->getGeometryType(i);
+	}
+
+	bp::numeric::array getGeometryAffected(unsigned i) {
+		std::vector<unsigned> aff = this->config->getGeometryAffected(i);
+		bp::list tempList = bp::list();
+		for (auto pIndex : aff) {
+			tempList.append<unsigned>(pIndex);
+		}
+		bp::numeric::array affected = bp::numeric::array(tempList);
+		return affected;
 	}
 
 	void deleteAllInteractions() {
@@ -161,7 +183,7 @@ public:
 	void configureFusion(unsigned reactionIndex, bp::numeric::array interactionsIndices, double inversePartition, double maxDistr, double radiiSum, double reactionRadiiSum, double meanDistr, double inverseTemperature, double radiusA, double radiusB) {
 		std::vector<unsigned> interactionsIndicesConverted;
 		try {
-			for (unsigned i=0; i<interactionsIndices.nelements(); ++i) {
+			for (unsigned i=0; i<bp::len(interactionsIndices); ++i) {
 				interactionsIndicesConverted.push_back(	bp::extract<unsigned>(interactionsIndices[i]) );
 			}
 		} catch (...) {
@@ -332,12 +354,12 @@ public:
 		std::vector<double> rangesConverted;
 		std::vector< std::array<unsigned,2> > consideredConverted;
 		try {
-			for (unsigned i=0; i<ranges.nelements(); ++i) {
+			for (unsigned i=0; i<bp::len(ranges); ++i) {
 				rangesConverted.push_back( bp::extract<double>(ranges[i]) );
 			}			
 			// we expect considered to be 2-dimensional with x elements in 
 			// first dimension and two elements in second dimension
-			for (unsigned i=0; i<considered.nelements(); ++i) {
+			for (unsigned i=0; i<bp::len(considered); ++i) {
 				std::array<unsigned,2> consideredTuple;
 				consideredTuple[0] = bp::extract<unsigned>(considered[i][0]);
 				consideredTuple[1] = bp::extract<unsigned>(considered[i][1]);
@@ -357,7 +379,7 @@ public:
 	void new_ProbabilityDensity(unsigned long recPeriod, std::string filename, unsigned pTypeId, bp::numeric::array range, unsigned int coord) {
 		std::vector<double> rangeConverted;
 		try {
-			for (unsigned i=0; i<range.nelements(); ++i) {
+			for (unsigned i=0; i<bp::len(range); ++i) {
 				rangeConverted.push_back( bp::extract<double>(range[i]) );
 			}
 		} catch (...) {
@@ -405,13 +427,17 @@ BOOST_PYTHON_MODULE(revreaddyPy) {
 		.def("setBoxsize", &ConfigWrap::setBoxsize)
 		.def("deleteAllParticleTypes", &ConfigWrap::deleteAllParticleTypes)
 		.def("new_Type", &ConfigWrap::new_Type)
-		.def("getNumberOfParticleTypes", &ConfigWrap::getNumberOfParticleTypes)
+		.def("getNumberParticleTypes", &ConfigWrap::getNumberParticleTypes)
 		.def("getParticleTypeName", &ConfigWrap::getParticleTypeName)
 		.def("getParticleTypeRadius", &ConfigWrap::getParticleTypeRadius)
 		.def("getParticleTypeDiffusionConstant", &ConfigWrap::getParticleTypeDiffusionConstant)
 		.def("deleteAllGeometries", &ConfigWrap::deleteAllGeometries)
 		.def("new_Wall", &ConfigWrap::new_Wall)
 		.def("new_DoubleWellZ", &ConfigWrap::new_DoubleWellZ)
+		.def("getNumberGeometries", &ConfigWrap::getNumberGeometries)
+		.def("getGeometryName", &ConfigWrap::getGeometryName)
+		.def("getGeometryType", &ConfigWrap::getGeometryType)
+		.def("getGeometryAffected", &ConfigWrap::getGeometryAffected)
 		.def("new_SoftRepulsion", &ConfigWrap::new_SoftRepulsion)
 		.def("new_LennardJones", &ConfigWrap::new_LennardJones)
 		.def("getNumberInteractions", &ConfigWrap::getNumberInteractions)

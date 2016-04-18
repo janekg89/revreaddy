@@ -103,7 +103,7 @@ void Observable::createExtendibleDataset(H5::H5File& file,  std::string name,  b
 		chunkdims[i] = arr.shape()[i];
 	}
 	maxdims[0] = H5S_UNLIMITED; // extendible in first dimension
-	chunkdims[0] = 100; // chunkdims are 100 x dims[1] x dims[2] x ...
+	chunkdims[0] = 1024; // chunkdims are 1024 x dims[1] x dims[2] x ...
 	H5::DataSpace dspace(rank, dims, maxdims);
 	H5::DSetCreatPropList plist;
 	plist.setChunk(rank, chunkdims);
@@ -146,7 +146,7 @@ void Observable::createExtendibleDataset(H5::H5File& file,  std::string name, st
 	hsize_t dims[1], maxdims[1], chunkdims[1];
 	dims[0] = arr.size(); 
 	maxdims[0] = H5S_UNLIMITED;
-	chunkdims[0] = 100;
+	chunkdims[0] = 1024;
 	H5::DataSpace dspace(1, dims, maxdims);
 	H5::DSetCreatPropList plist;
 	plist.setChunk(1, chunkdims);

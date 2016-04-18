@@ -12,11 +12,7 @@ public:
 	std::vector<double> point;
 	double strength;
 	
-	Wall(
-		std::vector<double>& InNormal,
-		std::vector<double>& InPoint,
-		double& InStrength,
-		std::vector<unsigned int>& InParticleTypeIds);
+	Wall(std::string inName, std::vector<double>& InNormal, std::vector<double>& InPoint, double& InStrength, std::vector<unsigned int>& InParticleTypeIds);
 
 	void forceEnergy(
 		std::vector<double>& force, //out

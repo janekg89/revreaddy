@@ -17,6 +17,10 @@ Dependencies are:
 * h5py
 
 """
+# py2 and py3 support of print(x1, x2, ...)
+from __future__ import print_function
+# nice tables gist.github.com/jhcepas/5884168
+import print_table as pt
 import numpy as np
 import h5py
 import revreaddyPy as ext
@@ -108,7 +112,7 @@ class Sim(object):
 		"""Clean up all first order potentials."""
 		self.config.deleteAllGeometries()
 
-	def new_wall(self, normal, point, strength, particle_type_ids):
+	def new_wall(self, name, normal, point, strength, particle_type_ids):
 		"""Register a first order potential, that repulses particles from a plain."""
 		normal = np.array(normal)
 		if (normal.shape != (3,)):
@@ -120,31 +124,35 @@ class Sim(object):
 		particle_type_ids = np.array(particle_type_ids, dtype=int)
 		if ( len(particle_type_ids.shape) != 1):
 			raise Exception("Particle types must be a one-dimensional container.")
-		self.config.new_Wall(normal, point, strength, particle_type_ids)
+		self.config.new_Wall(name, normal, point, strength, particle_type_ids)
 
-	def new_double_well_z(self, distance_minima, strength, particle_type_ids):
+	def new_double_well_z(self, name, distance_minima, strength, particle_type_ids):
 		"""Register a first order potential, that is a double well in z direction."""
 		particle_type_ids = np.array(particle_type_ids, dtype=int)
 		if ( len(particle_type_ids.shape) != 1):
 			raise Exception("Particle types must be a one-dimensional container.")
-		self.config.new_DoubleWellZ(distance_minima, strength, particle_type_ids)
+		self.config.new_DoubleWellZ(name, distance_minima, strength, particle_type_ids)
 
 	def delete_all_interactions(self):
+		"""Remove all interactions/potentials."""
 		self.config.deleteAllInteractions()
 
 	def new_soft_repulsion(self, name, affected_tuple, repulsion_strength):
+		"""Register new harmonic/soft repulsion potential."""
 		affected_tuple = np.array(affected_tuple, dtype=int)
 		if (affected_tuple.shape != (2,)):
 			raise Exception("Affected tuple has wrong shape.")
 		self.config.new_SoftRepulsion(name, affected_tuple, repulsion_strength)
 
 	def new_lennard_jones(self, name, affected_tuple, epsilon):
+		"""Register new Lennard-Jones potential."""
 		affected_tuple = np.array(affected_tuple, dtype=int)
 		if (affected_tuple.shape != (2,)):
 			raise Exception("Affected tuple has wrong shape.")
 		self.config.new_LennardJones(name, affected_tuple, epsilon)
 
 	def delete_all_reactions(self):
+		"""Remove reactions from the Config."""
 		self.config.deleteAllReactions()
 
 	def new_conversion(self, name, forward_type, backward_type, forward_rate, backward_rate):
@@ -168,6 +176,7 @@ class Sim(object):
 		self.world.deleteAllParticles()
 
 	def add_particle(self,init_pos, particle_type_id):
+		"""Create a particle of certain type at given position."""
 		init_pos = np.array(init_pos)
 		if (init_pos.shape != (3,)):
 			raise Exception("Initial position has the wrong shape.")
@@ -191,6 +200,7 @@ class Sim(object):
 		self.simulation.deleteAllObservables()
 
 	def write_observables_to_file(self):
+		"""Tell all observables to write their buffers to file."""
 		self.simulation.writeAllObservablesToFile()
 
 	def new_trajectory(self, rec_period, filename):
@@ -279,7 +289,78 @@ class Sim(object):
 	# derived methods
 	def show_config(self):
 		"""List particle species, interactions, geometries and reactions."""
-		pass
+		# particle species
+		num_particle_types = self.config.getNumberParticleTypes()
+		print("Number of species: ", num_particle_types)
+		header = ["Id","Name","Radius","DiffusionConstant"]
+		items = []
+		for i in range(num_particle_types):
+			pType = [
+				i, 
+				self.config.getParticleTypeName(i), 
+				self.config.getParticleTypeRadius(i), 
+				self.config.getParticleTypeDiffusionConstant(i)
+			]
+			linestr = map(str, pType)
+			items += [linestr]
+		pt.print_table(items, header=header)
+		print(" ")
+
+		# interactions
+		num_interactions = self.config.getNumberInteractions()
+		print("Number of interactions: ", num_interactions)
+		header = ["Id","Name","Type","AffectedTuple","Parameters","Cutoff"]
+		items = []
+		for i in range(num_interactions):
+			interaction = [
+				i,
+				self.config.getInteractionName(i),
+				self.config.getInteractionType(i),
+				self.config.getInteractionAffectedTuple(i),
+				self.config.getInteractionParameters(i),
+				self.config.getInteractionCutoff(i)
+			]
+			linestr = map(str, interaction)
+			items += [linestr]
+		pt.print_table(items, header=header)
+		print(" ")
+
+		# geometries
+		num_geometries = self.config.getNumberGeometries()
+		print("Number of geometries: ", num_geometries)
+		header = ["Id", "Name", "Type", "AffectedParticleTypes"]
+		items = []
+		for i in range(num_geometries):
+			geometry = [
+				i,
+				self.config.getGeometryName(i),
+				self.config.getGeometryType(i),
+				self.config.getGeometryAffected(i)
+			]
+			linestr = map(str, geometry)
+			items += [linestr]
+		pt.print_table(items, header=header)
+		print(" ")
+
+		# reactions
+		num_reactions = self.config.getNumberReactions()
+		print("Number of reactions: ", num_reactions)
+		header = ["Id","Name","Type","ForwardTypes","BackwardTypes","ForwardRate","BackwardRate"]
+		items = []
+		for i in range(num_reactions):
+			reaction = [
+				i,
+				self.config.getReactionName(i),
+				self.config.getReactionType(i),
+				self.config.getReactionForwardTypes(i),
+				self.config.getReactionBackwardTypes(i),
+				self.config.getReactionForwardRate(i),
+				self.config.getReactionBackwardRate(i)
+			]
+			linestr = map(str, reaction)
+			items += [linestr]
+		pt.print_table(items, header=header)
+		print(" ")
 
 	def show_world(self):
 		"""List particle positions and their typeIds, uniqueIds."""

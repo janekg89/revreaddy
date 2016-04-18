@@ -13,23 +13,19 @@
 #include <vector>
 #include "Geometry.h"
 
-class DoubleWellZ : public Geometry
-{
-	public:
-		double distanceMinima;
-		double scale;
-		double strength;
+class DoubleWellZ : public Geometry {
+public:
+	double distanceMinima;
+	double scale;
+	double strength;
 
-		DoubleWellZ(
-			double& inDistanceMinima,
-			double& inStrength,
-			std::vector<unsigned int>& inParticleTypeIds);
+	DoubleWellZ(std::string inName, double inDistanceMinima, double inStrength, std::vector<unsigned int>& inParticleTypeIds);
 
-		void forceEnergy(
-			std::vector<double>& force, //out
-			double& energy, //out
-			std::vector<double>& particlePosition, //in
-			double& particleRadius); //in
+	void forceEnergy(
+		std::vector<double>& force, //out
+		double& energy, //out
+		std::vector<double>& particlePosition, //in
+		double& particleRadius); //in
 };
 
 #endif // __DOUBLEWELLZ_H_INCLUDED__

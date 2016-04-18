@@ -38,7 +38,7 @@ void Config::new_Type(const std::string name, const double radius, const double 
 	this->particleTypes.push_back(pType);
 }
 
-unsigned Config::getNumberOfParticleTypes() { return this->particleTypes.size(); }
+unsigned Config::getNumberParticleTypes() { return this->particleTypes.size(); }
 
 std::string Config::getParticleTypeName(unsigned i) {
 	if (i >= this->particleTypes.size()) {
@@ -67,12 +67,7 @@ void Config::deleteAllGeometries() {
 	this->geometries.clear();
 }
 
-void Config::new_Wall(
-	std::vector<double> normal,
-	std::vector<double> point,
-	double strength,
-	std::vector<unsigned int> particleTypeIds)
-{
+void Config::new_Wall(std::string name, std::vector<double> normal, std::vector<double> point, double strength, std::vector<unsigned int> particleTypeIds) {
 	// TODO test exceptions
 	for (unsigned i=0; i<particleTypeIds.size(); ++i) {
 		if (particleTypeIds[i] >= this->particleTypes.size()) {
@@ -95,6 +90,7 @@ void Config::new_Wall(
 		throw Exception("Repulsion strength must be non-negative.");
 	}
 	std::unique_ptr<Wall> wall = make_unique<Wall>(
+		name,
 		normal,
 		point,
 		strength,
@@ -103,7 +99,7 @@ void Config::new_Wall(
 	LOG_INFO("Wall geometry added to geometries.")
 }
 
-void Config::new_DoubleWellZ(double distanceMinima,	double strength, std::vector<unsigned int> particleTypeIds) {
+void Config::new_DoubleWellZ(std::string name, double distanceMinima, double strength, std::vector<unsigned int> particleTypeIds) {
 	for (unsigned i=0; i<particleTypeIds.size(); ++i) {
 		if (particleTypeIds[i] >= this->particleTypes.size()) {
 			throw Exception("Particle type does not exist.");
@@ -118,11 +114,37 @@ void Config::new_DoubleWellZ(double distanceMinima,	double strength, std::vector
 		throw Exception("The strength of the double well must be non-negative.");
 	}
 	std::unique_ptr<DoubleWellZ> well = make_unique<DoubleWellZ>(
+		name,
 		distanceMinima,
 		strength,
 		particleTypeIds);
 	this->geometries.push_back( std::move(well) );
 	LOG_INFO("DoubleWellZ geometry added to geometries.")
+}
+
+unsigned Config::getNumberGeometries() {
+	return this->geometries.size();
+}
+
+std::string Config::getGeometryName(unsigned i) {
+	if (i >= this->geometries.size()) {
+		throw Exception("Geometry of given index does not exist.");
+	}
+	return this->geometries[i]->name;
+}
+
+std::string Config::getGeometryType(unsigned i) {
+	if (i >= this->geometries.size()) {
+		throw Exception("Geometry of given index does not exist.");
+	}
+	return this->geometries[i]->type;
+}
+
+std::vector<unsigned> Config::getGeometryAffected(unsigned i) {
+	if (i >= this->geometries.size()) {
+		throw Exception("Geometry of given index does not exist.");
+	}
+	return this->geometries[i]->particleTypeIds;
 }
 
 void Config::deleteAllInteractions() {

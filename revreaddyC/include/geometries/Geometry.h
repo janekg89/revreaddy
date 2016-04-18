@@ -14,6 +14,8 @@ class Geometry
 		/* SORTED list of particle type ids that interact
 		 * with geometry. */
 		std::vector<unsigned int> particleTypeIds;
+		std::string name;
+		std::string type;
 
 		/* the actual implementation depends on the children of Geometry */
 		virtual void forceEnergy(
