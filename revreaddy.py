@@ -227,7 +227,7 @@ class Sim(object):
 		if (len(ranges.shape) != 1):
 			raise Exception("Ranges must be a one-dimensional container.")	
 		considered = np.array(considered, dtype=int)
-		if ( (len(considered.shape) != 2) | (len(considered.shape[1] != 2)) ):
+		if ( (len(considered.shape) != 2) | (considered.shape[1] != 2) ):
 			raise Exception("Considered types must have a shape of (n,2).")
 		self.simulation.new_RadialDistribution(rec_period, filename, ranges, considered)
 
@@ -261,7 +261,7 @@ class Sim(object):
 		ranges = np.array(ranges)
 		if (len(ranges.shape) != 1):
 			raise Exception("Ranges must be a one-dimensional container.") 
-		if (np.sort(ranges) == ranges):
+		if ( not np.array_equal(np.sort(ranges), ranges) ):
 			raise Exception("Ranges must be sorted/monotonically increasing.")
 		self.simulation.new_ProbabilityDensity(rec_period, filename, particle_type_id, ranges, coord)
 
@@ -289,9 +289,17 @@ class Sim(object):
 	# derived methods
 	def show_config(self):
 		"""List particle species, interactions, geometries and reactions."""
+		# general properties
+		print("Temperature kt: \t", self.kt)
+		print("Timestep: \t\t", self.timestep)
+		print("Boxsize: \t\t", self.boxsize)
+		print("is_periodic: \t\t", self.is_periodic)
+		print("use_neighborlist: \t", self.use_neighborlist)
+		print(" ")
+
 		# particle species
 		num_particle_types = self.config.getNumberParticleTypes()
-		print("Number of species: ", num_particle_types)
+		print("Number of species: \t", num_particle_types)
 		header = ["Id","Name","Radius","DiffusionConstant"]
 		items = []
 		for i in range(num_particle_types):
@@ -303,8 +311,9 @@ class Sim(object):
 			]
 			linestr = map(str, pType)
 			items += [linestr]
-		pt.print_table(items, header=header)
-		print(" ")
+		if (len(items) != 0):
+			pt.print_table(items, header=header)
+			print(" ")
 
 		# interactions
 		num_interactions = self.config.getNumberInteractions()
@@ -322,12 +331,13 @@ class Sim(object):
 			]
 			linestr = map(str, interaction)
 			items += [linestr]
-		pt.print_table(items, header=header)
-		print(" ")
+		if (len(items) != 0):
+			pt.print_table(items, header=header)
+			print(" ")
 
 		# geometries
 		num_geometries = self.config.getNumberGeometries()
-		print("Number of geometries: ", num_geometries)
+		print("Number of geometries: \t", num_geometries)
 		header = ["Id", "Name", "Type", "AffectedParticleTypes"]
 		items = []
 		for i in range(num_geometries):
@@ -339,12 +349,13 @@ class Sim(object):
 			]
 			linestr = map(str, geometry)
 			items += [linestr]
-		pt.print_table(items, header=header)
-		print(" ")
+		if (len(items) != 0):
+			pt.print_table(items, header=header)
+			print(" ")
 
 		# reactions
 		num_reactions = self.config.getNumberReactions()
-		print("Number of reactions: ", num_reactions)
+		print("Number of reactions: \t", num_reactions)
 		header = ["Id","Name","Type","ForwardTypes","BackwardTypes","ForwardRate","BackwardRate"]
 		items = []
 		for i in range(num_reactions):
@@ -359,8 +370,9 @@ class Sim(object):
 			]
 			linestr = map(str, reaction)
 			items += [linestr]
-		pt.print_table(items, header=header)
-		print(" ")
+		if (len(items) != 0):
+			pt.print_table(items, header=header)
+			print(" ")
 
 	def show_world(self):
 		"""List particle positions and their typeIds, uniqueIds."""
