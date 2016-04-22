@@ -1,4 +1,5 @@
 /* Config.cpp */
+#include <reactions/Enzymatic.h>
 #include "Config.h"
 
 template<typename T, typename ...Args>
@@ -234,6 +235,9 @@ void Config::configureReactions() {
 		if (this->reactions[i]->type == "Conversion") {
 			/* Conversion needs no configuration */
 		}
+        else if (this->reactions[i]->type == "Enzymatic") {
+            /* Enzymatic needs no configuration */
+        }
 		else if (this->reactions[i]->type == "Fusion") {
 			//this->configureFusion(i); // TODO
 		}
@@ -306,11 +310,8 @@ void Config::new_Fusion(
 	if (reactionDistance < 0.) {
 		throw Exception("The reaction distance must be non-negative.");
 	}
-	std::vector<unsigned> forwardTypes;
-	forwardTypes.push_back(forwardTypeA);
-	forwardTypes.push_back(forwardTypeB);
-	std::vector<unsigned> backwardTypes;
-	backwardTypes.push_back(backwardTypeC);
+	std::vector<unsigned> forwardTypes = {forwardTypeA, forwardTypeB};
+	std::vector<unsigned> backwardTypes = {backwardTypeC};
 	std::unique_ptr<Fusion> fus = make_unique<Fusion>(
 		name,
 		forwardTypes,
@@ -359,6 +360,39 @@ void Config::configureFusion(
 	 * and configure it properly */
 }
 
+void Config::new_Enzymatic(std::string name, unsigned forwardTypeA, unsigned backwardTypeB, unsigned catalystTypeC,
+						   double forwardRate, double backwardRate, double reactionDistance) {
+    if (forwardTypeA >= this->particleTypes.size()) {
+        throw Exception("The forward particle type A does not exist.");
+    }
+    if (backwardTypeB >= this->particleTypes.size()) {
+        throw Exception("The backward particle type B does not exist.");
+    }
+    if (catalystTypeC >= this->particleTypes.size()) {
+        throw Exception("The catalyst particle type C does not exist.");
+    }
+    if (forwardRate < 0.) {
+        throw Exception("The forwardRate must be non-negative.");
+    }
+    if (backwardRate < 0.) {
+        throw Exception("The backwardRate must be non-negative.");
+    }
+    if (reactionDistance < 0.) {
+        throw Exception("The reaction distance must be non-negative.");
+    }
+    std::vector<unsigned> forwardTypes = {forwardTypeA, catalystTypeC};
+    std::vector<unsigned> backwardTypes = {backwardTypeB, catalystTypeC};
+    std::unique_ptr<Enzymatic> enz = make_unique<Enzymatic>(
+            name,
+            forwardTypes,
+            backwardTypes,
+            forwardRate,
+            backwardRate,
+            reactionDistance
+    );
+    this->reactions.push_back( std::move(enz) );
+}
+
 unsigned Config::getNumberReactions() {
 	return this->reactions.size();
 }
@@ -404,3 +438,6 @@ double Config::getReactionBackwardRate(unsigned i) {
 	}
 	return this->reactions[i]->backwardRate;
 }
+
+
+

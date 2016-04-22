@@ -162,8 +162,6 @@ double Fusion::distribution(double x)
 			this->radiiSum * this->radiiSum); // sum of radii squared
 	}
 	result = exp(- this->inverseTemperature * result);
-	//result *= x * this->inversePartition;
-	// THIS IS DIFFERENT FROM FUSION1
 	result *= this->inversePartition;
 	return result;
 }

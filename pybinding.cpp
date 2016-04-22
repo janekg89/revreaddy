@@ -176,6 +176,11 @@ public:
 	void new_Conversion(std::string name, unsigned forwardType, unsigned backwardType, double forwardRate, double backwardRate) {
 		this->config->new_Conversion(name, forwardType, backwardType, forwardRate, backwardRate);
 	}
+	void new_Enzymatic(std::string name, unsigned forwardTypeA, unsigned backwardTypeB, unsigned catalystTypeC,
+					   double forwardRate, double backwardRate, double reactionDistance) {
+        this->config->new_Enzymatic(name, forwardTypeA, backwardTypeB, catalystTypeC, forwardRate, backwardRate,
+                                    reactionDistance);
+    }
 	void new_Fusion(std::string name, unsigned forwardTypeA, unsigned forwardTypeB,	unsigned backwardTypeC,	double forwardRate,	double backwardRate, double reactionDistance) {
 		this->config->new_Fusion(name, forwardTypeA, forwardTypeB, backwardTypeC, forwardRate, backwardRate, reactionDistance);
 	}
@@ -448,6 +453,7 @@ BOOST_PYTHON_MODULE(revreaddyPy) {
 		.def("getInteractionCutoff", &ConfigWrap::getInteractionCutoff)
 		.def("deleteAllReactions", &ConfigWrap::deleteAllReactions)
 		.def("new_Conversion", &ConfigWrap::new_Conversion)
+        .def("new_Enzymatic", &ConfigWrap::new_Enzymatic)
 		.def("new_Fusion", &ConfigWrap::new_Fusion)
 		.def("configureFusion", &ConfigWrap::configureFusion)
 		.def("getNumberReactions", &ConfigWrap::getNumberReactions)

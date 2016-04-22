@@ -95,6 +95,8 @@ public:
 		double inverseTemperature,
 		double radiusA,
 		double radiusB);
+	void new_Enzymatic(std::string name, unsigned forwardTypeA, unsigned backwardTypeB, unsigned catalystTypeC,
+                       double forwardRate, double backwardRate, double reactionDistance );
 	unsigned getNumberReactions();
 	std::string getReactionName(unsigned i);
 	std::string getReactionType(unsigned i);

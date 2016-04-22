@@ -7,12 +7,15 @@ set(CMAKE_CXX_STANDARD 11)
 # build C library and Py wrapping independently
 set(REVREADDY_C_LIBRARY_NAME "revreaddyC")
 set(REVREADDY_PY_LIBRARY_NAME "revreaddyPy")
+set(REVREADDY_SCRIPT_NAME "revreaddy")
 
 # py extension is build here, so find required packages
 find_package(PythonInterp REQUIRED)
 find_package(PythonLibs REQUIRED)
 find_package(Boost COMPONENTS python log filesystem system REQUIRED)
 
+# python toplayer
+add_custom_target(${REVREADDY_SCRIPT_NAME} SOURCES revreaddy.py DEPENDS ${REVREADDY_PY_LIBRARY_NAME})
 # target python extension
 python_add_module(${REVREADDY_PY_LIBRARY_NAME} pybinding.cpp)
 # c library must be built before py library can be built

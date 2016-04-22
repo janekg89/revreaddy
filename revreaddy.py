@@ -159,6 +159,12 @@ class Sim(object):
         """Register a new conversion reaction to the config."""
         self.config.new_Conversion(name, forward_type, backward_type, forward_rate, backward_rate)
 
+    def new_enzymatic(self, name, forward_type_a, backward_type_b, catalysy_type_c, forward_rate, backward_rate,
+                      reaction_distance):
+        """Register a new enzymatic reaction to the config."""
+        self.config.new_Enzymatic(name, forward_type_a, backward_type_b, catalysy_type_c, forward_rate,
+                                  backward_rate, reaction_distance)
+
     def new_fusion(self, name, forward_type_a, forward_type_b, backward_type_c,	forward_rate, backward_rate, reaction_distance):
         """Register a new fusion reaction to the config."""
         self.config.new_fusion(name, forward_type_a, forward_type_b, backward_type_c, forward_rate, backward_rate, reaction_distance)
