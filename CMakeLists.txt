@@ -2,8 +2,9 @@ cmake_minimum_required(VERSION 2.8.12)
 project(revreaddy)
 
 # use c++11
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+#set(CMAKE_CXX_STANDARD 11)
+#set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 # build C library and Py wrapping independently
 set(REVREADDY_C_LIBRARY_NAME "revreaddyC")
@@ -14,6 +15,7 @@ set(REVREADDY_SCRIPT_NAME "revreaddy")
 find_package(PythonInterp REQUIRED)
 find_package(PythonLibs REQUIRED)
 find_package(Boost COMPONENTS python log filesystem system REQUIRED)
+find_package(HDF5 COMPONENTS C CXX HL)
 
 # python toplayer
 add_custom_target(${REVREADDY_SCRIPT_NAME} SOURCES revreaddy.py DEPENDS ${REVREADDY_PY_LIBRARY_NAME})
