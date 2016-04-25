@@ -80,7 +80,7 @@ endif ()
 
 # tests for the python wrapping
 if(REVREADDY_RUN_TESTS)
-    add_test(NAME python-wrapping COMMAND python test_revreaddy.py)
+    add_test(NAME python-wrapping COMMAND ${PYTHON_EXECUTABLE} test_revreaddy.py)
 endif(REVREADDY_RUN_TESTS)
 
 # when everything is built move the convenience layer script to the build directory
