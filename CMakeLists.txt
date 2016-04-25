@@ -3,6 +3,7 @@ project(revreaddy)
 
 # use c++11
 set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # build C library and Py wrapping independently
 set(REVREADDY_C_LIBRARY_NAME "revreaddyC")
