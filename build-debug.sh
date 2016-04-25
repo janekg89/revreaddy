@@ -10,6 +10,7 @@ CMAKE_FLAGS+=" -DBOOST_ROOT=/home/chris/miniconda2"
 CMAKE_FLAGS+=" -DPYTHON_LIBRARY=/home/chris/miniconda2/lib/libpython2.7.so"
 CMAKE_FLAGS+=" -DPYTHON_INCLUDE_DIR=/home/chris/miniconda2/include/python2.7"
 CMAKE_FLAGS+=" -DPYTHON_EXECUTABLE=/home/chris/miniconda2/bin/python2.7"
+CMAKE_FLAGS+=" -DCMAKE_RUNTIME_OUTPUT_DIRECTORY:STRING=."
 
 cmake ../.. $CMAKE_FLAGS
 make -j
