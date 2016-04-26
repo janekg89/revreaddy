@@ -12,6 +12,7 @@ set(REVREADDY_PY_LIBRARY_NAME "revreaddyPy")
 set(REVREADDY_SCRIPT_NAME "revreaddy")
 
 # py extension is build here, so find required packages
+find_package(ZLIB REQUIRED)
 find_package(PythonInterp REQUIRED)
 find_package(PythonLibs REQUIRED)
 find_package(Boost COMPONENTS python log filesystem system REQUIRED)
