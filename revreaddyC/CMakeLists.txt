@@ -16,7 +16,7 @@ target_include_directories(${REVREADDY_C_LIBRARY_NAME} PUBLIC
     ${HDF5_INCLUDE_DIRS}
 )
 target_compile_definitions(${REVREADDY_C_LIBRARY_NAME} PUBLIC -DBOOST_LOG_DYN_LINK)
-message(STATUS ${Boost_LIBRARIES})
+
 target_link_libraries(${REVREADDY_C_LIBRARY_NAME} ${Boost_LIBRARIES} gsl gslcblas m ${HDF5_LIBRARIES})
 
 # set logging defines

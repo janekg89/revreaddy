@@ -13,7 +13,7 @@ CMAKE_FLAGS+=" -DPYTHON_EXECUTABLE=/home/chris/miniconda2/bin/python2.7"
 CMAKE_FLAGS+=" -DCMAKE_RUNTIME_OUTPUT_DIRECTORY:STRING=."
 
 cmake ../.. $CMAKE_FLAGS
-make -j
-make test -j VERBOSE=1
+make -j #VERBOSE=1
+make test -j #VERBOSE=1
 #ctest -VV
 cd ../..
