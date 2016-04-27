@@ -12,7 +12,7 @@ CMAKE_FLAGS+=" -DPYTHON_INCLUDE_DIR=/home/chris/miniconda2/envs/revreaddy/includ
 CMAKE_FLAGS+=" -DPYTHON_EXECUTABLE=/home/chris/miniconda2/envs/revreaddy/bin/python2.7"
 CMAKE_FLAGS+=" -DZLIB_ROOT=/home/chris/miniconda2/envs/revreaddy"
 CMAKE_FLAGS+=" -DCMAKE_RUNTIME_OUTPUT_DIRECTORY:STRING=."
-
+export HDF5_ROOT="/home/chris/miniconda2/envs/revreaddy"
 
 cmake ../.. $CMAKE_FLAGS
 make -j #VERBOSE=1
