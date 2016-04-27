@@ -13,7 +13,7 @@ add_executable(runTests ${TEST_SOURCES})
 add_dependencies(runTests ${REVREADDY_C_LIBRARY_NAME})
 target_include_directories(runTests PUBLIC ${GOOGLETEST_INCLUDE} ${GOOGLEMOCK_INCLUDE} ${REVREADDY_C_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
 target_link_libraries(runTests gtest gtest_main gmock gmock_main ${REVREADDY_C_LIBRARY_NAME}
-        ${CMAKE_THREAD_LIBS_INIT} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
+        ${CMAKE_THREAD_LIBS_INIT} ${Boost_woPython_LIBRARIES})
 
 # add tests to the building process
 add_test(NAME revreaddy-tests COMMAND runTests)

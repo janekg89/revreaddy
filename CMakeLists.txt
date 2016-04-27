@@ -18,6 +18,11 @@ find_package(PythonLibs REQUIRED)
 find_package(Boost COMPONENTS python log filesystem system REQUIRED)
 find_package(HDF5 COMPONENTS C CXX HL)
 
+# prepare a selection boost libraries that does not include the boost-python module
+set(Boost_woPython_LIBRARIES ${Boost_LIBRARIES})
+list(REMOVE_ITEM "Boost_woPython_LIBRARIES" "${Boost_LIBRARY_DIR_RELEASE}/libboost_python.so")
+message(STATUS "${Boost_woPython_LIBRARIES}")
+
 # python toplayer
 add_custom_target(${REVREADDY_SCRIPT_NAME} SOURCES revreaddy.py DEPENDS ${REVREADDY_PY_LIBRARY_NAME})
 # target python extension
