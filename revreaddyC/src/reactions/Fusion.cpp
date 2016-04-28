@@ -1,6 +1,9 @@
-/* Fusion.cpp */
+/* Fusion.cpp
+ * @todo this has to be reworked. especially reactionDistance shall be used.
+ * simplify configuration */
 #include "Fusion.h"
 #include <math.h>
+
 
 Fusion::Fusion(
 	std::string inName,

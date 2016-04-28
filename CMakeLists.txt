@@ -89,6 +89,7 @@ endif ()
 
 # tests for the python wrapping
 if(REVREADDY_RUN_TESTS)
+    add_custom_target(test_revreaddy.py DEPENDS ${REVREADDY_SCRIPT_NAME})
     add_test(NAME python-wrapping COMMAND ${PYTHON_EXECUTABLE} test_revreaddy.py)
 endif(REVREADDY_RUN_TESTS)
 

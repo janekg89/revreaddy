@@ -74,7 +74,6 @@ public:
 	bool skipPairInteractionsReactions;
 	/* This assures that a Neighborlist class has been allocated. Necessary if the Simulation
 	 * is destroyed before a run() has been executed. */
-	bool neighborlistConfigured;
 	std::vector< std::unique_ptr<Observable> > observables;
 	/* unimolecularCandidateTypes is a list of typeIds that can undergo a
 	 * unimolecular reaction like a -> b or a -> b+c, it also contains
@@ -116,7 +115,7 @@ public:
 	/* evaluate the force and energy for a given pair of
 	 * particles and store their unique ids in activePairs
 	 * if they are in reactive distance */
-	void calculateSingleForceEnergyCheckReactionCandidate(unsigned indexI, unsigned indexJ);
+	void calculateSingleForceEnergyCheckReactionCandidate(unsigned long indexI, unsigned long indexJ);
 	void calculateGeometryForcesEnergies();
 	void resetForces();
 	void resetReactionCandidates();

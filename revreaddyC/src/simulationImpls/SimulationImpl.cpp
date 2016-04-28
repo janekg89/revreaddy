@@ -18,7 +18,6 @@ SimulationImpl::SimulationImpl(World * inWorld, Config * inConfig) {
 	this->forceJ = {0.,0.,0.};
 	this->r_ij = {0.,0.,0.};
 	this->useNeighborlist = true;
-	this->neighborlistConfigured = false;
 	this->skipPairInteractionsReactions = false;
 	LOG_TRACE("Leave SimulationImpl Constructor.")
 }
@@ -31,9 +30,6 @@ SimulationImpl::SimulationImpl() {
 SimulationImpl::~SimulationImpl() {
 	LOG_TRACE("Enter SimulationImpl Destructor.")
 	this->deleteAllObservables();
-	if (this->neighborlistConfigured) {
-		delete this->neighborlist;
-	}
 	delete this->utils;
 	delete this->random;
 	LOG_TRACE("Leave SimulationImpl Destructor.")
@@ -208,6 +204,11 @@ void SimulationImpl::run(const unsigned long maxTime) {
 		 * timesteps */
 		this->recordObservables(timeIndex + 1);
 	}
+	// clean up after run
+    unimolecularCandidateTypes.clear();
+    if (this->useNeighborlist) {
+        delete this->neighborlist;
+    }
 }
 
 void SimulationImpl::configureNeighborlist() {
@@ -233,10 +234,12 @@ void SimulationImpl::configureNeighborlist() {
 	if (numberBoxes > 3) {
 		this->useNeighborlist = true; // actually obsolete
 		this->neighborlist = new Neighborlist( numberBoxes );
-		this->neighborlistConfigured = true;
+        LOG_INFO("Neighborlist was created with " << numberBoxes << " boxes in every dimension.")
 	}
 	else {
 		this->useNeighborlist = false;
+        LOG_INFO("Neighborlist was not created.")
+        LOG_WARNING("Setting useNeighborlist to false. When re running you might want to set it to true again.")
 	}	
 }
 
@@ -275,9 +278,9 @@ void SimulationImpl::restoreOldState() {
 void SimulationImpl::propagateDiffusion() {
 	std::vector<double> noiseTerm = {0.,0.,0.};
 	std::vector<double> forceTerm = {0.,0.,0.};
-	double noisePrefactor = 1.;
-	double forcePrefactor = 1.;
-	double diffConst = 1.; //diffusion constant of current particle
+	double noisePrefactor;
+	double forcePrefactor;
+	double diffConst; //diffusion constant of current particle
 	for (unsigned long i=0; i<world->particles.size(); i++)
 	{
 		// look up particles' diffusion constant from its typeId
@@ -444,8 +447,8 @@ void SimulationImpl::calculateInteractionForcesEnergies() {
 }
 
 void SimulationImpl::calculateInteractionForcesEnergiesNaive() {
-	for (unsigned long i=0; i<world->particles.size(); i++) {
-		for (unsigned long j=i+1; j<world->particles.size(); j++) {
+	for (auto i=0; i<world->particles.size(); i++) {
+		for (auto j=i+1; j<world->particles.size(); j++) {
 			this->calculateSingleForceEnergyCheckReactionCandidate(i, j);
 		}
 	}
@@ -541,7 +544,7 @@ void SimulationImpl::calculateInteractionForcesEnergiesWithLattice() {
 	this->neighborlist->clear();
 }
 
-void SimulationImpl::calculateSingleForceEnergyCheckReactionCandidate(unsigned int indexI, unsigned int indexJ) {
+void SimulationImpl::calculateSingleForceEnergyCheckReactionCandidate(unsigned long indexI, unsigned long indexJ) {
 	this->forceI[0]=0.; this->forceI[1]=0.; this->forceI[2]=0.;
 	this->forceJ[0]=0.; this->forceJ[1]=0.; this->forceJ[2]=0.;
 	// interaction energy of particle pair (i,j)
@@ -735,13 +738,13 @@ long int SimulationImpl::findParticleIndex(unsigned long long id) {
 }
 
 void SimulationImpl::configureAndSetupObservables() {
+    for (auto i=0; i<observables.size(); ++i) {
+        if ( ! observables[i]->isSetup ) {
+            observables[i]->setup(world, config);
+            observables[i]->isSetup = true;
+        }
+    }
 	for (auto i=0; i<this->observables.size(); ++i) {
 		this->observables[i]->configure(world, config);
-	}
-	for (auto i=0; i<observables.size(); ++i) {
-		if ( ! observables[i]->isSetup ) {
-			observables[i]->setup(world, config);
-			observables[i]->isSetup = true;
-		}
 	}
 }

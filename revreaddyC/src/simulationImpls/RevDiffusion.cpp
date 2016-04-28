@@ -10,7 +10,6 @@ RevDiffusion::RevDiffusion(World * inWorld, Config * inConfig) {
 	this->forceJ = {0.,0.,0.};
 	this->r_ij = {0.,0.,0.};
 	this->useNeighborlist = true;
-	this->neighborlistConfigured = false;
 	this->skipPairInteractionsReactions = false;
 	LOG_TRACE("Leave RevDiffusion constructor")
 }
@@ -69,4 +68,9 @@ void RevDiffusion::run(const unsigned long maxTime) {
 		world->cumulativeRuntime += config->timestep;
 		this->recordObservables(timeIndex + 1);
 	}
+	// clean up after run
+	unimolecularCandidateTypes.clear();
+    if (this->useNeighborlist) {
+        delete this->neighborlist;
+    }
 }

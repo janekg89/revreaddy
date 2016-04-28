@@ -2,7 +2,7 @@
 * Fusion reaction that conserves positions of particles that have 0 diffusivity
 * SimulationImpl child that propagates single moves with a=1
 * sample reaction distance from discrete probability distribution. -> new Fusion variant.
-* revreaddy.py -> show_config(), show_world(), show_simulation().
+* revreaddy.py -> show_world(), show_simulation().
 
 #### integration tests:
 * periodic boundaries correctly propagated
