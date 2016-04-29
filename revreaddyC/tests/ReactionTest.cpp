@@ -35,14 +35,15 @@ TEST_F(ReactionTest, EnzymaticIsAffected) {
 }
 
 // check that after calcSingle..(i,j) the pair appears in world->reactionCandidates. forward and backward
-TEST_F(ReactionTest, EnzymaticCandidates) {
+// check that with k*tau = 1 a reaction is performed with same positions before and after
+TEST_F(ReactionTest, EnzymaticCandidatesAndPerform) {
     // NOTE: s is now the Impl class
     World w; Config c; SimulationImpl s(&w, &c);
     c.new_Type("A", 1., 1.);
     c.new_Type("B", 1., 1.);
     c.new_Type("C", 1., 1.);
-    // A +{2.} C {0.}<-->{0.} B +{2.} C
-    c.new_Enzymatic("enz", 0, 1, 2, 0., 0., 2.);
+    // A +{2.} C {1.}<-->{1.} B +{2.} C
+    c.new_Enzymatic("enz", 0, 1, 2, 1., 1., 2.);
     // position A and C with a distance of 1.5
     std::vector<double> posA = {1.,1.,1.};
     std::vector<double> posC = {-0.5,1.,1.};
@@ -55,12 +56,15 @@ TEST_F(ReactionTest, EnzymaticCandidates) {
     EXPECT_EQ(w.reactionCandidates[0].forwardOrBackward, true) << "direction must be forward";
     EXPECT_THAT(w.reactionCandidates[0].participants, ::testing::ElementsAre(0, 1)) << "uniqueIds should be 0 and 1";
     EXPECT_EQ(w.reactionCandidates[0].reactionId, 0) << "reactionId is 0";
-}
-
-// TODO
-// check that with k*tau = 1 a reaction is performed with same positions before and after
-TEST_F(ReactionTest, EnzymaticPerform) {
-    EXPECT_EQ(1,1);
+    // now perform reaction
+    c.timestep = 1.;
+    // tau = 1 and k = 1 --> reaction MUST be performed, since probability is approximated as p=k*tau
+    s.propagateReactions();
+    EXPECT_EQ(w.particles[0].typeId, 1) << "particle A must have changed to B";
+    EXPECT_THAT(w.particles[0].position, ::testing::ElementsAre(1.,1.,1.)) << "the position mustn't change";
+    EXPECT_EQ(w.particles[1].typeId, 2) << "catalyst particle still has type C";
+    EXPECT_THAT(w.particles[1].position, ::testing::ElementsAre(-0.5,1.,1.)) << "catalyst particle is still at its "
+                                                                                        "old pos";
 }
 
 // the same for conversion and fusion

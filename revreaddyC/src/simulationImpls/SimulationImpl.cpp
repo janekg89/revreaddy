@@ -137,7 +137,7 @@ void SimulationImpl::new_ParticleNumbers(unsigned long recPeriod, std::string fi
 		0,
 		filename,
 		particleTypeId);
-	this->observables.push_back( std::move(par) );
+	this->observables.push_back(std::move(par));
 }
 
 void SimulationImpl::run(const unsigned long maxTime) {
@@ -459,9 +459,9 @@ void SimulationImpl::calculateInteractionForcesEnergiesWithLattice() {
 	double n = (double) numberBoxes;
 	double boxLength = config->boxsize / n;
 
-	double delX = 0.;
-	double delY = 0.;
-	double delZ = 0.;
+	double delX;
+	double delY;
+	double delZ;
 	unsigned int xIndex = 0;
 	unsigned int yIndex = 0;
 	unsigned int zIndex = 0;
@@ -651,7 +651,7 @@ void SimulationImpl::resetReactionCandidates() {
 /* For the diffusion acceptance probability both states, old and new
  * have to have the same number of particles.  */
 double SimulationImpl::acceptanceDiffusion() {
-	double acceptance = 1.;
+	double acceptance;
 	double firstTerm  = 0.;
 	double secondTerm = 0.;
 	std::vector<double> deltaX = {0.,0.,0.};
@@ -695,7 +695,7 @@ double SimulationImpl::acceptanceDiffusion() {
 }
 
 double SimulationImpl::acceptanceReactions() {
-	double unconditional = 1.;
+	double unconditional;
 	unconditional = world->energy - world->oldEnergy;
 	unconditional /= -1. * config->kT;
 	unconditional = exp( unconditional );
