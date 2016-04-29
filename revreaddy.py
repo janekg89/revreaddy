@@ -22,8 +22,8 @@ from __future__ import print_function
 # nice tables gist.github.com/jhcepas/5884168
 import print_table as pt
 import numpy as np
-import h5py
 import revreaddyPy as ext
+import time
 import logging
 # this is only the log-level of the python module
 # the logging level for the C-extension is set on compile time
@@ -31,7 +31,7 @@ logging.basicConfig(
     format='%(asctime)s %(levelname)s: %(message)s',
     datefmt='%Y/%m/%d %I:%M:%S',
     level=logging.INFO)
-import time
+
 
 class Sim(object):
     """
@@ -50,6 +50,7 @@ class Sim(object):
     be chosen.
 
     """
+
     def __init__(self, which_impl=""):
         """Construct the three main objects and choose implementation"""
         self.config = ext.Config()
@@ -60,24 +61,27 @@ class Sim(object):
     @property
     def timestep(self):
         return self.config.getTimestep()
+
     @timestep.setter
     def timestep(self, dt):
-        if (dt <= 0.):
+        if dt <= 0.:
             raise Exception("Timestep must be positive.")
         self.config.setTimestep(dt)
 
     @property
     def kt(self):
         return self.config.getKT()
+
     @kt.setter
     def kt(self, kt_):
-        if (kt_ <= 0.):
+        if kt_ <= 0.:
             raise Exception("The temperature must be positive.")
         self.config.setKT(kt_)
 
     @property
     def is_periodic(self):
         return self.config.getIsPeriodic()
+
     @is_periodic.setter
     def is_periodic(self, periodic):
         self.config.setIsPeriodic(periodic)
@@ -85,9 +89,10 @@ class Sim(object):
     @property
     def boxsize(self):
         return self.config.getBoxsize()
+
     @boxsize.setter
     def boxsize(self, boxsize_):
-        if (boxsize_ <= 0.):
+        if boxsize_ <= 0.:
             raise Exception("The boxsize must be positive.")
         self.config.setBoxsize(boxsize_)
 
@@ -95,6 +100,7 @@ class Sim(object):
     @property
     def use_neighborlist(self):
         return self.simulation.getUseNeighborlist()
+
     @use_neighborlist.setter
     def use_neighborlist(self, nl):
         self.simulation.setUseNeighborlist(nl)
@@ -115,21 +121,21 @@ class Sim(object):
     def new_wall(self, name, normal, point, strength, particle_type_ids):
         """Register a first order potential, that repulses particles from a plain."""
         normal = np.array(normal)
-        if (normal.shape != (3,)):
+        if normal.shape != (3,):
             raise Exception("Normal vector has wrong shape.")
         point = np.array(point)
-        if (point.shape != (3,)):
+        if point.shape != (3,):
             raise Exception("Point vector has wrong shape.")
         # use python built-in type int because boost doesn't know numpy types
         particle_type_ids = np.array(particle_type_ids, dtype=int)
-        if ( len(particle_type_ids.shape) != 1):
+        if len(particle_type_ids.shape) != 1:
             raise Exception("Particle types must be a one-dimensional container.")
         self.config.new_Wall(name, normal, point, strength, particle_type_ids)
 
     def new_double_well_z(self, name, distance_minima, strength, particle_type_ids):
         """Register a first order potential, that is a double well in z direction."""
         particle_type_ids = np.array(particle_type_ids, dtype=int)
-        if ( len(particle_type_ids.shape) != 1):
+        if len(particle_type_ids.shape) != 1:
             raise Exception("Particle types must be a one-dimensional container.")
         self.config.new_DoubleWellZ(name, distance_minima, strength, particle_type_ids)
 
@@ -140,14 +146,14 @@ class Sim(object):
     def new_soft_repulsion(self, name, affected_tuple, repulsion_strength):
         """Register new harmonic/soft repulsion potential."""
         affected_tuple = np.array(affected_tuple, dtype=int)
-        if (affected_tuple.shape != (2,)):
+        if affected_tuple.shape != (2,):
             raise Exception("Affected tuple has wrong shape.")
         self.config.new_SoftRepulsion(name, affected_tuple, repulsion_strength)
 
     def new_lennard_jones(self, name, affected_tuple, epsilon):
         """Register new Lennard-Jones potential."""
         affected_tuple = np.array(affected_tuple, dtype=int)
-        if (affected_tuple.shape != (2,)):
+        if affected_tuple.shape != (2,):
             raise Exception("Affected tuple has wrong shape.")
         self.config.new_LennardJones(name, affected_tuple, epsilon)
 
@@ -165,41 +171,45 @@ class Sim(object):
         self.config.new_Enzymatic(name, forward_type_a, backward_type_b, catalysy_type_c, forward_rate,
                                   backward_rate, reaction_distance)
 
-    def new_fusion(self, name, forward_type_a, forward_type_b, backward_type_c,	forward_rate, backward_rate, reaction_distance):
+    def new_fusion(self, name, forward_type_a, forward_type_b, backward_type_c, forward_rate, backward_rate,
+                   reaction_distance):
         """Register a new fusion reaction to the config."""
-        self.config.new_fusion(name, forward_type_a, forward_type_b, backward_type_c, forward_rate, backward_rate, reaction_distance)
+        self.config.new_fusion(name, forward_type_a, forward_type_b, backward_type_c, forward_rate, backward_rate,
+                               reaction_distance)
 
     # TODO WIP this only exists as long as fusion is configured manually
-    def configure_fusion(self, reaction_index, interaction_indices, inverse_partition, max_distr, radii_sum, reaction_radii_sum, mean_distr, inverse_temperature, radius_a, radius_b):
+    def configure_fusion(self, reaction_index, interaction_indices, inverse_partition, max_distr, radii_sum,
+                         reaction_radii_sum, mean_distr, inverse_temperature, radius_a, radius_b):
         interaction_indices = np.array(interaction_indices, dtype=int)
-        if (len(interaction_indices.shape) != 1):
+        if len(interaction_indices.shape) != 1:
             raise Exception("Interaction-indices must be a one-dimensional container.")
-        self.config.configureFusion(reaction_index, interaction_indices, inverse_partition, max_distr, radii_sum, reaction_radii_sum, mean_distr, inverse_temperature, radius_a, radius_b)
+        self.config.configureFusion(reaction_index, interaction_indices, inverse_partition, max_distr, radii_sum,
+                                    reaction_radii_sum, mean_distr, inverse_temperature, radius_a, radius_b)
 
     # wrapped world methods
     def delete_all_particles(self):
         """Remove particles from World object."""
         self.world.deleteAllParticles()
 
-    def add_particle(self,init_pos, particle_type_id):
+    def add_particle(self, init_pos, particle_type_id):
         """Create a particle of certain type at given position."""
         init_pos = np.array(init_pos)
-        if (init_pos.shape != (3,)):
+        if init_pos.shape != (3,):
             raise Exception("Initial position has the wrong shape.")
         self.world.addParticle(init_pos, particle_type_id)
 
     # wrapped simulation methods
     def run(self, steps, timestep=None):
         """Start the simulation."""
-        if (timestep is not None):
+        if timestep is not None:
             self.timestep = timestep
-        if (steps <= 0):
+        if steps <= 0:
             raise Exception("Number of timesteps must be positive.")
-        logging.info("Run with timestep "+str(self.timestep)+" and "+str(steps)+" timesteps")
+        logging.info("Run with timestep " + str(self.timestep) + " and " + str(steps) + " timesteps")
         t1 = time.clock()
         self.simulation.run(steps)
         t2 = time.clock()
-        logging.info("Finished after "+str(t2-t1)+" seconds.")
+        logging.info("Finished after " + str(t2 - t1) + " seconds.")
 
     def delete_all_observables(self):
         """Clean up the observables from Simulation object."""
@@ -230,10 +240,10 @@ class Sim(object):
 
         """
         ranges = np.array(ranges)
-        if (len(ranges.shape) != 1):
+        if len(ranges.shape) != 1:
             raise Exception("Ranges must be a one-dimensional container.")
         considered = np.array(considered, dtype=int)
-        if ( (len(considered.shape) != 2) | (considered.shape[1] != 2) ):
+        if (len(considered.shape) != 2) | (considered.shape[1] != 2):
             raise Exception("Considered types must have a shape of (n,2).")
         self.simulation.new_RadialDistribution(rec_period, filename, ranges, considered)
 
@@ -265,7 +275,7 @@ class Sim(object):
 
         """
         ranges = np.array(ranges)
-        if (len(ranges.shape) != 1):
+        if len(ranges.shape) != 1:
             raise Exception("Ranges must be a one-dimensional container.")
         if not np.array_equal(np.sort(ranges), ranges):
             raise Exception("Ranges must be sorted/monotonically increasing.")
@@ -306,25 +316,25 @@ class Sim(object):
         # particle species
         num_particle_types = self.config.getNumberParticleTypes()
         print("Number of species: \t", num_particle_types)
-        header = ["Id","Name","Radius","DiffusionConstant"]
+        header = ["Id", "Name", "Radius", "DiffusionConstant"]
         items = []
         for i in range(num_particle_types):
-            pType = [
+            ptype = [
                 i,
                 self.config.getParticleTypeName(i),
                 self.config.getParticleTypeRadius(i),
                 self.config.getParticleTypeDiffusionConstant(i)
             ]
-            linestr = map(str, pType)
+            linestr = map(str, ptype)
             items += [linestr]
-        if (len(items) != 0):
+        if len(items) != 0:
             pt.print_table(items, header=header)
             print(" ")
 
         # interactions
         num_interactions = self.config.getNumberInteractions()
         print("Number of interactions: ", num_interactions)
-        header = ["Id","Name","Type","AffectedTuple","Parameters","Cutoff"]
+        header = ["Id", "Name", "Type", "AffectedTuple", "Parameters", "Cutoff"]
         items = []
         for i in range(num_interactions):
             interaction = [
@@ -337,7 +347,7 @@ class Sim(object):
             ]
             linestr = map(str, interaction)
             items += [linestr]
-        if (len(items) != 0):
+        if len(items) != 0:
             pt.print_table(items, header=header)
             print(" ")
 
@@ -355,14 +365,14 @@ class Sim(object):
             ]
             linestr = map(str, geometry)
             items += [linestr]
-        if (len(items) != 0):
+        if len(items) != 0:
             pt.print_table(items, header=header)
             print(" ")
 
         # reactions
         num_reactions = self.config.getNumberReactions()
         print("Number of reactions: \t", num_reactions)
-        header = ["Id","Name","Type","ForwardTypes","BackwardTypes","ForwardRate","BackwardRate"]
+        header = ["Id", "Name", "Type", "ForwardTypes", "BackwardTypes", "ForwardRate", "BackwardRate"]
         items = []
         for i in range(num_reactions):
             reaction = [
@@ -376,13 +386,41 @@ class Sim(object):
             ]
             linestr = map(str, reaction)
             items += [linestr]
-        if (len(items) != 0):
+        if len(items) != 0:
             pt.print_table(items, header=header)
             print(" ")
 
     def show_world(self):
         """List particle positions and their typeIds, uniqueIds."""
-        pass
+        num_particles = self.world.getNumberOfParticles()
+        print("Number of particles: ", num_particles)
+        # count types
+        num_types = self.config.getNumberParticleTypes()
+        if num_types != 0:
+            types = [0] * num_types
+            for i in range(num_particles):
+                types[self.world.getTypeId(i)] += 1
+            items = []
+            for j in range(num_types):
+                linestr = [str(j), str(types[j])]
+                items += [linestr]
+            header = ["TypeId", "Number of particles"]
+            pt.print_table(items, header=header)
+            print(" ")
+        # print positions if there are at most 200 particles
+        if (num_particles < 201) and (num_particles != 0):
+            items = []
+            for i in range(num_particles):
+                pos = self.world.getPosition(i)
+                type_id = self.world.getTypeId(i)
+                unique_id = self.world.getUniqueId(i)
+                linestr = [str(unique_id), str(type_id), str(pos)]
+                items += [linestr]
+            header = ["UniqueId", "TypeId", "Position"]
+            pt.print_table(items, header=header)
+            print(" ")
+        else:
+            logging.info("There are either no particles or too much (>200) to list them here.")
 
     def show_simulation(self):
         pass
