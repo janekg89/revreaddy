@@ -15,7 +15,7 @@ CMAKE_FLAGS+=" -DCMAKE_RUNTIME_OUTPUT_DIRECTORY:STRING=."
 export HDF5_ROOT="/home/chris/miniconda2/envs/revreaddy"
 
 cmake ../.. $CMAKE_FLAGS
-make -j #VERBOSE=1
-make test -j #VERBOSE=1
+make -j4 #VERBOSE=1
+make test -j4 #VERBOSE=1
 #ctest -VV
 cd ../..

@@ -6,8 +6,6 @@ file(GLOB TEST_SOURCES *.cpp)
 
 link_directories(${GOOGLETEST_LIBRARY} ${GOOGLEMOCK_LIBRARY})
 
-message(STATUS ${Boost_LIBRARIES})
-
 # set target and link needed libraries
 add_executable(runTests ${TEST_SOURCES})
 add_dependencies(runTests ${REVREADDY_C_LIBRARY_NAME})
