@@ -42,6 +42,7 @@ public:
 	void new_Energy(unsigned long recPeriod, std::string filename);
 	void new_Acceptance(unsigned long recPeriod, std::string filename, bool reactionsOrDiffusion);
 	void new_ParticleNumbers(unsigned long recPeriod, std::string filename,	unsigned particleTypeId);
+	void new_Increments(unsigned long recPeriod, unsigned long clearPeriod, std::string filename, unsigned particleTypeId);
 
 private:
 	SimulationImpl * impl;

@@ -14,7 +14,6 @@ TrajectoryUnique::TrajectoryUnique(unsigned long inRecPeriod, unsigned long inCl
 }
 
 void TrajectoryUnique::setup(World * world, Config * config) {
-	//TODO get uniqueIds
 	numberOfParticles = world->particles.size();
 	for (auto&& p : world->particles) {
 		this->uniqueIds.push_back( p.uniqueId );

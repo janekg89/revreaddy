@@ -33,6 +33,7 @@ logging.basicConfig(
     level=logging.INFO)
 
 
+# noinspection PyArgumentList
 class Sim(object):
     """
     User interface class to setup and run simulations.
@@ -301,6 +302,14 @@ class Sim(object):
     def new_particle_numbers(self, rec_period, filename, particle_type_id):
         """Register an observable that records the number of particles."""
         self.simulation.new_ParticleNumbers(rec_period, filename, particle_type_id)
+
+    def new_increments(self, rec_period, clear_period, filename, particle_type_id):
+        """
+        Register an observable that calculates the displacements of particles.
+
+        It keeps track of the particles of type particle_type_id via their uniqueIds
+        which are saved at the first setup of the observable.
+        """
 
     # derived methods
     def show_config(self):

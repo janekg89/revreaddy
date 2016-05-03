@@ -37,7 +37,7 @@ void MeanSquaredDisplacement::record(World * world, double t) {
 	std::vector<double> squaredDisplacements;
 	double squaredDisplacement = 0.;
 	double mean = 0.;
-	int index = 0;
+	long index = 0;
 	unsigned int stillExisting = 0;
 	for (auto i=0; i < this->observedParticleIds.size(); i++) {
 		// check if particle still exists. if not: index = -1

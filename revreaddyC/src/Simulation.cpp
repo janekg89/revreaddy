@@ -49,3 +49,9 @@ void Simulation::new_Acceptance(unsigned long recPeriod, std::string filename, b
 void Simulation::new_ParticleNumbers(unsigned long recPeriod, std::string filename,	unsigned particleTypeId) {
 	impl->new_ParticleNumbers(recPeriod, filename, particleTypeId);
 }
+
+void Simulation::new_Increments(unsigned long recPeriod, unsigned long clearPeriod, std::string filename,
+								unsigned particleTypeId) {
+	impl->new_Increments(recPeriod, clearPeriod, filename, particleTypeId);
+}
+

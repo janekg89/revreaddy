@@ -39,13 +39,13 @@ std::string Random::getType() {
 	return str;
 }
 
-double Random::normal() { return gsl_ran_gaussian_ziggurat(this->randomGeneratorHandle, 1.0); }
+double Random::normal() { return gsl_ran_ugaussian(this->randomGeneratorHandle); }
 
 std::vector<double> Random::normal3D() {
 	std::vector<double> randomArray = {0.,0.,0.};
-	randomArray[0] = gsl_ran_gaussian_ziggurat(this->randomGeneratorHandle,1.0);
-	randomArray[1] = gsl_ran_gaussian_ziggurat(this->randomGeneratorHandle,1.0);
-	randomArray[2] = gsl_ran_gaussian_ziggurat(this->randomGeneratorHandle,1.0);
+	randomArray[0] = gsl_ran_ugaussian(this->randomGeneratorHandle);
+	randomArray[1] = gsl_ran_ugaussian(this->randomGeneratorHandle);
+	randomArray[2] = gsl_ran_ugaussian(this->randomGeneratorHandle);
 	return randomArray;
 }
 

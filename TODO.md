@@ -3,7 +3,7 @@
 * SimulationImpl child that propagates single moves with a=1
 * sample reaction distance from discrete probability distribution. -> new Fusion variant.
 * clean up Fusion reaction
-* revreaddy.py -> show_world(), show_simulation().
+* revreaddy.py ->  show_simulation().
 
 #### integration tests:
 * correct force and energy calculation for soft, lj interaction for a system of few particles

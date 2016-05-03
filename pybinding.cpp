@@ -405,6 +405,11 @@ public:
 	void new_ParticleNumbers(unsigned long recPeriod, std::string filename,	unsigned particleTypeId) {
 		this->simulation->new_ParticleNumbers(recPeriod, filename, particleTypeId);
 	}
+
+	void new_Increments(unsigned long recPeriod, unsigned long clearPeriod, std::string filename, unsigned
+    particleTypeid) {
+        this->simulation->new_Increments(recPeriod, clearPeriod, filename, particleTypeid);
+    }
 };
 
 using namespace boost::python;
@@ -477,5 +482,6 @@ BOOST_PYTHON_MODULE(revreaddyPy) {
 		.def("new_ProbabilityDensity", &SimulationWrap::new_ProbabilityDensity)
 		.def("new_Energy", &SimulationWrap::new_Energy)
 		.def("new_Acceptance", &SimulationWrap::new_Acceptance)
-		.def("new_ParticleNumbers", &SimulationWrap::new_ParticleNumbers);
+		.def("new_ParticleNumbers", &SimulationWrap::new_ParticleNumbers)
+        .def("new_Increments", &SimulationWrap::new_Increments);
 };

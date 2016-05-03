@@ -140,6 +140,16 @@ void SimulationImpl::new_ParticleNumbers(unsigned long recPeriod, std::string fi
 	this->observables.push_back(std::move(par));
 }
 
+void SimulationImpl::new_Increments(unsigned long recPeriod, unsigned long clearPeriod, std::string filename,
+									unsigned particleTypeId) {
+    std::unique_ptr<Increments> inc = make_unique<Increments>(
+            recPeriod,
+            clearPeriod,
+            filename,
+            particleTypeId);
+    this->observables.push_back(std::move(inc));
+}
+
 void SimulationImpl::run(const unsigned long maxTime) {
 	config->configureReactions();
 	if (config->interactions.empty() && config->reactions.empty()) {
@@ -155,11 +165,8 @@ void SimulationImpl::run(const unsigned long maxTime) {
 	this->calculateInteractionForcesEnergies();
 	this->calculateGeometryForcesEnergies();
 	this->recordObservables(0);
-//	double acceptance = 1.;
-	bool isStepAccepted = true;
 	for (unsigned long timeIndex = 0; timeIndex < maxTime; ++timeIndex) {
 		/* Diffusion */
-//		this->saveOldState();
 		this->propagateDiffusion(); // propose
 		this->resetForces();
 		this->resetReactionCandidates();
@@ -168,18 +175,8 @@ void SimulationImpl::run(const unsigned long maxTime) {
 			this->calculateInteractionForcesEnergies(); // calculate energy and force
 		}
 		this->calculateGeometryForcesEnergies();
-/*		acceptance = this->acceptanceDiffusion();
-		world->acceptProbDiffusion = acceptance;
-		isStepAccepted = this->acceptOrReject(acceptance);
-		if (true && ( ! isStepAccepted ) ) {
-			this->restoreOldState();
-			world->rejectionsDiffusion += 1;
-		}
-		else { world->acceptionsDiffusion += 1; }
-*/
 		/* Reactions */
-//		this->saveOldState();
-		/*acceptance = */this->propagateReactions();
+		this->propagateReactions();
 		this->resetForces();
 		this->resetReactionCandidates();
 		world->energy = 0.;
@@ -187,15 +184,7 @@ void SimulationImpl::run(const unsigned long maxTime) {
 			this->calculateInteractionForcesEnergies();
 		}
 		this->calculateGeometryForcesEnergies();
-/*		acceptance *= this->acceptanceReactions();
-		world->acceptProbReactions = acceptance;
-		isStepAccepted = this->acceptOrReject(acceptance);
-		if (true && ( ! isStepAccepted ) ) {
-			this->restoreOldState();
-			world->rejectionsReactions += 1;
-		}
-		else { world->acceptionsReactions += 1; }
-*/
+
 		/* Advance clock */
 		world->cumulativeRuntime += config->timestep;
 		/* +1 because recordObservables(0) was called already before the run.
