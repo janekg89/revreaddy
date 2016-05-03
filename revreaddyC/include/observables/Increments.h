@@ -20,6 +20,7 @@ public:
     void writeToH5();
     void writeToDat();
 private:
+    bool firstRun;
     double boxsize;
     unsigned particleTypeId;
     unsigned long numberOfParticles;

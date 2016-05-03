@@ -15,6 +15,7 @@ Increments::Increments(unsigned long inRecPeriod, unsigned long inClearPeriod, s
     observableTypeName = "Increments";
     particleTypeId = pTypeId;
     isSetup = false;
+    firstRun = true;
 }
 
 void Increments::setup(World *world, Config *config) {
@@ -37,9 +38,17 @@ void Increments::setup(World *world, Config *config) {
 void Increments::configure(World *world, Config *config) {
     /* keep track of boxsize that might have changed. */
     boxsize = config->boxsize;
+    // set to true so that first recording event is skipped
+    firstRun = true;
 }
 
 void Increments::record(World *world, double t) {
+    // if this is run the first time after configure, then a displacement makes no sense
+    // therefore skip the first recording event
+    if (firstRun) {
+        firstRun = false;
+        return;
+    }
     Snapshot snapshot;
     snapshot.time = t;
     snapshot.exists.resize(numberOfParticles);
@@ -95,8 +104,8 @@ void Increments::writeToH5() {
     if ( boost::filesystem::exists(path) ) {
         this->appendToH5();
     }
-        // if file does not exist, create it and write datasets to i
-        // chunksize of file depends on clearPeriod. one chunk of position is [clearPeriod, N, 3]
+    // if file does not exist, create it and write datasets to i
+    // chunksize of file depends on clearPeriod. one chunk of position is [clearPeriod, N, 3]
     else {
         this->writeToNewH5();
     }
