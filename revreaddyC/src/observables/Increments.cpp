@@ -52,17 +52,20 @@ void Increments::record(World *world, double t) {
     Snapshot snapshot;
     snapshot.time = t;
     snapshot.exists.resize(numberOfParticles);
-    snapshot.increments.resize(numberOfParticles);
+    snapshot.incrementsX.resize(numberOfParticles);
+    snapshot.incrementsY.resize(numberOfParticles);
+    snapshot.incrementsZ.resize(numberOfParticles);
     std::vector<double> displacement = {0.,0.,0.};
     std::vector<long> relativeBoxCoordinates = {0,0,0};
-    double squaredDisplacement;
     for (auto i=0; i<uniqueIds.size(); ++i) {
         if ( stillExists[i] ) {
             auto index = this->findParticleIndex(world->particles, uniqueIds[i]);
             if (index == -1) { //particle not found
                 stillExists[i] = false;
                 snapshot.exists[i] = false;
-                snapshot.increments[i] = 0.;
+                snapshot.incrementsX[i] = 0.;
+                snapshot.incrementsY[i] = 0.;
+                snapshot.incrementsZ[i] = 0.;
             } else { // particle does exist
                 snapshot.exists[i] = true;
                 // find increment of particle with uniqueId[i]/index
@@ -81,17 +84,18 @@ void Increments::record(World *world, double t) {
                 displacement[2] = (double) relativeBoxCoordinates[2] * this->boxsize
                         + world->particles[index].position[2]
                         - lastPositions[i].position[2];
-                squaredDisplacement = displacement[0]*displacement[0]
-                                    + displacement[1]*displacement[1]
-                                    + displacement[2]*displacement[2];
-                snapshot.increments[i] = squaredDisplacement;
+                snapshot.incrementsX[i] = displacement[0];
+                snapshot.incrementsY[i] = displacement[1];
+                snapshot.incrementsZ[i] = displacement[2];
                 // set lastPositions
                 this->lastPositions[i].position = world->particles[index].position;
                 this->lastPositions[i].boxCoordinates = world->particles[index].boxCoordinates;
             }
         } else { // particle is known not to exist
             snapshot.exists[i] = false;
-            snapshot.increments[i] = 0.;
+            snapshot.incrementsX[i] = 0.;
+            snapshot.incrementsY[i] = 0.;
+            snapshot.incrementsZ[i] = 0.;
         }
     }
     // append to increments Traj
@@ -120,7 +124,7 @@ void Increments::writeToNewH5() {
     auto T = incrementsTrajectory.size();
     auto N = numberOfParticles;
     // buffer time dependent data here
-    boost::multi_array<double,2> increments(boost::extents[T][N]);
+    boost::multi_array<double,3> increments(boost::extents[T][N][3]);
     boost::multi_array<int,2> exists(boost::extents[T][N]);
     std::vector<double> times;
     bufferTimeDependentData(increments, exists, times);
@@ -134,19 +138,20 @@ void Increments::writeToNewH5() {
     this->incrementsTrajectory.clear();
 }
 
-void Increments::bufferTimeDependentData(boost::multi_array<double, 2> &increments, boost::multi_array<int, 2> &exists,
+void Increments::bufferTimeDependentData(boost::multi_array<double, 3> &increments, boost::multi_array<int, 2> &exists,
                                          std::vector<double> &times) {
     for (auto i=0; i<incrementsTrajectory.size(); ++i) {
         times.push_back( incrementsTrajectory[i].time );
         for (auto j=0; j<numberOfParticles; ++j) {
-            increments[i][j] = incrementsTrajectory[i].increments[j];
+            increments[i][j][0] = incrementsTrajectory[i].incrementsX[j];
+            increments[i][j][1] = incrementsTrajectory[i].incrementsY[j];
+            increments[i][j][2] = incrementsTrajectory[i].incrementsZ[j];
             /* hdf5 supports no boolean. Therefore: 0 -false, 1 - true */
             if (incrementsTrajectory[i].exists[j]) {
                 exists[i][j] = 1;
             } else {
                 exists[i][j] = 0;
             }
-
         }
     }
 }
@@ -156,7 +161,7 @@ void Increments::appendToH5() {
     auto T = incrementsTrajectory.size();
     auto N = numberOfParticles;
     // buffer time dependent data
-    boost::multi_array<double,2> increments(boost::extents[T][N]);
+    boost::multi_array<double,3> increments(boost::extents[T][N][3]);
     boost::multi_array<int,2> exists(boost::extents[T][N]);
     std::vector<double> times;
     bufferTimeDependentData(increments, exists, times);

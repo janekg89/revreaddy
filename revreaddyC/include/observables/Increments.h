@@ -34,7 +34,9 @@ private:
     std::vector<PositionTuple> lastPositions;
     // the increments that are extracted during one record()
     struct Snapshot {
-        std::vector<double> increments;
+        std::vector<double> incrementsX;
+        std::vector<double> incrementsY;
+        std::vector<double> incrementsZ;
         std::vector<bool> exists;
         double time;
     };
@@ -45,7 +47,7 @@ private:
 
     void writeToNewH5();
 
-    void bufferTimeDependentData(boost::multi_array<double, 2> &increments, boost::multi_array<int, 2> &exists,
+    void bufferTimeDependentData(boost::multi_array<double, 3> &increments, boost::multi_array<int, 2> &exists,
                                  std::vector<double> &times);
 
     void appendToH5();

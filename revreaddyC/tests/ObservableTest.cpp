@@ -248,18 +248,16 @@ TEST_F(ObservableTest, IncrementsRunAndSaveToFile) {
     // increments observable
     s.new_Increments(1, 30, "increments_test.h5", 0);
     // run
-    LOG_DEBUG("before run")
     s.run(10);
-    LOG_DEBUG("after run")
     s.writeAllObservablesToFile();
-    LOG_DEBUG("after writing")
     // check h5 files
     hid_t fileId = H5Fopen("increments_test.h5", H5F_ACC_RDONLY, H5P_DEFAULT);
-    hsize_t dims[2];
+    hsize_t dims[3];
     H5LTget_dataset_info(fileId, "/increments", dims, NULL, NULL);
     EXPECT_EQ(dims[0], 10) << "expect 10 timesteps";
-    EXPECT_EQ(dims[1], 3) << "and 3 particles";
-    double incs[9][3];
+	EXPECT_EQ(dims[1], 3) << "and 3 particles";
+	EXPECT_EQ(dims[2], 3) << "and 3 coordinates";
+    double incs[10][3][3];
     H5LTread_dataset(fileId, "/increments", H5T_NATIVE_DOUBLE, incs);
-
+	H5Fclose(fileId);
 }

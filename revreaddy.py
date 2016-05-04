@@ -309,7 +309,9 @@ class Sim(object):
 
         It keeps track of the particles of type particle_type_id via their uniqueIds
         which are saved at the first setup of the observable.
+
         """
+        self.simulation.new_Increments(rec_period, clear_period, filename, particle_type_id)
 
     # derived methods
     def show_config(self):
