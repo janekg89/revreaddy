@@ -175,7 +175,7 @@ class Sim(object):
     def new_fusion(self, name, forward_type_a, forward_type_b, backward_type_c, forward_rate, backward_rate,
                    reaction_distance):
         """Register a new fusion reaction to the config."""
-        self.config.new_fusion(name, forward_type_a, forward_type_b, backward_type_c, forward_rate, backward_rate,
+        self.config.new_Fusion(name, forward_type_a, forward_type_b, backward_type_c, forward_rate, backward_rate,
                                reaction_distance)
 
     # TODO WIP this only exists as long as fusion is configured manually
