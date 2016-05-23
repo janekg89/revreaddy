@@ -82,6 +82,11 @@ TEST_F(SimulationTest, naiveVsNeighborlistForces) {
     delete s2.neighborlist;
 }
 
+// check unimolecular reaction types configured correctly
+TEST_F(SimulationTest, unimolecularReactionTypes) {
+
+}
+
 // correct forces and energies for soft, lj interaction of few particles
 // check saving loading state/oldState
 // check calculation of acceptances !!

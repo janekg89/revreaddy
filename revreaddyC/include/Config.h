@@ -89,8 +89,6 @@ public:
 		std::vector<unsigned> interactionsIndices,
 		double inversePartition,
 		double maxDistr,
-		double radiiSum,
-		double reactionRadiiSum,
 		double meanDistr,
 		double inverseTemperature,
 		double radiusA,

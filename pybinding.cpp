@@ -185,7 +185,7 @@ public:
 		this->config->new_Fusion(name, forwardTypeA, forwardTypeB, backwardTypeC, forwardRate, backwardRate, reactionDistance);
 	}
 	// TODO this is WIP as long as Fusion is configured manually
-	void configureFusion(unsigned reactionIndex, bp::numeric::array interactionsIndices, double inversePartition, double maxDistr, double radiiSum, double reactionRadiiSum, double meanDistr, double inverseTemperature, double radiusA, double radiusB) {
+	void configureFusion(unsigned reactionIndex, bp::numeric::array interactionsIndices, double inversePartition, double maxDistr, double meanDistr, double inverseTemperature, double radiusA, double radiusB) {
 		std::vector<unsigned> interactionsIndicesConverted;
 		try {
 			for (unsigned i=0; i<bp::len(interactionsIndices); ++i) {
@@ -194,9 +194,9 @@ public:
 		} catch (...) {
 			LOG_ERROR("Exception in accessing bp::numeric::array in configureFusion.")
 			LOG_INFO("Fusion is not configured.")
-			return;			
+			return;
 		}
-		this->config->configureFusion(reactionIndex, interactionsIndicesConverted, inversePartition, maxDistr, radiiSum, reactionRadiiSum, meanDistr, inverseTemperature, radiusA, radiusB);
+		this->config->configureFusion(reactionIndex, interactionsIndicesConverted, inversePartition, maxDistr, meanDistr, inverseTemperature, radiusA, radiusB);
 	}
 	unsigned getNumberReactions() {
 		return this->config->getNumberReactions();

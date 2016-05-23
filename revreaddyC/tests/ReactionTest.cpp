@@ -67,4 +67,40 @@ TEST_F(ReactionTest, EnzymaticCandidatesAndPerform) {
                                                                                         "old pos";
 }
 
+TEST_F(ReactionTest, ConversionIsAffected) {
+    std::vector<unsigned> forwardTypes = {0};
+    std::vector<unsigned> backwardTypes = {1};
+    Conversion conv("conv", forwardTypes, backwardTypes, 0.1, 0.2);
+    EXPECT_TRUE(conv.isAffectedForward(0)) << "forward type is 0";
+    EXPECT_TRUE(conv.isAffectedBackward(1)) << "backward type is 1";
+    EXPECT_TRUE(conv.isAffectedForward(forwardTypes));
+    EXPECT_TRUE(conv.isAffectedBackward(backwardTypes));
+    EXPECT_FALSE(conv.isAffectedForward(backwardTypes));
+    EXPECT_FALSE(conv.isAffectedBackward(forwardTypes));
+    EXPECT_EQ(conv.forwardRate, 0.1);
+    EXPECT_EQ(conv.backwardRate, 0.2);
+}
+
+TEST_F(ReactionTest, ConversionCandidatesAndPerform) {
+    World w; Config c; SimulationImpl s(&w, &c);
+    c.new_Type("A", 1., 1.);
+    c.new_Type("B", 1., 1.);
+    c.new_Conversion("convers", 0, 1, 1., 0.2);
+    std::vector<double> posA = {0.,0.,0.};
+    w.addParticle(posA, 0);
+    s.setupUnimolecularCandidateTypes();
+    EXPECT_EQ(s.unimolecularCandidateTypes.size(), 2);
+    EXPECT_EQ(s.unimolecularCandidateTypes[0].reactionId, 0);
+    EXPECT_EQ(s.unimolecularCandidateTypes[0].forwardOrBackward, true);
+    EXPECT_EQ(s.unimolecularCandidateTypes[0].particleTypeId, 0);
+    EXPECT_EQ(s.unimolecularCandidateTypes[1].reactionId, 0);
+    EXPECT_EQ(s.unimolecularCandidateTypes[1].forwardOrBackward, false);
+    EXPECT_EQ(s.unimolecularCandidateTypes[1].particleTypeId, 1);
+    c.timestep = 1.;
+    // tau = 1, k=1 --> conversion must be performed
+    s.propagateReactions();
+    EXPECT_THAT(w.particles[0].position, ::testing::ElementsAre(0.,0.,0.));
+    EXPECT_EQ(w.particles[0].typeId, 1);
+}
+
 // the same for conversion and fusion

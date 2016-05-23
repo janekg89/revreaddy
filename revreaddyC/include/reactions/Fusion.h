@@ -37,10 +37,6 @@ public:
 	 * drawing from that distribution. Must be set correctly 
 	 * from the outside */
 	double maxDistr;
-	/* Sum of the radii of particles A and B */
-	double radiiSum;
-	/* Sum of the reactionRadii of particles A and B */
-	double reactionRadiiSum;
 	/* The mean value of the distribution is returned if no
 	 * random value could be successfully drawn */
 	double meanDistr;
@@ -52,6 +48,7 @@ public:
 	double radiusB;
 	double weightA;
 	double weightB;
+    double radiiSum;
 	bool isPeriodic;
 	double boxsize;
 	/* configure() sets the parameters that depend on
@@ -60,8 +57,6 @@ public:
 		std::vector< std::shared_ptr<ParticleInteraction> > inInteractions,	
 		double inInversePartition,
 		double inMaxDistr,
-		double inRadiiSum,
-		double inReactionRadiiSum,
 		double inMeanDistr,
 		double inInverseTemperature,
 		double inRadiusA,

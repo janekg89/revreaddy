@@ -211,7 +211,10 @@ void SimulationImpl::configureNeighborlist() {
 	// check reaction distances
 	for (unsigned i=0; i<config->reactions.size(); ++i) {
 		if (config->reactions[i]->reactionDistance < minimalLength) {
-			minimalLength = config->reactions[i]->reactionDistance;
+            // Conversion shall not be considered here
+			if (config->reactions[i]->type != "Conversion") {
+                minimalLength = config->reactions[i]->reactionDistance;
+            }
 		}
 	}
 	double counter = 1.;
@@ -229,7 +232,7 @@ void SimulationImpl::configureNeighborlist() {
 		this->useNeighborlist = false;
         LOG_INFO("Neighborlist was not created.")
         LOG_WARNING("Setting useNeighborlist to false. When re running you might want to set it to true again.")
-	}	
+}
 }
 
 void SimulationImpl::setupUnimolecularCandidateTypes() {

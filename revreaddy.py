@@ -166,10 +166,10 @@ class Sim(object):
         """Register a new conversion reaction to the config."""
         self.config.new_Conversion(name, forward_type, backward_type, forward_rate, backward_rate)
 
-    def new_enzymatic(self, name, forward_type_a, backward_type_b, catalysy_type_c, forward_rate, backward_rate,
+    def new_enzymatic(self, name, forward_type_a, backward_type_b, catalyst_type_c, forward_rate, backward_rate,
                       reaction_distance):
         """Register a new enzymatic reaction to the config."""
-        self.config.new_Enzymatic(name, forward_type_a, backward_type_b, catalysy_type_c, forward_rate,
+        self.config.new_Enzymatic(name, forward_type_a, backward_type_b, catalyst_type_c, forward_rate,
                                   backward_rate, reaction_distance)
 
     def new_fusion(self, name, forward_type_a, forward_type_b, backward_type_c, forward_rate, backward_rate,
@@ -179,13 +179,13 @@ class Sim(object):
                                reaction_distance)
 
     # TODO WIP this only exists as long as fusion is configured manually
-    def configure_fusion(self, reaction_index, interaction_indices, inverse_partition, max_distr, radii_sum,
-                         reaction_radii_sum, mean_distr, inverse_temperature, radius_a, radius_b):
+    def configure_fusion(self, reaction_index, interaction_indices, inverse_partition, max_distr,
+                         mean_distr, inverse_temperature, radius_a, radius_b):
         interaction_indices = np.array(interaction_indices, dtype=int)
         if len(interaction_indices.shape) != 1:
             raise Exception("Interaction-indices must be a one-dimensional container.")
-        self.config.configureFusion(reaction_index, interaction_indices, inverse_partition, max_distr, radii_sum,
-                                    reaction_radii_sum, mean_distr, inverse_temperature, radius_a, radius_b)
+        self.config.configureFusion(reaction_index, interaction_indices, inverse_partition, max_distr, mean_distr,
+                                    inverse_temperature, radius_a, radius_b)
 
     # wrapped world methods
     def delete_all_particles(self):
