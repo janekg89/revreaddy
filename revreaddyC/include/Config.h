@@ -87,7 +87,7 @@ public:
 	void configureFusion(
 		unsigned reactionIndex,
 		std::vector<unsigned> interactionsIndices,
-		double inversePartition,
+		//double inversePartition,
 		double maxDistr,
 		double meanDistr,
 		double inverseTemperature,

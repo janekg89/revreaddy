@@ -30,7 +30,7 @@ Fusion::~Fusion()
 
 void Fusion::configure(
 	std::vector< std::shared_ptr<ParticleInteraction> > inInteractions,
-	double inInversePartition,
+	//double inInversePartition,
 	double inMaxDistr,
 	double inMeanDistr,
 	double inInverseTemperature,
@@ -40,7 +40,7 @@ void Fusion::configure(
 	double inBoxsize)
 {
 	this->interactions = inInteractions;
-	this->inversePartition = inInversePartition;
+	//this->inversePartition = inInversePartition;
 	this->maxDistr = inMaxDistr;
 	this->meanDistr = inMeanDistr;
 	this->inverseTemperature = inInverseTemperature;
@@ -161,7 +161,7 @@ double Fusion::distribution(double x) {
 			this->radiiSum * this->radiiSum); // sum of radii squared
 	}
 	result = exp(- this->inverseTemperature * result);
-	result *= this->inversePartition;
+	//result *= this->inversePartition;
 	return result;
 }
 

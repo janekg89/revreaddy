@@ -32,7 +32,7 @@ public:
 	/* inverse partition function value for drawing the distance
 	 * of A and B particle after backward reaction, must be 
 	 * correctly set according to the interaction between A and B */
-	double inversePartition;
+	// double inversePartition;
 	/* The maximum of the probability distribution is needed for
 	 * drawing from that distribution. Must be set correctly 
 	 * from the outside */
@@ -55,7 +55,7 @@ public:
 	 * energy functions of particle interactions */
 	void configure(
 		std::vector< std::shared_ptr<ParticleInteraction> > inInteractions,	
-		double inInversePartition,
+		//double inInversePartition,
 		double inMaxDistr,
 		double inMeanDistr,
 		double inInverseTemperature,

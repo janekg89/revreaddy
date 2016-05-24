@@ -179,12 +179,16 @@ class Sim(object):
                                reaction_distance)
 
     # TODO WIP this only exists as long as fusion is configured manually
-    def configure_fusion(self, reaction_index, interaction_indices, inverse_partition, max_distr,
+    def configure_fusion(self, reaction_index, interaction_indices,
+                         # inverse_partition,
+                         max_distr,
                          mean_distr, inverse_temperature, radius_a, radius_b):
         interaction_indices = np.array(interaction_indices, dtype=int)
         if len(interaction_indices.shape) != 1:
             raise Exception("Interaction-indices must be a one-dimensional container.")
-        self.config.configureFusion(reaction_index, interaction_indices, inverse_partition, max_distr, mean_distr,
+        self.config.configureFusion(reaction_index, interaction_indices,
+                                    #inverse_partition,
+                                    max_distr, mean_distr,
                                     inverse_temperature, radius_a, radius_b)
 
     # wrapped world methods
