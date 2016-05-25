@@ -152,6 +152,7 @@ void SimulationImpl::new_Increments(unsigned long recPeriod, unsigned long clear
 
 void SimulationImpl::run(const unsigned long maxTime) {
 	config->configureReactions();
+	this->skipPairInteractionsReactions = false;
 	if (config->interactions.empty() && config->reactions.empty()) {
 		this->skipPairInteractionsReactions = true;
 	}
@@ -197,6 +198,9 @@ void SimulationImpl::run(const unsigned long maxTime) {
     unimolecularCandidateTypes.clear();
     if (this->useNeighborlist) {
         delete this->neighborlist;
+    } else {
+        // @todo resolve this. useNeighborlist shall be the internal flag, add another external which doesnt change
+        this->useNeighborlist = true;
     }
 }
 
