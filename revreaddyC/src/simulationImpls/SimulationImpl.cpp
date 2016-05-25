@@ -157,7 +157,7 @@ void SimulationImpl::run(const unsigned long maxTime) {
 		this->skipPairInteractionsReactions = true;
 	}
 	if (this->useNeighborlist && ( !this->skipPairInteractionsReactions ) ) { this->configureNeighborlist(); }
-	else { this->useNeighborlist = false; }
+	else { this->useNeighborlistThisRun = false; }
 	this->setupUnimolecularCandidateTypes();
 	this->configureAndSetupObservables();
 	this->resetForces();
@@ -196,11 +196,8 @@ void SimulationImpl::run(const unsigned long maxTime) {
 	}
 	// clean up after run
     unimolecularCandidateTypes.clear();
-    if (this->useNeighborlist) {
+    if (this->useNeighborlistThisRun) {
         delete this->neighborlist;
-    } else {
-        // @todo resolve this. useNeighborlist shall be the internal flag, add another external which doesnt change
-        this->useNeighborlist = true;
     }
 }
 
@@ -228,14 +225,13 @@ void SimulationImpl::configureNeighborlist() {
 		counter += 1.;
 	}
 	if (numberBoxes > 3) {
-		this->useNeighborlist = true; // actually obsolete
+		this->useNeighborlistThisRun = true;
 		this->neighborlist = new Neighborlist( numberBoxes );
         LOG_INFO("Neighborlist was created with " << numberBoxes << " boxes in every dimension.")
 	}
 	else {
-		this->useNeighborlist = false;
+		this->useNeighborlistThisRun = false;
         LOG_INFO("Neighborlist was not created.")
-        LOG_WARNING("Setting useNeighborlist to false. When re running you might want to set it to true again.")
 }
 }
 
@@ -434,7 +430,7 @@ void SimulationImpl::recordObservables(unsigned long timeIndex) {
 }
 
 void SimulationImpl::calculateInteractionForcesEnergies() {
-	if ( this->useNeighborlist ) {
+	if ( this->useNeighborlistThisRun ) {
 		this->calculateInteractionForcesEnergiesWithLattice();
 	}
 	else {

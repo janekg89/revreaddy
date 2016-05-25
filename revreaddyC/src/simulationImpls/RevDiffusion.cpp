@@ -17,11 +17,12 @@ RevDiffusion::RevDiffusion(World * inWorld, Config * inConfig) {
 void RevDiffusion::run(const unsigned long maxTime) {
 	LOG_INFO("Start run() of RevDiffusion implementation.");
 	config->configureReactions();
+	this->skipPairInteractionsReactions = false;
 	if (config->interactions.empty() && config->reactions.empty()) {
 		this->skipPairInteractionsReactions = true;
 	}
 	if (this->useNeighborlist && ( !this->skipPairInteractionsReactions ) ) { this->configureNeighborlist(); }
-	else { this->useNeighborlist = false; }
+	else { this->useNeighborlistThisRun = false; }
 	this->setupUnimolecularCandidateTypes();
 	this->configureAndSetupObservables();
 	this->resetForces();
@@ -70,7 +71,7 @@ void RevDiffusion::run(const unsigned long maxTime) {
 	}
 	// clean up after run
 	unimolecularCandidateTypes.clear();
-    if (this->useNeighborlist) {
+    if (this->useNeighborlistThisRun) {
         delete this->neighborlist;
     }
 }
