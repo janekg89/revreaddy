@@ -39,8 +39,9 @@ public:
 	SimulationImpl(World * inWorld, Config * inConfig);
 	SimulationImpl(); // default constructor if child is created
 	~SimulationImpl();
-	/* Start the simulation. Iterate for maxTime timesteps.*/
-	void run(const unsigned long maxTime);
+	/* Start the simulation. Iterate for maxTime timesteps. It is virtual
+	 * such that children can override it. */
+	virtual void run(const unsigned long maxTime);
 
 	/* World stores positions of particles and other variables
 	 * that change during the simulation. Config stores information
