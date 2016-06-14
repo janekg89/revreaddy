@@ -10,18 +10,18 @@ RevDiffusionRevReactions::RevDiffusionRevReactions(World * inWorld, Config * inC
 	this->forceJ = {0.,0.,0.};
 	this->r_ij = {0.,0.,0.};
 	this->useNeighborlist = true;
-	this->neighborlistConfigured = false;
 	this->skipPairInteractionsReactions = false;
 	LOG_TRACE("Leave RevDiffusionRevReactions constructor")
 }
 
 void RevDiffusionRevReactions::run(const unsigned long maxTime) {
 	config->configureReactions();
+	this->skipPairInteractionsReactions = false;
 	if (config->interactions.empty() && config->reactions.empty()) {
 		this->skipPairInteractionsReactions = true;
 	}
 	if (this->useNeighborlist && ( !this->skipPairInteractionsReactions ) ) { this->configureNeighborlist(); }
-	else { this->useNeighborlist = false; }
+	else { this->useNeighborlistThisRun = false; }
 	this->setupUnimolecularCandidateTypes();
 	this->configureAndSetupObservables();
 	this->resetForces();
@@ -75,4 +75,9 @@ void RevDiffusionRevReactions::run(const unsigned long maxTime) {
 		world->cumulativeRuntime += config->timestep;
 		this->recordObservables(timeIndex + 1);
 	}
+	// clean up after run
+	unimolecularCandidateTypes.clear();
+    if (this->useNeighborlistThisRun) {
+        delete this->neighborlist;
+    }
 }

@@ -120,3 +120,53 @@ TEST_F(ConfigUnittest, deleteAllInteractions) {
 	c.deleteAllInteractions();
 	EXPECT_EQ(c.interactions.size(), 0);
 }
+
+TEST_F(ConfigUnittest, new_Conversion) {
+	Config c;
+    c.new_Type("A", 1., 1.);
+    c.new_Type("B", 1., 1.);
+    // A <--> B
+	c.new_Conversion("conv", 0, 1, 0.2, 0.5);
+    EXPECT_EQ(c.reactions.size(), 1);
+    EXPECT_THAT(c.reactions[0]->forwardTypes, ::testing::ElementsAre(0));
+    EXPECT_THAT(c.reactions[0]->backwardTypes, ::testing::ElementsAre(1));
+    EXPECT_EQ(c.reactions[0]->forwardRate, 0.2);
+    EXPECT_EQ(c.reactions[0]->backwardRate, 0.5);
+    EXPECT_EQ(c.reactions[0]->name, "conv");
+    EXPECT_EQ(c.reactions[0]->type, "Conversion");
+}
+
+TEST_F(ConfigUnittest, new_Fusion) {
+    Config c;
+    c.new_Type("A", 1., 1.);
+    c.new_Type("B", 1., 1.);
+    c.new_Type("C", 1., 1.);
+    // A + B <--> C
+    c.new_Fusion("fusi", 0, 1, 2, 0.3, 0.1, 3.);
+    EXPECT_EQ(c.reactions.size(), 1);
+    EXPECT_THAT(c.reactions[0]->forwardTypes, ::testing::ElementsAre(0,1));
+    EXPECT_THAT(c.reactions[0]->backwardTypes, ::testing::ElementsAre(2));
+    EXPECT_EQ(c.reactions[0]->forwardRate, 0.3);
+    EXPECT_EQ(c.reactions[0]->backwardRate, 0.1);
+    EXPECT_EQ(c.reactions[0]->reactionDistance, 3.);
+    EXPECT_EQ(c.reactions[0]->name, "fusi");
+    EXPECT_EQ(c.reactions[0]->type, "Fusion");
+}
+
+TEST_F(ConfigUnittest, new_Enzymatic) {
+    Config c;
+    c.new_Type("A", 1., 1.);
+    c.new_Type("B", 1., 1.);
+    c.new_Type("C", 1., 1.);
+    // A + C <--> B + C
+    c.new_Enzymatic("enz", 0, 1, 2, 0.2, 0.6, 4.);
+    EXPECT_EQ(c.reactions.size(), 1);
+    EXPECT_THAT(c.reactions[0]->forwardTypes, ::testing::ElementsAre(0,2));
+    EXPECT_THAT(c.reactions[0]->backwardTypes, ::testing::ElementsAre(1,2));
+    EXPECT_EQ(c.reactions[0]->forwardRate, 0.2);
+    EXPECT_EQ(c.reactions[0]->backwardRate, 0.6);
+    EXPECT_EQ(c.reactions[0]->reactionDistance, 4.);
+    EXPECT_EQ(c.reactions[0]->name, "enz");
+    EXPECT_EQ(c.reactions[0]->type, "Enzymatic");
+}
+

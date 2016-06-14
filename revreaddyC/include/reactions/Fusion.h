@@ -32,15 +32,11 @@ public:
 	/* inverse partition function value for drawing the distance
 	 * of A and B particle after backward reaction, must be 
 	 * correctly set according to the interaction between A and B */
-	double inversePartition;
+	// double inversePartition;
 	/* The maximum of the probability distribution is needed for
 	 * drawing from that distribution. Must be set correctly 
 	 * from the outside */
 	double maxDistr;
-	/* Sum of the radii of particles A and B */
-	double radiiSum;
-	/* Sum of the reactionRadii of particles A and B */
-	double reactionRadiiSum;
 	/* The mean value of the distribution is returned if no
 	 * random value could be successfully drawn */
 	double meanDistr;
@@ -52,16 +48,15 @@ public:
 	double radiusB;
 	double weightA;
 	double weightB;
+    double radiiSum;
 	bool isPeriodic;
 	double boxsize;
 	/* configure() sets the parameters that depend on
 	 * energy functions of particle interactions */
 	void configure(
 		std::vector< std::shared_ptr<ParticleInteraction> > inInteractions,	
-		double inInversePartition,
+		//double inInversePartition,
 		double inMaxDistr,
-		double inRadiiSum,
-		double inReactionRadiiSum,
 		double inMeanDistr,
 		double inInverseTemperature,
 		double inRadiusA,

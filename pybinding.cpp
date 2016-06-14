@@ -185,7 +185,9 @@ public:
 		this->config->new_Fusion(name, forwardTypeA, forwardTypeB, backwardTypeC, forwardRate, backwardRate, reactionDistance);
 	}
 	// TODO this is WIP as long as Fusion is configured manually
-	void configureFusion(unsigned reactionIndex, bp::numeric::array interactionsIndices, double inversePartition, double maxDistr, double radiiSum, double reactionRadiiSum, double meanDistr, double inverseTemperature, double radiusA, double radiusB) {
+	void configureFusion(unsigned reactionIndex, bp::numeric::array interactionsIndices,
+						 //double inversePartition,
+						 double maxDistr, double meanDistr, double inverseTemperature, double radiusA, double radiusB) {
 		std::vector<unsigned> interactionsIndicesConverted;
 		try {
 			for (unsigned i=0; i<bp::len(interactionsIndices); ++i) {
@@ -194,9 +196,11 @@ public:
 		} catch (...) {
 			LOG_ERROR("Exception in accessing bp::numeric::array in configureFusion.")
 			LOG_INFO("Fusion is not configured.")
-			return;			
+			return;
 		}
-		this->config->configureFusion(reactionIndex, interactionsIndicesConverted, inversePartition, maxDistr, radiiSum, reactionRadiiSum, meanDistr, inverseTemperature, radiusA, radiusB);
+		this->config->configureFusion(reactionIndex, interactionsIndicesConverted,
+                                      //inversePartition,
+                                      maxDistr, meanDistr, inverseTemperature, radiusA, radiusB);
 	}
 	unsigned getNumberReactions() {
 		return this->config->getNumberReactions();
@@ -405,6 +409,11 @@ public:
 	void new_ParticleNumbers(unsigned long recPeriod, std::string filename,	unsigned particleTypeId) {
 		this->simulation->new_ParticleNumbers(recPeriod, filename, particleTypeId);
 	}
+
+	void new_Increments(unsigned long recPeriod, unsigned long clearPeriod, std::string filename, unsigned
+    particleTypeid) {
+        this->simulation->new_Increments(recPeriod, clearPeriod, filename, particleTypeid);
+    }
 };
 
 using namespace boost::python;
@@ -477,5 +486,6 @@ BOOST_PYTHON_MODULE(revreaddyPy) {
 		.def("new_ProbabilityDensity", &SimulationWrap::new_ProbabilityDensity)
 		.def("new_Energy", &SimulationWrap::new_Energy)
 		.def("new_Acceptance", &SimulationWrap::new_Acceptance)
-		.def("new_ParticleNumbers", &SimulationWrap::new_ParticleNumbers);
+		.def("new_ParticleNumbers", &SimulationWrap::new_ParticleNumbers)
+        .def("new_Increments", &SimulationWrap::new_Increments);
 };

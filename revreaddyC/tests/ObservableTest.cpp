@@ -234,3 +234,30 @@ TEST_F(ObservableTest, RadialDistrRunAndSaveToFile) {
 	EXPECT_EQ(bins[1], 0) << "expecting 0 counts in outer bin, since particles start at 0 distance.";
 	H5Fclose(fileId);
 }
+
+TEST_F(ObservableTest, IncrementsRunAndSaveToFile) {
+    boost::filesystem::path path("increments_test.h5");
+    boost::filesystem::remove(path);
+    //actual test
+    World w; Config c; Simulation s(&w, &c, "");
+    c.new_Type("testparticle", 1., 1.);
+    std::vector<double> pos = {0.,0.,0.};
+    w.addParticle(pos, 0);
+    w.addParticle(pos, 0);
+    w.addParticle(pos, 0);
+    // increments observable
+    s.new_Increments(1, 30, "increments_test.h5", 0);
+    // run
+    s.run(10);
+    s.writeAllObservablesToFile();
+    // check h5 files
+    hid_t fileId = H5Fopen("increments_test.h5", H5F_ACC_RDONLY, H5P_DEFAULT);
+    hsize_t dims[3];
+    H5LTget_dataset_info(fileId, "/increments", dims, NULL, NULL);
+    EXPECT_EQ(dims[0], 10) << "expect 10 timesteps";
+	EXPECT_EQ(dims[1], 3) << "and 3 particles";
+	EXPECT_EQ(dims[2], 3) << "and 3 coordinates";
+    double incs[10][3][3];
+    H5LTread_dataset(fileId, "/increments", H5T_NATIVE_DOUBLE, incs);
+	H5Fclose(fileId);
+}

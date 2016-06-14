@@ -18,7 +18,6 @@ SimulationImpl::SimulationImpl(World * inWorld, Config * inConfig) {
 	this->forceJ = {0.,0.,0.};
 	this->r_ij = {0.,0.,0.};
 	this->useNeighborlist = true;
-	this->neighborlistConfigured = false;
 	this->skipPairInteractionsReactions = false;
 	LOG_TRACE("Leave SimulationImpl Constructor.")
 }
@@ -31,9 +30,6 @@ SimulationImpl::SimulationImpl() {
 SimulationImpl::~SimulationImpl() {
 	LOG_TRACE("Enter SimulationImpl Destructor.")
 	this->deleteAllObservables();
-	if (this->neighborlistConfigured) {
-		delete this->neighborlist;
-	}
 	delete this->utils;
 	delete this->random;
 	LOG_TRACE("Leave SimulationImpl Destructor.")
@@ -141,16 +137,27 @@ void SimulationImpl::new_ParticleNumbers(unsigned long recPeriod, std::string fi
 		0,
 		filename,
 		particleTypeId);
-	this->observables.push_back( std::move(par) );
+	this->observables.push_back(std::move(par));
+}
+
+void SimulationImpl::new_Increments(unsigned long recPeriod, unsigned long clearPeriod, std::string filename,
+									unsigned particleTypeId) {
+    std::unique_ptr<Increments> inc = make_unique<Increments>(
+            recPeriod,
+            clearPeriod,
+            filename,
+            particleTypeId);
+    this->observables.push_back(std::move(inc));
 }
 
 void SimulationImpl::run(const unsigned long maxTime) {
 	config->configureReactions();
+	this->skipPairInteractionsReactions = false;
 	if (config->interactions.empty() && config->reactions.empty()) {
 		this->skipPairInteractionsReactions = true;
 	}
 	if (this->useNeighborlist && ( !this->skipPairInteractionsReactions ) ) { this->configureNeighborlist(); }
-	else { this->useNeighborlist = false; }
+	else { this->useNeighborlistThisRun = false; }
 	this->setupUnimolecularCandidateTypes();
 	this->configureAndSetupObservables();
 	this->resetForces();
@@ -159,11 +166,8 @@ void SimulationImpl::run(const unsigned long maxTime) {
 	this->calculateInteractionForcesEnergies();
 	this->calculateGeometryForcesEnergies();
 	this->recordObservables(0);
-//	double acceptance = 1.;
-	bool isStepAccepted = true;
 	for (unsigned long timeIndex = 0; timeIndex < maxTime; ++timeIndex) {
 		/* Diffusion */
-//		this->saveOldState();
 		this->propagateDiffusion(); // propose
 		this->resetForces();
 		this->resetReactionCandidates();
@@ -172,18 +176,8 @@ void SimulationImpl::run(const unsigned long maxTime) {
 			this->calculateInteractionForcesEnergies(); // calculate energy and force
 		}
 		this->calculateGeometryForcesEnergies();
-/*		acceptance = this->acceptanceDiffusion();
-		world->acceptProbDiffusion = acceptance;
-		isStepAccepted = this->acceptOrReject(acceptance);
-		if (true && ( ! isStepAccepted ) ) {
-			this->restoreOldState();
-			world->rejectionsDiffusion += 1;
-		}
-		else { world->acceptionsDiffusion += 1; }
-*/
 		/* Reactions */
-//		this->saveOldState();
-		/*acceptance = */this->propagateReactions();
+		this->propagateReactions();
 		this->resetForces();
 		this->resetReactionCandidates();
 		world->energy = 0.;
@@ -191,15 +185,7 @@ void SimulationImpl::run(const unsigned long maxTime) {
 			this->calculateInteractionForcesEnergies();
 		}
 		this->calculateGeometryForcesEnergies();
-/*		acceptance *= this->acceptanceReactions();
-		world->acceptProbReactions = acceptance;
-		isStepAccepted = this->acceptOrReject(acceptance);
-		if (true && ( ! isStepAccepted ) ) {
-			this->restoreOldState();
-			world->rejectionsReactions += 1;
-		}
-		else { world->acceptionsReactions += 1; }
-*/
+
 		/* Advance clock */
 		world->cumulativeRuntime += config->timestep;
 		/* +1 because recordObservables(0) was called already before the run.
@@ -208,6 +194,11 @@ void SimulationImpl::run(const unsigned long maxTime) {
 		 * timesteps */
 		this->recordObservables(timeIndex + 1);
 	}
+	// clean up after run
+    unimolecularCandidateTypes.clear();
+    if (this->useNeighborlistThisRun) {
+        delete this->neighborlist;
+    }
 }
 
 void SimulationImpl::configureNeighborlist() {
@@ -221,7 +212,10 @@ void SimulationImpl::configureNeighborlist() {
 	// check reaction distances
 	for (unsigned i=0; i<config->reactions.size(); ++i) {
 		if (config->reactions[i]->reactionDistance < minimalLength) {
-			minimalLength = config->reactions[i]->reactionDistance;
+            // Conversion shall not be considered here
+			if (config->reactions[i]->type != "Conversion") {
+                minimalLength = config->reactions[i]->reactionDistance;
+            }
 		}
 	}
 	double counter = 1.;
@@ -231,13 +225,14 @@ void SimulationImpl::configureNeighborlist() {
 		counter += 1.;
 	}
 	if (numberBoxes > 3) {
-		this->useNeighborlist = true; // actually obsolete
+		this->useNeighborlistThisRun = true;
 		this->neighborlist = new Neighborlist( numberBoxes );
-		this->neighborlistConfigured = true;
+        LOG_INFO("Neighborlist was created with " << numberBoxes << " boxes in every dimension.")
 	}
 	else {
-		this->useNeighborlist = false;
-	}	
+		this->useNeighborlistThisRun = false;
+        LOG_INFO("Neighborlist was not created.")
+}
 }
 
 void SimulationImpl::setupUnimolecularCandidateTypes() {
@@ -275,9 +270,9 @@ void SimulationImpl::restoreOldState() {
 void SimulationImpl::propagateDiffusion() {
 	std::vector<double> noiseTerm = {0.,0.,0.};
 	std::vector<double> forceTerm = {0.,0.,0.};
-	double noisePrefactor = 1.;
-	double forcePrefactor = 1.;
-	double diffConst = 1.; //diffusion constant of current particle
+	double noisePrefactor;
+	double forcePrefactor;
+	double diffConst; //diffusion constant of current particle
 	for (unsigned long i=0; i<world->particles.size(); i++)
 	{
 		// look up particles' diffusion constant from its typeId
@@ -435,7 +430,7 @@ void SimulationImpl::recordObservables(unsigned long timeIndex) {
 }
 
 void SimulationImpl::calculateInteractionForcesEnergies() {
-	if ( this->useNeighborlist ) {
+	if ( this->useNeighborlistThisRun ) {
 		this->calculateInteractionForcesEnergiesWithLattice();
 	}
 	else {
@@ -444,8 +439,8 @@ void SimulationImpl::calculateInteractionForcesEnergies() {
 }
 
 void SimulationImpl::calculateInteractionForcesEnergiesNaive() {
-	for (unsigned long i=0; i<world->particles.size(); i++) {
-		for (unsigned long j=i+1; j<world->particles.size(); j++) {
+	for (auto i=0; i<world->particles.size(); i++) {
+		for (auto j=i+1; j<world->particles.size(); j++) {
 			this->calculateSingleForceEnergyCheckReactionCandidate(i, j);
 		}
 	}
@@ -456,9 +451,9 @@ void SimulationImpl::calculateInteractionForcesEnergiesWithLattice() {
 	double n = (double) numberBoxes;
 	double boxLength = config->boxsize / n;
 
-	double delX = 0.;
-	double delY = 0.;
-	double delZ = 0.;
+	double delX;
+	double delY;
+	double delZ;
 	unsigned int xIndex = 0;
 	unsigned int yIndex = 0;
 	unsigned int zIndex = 0;
@@ -541,7 +536,7 @@ void SimulationImpl::calculateInteractionForcesEnergiesWithLattice() {
 	this->neighborlist->clear();
 }
 
-void SimulationImpl::calculateSingleForceEnergyCheckReactionCandidate(unsigned int indexI, unsigned int indexJ) {
+void SimulationImpl::calculateSingleForceEnergyCheckReactionCandidate(unsigned long indexI, unsigned long indexJ) {
 	this->forceI[0]=0.; this->forceI[1]=0.; this->forceI[2]=0.;
 	this->forceJ[0]=0.; this->forceJ[1]=0.; this->forceJ[2]=0.;
 	// interaction energy of particle pair (i,j)
@@ -648,7 +643,7 @@ void SimulationImpl::resetReactionCandidates() {
 /* For the diffusion acceptance probability both states, old and new
  * have to have the same number of particles.  */
 double SimulationImpl::acceptanceDiffusion() {
-	double acceptance = 1.;
+	double acceptance;
 	double firstTerm  = 0.;
 	double secondTerm = 0.;
 	std::vector<double> deltaX = {0.,0.,0.};
@@ -692,7 +687,7 @@ double SimulationImpl::acceptanceDiffusion() {
 }
 
 double SimulationImpl::acceptanceReactions() {
-	double unconditional = 1.;
+	double unconditional;
 	unconditional = world->energy - world->oldEnergy;
 	unconditional /= -1. * config->kT;
 	unconditional = exp( unconditional );
@@ -735,13 +730,13 @@ long int SimulationImpl::findParticleIndex(unsigned long long id) {
 }
 
 void SimulationImpl::configureAndSetupObservables() {
+    for (auto i=0; i<observables.size(); ++i) {
+        if ( ! observables[i]->isSetup ) {
+            observables[i]->setup(world, config);
+            observables[i]->isSetup = true;
+        }
+    }
 	for (auto i=0; i<this->observables.size(); ++i) {
 		this->observables[i]->configure(world, config);
-	}
-	for (auto i=0; i<observables.size(); ++i) {
-		if ( ! observables[i]->isSetup ) {
-			observables[i]->setup(world, config);
-			observables[i]->isSetup = true;
-		}
 	}
 }

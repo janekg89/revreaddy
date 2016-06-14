@@ -1,6 +1,9 @@
-/* Fusion.cpp */
+/* Fusion.cpp
+ * @todo this has to be reworked. especially reactionDistance shall be used.
+ * simplify configuration */
 #include "Fusion.h"
 #include <math.h>
+
 
 Fusion::Fusion(
 	std::string inName,
@@ -27,10 +30,8 @@ Fusion::~Fusion()
 
 void Fusion::configure(
 	std::vector< std::shared_ptr<ParticleInteraction> > inInteractions,
-	double inInversePartition,
+	//double inInversePartition,
 	double inMaxDistr,
-	double inRadiiSum,
-	double inReactionRadiiSum,
 	double inMeanDistr,
 	double inInverseTemperature,
 	double inRadiusA,
@@ -39,10 +40,8 @@ void Fusion::configure(
 	double inBoxsize)
 {
 	this->interactions = inInteractions;
-	this->inversePartition = inInversePartition;
+	//this->inversePartition = inInversePartition;
 	this->maxDistr = inMaxDistr;
-	this->radiiSum = inRadiiSum;
-	this->reactionRadiiSum = inReactionRadiiSum;
 	this->meanDistr = inMeanDistr;
 	this->inverseTemperature = inInverseTemperature;
 	this->radiusA = inRadiusA;
@@ -51,6 +50,7 @@ void Fusion::configure(
 	this->weightB = pow(radiusB, 3.) / (pow(radiusA, 3.)+pow(radiusB, 3.)); 
 	this->isPeriodic = inIsPeriodic;
 	this->boxsize = inBoxsize;
+	radiiSum = radiusA + radiusB;
 }
 
 double Fusion::performForward(
@@ -153,8 +153,7 @@ double Fusion::performBackward(
 	else {/* nothing happens */ return 1.;}
 }
 
-double Fusion::distribution(double x)
-{
+double Fusion::distribution(double x) {
 	double result = 0.;
 	for (unsigned i=0; i<this->interactions.size(); i++) {
 		result += this->interactions[i]->calculateEnergy(
@@ -162,17 +161,16 @@ double Fusion::distribution(double x)
 			this->radiiSum * this->radiiSum); // sum of radii squared
 	}
 	result = exp(- this->inverseTemperature * result);
-	result *= this->inversePartition;
+	//result *= this->inversePartition;
 	return result;
 }
 
-double Fusion::randomFromDistribution(Random * random)
-{
+double Fusion::randomFromDistribution(Random * random) {
 	unsigned it = 0;
-	double x = 0.;
-	double y = 0.;
+	double x;
+	double y;
 	while ( it < 100 ) {
-		x = random->uniform() * this->reactionRadiiSum;
+		x = random->uniform() * this->reactionDistance;
 		y = this->maxDistr * random->uniform();
 		if ( y < this->distribution(x) ) { return x; }
 		else { it += 1; }

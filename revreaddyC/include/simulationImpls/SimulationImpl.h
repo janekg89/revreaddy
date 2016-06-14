@@ -32,14 +32,16 @@
 #include "Energy.h"
 #include "Acceptance.h"
 #include "ParticleNumbers.h"
+#include "Increments.h"
 
 class SimulationImpl {
 public:
 	SimulationImpl(World * inWorld, Config * inConfig);
 	SimulationImpl(); // default constructor if child is created
 	~SimulationImpl();
-	/* Start the simulation. Iterate for maxTime timesteps.*/
-	void run(const unsigned long maxTime);
+	/* Start the simulation. Iterate for maxTime timesteps. It is virtual
+	 * such that children can override it. */
+	virtual void run(const unsigned long maxTime);
 
 	/* World stores positions of particles and other variables
 	 * that change during the simulation. Config stores information
@@ -62,6 +64,7 @@ public:
 	void new_Energy(unsigned long recPeriod, std::string filename);
 	void new_Acceptance(unsigned long recPeriod, std::string filename, bool reactionsOrDiffusion);
 	void new_ParticleNumbers(unsigned long recPeriod, std::string filename,	unsigned particleTypeId);
+	void new_Increments(unsigned long recPeriod, unsigned long clearPeriod, std::string filename, unsigned particleTypeId);
 
 /* children of SimulationImpl need access to these. How to do that 
  * with private members?*/
@@ -72,9 +75,9 @@ public:
 	Neighborlist * neighborlist;
 	/* If no interactions or reactions are present, no distances have to be calculated */
 	bool skipPairInteractionsReactions;
-	/* This assures that a Neighborlist class has been allocated. Necessary if the Simulation
-	 * is destroyed before a run() has been executed. */
-	bool neighborlistConfigured;
+	/* Despite the state of useNeighborlist, the simulation might decide not to use one
+	 * This must be noted in order to clean up properly after run is finished. */
+	bool useNeighborlistThisRun;
 	std::vector< std::unique_ptr<Observable> > observables;
 	/* unimolecularCandidateTypes is a list of typeIds that can undergo a
 	 * unimolecular reaction like a -> b or a -> b+c, it also contains
@@ -116,7 +119,7 @@ public:
 	/* evaluate the force and energy for a given pair of
 	 * particles and store their unique ids in activePairs
 	 * if they are in reactive distance */
-	void calculateSingleForceEnergyCheckReactionCandidate(unsigned indexI, unsigned indexJ);
+	void calculateSingleForceEnergyCheckReactionCandidate(unsigned long indexI, unsigned long indexJ);
 	void calculateGeometryForcesEnergies();
 	void resetForces();
 	void resetReactionCandidates();

@@ -248,7 +248,7 @@ void Config::deleteAllReactions() {
 	/* Erase all the unique pointers from reactions. Thus all
 	 * reactions will be destroyed accordingly */
 	LOG_INFO("Deleting all reactions.")
-	this->reactions.clear();	
+	this->reactions.clear();
 }
 
 void Config::new_Conversion(
@@ -326,10 +326,8 @@ void Config::new_Fusion(
 void Config::configureFusion(
 	unsigned reactionIndex,
 	std::vector<unsigned> interactionsIndices,
-	double inversePartition,
+	//double inversePartition,
 	double maxDistr,
-	double radiiSum,
-	double reactionRadiiSum,
 	double meanDistr,
 	double inverseTemperature,
 	double radiusA,
@@ -345,10 +343,8 @@ void Config::configureFusion(
 	Fusion * fus = dynamic_cast<Fusion*>( this->reactions[reactionIndex].get() );
 	fus->configure(
 		consideredInteractions,
-		inversePartition,
+		//inversePartition,
 		maxDistr,
-		radiiSum,
-		reactionRadiiSum,
 		meanDistr,
 		inverseTemperature,
 		radiusA,
