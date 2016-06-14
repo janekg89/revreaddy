@@ -25,7 +25,10 @@ double Enzymatic::performForward(std::vector<unsigned long> particleIndices, dou
         /* reaction occurs, particle i is the substrate and j is the catalyst.
          * particle i's type is changed from forwardTypes[0] to backwardTypes[0] */
         unsigned long indexI = particleIndices[0];
-        world->setTypeId(indexI, backwardTypes[0]);
+        std::vector<double> pos = world->particles[indexI].position;
+        world->removeParticleAndIncrements(indexI);
+        world->addParticleAndIncrements(pos, backwardTypes[0], random);
+        //world->setTypeId(indexI, backwardTypes[0]);
     }
     return 1.;
 }
@@ -37,7 +40,9 @@ double Enzymatic::performBackward(std::vector<unsigned long> particleIndices, do
     if (u < backwardProb) {
         /* reaction occurs, particle i's type is changed to forwardTypes[0] */
         unsigned long indexI = particleIndices[0];
-        world->setTypeId(indexI, forwardTypes[0]);
+        std::vector<double> pos = world->particles[indexI].position;
+        world->removeParticleAndIncrements(indexI);
+        world->addParticleAndIncrements(pos, forwardTypes[0], random);
     }
     return 1.;
 }

@@ -10,6 +10,7 @@
 #include "ReactionEvent.h"
 #include "logging.h"
 #include "Exception.h"
+#include "Random.h"
 
 class World {
 public:
@@ -46,13 +47,23 @@ public:
 
 	void addParticle(std::vector<double> initPos, unsigned particleTypeId);
 	void removeParticle(unsigned long index);
+
 	unsigned long getNumberOfParticles();
 	std::vector<double> getPosition(unsigned long index);
 	void setPosition(unsigned long index, std::vector<double> newPos);
 	unsigned int getTypeId(unsigned long index);
 	void setTypeId(unsigned long index, unsigned typeId);
 	unsigned long long getUniqueId(unsigned long index);
-	void deleteAllParticles();	
+	void deleteAllParticles();
+
+	/*Fractional stuff*/
+	std::map<unsigned, boost::multi_array<double,2>> increments;
+	std::map<unsigned, size_t> incrementsIndex;
+	/* Change addParticle and removeParticle, update increments and incrementsIndex*/
+	// generate new increments
+	void addParticleAndIncrements(std::vector<double> initPos, unsigned particleTypeId, Random * random);
+	 // erase entries in increments and incrementsIndex
+	void removeParticleAndIncrements(unsigned long index);
 };
 
 #endif //__WORLD_H_INCLUDED__

@@ -74,3 +74,18 @@ void World::deleteAllParticles() {
 		this->particles.begin() + this->particles.size()
 	);
 }
+
+/* Fractional stuff */
+void World::addParticleAndIncrements(std::vector<double> initPos, unsigned particleTypeId, Random * random) {
+    addParticle(initPos, particleTypeId);
+    unsigned uid = this->particles.back().uniqueId;
+    increments[uid] = janek::generateIncrements(bla);
+    incrementsIndex[uid] = 0;
+}
+
+void World::removeParticleAndIncrements(unsigned long index) {
+    unsigned uid = this->particles[index].uniqueId;
+    removeParticle(index);
+    increments.erase(uid);
+    incrementsIndex.erase(uid);
+}
