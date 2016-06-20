@@ -47,8 +47,8 @@ TEST_F(ReactionTest, EnzymaticCandidatesAndPerform) {
     // position A and C with a distance of 1.5
     std::vector<double> posA = {1.,1.,1.};
     std::vector<double> posC = {-0.5,1.,1.};
-    w.addParticle(posA, 0);
     w.addParticle(posC, 2);
+    w.addParticle(posA, 0);
     // calculate the distance (energy/forces) for the A-C pair. while doing so, a reactionEvent should
     // be created in world->reactionCandidates. Indices for both particles are 0 and 1.
     s.calculateSingleForceEnergyCheckReactionCandidate(0, 1);
@@ -60,10 +60,10 @@ TEST_F(ReactionTest, EnzymaticCandidatesAndPerform) {
     c.timestep = 1.;
     // tau = 1 and k = 1 --> reaction MUST be performed, since probability is approximated as p=k*tau
     s.propagateReactions();
-    EXPECT_EQ(w.particles[0].typeId, 1) << "particle A must have changed to B";
-    EXPECT_THAT(w.particles[0].position, ::testing::ElementsAre(1.,1.,1.)) << "the position mustn't change";
-    EXPECT_EQ(w.particles[1].typeId, 2) << "catalyst particle still has type C";
-    EXPECT_THAT(w.particles[1].position, ::testing::ElementsAre(-0.5,1.,1.)) << "catalyst particle is still at its "
+    EXPECT_EQ(w.particles[1].typeId, 1) << "particle A must have changed to B";
+    EXPECT_THAT(w.particles[1].position, ::testing::ElementsAre(1.,1.,1.)) << "the position mustn't change";
+    EXPECT_EQ(w.particles[0].typeId, 2) << "catalyst particle still has type C";
+    EXPECT_THAT(w.particles[0].position, ::testing::ElementsAre(-0.5,1.,1.)) << "catalyst particle is still at its "
                                                                                         "old pos";
 }
 
