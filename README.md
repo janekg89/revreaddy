@@ -1,6 +1,4 @@
 ## revreaddy
-[![Build Status](https://travis-ci.org/chrisfroe/revreaddy.svg?branch=develop)](https://travis-ci.org/chrisfroe/revreaddy)
-[![Coverage Status](https://coveralls.io/repos/github/chrisfroe/revreaddy/badge.svg?branch=develop)](https://coveralls.io/github/chrisfroe/revreaddy?branch=develop)
 
 A particle based reaction-diffusion simulation with a
 reversible integrator, which obeys detailed balance.
@@ -10,8 +8,8 @@ software is to try out different reaction-diffusion
 schemes.
 
 This version features:
-* Brownian Dynamics integrator with Metropolis-Hastings
-	correction
+* Brownian Dynamics integrator with optional Metropolis-Hastings
+  correction
 * Reactions that allow particle creation/destruction
   e.g. Fusion reaction A + B <--> C,
   with forward and backward rates
@@ -32,9 +30,6 @@ This version features:
 * Neighborlattice force calculation leading to overall
   complexity *O(#particles)* (exception when rdf is
   calculated on the fly)
-* the current state of the simulation can be saved
-  to a compact binary format with a single line
-  and also loaded from file with a single line
 
 ### Dependencies
 
