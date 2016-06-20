@@ -2,6 +2,8 @@
 #ifndef __FRACTIONALDIFFUSION_H_INCLUDED__
 #define __FRACTIONALDIFFUSION_H_INCLUDED__
 
+#include "SimulationImpl.h"
+
 class FractionalDiffusion : public SimulationImpl {
 public:
 	FractionalDiffusion(World * inWorld, Config * inConfig);

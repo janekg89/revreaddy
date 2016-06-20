@@ -1,4 +1,5 @@
 #include "FractionalDiffusion.h"
+#include "generateIncrements.h"
 
 FractionalDiffusion::FractionalDiffusion(World * inWorld, Config * inConfig) {
 	LOG_TRACE("Enter FractionalDiffusion constructor")
@@ -27,7 +28,10 @@ void FractionalDiffusion::run(const unsigned long maxTime) {
 
 	/* Set up increments */
 	for (auto&& p : world->particles) {
-	    world->increments[p.uniqueId] = //generateIncrements(args, this->random);
+		double diffConst = config->particleTypes[p.typeId].diffusionConstant;
+		double timestep = config->timestep;
+		double alpha = 0.5;
+		world->increments[p.uniqueId] = janek::generateIncrements(maxTime, diffConst,timestep, alpha , this -> random);//generateIncrements(args, this->random);
 	    world->incrementsIndex[p.uniqueId] = 0;
 	}
 
@@ -84,7 +88,11 @@ void FractionalDiffusion::propagateDiffusion() {
 		diffConst = config->particleTypes[world->particles[i].typeId].diffusionConstant;
 
         /* Change this */
-		noiseTerm = //random->normal3D();
+		boost::multi_array<double,2> incrementsParticle = increments.find(i)->second;
+
+		noiseTerm[0] = incrementsParticle[0][timeIndex];
+		noiseTerm[1] = incrementsParticle[1][timeIndex];
+		noiseTerm[2] = incrementsParticle[2][timeIndex];
 
 		forcePrefactor = config->timestep * diffConst / config->kT;
 		forceTerm[0] = world->particles[i].cumulativeForce[0] * forcePrefactor;

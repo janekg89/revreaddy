@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 echo $PATH
 mkdir -p build/Release
 cd build/Release

@@ -22,6 +22,7 @@ double Enzymatic::performForward(std::vector<unsigned long> particleIndices, dou
     double forwardProb = forwardRate * timestep;
     double u = random->uniform();
     if (u < forwardProb) {
+        // TODO this is wrong
         /* reaction occurs, particle i is the substrate and j is the catalyst.
          * particle i's type is changed from forwardTypes[0] to backwardTypes[0] */
         unsigned long indexI = particleIndices[0];

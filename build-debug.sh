@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 echo $PATH
 mkdir -p build/Debug
 cd build/Debug

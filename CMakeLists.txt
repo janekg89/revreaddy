@@ -94,7 +94,7 @@ if(REVREADDY_RUN_TESTS)
 endif(REVREADDY_RUN_TESTS)
 
 # when everything is built move the convenience layer script to the build directory
-file(COPY revreaddy.py DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-file(COPY libraries/print_table.py DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+file(COPY revreaddy.py DESTINATION ${CMAKE_BINARY_DIR})
+file(COPY libraries/print_table.py DESTINATION ${CMAKE_BINARY_DIR})
 # same for tests
-file(COPY test_revreaddy.py DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+file(COPY test_revreaddy.py DESTINATION ${CMAKE_BINARY_DIR})

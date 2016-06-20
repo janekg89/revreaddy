@@ -6,6 +6,8 @@
 #ifndef __WORLD_H_INCLUDED__
 #define __WORLD_H_INCLUDED__
 #include <vector>
+#include <boost/multi_array.hpp>
+#include <map>
 #include "Particle.h"
 #include "ReactionEvent.h"
 #include "logging.h"
@@ -61,7 +63,8 @@ public:
 	std::map<unsigned, size_t> incrementsIndex;
 	/* Change addParticle and removeParticle, update increments and incrementsIndex*/
 	// generate new increments
-	void addParticleAndIncrements(std::vector<double> initPos, unsigned particleTypeId, Random * random);
+	void addParticleAndIncrements(std::vector<double> initPos, unsigned particleTypeId, Random * random,
+								  unsigned long maxTime, double &timestep, double &diffConst, double &alpha);
 	 // erase entries in increments and incrementsIndex
 	void removeParticleAndIncrements(unsigned long index);
 };
