@@ -1,8 +1,6 @@
 ### TODO
 * Fusion reaction that conserves positions of particles that have 0 diffusivity
 * SimulationImpl child that propagates single moves with a=1
-* sample reaction distance from discrete probability distribution. -> new Fusion variant.
-* clean up Fusion reaction
 * revreaddy.py ->  show_simulation().
 
 #### integration tests:
