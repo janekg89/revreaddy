@@ -19,7 +19,11 @@ find_package(PythonLibs REQUIRED)
 find_package(Boost COMPONENTS python log filesystem system REQUIRED)
 find_package(HDF5 COMPONENTS C CXX HL)
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
+find_package(FFTW3)
+
 # prepare a selection boost libraries that does not include the boost-python module
+
 set(Boost_woPython_LIBRARIES ${Boost_LIBRARIES})
 list(REMOVE_ITEM "Boost_woPython_LIBRARIES" "${Boost_LIBRARY_DIR_RELEASE}/libboost_python.so")
 message(STATUS "boost-without-python libraries " "${Boost_woPython_LIBRARIES}")
@@ -29,7 +33,7 @@ add_custom_target(${REVREADDY_SCRIPT_NAME} SOURCES revreaddy.py DEPENDS ${REVREA
 # target python extension
 python_add_module(${REVREADDY_PY_LIBRARY_NAME} pybinding.cpp)
 # c library must be built before py library can be built
-add_dependencies(${REVREADDY_PY_LIBRARY_NAME} ${REVREADDY_C_LIBRARY_NAME})
+add_dependencies(${REVREADDY_PY_LIBRARY_NAME} ${REVREADDY_C_LIBRARY_NAME} )
 set(REVREADDY_C_INCLUDE_DIRS
     ${PROJECT_SOURCE_DIR}/revreaddyC/include
     ${PROJECT_SOURCE_DIR}/revreaddyC/include/geometries
@@ -43,8 +47,14 @@ target_include_directories(${REVREADDY_PY_LIBRARY_NAME} PUBLIC
     ${Boost_INCLUDE_DIRS}
     ${PYTHON_INCLUDE_DIRS}
     ${REVREADDY_C_INCLUDE_DIRS}
+    ${FFTW_INCLUDE_DIRS}
 )
-target_link_libraries(${REVREADDY_PY_LIBRARY_NAME} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES} ${REVREADDY_C_LIBRARY_NAME})
+
+target_link_libraries(${REVREADDY_PY_LIBRARY_NAME} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES} ${REVREADDY_C_LIBRARY_NAME} ${FFTW3_LIBRARIES})
+
+
+
+
 
 # this is where the c library is build 
 add_subdirectory(revreaddyC)

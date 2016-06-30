@@ -46,6 +46,8 @@ public:
 	double kT;
 	bool isPeriodic; // use periodic boundary conditions or not
 	double boxsize; // length of the periodic simulationbox
+	/* NOTE this is a copy of SimulationImpl->maxTime*/
+	unsigned long maxTime;
 
 	/*------------------------------------------------------------------*/
 	void deleteAllParticleTypes();

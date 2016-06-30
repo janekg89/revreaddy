@@ -33,7 +33,10 @@ double Enzymatic::performForward(std::vector<unsigned long> particleIndices, dou
                                     "Neither of participants has the right type");
         }
         /* reaction occurs. substrate's type is changed from forwardTypes[0] to backwardTypes[0] */
-        world->setTypeId(substrateIndex, backwardTypes[0]);
+        auto pos = world->particles[substrateIndex].position;
+        /* world->setTypeId(substrateIndex, backwardTypes[0]); */
+        world->removeParticleAndIncrements(substrateIndex);
+        world->addParticleAndIncrements(pos, backwardTypes[0], random, maxTime, timestep, diffConst, alpha);
     }
     return 1.;
 }
@@ -53,10 +56,19 @@ double Enzymatic::performBackward(std::vector<unsigned long> particleIndices, do
                                     "Neither of participants has the right type");
         }
         /* reaction occurs, particle i's type is changed to forwardTypes[0] */
+        // TODO
         world->setTypeId(substrateIndex, forwardTypes[0]);
     }
     return 1.;
 }
+
+void Enzymatic::configure(unsigned long inMaxTime, double inDiffConst, double inAlpha) {
+    this->maxTime = inMaxTime;
+    this->diffConst = inDiffConst;
+    this->alpha = inAlpha;
+}
+
+
 
 
 

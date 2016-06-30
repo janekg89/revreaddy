@@ -3,7 +3,8 @@
 
 #include <boost/multi_array.hpp>
 #include <complex>
-#include </home/mi/janekg89/Dokumente/Masterarbeit/test_cython/include/fftw3.h>
+/*#include </home/mi/janekg89/Dokumente/Masterarbeit/test_cython/include/fftw3.h>*/
+#include <fftw3.h>
 #include<stdio.h>
 #include <iostream>
 #include<stdlib.h>

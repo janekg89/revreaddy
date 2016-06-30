@@ -4,9 +4,12 @@ namespace janek {
     boost::multi_array<double, 2> generateIncrements(unsigned long N, double &D, double &tau, double &alpha, Random *random) {
         double ran_norm = random->normal();
         double ran_uni = random->uniform();
-        boost::multi_array<double, 2> increments;
+        //boost::multi_array<double, 2> increments;
         int dimensions = 3;
         auto Nextended = N * 2;
+        typedef boost::multi_array<double, 2> array_type;
+        typedef array_type::index index;
+        array_type increments(boost::extents[dimensions][N]);
         fftw_plan planforward, planbackward;
         std::complex<double> *innew = new std::complex<double>[Nextended];
         std::complex<double> *in = new std::complex<double>[Nextended];

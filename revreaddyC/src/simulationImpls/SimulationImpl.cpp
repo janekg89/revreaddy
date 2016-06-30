@@ -151,6 +151,7 @@ void SimulationImpl::new_Increments(unsigned long recPeriod, unsigned long clear
 }
 
 void SimulationImpl::run(const unsigned long maxTime) {
+	config->maxTime = maxTime;
 	config->configureReactions();
 	this->skipPairInteractionsReactions = false;
 	if (config->interactions.empty() && config->reactions.empty()) {

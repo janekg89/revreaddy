@@ -13,8 +13,10 @@ public:
 
     double performForward(std::vector<unsigned long> particleIndices, double timestep, World * world, Random * random);
     double performBackward(std::vector<unsigned long> particleIndices, double timestep, World * world, Random * random);
-
+    unsigned long maxTime;
+    double diffConst;
+    double alpha;
+    void configure(unsigned long inMaxTime, double inDiffConst, double inAlpha);
 };
-
 
 #endif //REVREADDY_ENZYMATIC_H

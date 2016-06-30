@@ -236,7 +236,9 @@ void Config::configureReactions() {
 			/* Conversion needs no configuration */
 		}
         else if (this->reactions[i]->type == "Enzymatic") {
-            /* Enzymatic needs no configuration */
+            /* Enzymatic needs diffA, diffB, diffC, maxTime, alpha */
+            /* TODO implement this
+             * reactions[i]->configure(maxTime, );*/
         }
 		else if (this->reactions[i]->type == "Fusion") {
 			//this->configureFusion(i); // TODO

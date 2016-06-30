@@ -72,7 +72,7 @@ public:
  * with private members?*/
 //private: 
 	/*------- core functions/variables -------*/
-	Random * random; // the random number generator
+	Random *random; // the random number generator
 	Utils * utils; // functions for calculating distance
 	Neighborlist * neighborlist;
 	/* If no interactions or reactions are present, no distances have to be calculated */

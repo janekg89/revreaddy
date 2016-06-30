@@ -9,15 +9,16 @@ file(GLOB REVREADDY_C_SOURCES
 )
 
 # set the target for c library
-add_library(${REVREADDY_C_LIBRARY_NAME} SHARED ${REVREADDY_C_SOURCES} ${REVREADDY_C_INCLUDE_DIRS})
+add_library(${REVREADDY_C_LIBRARY_NAME} SHARED ${REVREADDY_C_SOURCES} ${REVREADDY_C_INCLUDE_DIRS} )
 target_include_directories(${REVREADDY_C_LIBRARY_NAME} PUBLIC
     ${Boost_INCLUDE_DIRS}
     ${REVREADDY_C_INCLUDE_DIRS}
     ${HDF5_INCLUDE_DIRS}
+    ${FFTW_INCLUDE_DIRS}
 )
 target_compile_definitions(${REVREADDY_C_LIBRARY_NAME} PUBLIC -DBOOST_LOG_DYN_LINK)
 
-target_link_libraries(${REVREADDY_C_LIBRARY_NAME} ${Boost_woPython_LIBRARIES} gsl gslcblas m ${HDF5_LIBRARIES})
+target_link_libraries(${REVREADDY_C_LIBRARY_NAME} ${Boost_woPython_LIBRARIES} gsl gslcblas m ${HDF5_LIBRARIES} ${FFTW3_LIBRARIES})
 
 # set logging defines
 set(REVREADDY_LOGGING_SEVERITY __INFO__ CACHE STRING "The logging level")

@@ -16,6 +16,7 @@ FractionalDiffusion::FractionalDiffusion(World * inWorld, Config * inConfig) {
 }
 
 void FractionalDiffusion::run(const unsigned long maxTime) {
+	config->maxTime = maxTime;
 	config->configureReactions();
 	this->skipPairInteractionsReactions = false;
 	if (config->interactions.empty() && config->reactions.empty()) {
@@ -31,7 +32,7 @@ void FractionalDiffusion::run(const unsigned long maxTime) {
 		double diffConst = config->particleTypes[p.typeId].diffusionConstant;
 		double timestep = config->timestep;
 		double alpha = 0.5;
-		world->increments[p.uniqueId] = janek::generateIncrements(maxTime, diffConst,timestep, alpha , this -> random);//generateIncrements(args, this->random);
+		world->increments[p.uniqueId] = janek::generateIncrements(maxTime, diffConst,timestep, alpha , random);//generateIncrements(args, this->random);
 	    world->incrementsIndex[p.uniqueId] = 0;
 	}
 
@@ -88,13 +89,28 @@ void FractionalDiffusion::propagateDiffusion() {
 		diffConst = config->particleTypes[world->particles[i].typeId].diffusionConstant;
 
         /* Change this */
-		boost::multi_array<double,2> incrementsParticle = increments.find(i)->second;
+		boost::multi_array<double,2> incrementsParticle = world->increments.find(i)->second;
 
+        long int timeIndex = world->incrementsIndex.find(i)->second;
+        boost::array<boost::multi_array<double, 2> ::index,2> idx1 = {{0,timeIndex}};
+        boost::array<boost::multi_array<double, 2> ::index,2> idx2 = {{1,timeIndex}};
+        boost::array<boost::multi_array<double, 2> ::index,2> idx3 = {{2,timeIndex}};
+
+
+
+        noiseTerm[0]= incrementsParticle(idx1);
+        noiseTerm[1]= incrementsParticle(idx2);
+        noiseTerm[2]= incrementsParticle(idx3);
+        /*
 		noiseTerm[0] = incrementsParticle[0][timeIndex];
 		noiseTerm[1] = incrementsParticle[1][timeIndex];
-		noiseTerm[2] = incrementsParticle[2][timeIndex];
+		noiseTerm[2] = incrementsParticle[2][timeIndex ];
+        */
+        world->incrementsIndex.find(i)->second = (long unsigned int)++timeIndex;
 
-		forcePrefactor = config->timestep * diffConst / config->kT;
+
+
+        forcePrefactor = config->timestep * diffConst / config->kT;
 		forceTerm[0] = world->particles[i].cumulativeForce[0] * forcePrefactor;
 		forceTerm[1] = world->particles[i].cumulativeForce[1] * forcePrefactor;
 		forceTerm[2] = world->particles[i].cumulativeForce[2] * forcePrefactor;
