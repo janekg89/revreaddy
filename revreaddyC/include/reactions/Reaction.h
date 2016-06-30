@@ -46,10 +46,10 @@ class Reaction
 		/* NOTE2: particleIndices are the positions in particles 
 		 * not the uniqueIds. */
 		virtual double performForward(
-			std::vector<unsigned long int> particleIndices,
-			double timestep,
-			World * world,
-			Random * random);
+				std::vector<unsigned long int> particleIndices,
+				double timestep,
+				World *world,
+				Random *random);
 		virtual double performBackward(
 			std::vector<unsigned long int> particleIndices,
 			double timestep,
