@@ -27,18 +27,4 @@ TEST_F(FractionalUnittest, correctDimensions) {
     EXPECT_EQ(result.shape()[1],  N);
 
 }
-TEST_F(FractionalUnittest, runfractional) {
-    World w;
-    Config c;
-    c.boxsize = 10.;
-    auto maxtime=1000;
-    FractionalDiffusion(&w,&c).run(maxtime);
 
-
-   // Random * r;
-
-//std::cout <<  r  << std::endl;
-    EXPECT_EQ(1,  1);
-
-
-}

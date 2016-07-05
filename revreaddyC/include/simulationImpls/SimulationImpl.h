@@ -99,7 +99,7 @@ public:
 	void restoreOldState();
 	/* Perform Brownian Dynamics step on particles
 	 * according to their accumulated forces */
-	void propagateDiffusion();
+	virtual void propagateDiffusion();
 	/* Perform reactions. Unimolecular according to their
 	 * reaction rates and bimolecular only when the pair
 	 * is part of activePairs. Already return the ratios

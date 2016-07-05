@@ -59,6 +59,8 @@ public:
 	void deleteAllParticles();
 
 	/*Fractional stuff*/
+	bool useFractional;
+	double alpha;
 	std::map<unsigned, boost::multi_array<double,2>> increments;
 	std::map<unsigned, size_t> incrementsIndex;
 	/* Change addParticle and removeParticle, update increments and incrementsIndex*/

@@ -4,6 +4,7 @@
 FractionalDiffusion::FractionalDiffusion(World * inWorld, Config * inConfig) {
 	LOG_TRACE("Enter FractionalDiffusion constructor")
 	this->world  = inWorld;
+	this->world->useFractional = true;
 	this->config = inConfig;
 	this->random = new Random("ranlxs0");
 	this->utils = new Utils();

@@ -106,6 +106,14 @@ class Sim(object):
     def use_neighborlist(self, nl):
         self.simulation.setUseNeighborlist(nl)
 
+    @property
+    def alpha(self):
+        return self.world.getAlpha()
+
+    @alpha.setter
+    def alpha(self, a):
+        self.world.setAlpha(a)
+
     # wrapped config methods
     def delete_all_particle_types(self):
         """Remove all entries of particlesTypes in Config."""

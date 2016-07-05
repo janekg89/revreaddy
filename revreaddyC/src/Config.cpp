@@ -236,9 +236,15 @@ void Config::configureReactions() {
 			/* Conversion needs no configuration */
 		}
         else if (this->reactions[i]->type == "Enzymatic") {
-            /* Enzymatic needs diffA, diffB, diffC, maxTime, alpha */
-            /* TODO implement this
-             * reactions[i]->configure(maxTime, );*/
+            /* Enzymatic needs diffA, diffB, diffC, maxTime */
+            auto typeAId = reactions[i]->forwardTypes[0];
+            auto typeCId = reactions[i]->forwardTypes[1];
+            auto typeBId = reactions[i]->backwardTypes[0];
+			auto diffA = particleTypes[typeAId].diffusionConstant;
+            auto diffB = particleTypes[typeBId].diffusionConstant;
+            auto diffC = particleTypes[typeCId].diffusionConstant;
+            Enzymatic * enz = dynamic_cast<Enzymatic*>(reactions[i].get());
+			enz->configure(maxTime, diffA, diffB, diffC);
         }
 		else if (this->reactions[i]->type == "Fusion") {
 			//this->configureFusion(i); // TODO

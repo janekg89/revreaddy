@@ -34,9 +34,14 @@ double Enzymatic::performForward(std::vector<unsigned long> particleIndices, dou
         }
         /* reaction occurs. substrate's type is changed from forwardTypes[0] to backwardTypes[0] */
         auto pos = world->particles[substrateIndex].position;
-        /* world->setTypeId(substrateIndex, backwardTypes[0]); */
-        world->removeParticleAndIncrements(substrateIndex);
-        world->addParticleAndIncrements(pos, backwardTypes[0], random, maxTime, timestep, diffConst, alpha);
+        if (world->useFractional) {
+            auto alpha = world->alpha;
+            world->removeParticleAndIncrements(substrateIndex);
+            world->addParticleAndIncrements(pos, backwardTypes[0], random, maxTime, timestep, diffB, alpha);
+        }
+        else {
+            world->setTypeId(substrateIndex, backwardTypes[0]);
+        }
     }
     return 1.;
 }
@@ -62,10 +67,11 @@ double Enzymatic::performBackward(std::vector<unsigned long> particleIndices, do
     return 1.;
 }
 
-void Enzymatic::configure(unsigned long inMaxTime, double inDiffConst, double inAlpha) {
+void Enzymatic::configure(unsigned long inMaxTime, double inDiffA, double inDiffB, double inDiffC) {
     this->maxTime = inMaxTime;
-    this->diffConst = inDiffConst;
-    this->alpha = inAlpha;
+    this->diffA = inDiffA;
+    this->diffB = inDiffB;
+    this->diffC = inDiffC;
 }
 
 

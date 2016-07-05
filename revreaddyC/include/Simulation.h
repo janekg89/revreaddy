@@ -19,6 +19,7 @@
 #include "RevReactions.h"
 #include "RevDiffusion.h"
 #include "RevDiffusionRevReactions.h"
+#include "FractionalDiffusion.h"
 #include "logging.h"
 
 class Simulation {

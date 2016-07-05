@@ -12,6 +12,9 @@ Simulation::Simulation(World * inWorld, Config * inConfig, std::string whichImpl
 	else if (whichImpl == "RevDiffusionRevReactions") {
 		this->impl = new RevDiffusionRevReactions(inWorld, inConfig);
 	}
+    else if (whichImpl == "FractionalDiffusion") {
+        this->impl = new FractionalDiffusion(inWorld, inConfig);
+    }
 	else { this->impl = new SimulationImpl(inWorld, inConfig); }
 	LOG_TRACE("Leave Simulation Constructor.")
 }

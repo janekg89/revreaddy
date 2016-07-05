@@ -310,6 +310,14 @@ public:
 	void deleteAllParticles() {
 		this->world->deleteAllParticles();
 	}
+
+	double getAlpha() {
+		return this->world->alpha;
+	}
+
+	void setAlpha(double a) {
+		this->world->alpha = a;
+	}
 };
 
 class SimulationWrap {

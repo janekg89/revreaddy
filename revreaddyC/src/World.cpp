@@ -14,6 +14,8 @@ World::World() {
     this->acceptionsReactions = 0;
     this->rejectionsReactions = 0;
     this->uniqueIdCounter = 0;
+    this->useFractional = false;
+    this->alpha = 1.;
 }
 
 void World::addParticle(std::vector<double> initPos, unsigned particleTypeId) {

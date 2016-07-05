@@ -35,7 +35,7 @@ namespace janek {
         fftw_execute(planforward);
         innew[0] = std::complex<double>(0, 0);
 
-        for (auto idim = 0; idim < dimensions; ++idim) {
+        for (index idim = 0; idim < dimensions; ++idim) {
             //std::cout << idim;
             for (auto i = 0; i < Nextended; ++i) {
                 if (i > 0 and i < N) {
@@ -48,7 +48,7 @@ namespace janek {
             }
             fftw_execute(planbackward);
 
-            for (auto i = 0; i < N; ++i) {
+            for (index i = 0; i < N; ++i) {
                 increments[idim][i] = (-outnew[i].real() + outnew[i + 1].real()) * factor;
             }
         }
