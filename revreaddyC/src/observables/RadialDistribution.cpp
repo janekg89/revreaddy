@@ -5,7 +5,7 @@
 // receive vector<array<unsigned int>> representing a list of tuples
 // these tuples have pairs of particleTypeIds which should be considered
 // in rdf calculation.
-RadialDistribution::RadialDistribution(unsigned long inRecPeriod, unsigned long inClearPeriod, std::vector<double>& range, std::vector< std::array<unsigned, 2> > considered, std::string inFilename) {
+RadialDistribution::RadialDistribution(unsigned long inRecPeriod, unsigned long inClearPeriod, std::vector<double>& range, std::vector< std::array<unsigned, 2> > considered, std::string inFilename, std::vector<unsigned long> recordingRange) {
 	this->recPeriod    = inRecPeriod;
 	this->clearPeriod  = inClearPeriod;
 	this->clearedAutomatically = false;
@@ -30,6 +30,7 @@ RadialDistribution::RadialDistribution(unsigned long inRecPeriod, unsigned long 
 		std::sort(pair.begin(), pair.end());
 	}
 	this->utils = new Utils();
+	recordingRange = recordingRange;
 }
 
 RadialDistribution::~RadialDistribution() {
@@ -46,14 +47,20 @@ void RadialDistribution::configure(World * world, Config * config) {
  * correctly for the current timestep. */
 void RadialDistribution::record(World * world, double t) {
 	double radius = 0.;
-	for (unsigned long i=0; i<world->particles.size(); i++) {
+    double countedAParticles = 0;
+    double numberAllBParticles = 0;
+    for (unsigned long i=0; i<world->particles.size(); i++) {
+        if (isInConsideredA(world->particles[i].typeId)) {
+            ++countedAParticles;
+        }
+        if (isInConsideredB(world->particles[i].typeId)) {
+            ++numberAllBParticles;
+        }
 		for (unsigned long j=0; j<world->particles.size(); j++) {
-			if (this->isInConsidered(
-				world->particles[i].typeId,
-				world->particles[j].typeId)) {
+			if ( this->isInConsidered(world->particles[i].typeId, world->particles[j].typeId) ) {
 				if (i != j) {
 					this->utils->getMinDistanceSquared(
-						radius,
+						radius, // output
 						world->particles[i].position,
 						world->particles[j].position,
 						this->isPeriodic,
@@ -64,9 +71,15 @@ void RadialDistribution::record(World * world, double t) {
 			}
 		}
 	}
+    if (countedAParticles == 0) countedAParticles = 1;
+    if (numberAllBParticles == 0) numberAllBParticles = 1;
 	// copy the hist to 'bins' while scaling every value correctly
 	for (unsigned i=0; i<bins.size(); i++) {
-		bins[i] += gsl_histogram_get(this->radialDistribution, i) / (binCenters[i] * binCenters[i]);
+        //double factor = binCenters[i] * binCenters[i];
+        double innerRadius = rangeOfBins[i];
+        double outerRadius = rangeOfBins[i+1];
+        double shellVolume = 4. * M_PI / 3. * (pow(outerRadius,3) - pow(innerRadius, 3));
+        bins[i] += gsl_histogram_get(this->radialDistribution, i) / shellVolume / countedAParticles / numberAllBParticles;
 	}
 	gsl_histogram_reset(this->radialDistribution);
 }
@@ -102,4 +115,27 @@ void RadialDistribution::writeToDat() {
 		file << bin  << "\t";
 	}
 	file.close();
+}
+
+bool RadialDistribution::isInConsideredA(unsigned particleType) {
+    for (unsigned int k=0; k<consideredPairs.size(); ++k) {
+        if (consideredPairs[k][0] == particleType) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool RadialDistribution::isInConsideredB(unsigned particleType) {
+    for (unsigned int k=0; k<consideredPairs.size(); ++k) {
+        if (consideredPairs[k][1] == particleType) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool RadialDistribution::shallBeRecorded(unsigned long timeIndex) {
+    std::find(recordingRange.begin(), recordingRange.end(), timeIndex) != recordingRange.end();
+	//Observable::shallBeRecorded(timeIndex);
 }

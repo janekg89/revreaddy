@@ -51,6 +51,8 @@ public:
     double radiiSum;
 	bool isPeriodic;
 	double boxsize;
+	unsigned long maxTime;
+	double diffA, diffB, diffC;
 	/* configure() sets the parameters that depend on
 	 * energy functions of particle interactions */
 	void configure(
@@ -62,7 +64,9 @@ public:
 		double inRadiusA,
 		double inRadiusB,
 		bool inIsPeriodic,
-		double inBoxsize);
+		double inBoxsize,
+		double inWeightA,
+		double inWeightB);
 	double performForward(
 		std::vector<unsigned long> particleIndices,
 		double timestep,
@@ -73,6 +77,7 @@ public:
 		double timestep,
 		World * world,
 		Random * random);
+	void configureFractional(unsigned long inMaxTime, double inDiffA, double inDiffB, double inDiffC);
 
 private:
 	/* f(x) = Z^-1 * exp[ -beta * potential( x ) ] */

@@ -31,6 +31,10 @@ public:
 		double timestep,
 		World * world,
 		Random * random);
+	unsigned long maxTime;
+	double diffA;
+	double diffB;
+	void configure(double diffA, double diffB, unsigned long maxTime);
 };
 
 #endif //__CONVERSION_H_INCLUDED__

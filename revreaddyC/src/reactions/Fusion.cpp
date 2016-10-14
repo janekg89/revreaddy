@@ -3,6 +3,7 @@
  * simplify configuration */
 #include "Fusion.h"
 #include <math.h>
+#include <armadillo>
 
 
 Fusion::Fusion(
@@ -37,7 +38,9 @@ void Fusion::configure(
 	double inRadiusA,
 	double inRadiusB,
 	bool inIsPeriodic,
-	double inBoxsize)
+	double inBoxsize,
+	double inWeightA,
+	double inWeightB)
 {
 	this->interactions = inInteractions;
 	//this->inversePartition = inInversePartition;
@@ -46,8 +49,10 @@ void Fusion::configure(
 	this->inverseTemperature = inInverseTemperature;
 	this->radiusA = inRadiusA;
 	this->radiusB = inRadiusB;
-	this->weightA = pow(radiusA, 3.) / (pow(radiusA, 3.)+pow(radiusB, 3.));
-	this->weightB = pow(radiusB, 3.) / (pow(radiusA, 3.)+pow(radiusB, 3.)); 
+	//this->weightA = pow(radiusA, 3.) / (pow(radiusA, 3.)+pow(radiusB, 3.));
+	//this->weightB = pow(radiusB, 3.) / (pow(radiusA, 3.)+pow(radiusB, 3.));
+	weightA = inWeightA;
+	weightB = inWeightB;
 	this->isPeriodic = inIsPeriodic;
 	this->boxsize = inBoxsize;
 	radiiSum = radiusA + radiusB;
@@ -86,23 +91,36 @@ double Fusion::performForward(
 		std::vector<double> position = {0.,0.,0.};
 		position[0] = world->particles[indexI].position[0] + weight * r_ij[0];
 		position[1] = world->particles[indexI].position[1] + weight * r_ij[1]; 
-		position[2] = world->particles[indexI].position[2] + weight * r_ij[2]; 
+		position[2] = world->particles[indexI].position[2] + weight * r_ij[2];
 
-		/* SUPER IMPORTANT: delete the particle with the 
-		 * higher index first or the indexing in particles
-		 * gets mixed up and you delete wrong particles */
-		if ( indexI > indexJ ) {
-			world->removeParticle(indexI);
-			world->removeParticle(indexJ);
+		/* SUPER IMPORTANT: delete the particle with the
+         * higher index first or the indexing in particles
+         * gets mixed up and you delete wrong particles */
+		if (world->useFractional) {
+			auto alpha = world->alpha;
+			if ( indexI > indexJ ) {
+				world->removeParticleAndIncrements(indexI);
+				world->removeParticleAndIncrements(indexJ);
+			}
+			else {
+				world->removeParticleAndIncrements(indexJ);
+				world->removeParticleAndIncrements(indexI);
+			}
+			world->addParticleAndIncrements(position, backwardTypes[0], random, maxTime, timestep, diffC, alpha);
+		} else {
+			if ( indexI > indexJ ) {
+				world->removeParticle(indexI);
+				world->removeParticle(indexJ);
+			}
+			else {
+				world->removeParticle(indexJ);
+				world->removeParticle(indexI);
+			}
+			world->addParticle(position, this->backwardTypes[0]);
 		}
-		else {
-			world->removeParticle(indexJ);
-			world->removeParticle(indexI);
-		}
-		world->addParticle(
-			position,
-			this->backwardTypes[0]);
 		double distance = sqrt(r_ij[0]*r_ij[0]+r_ij[1]*r_ij[1]+r_ij[2]*r_ij[2]);
+        /* increment reaction counter */
+        world->forwardReactionCounter[name]++;
 		/* f(d) is part of the forward proposal probability */
 		return distribution( distance );
 	}
@@ -144,9 +162,18 @@ double Fusion::performBackward(
 		positionB[1] -= this->weightA * distance * orientation[1];
 		positionB[2] -= this->weightA * distance * orientation[2];
 		/* remove C, add A and B */
-		world->removeParticle(index);
-		world->addParticle(positionA, this->forwardTypes[0]);
-		world->addParticle(positionB, this->forwardTypes[1]);
+		if (world->useFractional) {
+			auto alpha = world->alpha;
+			world->removeParticleAndIncrements(index);
+			world->addParticleAndIncrements(positionA, forwardTypes[0], random, maxTime, timestep, diffA, alpha);
+			world->addParticleAndIncrements(positionB, forwardTypes[1], random, maxTime, timestep, diffB, alpha);
+		} else {
+			world->removeParticle(index);
+			world->addParticle(positionA, this->forwardTypes[0]);
+			world->addParticle(positionB, this->forwardTypes[1]);
+		}
+        /* increment reaction counter */
+        world->backwardReactionCounter[name]++;
 		/* 1./f(d) is part of the backward proposal probability */
 		return 1./distribution(distance);
 	}
@@ -177,4 +204,11 @@ double Fusion::randomFromDistribution(Random * random) {
 	}
 	LOG_INFO("uniformFromDistribution left with mean value.")
 	return this->meanDistr;
+}
+
+void Fusion::configureFractional(unsigned long inMaxTime, double inDiffA, double inDiffB, double inDiffC) {
+	this->maxTime = inMaxTime;
+	this->diffA = inDiffA;
+	this->diffB = inDiffB;
+	this->diffC = inDiffC;
 }

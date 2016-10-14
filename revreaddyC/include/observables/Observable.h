@@ -48,6 +48,7 @@ public:
 	virtual void writeToH5();
 	virtual void writeToDat();
 	long int findParticleIndex(std::vector<Particle>& particles, unsigned long long id);
+	virtual bool shallBeRecorded(unsigned long timeIndex);
 
 	// HDF5 stuff
 	/* The following templates create and extend datasets which are extendible in the first dimension.

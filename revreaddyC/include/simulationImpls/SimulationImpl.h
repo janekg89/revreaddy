@@ -60,13 +60,14 @@ public:
 	void deleteAllObservables();
 	void new_Trajectory(unsigned long recPeriod, std::string filename);
 	void new_TrajectoryUnique(unsigned long recPeriod, unsigned long clearPeriod, std::string filename);
-	void new_RadialDistribution(unsigned long recPeriod, std::string filename, std::vector<double> ranges, std::vector< std::array<unsigned,2> > considered);
+	void new_RadialDistribution(unsigned long recPeriod, std::string filename, std::vector<double> ranges, std::vector< std::array<unsigned,2> > considered, std::vector<unsigned long> recordingRange);
 	void new_MeanSquaredDisplacement(unsigned long recPeriod, std::string filename,	unsigned particleTypeId);
 	void new_ProbabilityDensity(unsigned long recPeriod, std::string filename, unsigned pTypeId, std::vector<double> range, unsigned int coord);
 	void new_Energy(unsigned long recPeriod, std::string filename);
 	void new_Acceptance(unsigned long recPeriod, std::string filename, bool reactionsOrDiffusion);
 	void new_ParticleNumbers(unsigned long recPeriod, std::string filename,	unsigned particleTypeId);
 	void new_Increments(unsigned long recPeriod, unsigned long clearPeriod, std::string filename, unsigned particleTypeId);
+	void new_ReactionCounter(unsigned long recPeriod, unsigned long clearPeriod, std::string filename, std::string reactionName);
 
 /* children of SimulationImpl need access to these. How to do that 
  * with private members?*/

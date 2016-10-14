@@ -233,7 +233,12 @@ double Config::getInteractionCutoff(unsigned i) {
 void Config::configureReactions() {
 	for (unsigned i=0; i<this->reactions.size(); ++i) {
 		if (this->reactions[i]->type == "Conversion") {
-			/* Conversion needs no configuration */
+            auto typeAId = reactions[i]->forwardTypes[0];
+            auto typeBId = reactions[i]->backwardTypes[0];
+            auto diffA = particleTypes[typeAId].diffusionConstant;
+            auto diffB = particleTypes[typeBId].diffusionConstant;
+			Conversion * conv = dynamic_cast<Conversion*>(reactions[i].get());
+            conv->configure(diffA, diffB, maxTime);
 		}
         else if (this->reactions[i]->type == "Enzymatic") {
             /* Enzymatic needs diffA, diffB, diffC, maxTime */
@@ -247,7 +252,14 @@ void Config::configureReactions() {
 			enz->configure(maxTime, diffA, diffB, diffC);
         }
 		else if (this->reactions[i]->type == "Fusion") {
-			//this->configureFusion(i); // TODO
+			auto typeAId = reactions[i]->forwardTypes[0];
+			auto typeBId = reactions[i]->forwardTypes[1];
+			auto typeCId = reactions[i]->backwardTypes[0];
+			auto diffA = particleTypes[typeAId].diffusionConstant;
+			auto diffB = particleTypes[typeBId].diffusionConstant;
+			auto diffC = particleTypes[typeCId].diffusionConstant;
+			Fusion * fus = dynamic_cast<Fusion*>(reactions[i].get());
+			fus->configureFractional(maxTime, diffA, diffB, diffC);
 		}
 	}
 }
@@ -339,7 +351,9 @@ void Config::configureFusion(
 	double meanDistr,
 	double inverseTemperature,
 	double radiusA,
-	double radiusB)
+	double radiusB,
+	double weightA,
+	double weightB)
 {
 	std::vector< std::shared_ptr<ParticleInteraction> > consideredInteractions;
 	for (unsigned i=0; i<interactionsIndices.size(); i++) {
@@ -358,8 +372,10 @@ void Config::configureFusion(
 		radiusA,
 		radiusB,
 		this->isPeriodic,
-		this->boxsize);	
-	/* Don't delete fus, since it is uniquely owned by Config. 
+		this->boxsize,
+		weightA,
+		weightB);
+	/* Don't delete fus, since it is uniquely owned by Config.
 	 * The reference was only borrowed to cast it to Fusion 
 	 * and configure it properly */
 }

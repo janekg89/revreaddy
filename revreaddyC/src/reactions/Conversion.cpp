@@ -36,10 +36,15 @@ double Conversion::performForward(
 		position[0] = world->particles[index].position[0];
 		position[1] = world->particles[index].position[1];
 		position[2] = world->particles[index].position[2];
-		world->removeParticle(index);
-		world->addParticle(
-			position,
-			this->backwardTypes[0]);
+		if (world->useFractional) {
+			auto alpha = world->alpha;
+			world->removeParticleAndIncrements(index);
+			world->addParticleAndIncrements(position, backwardTypes[0], random, maxTime, timestep, diffB, alpha);
+			LOG_DEBUG("Sucessfully performed forward Conversion")
+		} else {
+			world->removeParticle(index);
+			world->addParticle(position, this->backwardTypes[0]);
+		}
 		return 1.;
 	}
 	else {/* nothing happens */ return 1.;}
@@ -61,11 +66,22 @@ double Conversion::performBackward(
 		position[0] = world->particles[index].position[0];
 		position[1] = world->particles[index].position[1];
 		position[2] = world->particles[index].position[2];
-		world->removeParticle(index);
-		world->addParticle(
-			position,
-			this->forwardTypes[0]);
+		if (world->useFractional) {
+			auto alpha = world->alpha;
+			world->removeParticleAndIncrements(index);
+			world->addParticleAndIncrements(position, forwardTypes[0], random, maxTime, timestep, diffA, alpha);
+		} else {
+			world->removeParticle(index);
+			world->addParticle(position, this->forwardTypes[0]);
+		}
 		return 1.;
 	}
 	else {/* nothing happens */ return 1.;}
 }
+
+void Conversion::configure(double diffA, double diffB, unsigned long maxTime) {
+	this->diffA = diffA;
+	this->diffB = diffB;
+	this->maxTime = maxTime;
+}
+

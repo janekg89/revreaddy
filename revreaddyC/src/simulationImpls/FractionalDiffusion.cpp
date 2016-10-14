@@ -28,14 +28,19 @@ void FractionalDiffusion::run(const unsigned long maxTime) {
 	this->setupUnimolecularCandidateTypes();
 	this->configureAndSetupObservables();
 
+	LOG_DEBUG("Set up increments 1")
+
 	/* Set up increments */
 	for (auto&& p : world->particles) {
 		double diffConst = config->particleTypes[p.typeId].diffusionConstant;
 		double timestep = config->timestep;
-		double alpha = 0.5;
-		world->increments[p.uniqueId] = janek::generateIncrements(maxTime, diffConst,timestep, alpha , random);//generateIncrements(args, this->random);
+		double alpha = world->alpha;
+		auto inc = janek::generateIncrements(maxTime, diffConst,timestep, alpha , random);
+		//world->increments[p.uniqueId] = inc;
+		world->increments.insert( std::make_pair(p.uniqueId, inc) );
 	    world->incrementsIndex[p.uniqueId] = 0;
 	}
+	LOG_DEBUG("Set up increments 2")
 
 	this->resetForces();
 	this->resetReactionCandidates();
@@ -88,28 +93,26 @@ void FractionalDiffusion::propagateDiffusion() {
 	{
 		// look up particles' diffusion constant from its typeId
 		diffConst = config->particleTypes[world->particles[i].typeId].diffusionConstant;
+		auto uniqueId = world->particles[i].uniqueId;
 
-        /* Change this */
-		boost::multi_array<double,2> incrementsParticle = world->increments.find(i)->second;
+		boost::multi_array<double,2> incrementsParticle = world->increments[uniqueId];
 
-        long int timeIndex = world->incrementsIndex.find(i)->second;
+        long int timeIndex = world->incrementsIndex[uniqueId];
+
+		/*
         boost::array<boost::multi_array<double, 2> ::index,2> idx1 = {{0,timeIndex}};
         boost::array<boost::multi_array<double, 2> ::index,2> idx2 = {{1,timeIndex}};
         boost::array<boost::multi_array<double, 2> ::index,2> idx3 = {{2,timeIndex}};
+		*/
+        //noiseTerm[0]= incrementsParticle(idx1);
+        //noiseTerm[1]= incrementsParticle(idx2);
+        //noiseTerm[2]= incrementsParticle(idx3);
 
-
-
-        noiseTerm[0]= incrementsParticle(idx1);
-        noiseTerm[1]= incrementsParticle(idx2);
-        noiseTerm[2]= incrementsParticle(idx3);
-        /*
 		noiseTerm[0] = incrementsParticle[0][timeIndex];
 		noiseTerm[1] = incrementsParticle[1][timeIndex];
-		noiseTerm[2] = incrementsParticle[2][timeIndex ];
-        */
-        world->incrementsIndex.find(i)->second = (long unsigned int)++timeIndex;
+		noiseTerm[2] = incrementsParticle[2][timeIndex];
 
-
+        ++world->incrementsIndex[uniqueId];
 
         forcePrefactor = config->timestep * diffConst / config->kT;
 		forceTerm[0] = world->particles[i].cumulativeForce[0] * forcePrefactor;

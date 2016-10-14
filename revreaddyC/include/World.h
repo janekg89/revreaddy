@@ -59,10 +59,12 @@ public:
 	void deleteAllParticles();
 
 	/*Fractional stuff*/
+	std::map<std::string, unsigned int> forwardReactionCounter;
+	std::map<std::string, unsigned int> backwardReactionCounter;
 	bool useFractional;
 	double alpha;
-	std::map<unsigned, boost::multi_array<double,2>> increments;
-	std::map<unsigned, size_t> incrementsIndex;
+	std::map<unsigned long long, boost::multi_array<double,2>> increments;
+	std::map<unsigned long long, size_t> incrementsIndex;
 	/* Change addParticle and removeParticle, update increments and incrementsIndex*/
 	// generate new increments
 	void addParticleAndIncrements(std::vector<double> initPos, unsigned particleTypeId, Random * random,

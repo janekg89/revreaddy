@@ -1,6 +1,7 @@
 /* SimulationImpl.cpp
  * author: Christoph Froehner */
 
+#include <observables/ReactionCounter.h>
 #include "SimulationImpl.h"
 
 template<typename T, typename ...Args>
@@ -77,13 +78,14 @@ void SimulationImpl::new_TrajectoryUnique(unsigned long recPeriod, unsigned long
 	this->observables.push_back( std::move(obs) );
 }
 
-void SimulationImpl::new_RadialDistribution(unsigned long recPeriod, std::string filename, std::vector<double> ranges, std::vector< std::array<unsigned,2> > considered) {
+void SimulationImpl::new_RadialDistribution(unsigned long recPeriod, std::string filename, std::vector<double> ranges, std::vector< std::array<unsigned,2> > considered, std::vector<unsigned long> recordingRange) {
 	std::unique_ptr<RadialDistribution> rad = make_unique<RadialDistribution>(
 		recPeriod,
 		0,
 		ranges,
 		considered,
-		filename);
+		filename,
+		recordingRange);
 	this->observables.push_back( std::move(rad) );
 }
 
@@ -130,6 +132,12 @@ void SimulationImpl::new_Acceptance(unsigned long recPeriod, std::string filenam
 		reactionsOrDiffusion);
 	this->observables.push_back( std::move(acc) );
 }
+
+void SimulationImpl::new_ReactionCounter(unsigned long recPeriod, unsigned long clearPeriod, std::string filename, std::string reactionName) {
+	std::unique_ptr<ReactionCounter> counter = make_unique<ReactionCounter>(recPeriod, 0, filename, reactionName);
+	this->observables.push_back( std::move(counter) );
+}
+
 
 void SimulationImpl::new_ParticleNumbers(unsigned long recPeriod, std::string filename,	unsigned particleTypeId) {
 	std::unique_ptr<ParticleNumbers> par = make_unique<ParticleNumbers>(
@@ -417,7 +425,7 @@ double SimulationImpl::propagateReactions() {
 void SimulationImpl::recordObservables(unsigned long timeIndex) {
 	// record the observables if the current timeIndex matches the recording interval
 	for (auto i=0; i<observables.size(); ++i) {
-		if (timeIndex % observables[i]->recPeriod == 0) {
+		if (observables[i]->shallBeRecorded(timeIndex)) {
 			observables[i]->record(world, world->cumulativeRuntime);
 		}
 	}
@@ -741,3 +749,4 @@ void SimulationImpl::configureAndSetupObservables() {
 		this->observables[i]->configure(world, config);
 	}
 }
+

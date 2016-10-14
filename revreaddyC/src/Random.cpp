@@ -32,6 +32,7 @@ unsigned long int Random::getNewSeed() {
 	fclose(devurandom);
 	LOG_INFO("Got seed " << newSeed << " from /dev/urandom.")
 	return newSeed;
+	//return 0;
 }
 
 std::string Random::getType() {

@@ -94,7 +94,9 @@ public:
 		double meanDistr,
 		double inverseTemperature,
 		double radiusA,
-		double radiusB);
+		double radiusB,
+		double weightA,
+		double weightB);
 	void new_Enzymatic(std::string name, unsigned forwardTypeA, unsigned backwardTypeB, unsigned catalystTypeC,
                        double forwardRate, double backwardRate, double reactionDistance );
 	unsigned getNumberReactions();

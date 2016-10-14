@@ -190,14 +190,14 @@ class Sim(object):
     def configure_fusion(self, reaction_index, interaction_indices,
                          # inverse_partition,
                          max_distr,
-                         mean_distr, inverse_temperature, radius_a, radius_b):
+                         mean_distr, inverse_temperature, radius_a, radius_b, weight_a, weight_b):
         interaction_indices = np.array(interaction_indices, dtype=int)
         if len(interaction_indices.shape) != 1:
             raise Exception("Interaction-indices must be a one-dimensional container.")
         self.config.configureFusion(reaction_index, interaction_indices,
                                     #inverse_partition,
                                     max_distr, mean_distr,
-                                    inverse_temperature, radius_a, radius_b)
+                                    inverse_temperature, radius_a, radius_b, weight_a, weight_b)
 
     # wrapped world methods
     def delete_all_particles(self):
@@ -236,11 +236,11 @@ class Sim(object):
         """Register an observable that records the positions and types of particles."""
         self.simulation.new_Trajectory(rec_period, filename)
 
-    def new_trajectory_unique(self, rec_period, clear_period, filename):
+    def new_trajectory_unique(self, rec_period, filename, clear_period=0):
         """Register an observable that records trajectory of particles via uniqueIds."""
         self.simulation.new_TrajectoryUnique(rec_period, clear_period, filename)
 
-    def new_radial_distribution(self, rec_period, filename, ranges, considered):
+    def new_radial_distribution(self, recordingRange, filename, ranges, considered):
         """
         Register an observable that calculates the radial distribution function.
 
@@ -258,7 +258,7 @@ class Sim(object):
         considered = np.array(considered, dtype=int)
         if (len(considered.shape) != 2) | (considered.shape[1] != 2):
             raise Exception("Considered types must have a shape of (n,2).")
-        self.simulation.new_RadialDistribution(rec_period, filename, ranges, considered)
+        self.simulation.new_RadialDistribution(1, filename, ranges, considered, recordingRange)
 
     def new_mean_squared_displacement(self, rec_period, filename, particle_type_id):
         """
@@ -315,7 +315,7 @@ class Sim(object):
         """Register an observable that records the number of particles."""
         self.simulation.new_ParticleNumbers(rec_period, filename, particle_type_id)
 
-    def new_increments(self, rec_period, clear_period, filename, particle_type_id):
+    def new_increments(self, rec_period, filename, particle_type_id, clear_period=0):
         """
         Register an observable that calculates the displacements of particles.
 
@@ -324,6 +324,9 @@ class Sim(object):
 
         """
         self.simulation.new_Increments(rec_period, clear_period, filename, particle_type_id)
+
+    def new_reaction_counter(self, rec_period, filename, reaction_name):
+        self.simulation.new_ReactionCounter(rec_period, filename, reaction_name)
 
     # derived methods
     def show_config(self):
@@ -444,6 +447,15 @@ class Sim(object):
             print(" ")
         else:
             logging.info("There are either no particles or too much (>200) to list them here.")
+
+    def get_particle_positions_for_type(self, type_id):
+        num_particles = self.world.getNumberOfParticles()
+        result = []
+        for i in range(num_particles):
+            if self.world.getTypeId(i) == type_id:
+                pos = self.world.getPosition(i)
+                result.append(pos)
+        return np.array(result)
 
     def show_simulation(self):
         pass

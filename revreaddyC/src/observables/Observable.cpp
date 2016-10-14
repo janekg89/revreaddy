@@ -104,3 +104,7 @@ void  Observable::writeToExtended(std::vector<unsigned long>& arr, H5::DataSet& 
 void  Observable::writeToExtended(std::vector<unsigned long long>& arr, H5::DataSet& dset, H5::DataSpace& mspace, H5::DataSpace& fspace) {
 	dset.write(arr.data(), H5::PredType::NATIVE_ULLONG, mspace, fspace);
 }
+
+bool Observable::shallBeRecorded(unsigned long timeIndex) {
+	return timeIndex % this->recPeriod == 0;
+}

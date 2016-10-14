@@ -83,7 +83,8 @@ void World::addParticleAndIncrements(std::vector<double> initPos, unsigned parti
     addParticle(initPos, particleTypeId);
     auto uid = this->particles.back().uniqueId;
     /*how to get variables*/
-    increments[uid] = janek::generateIncrements(maxTime, diffConst, timestep, alpha, random);
+    auto inc = janek::generateIncrements(maxTime, diffConst, timestep, alpha, random);
+    increments.insert(std::make_pair(uid, inc));
     incrementsIndex[uid] = 0;
 }
 

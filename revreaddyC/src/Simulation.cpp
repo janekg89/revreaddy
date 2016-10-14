@@ -36,8 +36,8 @@ void Simulation::new_Trajectory(unsigned long recPeriod, std::string filename) {
 void Simulation::new_TrajectoryUnique(unsigned long recPeriod, unsigned long clearPeriod, std::string filename) {
 	impl->new_TrajectoryUnique(recPeriod, clearPeriod, filename);
 }
-void Simulation::new_RadialDistribution(unsigned long recPeriod, std::string filename, std::vector<double> ranges, std::vector< std::array<unsigned,2> > considered) {
-	impl->new_RadialDistribution(recPeriod, filename, ranges, considered);
+void Simulation::new_RadialDistribution(unsigned long recPeriod, std::string filename, std::vector<double> ranges, std::vector< std::array<unsigned,2> > considered, std::vector<unsigned long> recordingRange) {
+	impl->new_RadialDistribution(recPeriod, filename, ranges, considered, recordingRange);
 }
 void Simulation::new_MeanSquaredDisplacement(unsigned long recPeriod, std::string filename,	unsigned particleTypeId) {
 	impl->new_MeanSquaredDisplacement(recPeriod, filename, particleTypeId);
@@ -56,5 +56,9 @@ void Simulation::new_ParticleNumbers(unsigned long recPeriod, std::string filena
 void Simulation::new_Increments(unsigned long recPeriod, unsigned long clearPeriod, std::string filename,
 								unsigned particleTypeId) {
 	impl->new_Increments(recPeriod, clearPeriod, filename, particleTypeId);
+}
+
+void Simulation::new_ReactionCounter(unsigned long recPeriod, std::string filename, std::string reactionName) {
+	impl->new_ReactionCounter(recPeriod, 0, filename, reactionName);
 }
 

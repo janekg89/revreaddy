@@ -17,7 +17,7 @@ find_package(ZLIB REQUIRED)
 find_package(PythonInterp REQUIRED)
 find_package(PythonLibs REQUIRED)
 find_package(Boost COMPONENTS python log filesystem system REQUIRED)
-find_package(HDF5 COMPONENTS C CXX HL)
+find_package(HDF5 COMPONENTS CXX HL)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 find_package(FFTW3)

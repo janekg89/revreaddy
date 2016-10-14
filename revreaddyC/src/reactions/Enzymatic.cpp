@@ -38,10 +38,12 @@ double Enzymatic::performForward(std::vector<unsigned long> particleIndices, dou
             auto alpha = world->alpha;
             world->removeParticleAndIncrements(substrateIndex);
             world->addParticleAndIncrements(pos, backwardTypes[0], random, maxTime, timestep, diffB, alpha);
+        } else {
+            world->removeParticle(substrateIndex);
+            world->addParticle(pos, backwardTypes[0]);
         }
-        else {
-            world->setTypeId(substrateIndex, backwardTypes[0]);
-        }
+        /* increment reaction counter */
+        world->forwardReactionCounter[name]++;
     }
     return 1.;
 }
@@ -61,8 +63,17 @@ double Enzymatic::performBackward(std::vector<unsigned long> particleIndices, do
                                     "Neither of participants has the right type");
         }
         /* reaction occurs, particle i's type is changed to forwardTypes[0] */
-        // TODO
-        world->setTypeId(substrateIndex, forwardTypes[0]);
+        auto pos = world->particles[substrateIndex].position;
+        if (world->useFractional) {
+            auto alpha = world->alpha;
+            world->removeParticleAndIncrements(substrateIndex);
+            world->addParticleAndIncrements(pos, forwardTypes[0], random, maxTime, timestep, diffA, alpha);
+        } else {
+            world->removeParticle(substrateIndex);
+            world->addParticle(pos, forwardTypes[0]);
+        }
+        /* increment reaction counter */
+        world->backwardReactionCounter[name]++;
     }
     return 1.;
 }

@@ -40,3 +40,6 @@ bin/*
 # sublime resources
 *.sublime-project
 *.sublime-workspace
+
+# python schmutz
+*.pyc

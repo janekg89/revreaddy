@@ -18,7 +18,7 @@ target_include_directories(${REVREADDY_C_LIBRARY_NAME} PUBLIC
 )
 target_compile_definitions(${REVREADDY_C_LIBRARY_NAME} PUBLIC -DBOOST_LOG_DYN_LINK)
 
-target_link_libraries(${REVREADDY_C_LIBRARY_NAME} ${Boost_woPython_LIBRARIES} gsl gslcblas m ${HDF5_LIBRARIES} ${FFTW3_LIBRARIES})
+target_link_libraries(${REVREADDY_C_LIBRARY_NAME} ${Boost_woPython_LIBRARIES} gsl gslcblas m ${HDF5_LIBRARIES} ${HDF5_HL_LIBRARIES} ${FFTW3_LIBRARIES})
 
 # set logging defines
 set(REVREADDY_LOGGING_SEVERITY __INFO__ CACHE STRING "The logging level")

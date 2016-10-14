@@ -187,7 +187,7 @@ public:
 	// TODO this is WIP as long as Fusion is configured manually
 	void configureFusion(unsigned reactionIndex, bp::numeric::array interactionsIndices,
 						 //double inversePartition,
-						 double maxDistr, double meanDistr, double inverseTemperature, double radiusA, double radiusB) {
+						 double maxDistr, double meanDistr, double inverseTemperature, double radiusA, double radiusB, double weightA, double weightB) {
 		std::vector<unsigned> interactionsIndicesConverted;
 		try {
 			for (unsigned i=0; i<bp::len(interactionsIndices); ++i) {
@@ -197,10 +197,11 @@ public:
 			LOG_ERROR("Exception in accessing bp::numeric::array in configureFusion.")
 			LOG_INFO("Fusion is not configured.")
 			return;
+
 		}
 		this->config->configureFusion(reactionIndex, interactionsIndicesConverted,
                                       //inversePartition,
-                                      maxDistr, meanDistr, inverseTemperature, radiusA, radiusB);
+                                      maxDistr, meanDistr, inverseTemperature, radiusA, radiusB, weightA, weightB);
 	}
 	unsigned getNumberReactions() {
 		return this->config->getNumberReactions();
@@ -367,9 +368,10 @@ public:
 		this->simulation->new_TrajectoryUnique(recPeriod, clearPeriod, filename);
 	}
 
-	void new_RadialDistribution(unsigned long recPeriod, std::string filename, bp::numeric::array ranges, bp::numeric::array considered) {
+	void new_RadialDistribution(unsigned long recPeriod, std::string filename, bp::numeric::array ranges, bp::numeric::array considered, bp::numeric::array recordingRange) {
 		std::vector<double> rangesConverted;
 		std::vector< std::array<unsigned,2> > consideredConverted;
+		std::vector<unsigned long> recordingRangeConverted;
 		try {
 			for (unsigned i=0; i<bp::len(ranges); ++i) {
 				rangesConverted.push_back( bp::extract<double>(ranges[i]) );
@@ -382,11 +384,15 @@ public:
 				consideredTuple[1] = bp::extract<unsigned>(considered[i][1]);
 				consideredConverted.push_back(consideredTuple);
 			}
+			for (unsigned i=0; i<bp::len(recordingRange); ++i) {
+				unsigned long entry = bp::extract<unsigned long>(recordingRange[i]);
+				recordingRangeConverted.push_back(entry);
+			}
 		} catch (...) {
 			LOG_ERROR("Exception in accessing bp::numeric::array new_RadialDistribution.")
-			LOG_INFO("RadialDistribution geometry is not added.")
+			LOG_INFO("RadialDistribution is not added.")
 		}
-		this->simulation->new_RadialDistribution(recPeriod, filename, rangesConverted, consideredConverted);
+		this->simulation->new_RadialDistribution(recPeriod, filename, rangesConverted, consideredConverted, recordingRangeConverted);
 	}
 
 	void new_MeanSquaredDisplacement(unsigned long recPeriod, std::string filename,	unsigned particleTypeId) {
@@ -401,7 +407,7 @@ public:
 			}
 		} catch (...) {
 			LOG_ERROR("Exception in accessing bp::numeric::array new_ProbabilityDensity.")
-			LOG_INFO("RadialDistribution geometry is not added.")
+			LOG_INFO("ProbabilityDensity is not added.")
 		}
 		this->simulation->new_ProbabilityDensity(recPeriod, filename, pTypeId, rangeConverted, coord);
 	}
@@ -412,6 +418,10 @@ public:
 
 	void new_Acceptance(unsigned long recPeriod, std::string filename, bool reactionsOrDiffusion) {
 		this->simulation->new_Acceptance(recPeriod, filename, reactionsOrDiffusion);
+	}
+
+	void new_ReactionCounter(unsigned long recPeriod, std::string filename, std::string reactionCounter) {
+		this->simulation->new_ReactionCounter(recPeriod, filename, reactionCounter);
 	}
 
 	void new_ParticleNumbers(unsigned long recPeriod, std::string filename,	unsigned particleTypeId) {
@@ -437,7 +447,9 @@ BOOST_PYTHON_MODULE(revreaddyPy) {
 		.def("getTypeId", &WorldWrap::getTypeId)
 		.def("setTypeId", &WorldWrap::setTypeId)
 		.def("getUniqueId", &WorldWrap::getUniqueId)
-		.def("deleteAllParticles", &WorldWrap::deleteAllParticles);
+		.def("deleteAllParticles", &WorldWrap::deleteAllParticles)
+        .def("getAlpha", &WorldWrap::getAlpha)
+        .def("setAlpha", &WorldWrap::setAlpha);
 	class_<ConfigWrap>("Config", init<>())
 		.def("getTimestep", &ConfigWrap::getTimestep)
 		.def("setTimestep", &ConfigWrap::setTimestep)
@@ -495,5 +507,6 @@ BOOST_PYTHON_MODULE(revreaddyPy) {
 		.def("new_Energy", &SimulationWrap::new_Energy)
 		.def("new_Acceptance", &SimulationWrap::new_Acceptance)
 		.def("new_ParticleNumbers", &SimulationWrap::new_ParticleNumbers)
-        .def("new_Increments", &SimulationWrap::new_Increments);
+        .def("new_Increments", &SimulationWrap::new_Increments)
+		.def("new_ReactionCounter", &SimulationWrap::new_ReactionCounter);
 };
