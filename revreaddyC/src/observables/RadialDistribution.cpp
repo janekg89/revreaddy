@@ -5,7 +5,7 @@
 // receive vector<array<unsigned int>> representing a list of tuples
 // these tuples have pairs of particleTypeIds which should be considered
 // in rdf calculation.
-RadialDistribution::RadialDistribution(unsigned long inRecPeriod, unsigned long inClearPeriod, std::vector<double>& range, std::vector< std::array<unsigned, 2> > considered, std::string inFilename, std::vector<unsigned long> recordingRange) {
+RadialDistribution::RadialDistribution(unsigned long inRecPeriod, unsigned long inClearPeriod, std::vector<double>& range, std::vector< std::array<unsigned, 2> > considered, std::string inFilename, std::vector<unsigned long> inRecordingRange) {
 	this->recPeriod    = inRecPeriod;
 	this->clearPeriod  = inClearPeriod;
 	this->clearedAutomatically = false;
@@ -30,7 +30,10 @@ RadialDistribution::RadialDistribution(unsigned long inRecPeriod, unsigned long 
 		std::sort(pair.begin(), pair.end());
 	}
 	this->utils = new Utils();
-	recordingRange = recordingRange;
+    this->recordingRange = inRecordingRange;
+    if (recordingRange.size() > 0) {
+        Observable::rangeBasedRecording = true;
+    }
 }
 
 RadialDistribution::~RadialDistribution() {
@@ -78,8 +81,8 @@ void RadialDistribution::record(World * world, double t) {
         //double factor = binCenters[i] * binCenters[i];
         double innerRadius = rangeOfBins[i];
         double outerRadius = rangeOfBins[i+1];
-        double shellVolume = 4. * M_PI / 3. * (pow(outerRadius,3) - pow(innerRadius, 3));
-        bins[i] += gsl_histogram_get(this->radialDistribution, i) / shellVolume / countedAParticles / numberAllBParticles;
+        double shellVolume = 4. * M_PI  * (pow(outerRadius,3) - pow(innerRadius, 3))/3.0;
+        bins[i] += gsl_histogram_get(this->radialDistribution, i) / shellVolume / countedAParticles/ numberAllBParticles;
 	}
 	gsl_histogram_reset(this->radialDistribution);
 }
@@ -88,6 +91,7 @@ void RadialDistribution::record(World * world, double t) {
  * depends on the order of a and b. So you can only look at the
  * RDF from particle a to b solely. */
 bool RadialDistribution::isInConsidered(unsigned a, unsigned b) {
+    
 	for (unsigned int k=0; k<this->consideredPairs.size(); k++) {
 		if (this->consideredPairs[k][0] == a) {
 			if (this->consideredPairs[k][1] == b) {
@@ -136,6 +140,9 @@ bool RadialDistribution::isInConsideredB(unsigned particleType) {
 }
 
 bool RadialDistribution::shallBeRecorded(unsigned long timeIndex) {
-    std::find(recordingRange.begin(), recordingRange.end(), timeIndex) != recordingRange.end();
-	//Observable::shallBeRecorded(timeIndex);
+    if (!rangeBasedRecording) {
+        return timeIndex % this->recPeriod == 0;
+    } else {
+        return (std::find(recordingRange.begin(), recordingRange.end(), timeIndex) != recordingRange.end());
+    }
 }

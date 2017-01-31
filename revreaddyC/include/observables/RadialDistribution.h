@@ -30,7 +30,7 @@ public:
     virtual bool shallBeRecorded(unsigned long timeIndex) override;
 
 	// TODO check if sorted is sensible if isInConsidered() does care about explicit order
-	RadialDistribution(unsigned long inRecPeriod, unsigned long inClearPeriod, std::vector<double>& range, std::vector< std::array<unsigned, 2> > considered, std::string inFilename, std::vector<unsigned long> recordingRange);
+	RadialDistribution(unsigned long inRecPeriod, unsigned long inClearPeriod, std::vector<double>& range, std::vector< std::array<unsigned, 2> > considered, std::string inFilename, std::vector<unsigned long> inRecordingRange);
 	~RadialDistribution();
 
 private:
@@ -54,7 +54,6 @@ private:
 	Utils * utils;
     bool isInConsideredA(unsigned particleType);
     bool isInConsideredB(unsigned particleType);
-    std::vector<unsigned long> recordingRange;
 };
 
 #endif // __RADIALDISTRIBUTION_H_INCLUDED__

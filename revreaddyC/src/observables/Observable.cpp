@@ -2,7 +2,7 @@
 
 #include "Observable.h"
 
-Observable::Observable() {}
+Observable::Observable() : rangeBasedRecording(false) {}
 
 Observable::~Observable() {}
 

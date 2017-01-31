@@ -27,7 +27,10 @@ public:
 	// some observables require setup that may only happen once in contrast to configure
 	bool isSetup;
 	// number of timesteps between two record() calls
-	unsigned long int recPeriod; 
+	unsigned long int recPeriod;
+    // define if observable shall be recorded using range
+    bool rangeBasedRecording;
+    std::vector<unsigned long> recordingRange;
 	// number of timesteps between two writeToFile() calls
 	unsigned long int clearPeriod; 
 	std::string filename;
